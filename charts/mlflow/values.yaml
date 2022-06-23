@@ -119,6 +119,15 @@ extraArgs: {}
 # Additional command line options for waitress-serve.
   # waitressOpts: TEXT
 
+# -- A list of flags to pass to `mlflow server` command
+# Items must be camelcase. Helm will turn them to kebabcase style.
+extraFlags: []
+# If specified, enables serving of artifact uploads, downloads, and list requests by routing these requests 
+# to the storage location that is specified by ‘–artifact-destination’ directly through a proxy.
+  # serveArtifacts
+# If specified, configures the mlflow server to be used only for proxied artifact serving.
+  # artifactsOnly
+
 # -- Extra environment variables
 extraEnvVars: {}
   # MLFLOW_S3_IGNORE_TLS: true

@@ -182,6 +182,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | backendStore.postgres.port | int | `5432` | Postgres service port |
 | backendStore.postgres.user | string | `""` | postgres database user name which can access to mlflow database |
 | extraArgs | object | `{}` | A map of arguments and values to pass to the `mlflow server` command Keys must be camelcase. Helm will turn them to kebabcase style. |
+| extraFlags | list | `[]` | A list of flags to pass to `mlflow server` command Items must be camelcase. Helm will turn them to kebabcase style. |
 | extraContainers | list | `[]` | Extra containers for the mlflow pod |
 | extraEnvVars | object | `{}` | Extra environment variables |
 | extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
