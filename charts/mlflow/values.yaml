@@ -122,7 +122,7 @@ extraArgs: {}
 # -- A list of flags to pass to `mlflow server` command
 # Items must be camelcase. Helm will turn them to kebabcase style.
 extraFlags: []
-# If specified, enables serving of artifact uploads, downloads, and list requests by routing these requests 
+# If specified, enables serving of artifact uploads, downloads, and list requests by routing these requests
 # to the storage location that is specified by ‘–artifact-destination’ directly through a proxy.
   # serveArtifacts
 # If specified, configures the mlflow server to be used only for proxied artifact serving.
@@ -189,7 +189,7 @@ serviceMonitor:
   # -- Set labels for the ServiceMonitor, use this to define your scrape label for Prometheus Operator
   labels:
     # -- default `kube prometheus stack` helm chart serviceMonitor selector label
-    # Mostly it's your prometheus helm release name. Please find more information from here: 
+    # Mostly it's your prometheus helm release name. Please find more information from here:
     # https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/troubleshooting.md#troubleshooting-servicemonitor-changes
     release: prometheus
   # -- Set timeout for scrape
