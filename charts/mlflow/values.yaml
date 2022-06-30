@@ -104,7 +104,7 @@ artifactRoot:
     enabled: false
     # -- Google Cloud Storage bucket name
     bucket: "" # required
-     # -- Google Cloud Storage bucket folder. If you want to use root level, please don't set anything.
+    # -- Google Cloud Storage bucket folder. If you want to use root level, please don't set anything.
     path: "" # optional
 
 # -- A map of arguments and values to pass to the `mlflow server` command
