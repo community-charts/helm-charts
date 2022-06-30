@@ -169,7 +169,7 @@ server:
     ##
     # DRONE_GITEE_CLIENT_ID:
     # DRONE_GITEE_CLIENT_SECRET:
-    # 
+    #
 
     ## Gitea-specific variables. See the provider docs here:
     ## Ref: https://docs.drone.io/server/provider/gitea/
@@ -257,7 +257,7 @@ server:
 kubeRunner:
   # -- Specifies whether a kube runner should be created
   enabled: true
-  
+
   # -- (int) Numbers of runner replicas
   # For small or experimental deployments of the Kubernetes runner, 1 replica will suffice.
   # For production cases, 2-3 are recommended. This does not grant additional parallelism,
@@ -285,7 +285,7 @@ kubeRunner:
   podAnnotations: {}
     # prometheus.io/scrape: "true"
     # prometheus.io/port: "80"
-  
+
   # -- When the runner receives a SIGTERM/SIGINT (config update, upgrade, etc), it will wait until
   # all jobs that particular pod has spawned complete. It is for this reason that you'll want
   # to make sure that this value is longer than your longest job.
