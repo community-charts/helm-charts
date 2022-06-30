@@ -5,7 +5,7 @@ icon: https://raw.githubusercontent.com/kserve/artwork/main/icon/color/k-serve-i
 
 type: application
 
-version: 0.0.2
+version: 1.0.0
 appVersion: "v0.8.0"
 
 home: https://kserve.github.io/website/
@@ -31,7 +31,7 @@ annotations:
       url: http://github.com/kserve/kserve
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |
-    - Add copy of initial helm chart
+    - Add cert manager as a dependency
   artifacthub.io/license: Apache-2.0
   artifacthub.io/maintainers: |
     - name: burakince
@@ -39,4 +39,9 @@ annotations:
   artifacthub.io/operator: "false"
   artifacthub.io/prerelease: "false"
 
-dependencies: []
+dependencies:
+  - name: cert-manager
+    version: ">=1.5.0"
+    repository: https://charts.jetstack.io
+    alias: cert-manager
+    condition: cert-manager.enabled

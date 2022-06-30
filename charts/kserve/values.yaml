@@ -75,3 +75,6 @@ kserve:
     aix:
       image: kserve/aix-explainer
       defaultVersion: v0.8.0
+
+certManager:
+  enabled: true
