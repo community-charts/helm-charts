@@ -5,13 +5,13 @@ icon: https://raw.githubusercontent.com/kserve/artwork/main/icon/color/k-serve-i
 
 type: application
 
-version: 0.0.1
+version: 0.0.2
 appVersion: "v0.8.0"
 
 home: https://kserve.github.io/website/
 
 maintainers:
-  - name: Burak Ince
+  - name: burakince
     email: burak.ince@linux.org.tr
     url: https://www.burakince.net
 
