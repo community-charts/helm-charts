@@ -29,7 +29,7 @@ kubeVersion: ">=1.16.0-0"
 home: https://mlflow.org
 
 maintainers:
-  - name: Burak Ince
+  - name: burakince
     email: burak.ince@linux.org.tr
     url: https://www.burakince.net
 

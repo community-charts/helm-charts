@@ -34,7 +34,7 @@ annotations:
     - Add copy of initial helm chart
   artifacthub.io/license: Apache-2.0
   artifacthub.io/maintainers: |
-    - name: Burak Ince
+    - name: burakince
       email: burak.ince@linux.org.tr
   artifacthub.io/operator: "false"
   artifacthub.io/prerelease: "false"
