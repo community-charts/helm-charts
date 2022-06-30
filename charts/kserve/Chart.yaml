@@ -1,4 +1,4 @@
-apiVersion: v1
+apiVersion: v2
 name: kserve
 description: Helm chart for KServe Serverless Inferencing on Kubernetes
 icon: https://raw.githubusercontent.com/kserve/artwork/main/icon/color/k-serve-icon-color.png
