@@ -210,6 +210,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | securityContext | object | `{}` | Security context for the mlflow container |
 | service.port | int | `5000` | Default Service port |
 | service.type | string | `"ClusterIP"` | Specifies what type of Service should be created |
+| service.annotations | object | `{}` | Additional service annotations |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account. AWS EKS users can assign role arn from here. |
 | serviceAccount.create | bool | `true` | Specifies whether a ServiceAccount should be created |
 | serviceAccount.name | string | `""` | The name of the ServiceAccount to use. If not set and create is true, a name is generated using the fullname template |

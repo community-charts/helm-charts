@@ -56,6 +56,8 @@ service:
   type: ClusterIP
   # -- Default Service port
   port: 5000
+  # -- Additional service annotations
+  annotations: {}
 
 backendStore:
   # -- Specifies if you want to run database migration
