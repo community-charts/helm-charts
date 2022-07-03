@@ -1,0 +1,28 @@
+should match snapshot of default values:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        test-key: test-value
+      labels:
+        app: drone-runner
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: runner-drone
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: drone-1.0.0
+        version: 1.0.0
+      name: runner-RELEASE-NAME-drone
+      namespace: NAMESPACE
+    spec:
+      ports:
+      - name: http
+        port: 3000
+        protocol: TCP
+        targetPort: http
+      selector:
+        app: drone-runner
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/name: runner-drone
+      type: ClusterIP
