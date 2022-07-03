@@ -1,6 +1,6 @@
 suite: test drone server ingress
 templates:
-  -server-ingress.yaml
+  - server-ingress.yaml
 tests:
   - it: should be empty if ingress is not enabled
     asserts:
