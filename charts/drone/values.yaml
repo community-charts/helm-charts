@@ -57,6 +57,8 @@ server:
     type: ClusterIP
     # -- Default drone server Service port
     port: 80
+    # -- Additional drone server service annotations
+    annotations: {}
 
   ingress:
     # -- Specifies if you want to create an ingress access to drone server
@@ -309,6 +311,8 @@ kubeRunner:
     type: ClusterIP
     # -- Default kube runner Service port
     port: 3000
+    # -- Additional kube runner service annotations
+    annotations: {}
 
   ingress:
     # -- Specifies if you want to create an ingress access to kube runner

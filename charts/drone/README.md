@@ -117,6 +117,7 @@ helm upgrade [RELEASE_NAME] community-charts/drone
 | kubeRunner.replicaCount | int | `1` | Numbers of runner replicas For small or experimental deployments of the Kubernetes runner, 1 replica will suffice. For production cases, 2-3 are recommended. This does not grant additional parallelism, but does ensure that upgrades, config changes, and disruptions are handled more gracefully. |
 | kubeRunner.resources | object | `{}` | Set the kube runner resources requests and limits |
 | kubeRunner.securityContext | object | `{}` | Security context for the kube runner container |
+| kubeRunner.service.annotations | object | `{}` | Additional kube runner service annotations |
 | kubeRunner.service.port | int | `3000` | Default kube runner Service port |
 | kubeRunner.service.type | string | `"ClusterIP"` | Specifies what type of kube runner Service should be created |
 | kubeRunner.serviceAccount.annotations | object | `{}` | Annotations to add to the kube runner service account |
@@ -159,6 +160,7 @@ helm upgrade [RELEASE_NAME] community-charts/drone
 | server.resources | object | `{}` | Set the drone server resources requests and limits |
 | server.secrets | object | `{}` | Drone server secrets |
 | server.securityContext | object | `{}` | Security context for the drone server container |
+| server.service.annotations | object | `{}` | Additional drone server service annotations |
 | server.service.port | int | `80` | Default drone server Service port |
 | server.service.type | string | `"ClusterIP"` | Specifies what type of drone server Service should be created |
 | server.serviceAccount.annotations | object | `{}` | Annotations to add to the drone server service account. |
