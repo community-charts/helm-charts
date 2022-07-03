@@ -56,11 +56,11 @@ jobs:
           ./ah lint -p charts/drone || exit 1
           rm -f ./ah
 
-      # - name: install helm unittest plugin
-      #   if: steps.list-changed.outputs.changed == 'true'
-      #   run: |
-      #     helm env
-      #     helm plugin install https://github.com/quintush/helm-unittest.git --version 0.2.8
+      - name: install helm unittest plugin
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          helm env
+          helm plugin install https://github.com/quintush/helm-unittest.git --version 0.2.8
 
       - name: Run chart-testing (lint)
         run: ct lint --debug --config ./.github/configs/ct-lint.yaml --lint-conf ./.github/configs/lintconf.yaml
