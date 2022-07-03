@@ -58,7 +58,7 @@ annotations:
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |
-    - Add ingress unit tests.
+    - Add ingress unit tests
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:1.27.0.3
