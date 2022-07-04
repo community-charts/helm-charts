@@ -1,0 +1,25 @@
+suite: test job
+
+templates:
+  - job.yaml
+
+tests:
+  - it: should be empty when postgres or databaseMigration is not enabled
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should have migration job when postgres and databaseMigration are enabled
+    set:
+      backendStore.postgres.enabled: true
+      backendStore.postgres.host: postgres-service
+      backendStore.postgres.port: 5432
+      backendStore.postgres.database: postgres
+      backendStore.databaseMigration: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Job
+      - isAPIVersion:
+          of: batch/v1

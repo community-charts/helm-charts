@@ -1,4 +1,4 @@
-{{- if .Values.backendStore.postgres.enabled }}
+{{- if and .Values.backendStore.postgres.enabled .Values.backendStore.databaseMigration }}
 apiVersion: batch/v1
 kind: Job
 metadata:

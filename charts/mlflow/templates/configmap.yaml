@@ -14,7 +14,7 @@ data:
   PGDATABASE: {{ required "postgres database must be specified" .Values.backendStore.postgres.database }}
 {{- end }}
 ---
-{{- if .Values.backendStore.postgres.enabled }}
+{{- if and .Values.backendStore.postgres.enabled .Values.backendStore.databaseMigration }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
