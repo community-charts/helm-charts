@@ -1,0 +1,90 @@
+should match snapshot of default values:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
+      name: mlflow
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: mlflow
+          app.kubernetes.io/instance: mlflow
+          app.kubernetes.io/name: mlflow
+      template:
+        metadata:
+          annotations:
+            test-key: test-value
+          labels:
+            app: mlflow
+            app.kubernetes.io/instance: mlflow
+            app.kubernetes.io/name: mlflow
+        spec:
+          containers:
+          - args:
+            - server
+            - --host=0.0.0.0
+            - --port=5000
+            - --backend-store-uri=sqlite:///:memory
+            - --default-artifact-root=./mlruns
+            command:
+            - mlflow
+            env:
+            - name: MLFLOW_VERSION
+              value: 1.0.0
+            envFrom:
+            - configMapRef:
+                name: mlflow-env-configmap
+            - secretRef:
+                name: mlflow-env-secret
+            image: burakince/mlflow:1.0.0
+            imagePullPolicy: IfNotPresent
+            livenessProbe:
+              httpGet:
+                path: /
+                port: 5000
+            name: mlflow
+            ports:
+            - containerPort: 5000
+              name: http
+              protocol: TCP
+            readinessProbe:
+              httpGet:
+                path: /
+                port: 5000
+            resources:
+              limits:
+                cpu: 100m
+                memory: 128Mi
+              requests:
+                cpu: 100m
+                memory: 128Mi
+            securityContext:
+              runAsNonRoot: true
+              runAsUser: 1000
+            volumeMounts:
+            - mountPath: /mlflow/data
+              name: mlflow-volume
+            - mountPath: /example
+              name: example
+          initContainers:
+          - image: busybox:1.28
+            name: init-myservice
+          securityContext:
+            fsGroup: 2000
+          serviceAccountName: mlflow
+          volumes:
+          - name: mlflow-volume
+            persistentVolumeClaim:
+              claimName: mlflow-pv-volume
+          - configMap:
+              name: example
+            name: example

@@ -1,0 +1,129 @@
+suite: test deployment
+
+templates:
+  - deployment.yaml
+
+tests:
+  - it: should be memory backended when postgres is not enabled
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[3]
+          value: --backend-store-uri=sqlite:///:memory
+
+  - it: should be postgres backended when postgres is enabled
+    set:
+      backendStore.postgres.enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[3]
+          value: --backend-store-uri=postgresql://
+
+  - it: should be local folder as an artifact root when azureBlob or s3 or gcs is not enabled
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[4]
+          value: --default-artifact-root=./mlruns
+
+  - it: should be azureBlob as an artifact root when azureBlob is enabled
+    set:
+      artifactRoot.azureBlob.enabled: true
+      artifactRoot.azureBlob.container: test-container
+      artifactRoot.azureBlob.storageAccount: test-account
+      artifactRoot.azureBlob.path: mlflow_folder
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[4]
+          value: --default-artifact-root=wasbs://test-container@test-account.blob.core.windows.net/mlflow_folder
+
+  - it: should be s3 as an artifact root when s3 is enabled
+    set:
+      artifactRoot.s3.enabled: true
+      artifactRoot.s3.bucket: test-bucket
+      artifactRoot.s3.path: mlflow_folder
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[4]
+          value: --default-artifact-root=s3://test-bucket/mlflow_folder
+
+  - it: should expose prometheus metrics when serviceMonitor is enabled
+    set:
+      serviceMonitor.enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[5]
+          value: --expose-prometheus=/mlflow/metrics
+
+  - it: should show extra arguments when we pass any
+    set:
+      extraArgs:
+        workers: "4"
+        staticPrefix: "mlflow"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[6]
+          value: --workers=4
+      - equal:
+          path: spec.template.spec.containers[0].args[5]
+          value: --static-prefix=mlflow
+
+  - it: should show extra flags when we pass any
+    set:
+      extraFlags:
+        - serveArtifacts
+        - artifactsOnly
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[5]
+          value: --serve-artifacts
+      - equal:
+          path: spec.template.spec.containers[0].args[6]
+          value: --artifacts-only
+
+  - it: should show extra secret environment variables from secrets when we pass any
+    set:
+      extraSecretNamesForEnvFrom:
+        - mysupersecret
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].envFrom[2].secretRef.name
+          value: mysupersecret
+
+  - it: should match snapshot of default values
+    set:
+      podAnnotations:
+        test-key: test-value
+      podSecurityContext:
+        fsGroup: 2000
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      initContainers:
+        - name: init-myservice
+          image: busybox:1.28
+      resources:
+        limits:
+          cpu: 100m
+          memory: 128Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      extraVolumeMounts:
+        - name: mlflow-volume
+          mountPath: /mlflow/data
+        - name: example
+          mountPath: /example
+      extraVolumes:
+        - name: mlflow-volume
+          persistentVolumeClaim:
+            claimName: mlflow-pv-volume
+        - name: example
+          configMap:
+            name: example
+    release:
+      name: mlflow
+      namespace: mlflow
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }

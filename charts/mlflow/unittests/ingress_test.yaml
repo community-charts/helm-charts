@@ -4,7 +4,7 @@ templates:
   - ingress.yaml
 
 tests:
-  - it: should be empty if ingress is not enabled
+  - it: should be empty when ingress is not enabled
     asserts:
       - hasDocuments:
           count: 0
