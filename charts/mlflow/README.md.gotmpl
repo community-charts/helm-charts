@@ -159,4 +159,12 @@ helm upgrade [RELEASE_NAME] community-charts/{{ template "chart.name" . }}
 
 {{ template "chart.sourcesSection" . }}
 
+## Chart Development
+
+Please install unittest helm plugin with `helm plugin install https://github.com/quintush/helm-unittest` command and use following command to run helm unit tests.
+
+```console
+helm unittest --helm3 --strict --file unittests/*.yaml --file unittests/**/*.yaml charts/{{ template "chart.name" . }}
+```
+
 {{ template "chart.maintainersSection" . }}

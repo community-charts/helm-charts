@@ -211,7 +211,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | service.annotations | object | `{}` | Additional service annotations |
 | service.port | int | `5000` | Default Service port |
 | service.type | string | `"ClusterIP"` | Specifies what type of Service should be created |
-| serviceAccount.annotations | object | `{}` | Annotations to add to the service account. AWS EKS users can assign role arn from here. Please find more information from here: https://docs.aws.amazon.com/eks/latest/userguide/specify-service-account-role.html |
+| serviceAccount.annotations | object | `{}` | Annotations to add to the service account. AWS EKS users can assign role arn from here. Please find more information from here:  https://docs.aws.amazon.com/eks/latest/userguide/specify-service-account-role.html |
 | serviceAccount.create | bool | `true` | Specifies whether a ServiceAccount should be created |
 | serviceAccount.name | string | `""` | The name of the ServiceAccount to use. If not set and create is true, a name is generated using the fullname template |
 | serviceMonitor.enabled | bool | `false` | When set true then use a ServiceMonitor to configure scraping |
@@ -232,6 +232,14 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 * <https://github.com/community-charts/helm-charts>
 * <https://github.com/burakince/mlflow>
 * <https://github.com/mlflow/mlflow>
+
+## Chart Development
+
+Please install unittest helm plugin with `helm plugin install https://github.com/quintush/helm-unittest` command and use following command to run helm unit tests.
+
+```console
+helm unittest --helm3 --strict --file unittests/*.yaml --file unittests/**/*.yaml charts/mlflow
+```
 
 ## Maintainers
 
