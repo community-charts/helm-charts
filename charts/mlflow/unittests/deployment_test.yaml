@@ -4,6 +4,15 @@ templates:
   - deployment.yaml
 
 tests:
+  - it: should be custom service account when we do not create it
+    set:
+      serviceAccount.create: false
+      serviceAccount.name: customsa
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: customsa
+
   - it: should be memory backended when postgres is not enabled
     asserts:
       - equal:
