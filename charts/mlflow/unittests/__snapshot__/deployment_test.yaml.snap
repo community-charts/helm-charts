@@ -28,6 +28,24 @@ should match snapshot of default values:
             app.kubernetes.io/instance: mlflow
             app.kubernetes.io/name: mlflow
         spec:
+          affinity:
+            nodeAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - preference:
+                  matchExpressions:
+                  - key: custom-key
+                    operator: In
+                    values:
+                    - custom-value
+                weight: 1
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: kubernetes.io/e2e-az-name
+                    operator: In
+                    values:
+                    - e2e-az1
+                    - e2e-az2
           containers:
           - args:
             - server
@@ -78,9 +96,15 @@ should match snapshot of default values:
           initContainers:
           - image: busybox:1.28
             name: init-myservice
+          nodeSelector:
+            disktype: ssd
           securityContext:
             fsGroup: 2000
           serviceAccountName: mlflow
+          tolerations:
+          - effect: NoSchedule
+            key: example-key
+            operator: Exists
           volumes:
           - name: mlflow-volume
             persistentVolumeClaim:
