@@ -129,6 +129,16 @@ tests:
           value: mysupersecret
 
   - it: should match snapshot of default values
+    release:
+      name: mlflow
+      namespace: mlflow
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should match snapshot with additional values
     set:
       podAnnotations:
         test-key: test-value
