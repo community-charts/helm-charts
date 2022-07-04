@@ -88,6 +88,37 @@ tests:
           path: spec.template.spec.containers[0].args[6]
           value: --artifacts-only
 
+  - it: should show mlflow version environment variable
+    chart:
+      version: 0.1.62
+      appVersion: 1.27.0
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].name
+          value: MLFLOW_VERSION
+      - equal:
+          path: spec.template.spec.containers[0].env[0].value
+          value: "1.27.0"
+
+  - it: should show extra environment variables when we pass any
+    set:
+      extraEnvVars:
+         MLFLOW_S3_IGNORE_TLS: true
+         AWS_DEFAULT_REGION: eu-central-1
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[2].name
+          value: MLFLOW_S3_IGNORE_TLS
+      - equal:
+          path: spec.template.spec.containers[0].env[2].value
+          value: "true"
+      - equal:
+          path: spec.template.spec.containers[0].env[1].name
+          value: AWS_DEFAULT_REGION
+      - equal:
+          path: spec.template.spec.containers[0].env[1].value
+          value: eu-central-1
+
   - it: should show extra secret environment variables from secrets when we pass any
     set:
       extraSecretNamesForEnvFrom:
