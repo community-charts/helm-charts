@@ -1,0 +1,18 @@
+suite: test service
+
+templates:
+  - service.yaml
+
+tests:
+  - it: should match snapshot of default values
+    set:
+      service.annotations:
+        test-key: test-value
+    release:
+      name: mlflow
+      namespace: mlflow
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }

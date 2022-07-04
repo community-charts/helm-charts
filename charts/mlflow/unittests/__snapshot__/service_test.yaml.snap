@@ -1,0 +1,27 @@
+should match snapshot of default values:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        test-key: test-value
+      labels:
+        app: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
+      name: mlflow
+    spec:
+      ports:
+      - name: http
+        port: 5000
+        protocol: TCP
+        targetPort: 5000
+      selector:
+        app: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/name: mlflow
+      type: ClusterIP

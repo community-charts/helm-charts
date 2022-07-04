@@ -1,6 +1,8 @@
 suite: test ingress
+
 templates:
   - ingress.yaml
+
 tests:
   - it: should be empty if ingress is not enabled
     asserts:
@@ -67,6 +69,9 @@ tests:
     set:
       ingress.enabled: true
       ingress.className: nginx-test
+    release:
+      name: mlflow
+      namespace: mlflow
     chart:
       version: 1.0.0
       appVersion: 1.0.0
@@ -80,6 +85,9 @@ tests:
     capabilities:
       majorVersion: 1
       minorVersion: 17
+    release:
+      name: mlflow
+      namespace: mlflow
     chart:
       version: 1.0.0
       appVersion: 1.0.0

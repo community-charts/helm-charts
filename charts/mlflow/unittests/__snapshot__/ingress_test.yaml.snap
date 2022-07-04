@@ -1,0 +1,52 @@
+should match snapshot of default values:
+  1: |
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      labels:
+        app: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
+      name: mlflow
+    spec:
+      ingressClassName: nginx-test
+      rules:
+      - host: chart-example.local
+        http:
+          paths:
+          - backend:
+              service:
+                name: mlflow
+                port:
+                  number: 5000
+            path: /
+            pathType: ImplementationSpecific
+should match snapshot of default values with old kubernetes ingress:
+  1: |
+    apiVersion: networking.k8s.io/v1beta1
+    kind: Ingress
+    metadata:
+      annotations:
+        kubernetes.io/ingress.class: nginx-test
+      labels:
+        app: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
+      name: mlflow
+    spec:
+      rules:
+      - host: chart-example.local
+        http:
+          paths:
+          - backend:
+              serviceName: mlflow
+              servicePort: 5000
+            path: /
