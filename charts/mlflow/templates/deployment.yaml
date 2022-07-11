@@ -66,22 +66,26 @@ spec:
             - name: http
               containerPort: 5000
               protocol: TCP
+          {{- if .Values.livenessProbe.enabled }}
           livenessProbe:
             httpGet:
-            {{- if .Values.extraArgs.staticPrefix }}
-              path: {{ .Values.extraArgs.staticPrefix }}
-            {{- else }}
-              path: /
-            {{- end }}
+              path: {{ .Values.livenessProbe.healthCheckPath default "/" }}
               port: 5000
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds | default 30 }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds | default 20 }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds | default 6 }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold | default 3 }}
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
           readinessProbe:
             httpGet:
-            {{- if .Values.extraArgs.staticPrefix }}
-              path: {{ .Values.extraArgs.staticPrefix }}
-            {{- else }}
-              path: /
-            {{- end }}
+              path: {{ .Values.readinessProbe.healthCheckPath default "/" }}
               port: 5000
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds | default 30 }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds | default 20 }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds | default 6 }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold | default 3 }}
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:

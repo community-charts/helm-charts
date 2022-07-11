@@ -242,3 +242,19 @@ extraVolumeMounts:
 #   mountPath: /mlflow/data
 # - name: example
 #   mountPath: /example
+
+livenessProbe:
+  enabled: true
+  healthCheckPath: "/"
+  initialDelaySeconds: 30
+  periodSeconds: 20
+  timeoutSeconds: 6
+  failureThreshold: 3
+
+readinessProbe:
+  enabled: true
+  healthCheckPath: "/"
+  initialDelaySeconds: 30
+  periodSeconds: 20
+  timeoutSeconds: 6
+  failureThreshold: 3
