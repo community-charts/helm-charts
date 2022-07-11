@@ -128,6 +128,18 @@ tests:
           path: spec.template.spec.containers[0].envFrom[2].secretRef.name
           value: mysupersecret
 
+  - it: should check liveness and rediness with static prefix when we set static prefix from extra arguments
+    set:
+      extraArgs:
+        staticPrefix: /mlflow
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.path
+          value: /mlflow
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.path
+          value: /mlflow
+
   - it: should match snapshot of default values
     release:
       name: mlflow

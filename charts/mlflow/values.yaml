@@ -117,6 +117,8 @@ extraArgs: {}
 # Number of gunicorn worker processes to handle requests (default: 4).
   # workers: TEXT
 # A prefix which will be prepended to the path of all static paths.
+# It must always start with slash `/`
+# e.g. /mlflow
   # staticPrefix: TEXT
 # Additional command line options forwarded to gunicorn processes.
   # gunicornOpts: TEXT

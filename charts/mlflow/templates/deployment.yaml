@@ -68,11 +68,19 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
+            {{- if .Values.extraArgs.staticPrefix }}
+              path: {{ .Values.extraArgs.staticPrefix }}
+            {{- else }}
               path: /
+            {{- end }}
               port: 5000
           readinessProbe:
             httpGet:
+            {{- if .Values.extraArgs.staticPrefix }}
+              path: {{ .Values.extraArgs.staticPrefix }}
+            {{- else }}
               path: /
+            {{- end }}
               port: 5000
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
