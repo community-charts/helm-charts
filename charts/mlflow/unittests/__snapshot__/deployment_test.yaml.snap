@@ -48,7 +48,7 @@ should match snapshot of default values:
             livenessProbe:
               httpGet:
                 path: /
-                port: 5000
+                port: http
             name: mlflow
             ports:
             - containerPort: 5000
@@ -57,7 +57,7 @@ should match snapshot of default values:
             readinessProbe:
               httpGet:
                 path: /
-                port: 5000
+                port: http
             resources: {}
             securityContext: {}
           securityContext: {}
@@ -132,7 +132,7 @@ should match snapshot with additional values:
             livenessProbe:
               httpGet:
                 path: /
-                port: 5000
+                port: http
             name: mlflow
             ports:
             - containerPort: 5000
@@ -141,7 +141,7 @@ should match snapshot with additional values:
             readinessProbe:
               httpGet:
                 path: /
-                port: 5000
+                port: http
             resources:
               limits:
                 cpu: 100m

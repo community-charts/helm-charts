@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 0.2.7](https://img.shields.io/badge/Version-0.2.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.27.0.9](https://img.shields.io/badge/AppVersion-1.27.0.9-informational?style=flat-square)
+![Version: 0.2.8](https://img.shields.io/badge/Version-0.2.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.27.0.9](https://img.shields.io/badge/AppVersion-1.27.0.9-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -186,8 +186,8 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | extraEnvVars | object | `{}` | Extra environment variables |
 | extraFlags | list | `[]` | A list of flags to pass to `mlflow server` command Items must be camelcase. Helm will turn them to kebabcase style. |
 | extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
-| extraVolumeMounts | string | `nil` | Extra Volume Mounts for the mlflow container |
-| extraVolumes | string | `nil` | Extra Volumes for the pod |
+| extraVolumeMounts | list | `[]` | Extra Volume Mounts for the mlflow container |
+| extraVolumes | list | `[]` | Extra Volumes for the pod |
 | fullnameOverride | string | `""` | String to override the default generated fullname |
 | image.pullPolicy | string | `"IfNotPresent"` | The docker image pull policy |
 | image.repository | string | `"burakince/mlflow"` | The docker image repository to use |
@@ -201,10 +201,12 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` | Ingress path type |
 | ingress.tls | list | `[]` | Ingress tls configuration for https access |
 | initContainers | list | `[]` | Init Containers for Mlflow Pod |
+| livenessProbe | object | `{}` | Liveness probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes). |
 | nameOverride | string | `""` | String to override the default generated name |
 | nodeSelector | object | `{}` | Set the node selector for the pod. |
 | podAnnotations | object | `{}` | Annotations for the pod |
 | podSecurityContext | object | `{}` | Security context for all pod |
+| readinessProbe | object | `{}` | Readiness probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes). |
 | replicaCount | int | `1` | Numbers of replicas |
 | resources | object | `{}` | Set the resources requests and limits |
 | securityContext | object | `{}` | Security context for the mlflow container |

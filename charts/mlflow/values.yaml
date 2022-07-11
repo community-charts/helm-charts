@@ -228,7 +228,7 @@ initContainers: []
 extraContainers: []
 
 # -- Extra Volumes for the pod
-extraVolumes:
+extraVolumes: []
 # - name: mlflow-volume
 #   persistentVolumeClaim:
 #     claimName: mlflow-pv-volume
@@ -237,24 +237,22 @@ extraVolumes:
 #     name: example
 
 # -- Extra Volume Mounts for the mlflow container
-extraVolumeMounts:
+extraVolumeMounts: []
 # - name: mlflow-volume
 #   mountPath: /mlflow/data
 # - name: example
 #   mountPath: /example
 
-livenessProbe:
-  enabled: true
-  healthCheckPath: "/"
-  initialDelaySeconds: 30
-  periodSeconds: 20
-  timeoutSeconds: 6
-  failureThreshold: 3
+# -- Liveness probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes).
+livenessProbe: {}
+  # initialDelaySeconds: 0
+  # periodSeconds: 10
+  # timeoutSeconds: 1
+  # failureThreshold: 3
 
-readinessProbe:
-  enabled: true
-  healthCheckPath: "/"
-  initialDelaySeconds: 30
-  periodSeconds: 20
-  timeoutSeconds: 6
-  failureThreshold: 3
+# -- Readiness probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes).
+readinessProbe: {}
+  # initialDelaySeconds: 0
+  # periodSeconds: 10
+  # timeoutSeconds: 1
+  # failureThreshold: 3

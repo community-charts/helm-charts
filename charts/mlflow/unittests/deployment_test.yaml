@@ -66,14 +66,14 @@ tests:
     set:
       extraArgs:
         workers: "4"
-        staticPrefix: "mlflow"
+        staticPrefix: "/mlflow"
     asserts:
       - equal:
           path: spec.template.spec.containers[0].args[6]
           value: --workers=4
       - equal:
           path: spec.template.spec.containers[0].args[5]
-          value: --static-prefix=mlflow
+          value: --static-prefix=/mlflow
 
   - it: should show extra flags when we pass any
     set:
@@ -139,6 +139,48 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].readinessProbe.httpGet.path
           value: /mlflow
+
+  - it: should set liveness probe configurations when we pass it
+    set:
+      livenessProbe:
+        initialDelaySeconds: 0
+        periodSeconds: 10
+        timeoutSeconds: 1
+        failureThreshold: 3
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.initialDelaySeconds
+          value: 0
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.periodSeconds
+          value: 10
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.timeoutSeconds
+          value: 1
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.failureThreshold
+          value: 3
+
+  - it: should set readiness probe configurations when we pass it
+    set:
+      readinessProbe:
+        initialDelaySeconds: 0
+        periodSeconds: 10
+        timeoutSeconds: 1
+        failureThreshold: 3
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.initialDelaySeconds
+          value: 0
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.periodSeconds
+          value: 10
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.timeoutSeconds
+          value: 1
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.failureThreshold
+          value: 3
 
   - it: should match snapshot of default values
     release:
