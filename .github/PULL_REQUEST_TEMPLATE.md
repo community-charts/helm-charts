@@ -37,4 +37,8 @@ We would like these checks to pass before we even continue reviewing your change
 <!-- [Place an '[x]' (no spaces) in all applicable fields. Please remove unrelated fields.] -->
 - [ ] [DCO](https://github.com/community-charts/helm-charts/blob/main/CONTRIBUTING.md#sign-off-your-work) signed
 - [ ] Chart Version bumped
+- [ ] Chart `artifacthub.io/changes` field updated (if exists)
 - [ ] Title of the PR starts with chart name (e.g. `[mlflow]`)
+- [ ] Unit tests written
+- [ ] `values.yaml` file fields documented
+- [ ] `README.md` file updated
