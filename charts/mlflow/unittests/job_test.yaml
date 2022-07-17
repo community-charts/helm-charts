@@ -23,3 +23,23 @@ tests:
           of: Job
       - isAPIVersion:
           of: batch/v1
+  
+  - it: should have dbchecker init container if enabled
+    set:
+      backendStore:
+        databaseMigration: true
+        postgres:
+          enabled: true
+          host: test-host
+          database: test-database
+          user: test-user
+          password: test-password
+          dbChecker: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Job
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker

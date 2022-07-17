@@ -77,6 +77,8 @@ backendStore:
     user: "" # required
     # -- postgres database user password which can access to mlflow database
     password: "" # required
+    # -- add additional init container, which checks for database availability
+    dbChecker: false
 
 artifactRoot:
   azureBlob:
