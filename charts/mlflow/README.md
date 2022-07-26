@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 0.2.21](https://img.shields.io/badge/Version-0.2.21-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.27.0.23](https://img.shields.io/badge/AppVersion-1.27.0.23-informational?style=flat-square)
+![Version: 0.2.22](https://img.shields.io/badge/Version-0.2.22-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.27.0.23](https://img.shields.io/badge/AppVersion-1.27.0.23-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -211,6 +211,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | resources | object | `{}` | Set the resources requests and limits |
 | securityContext | object | `{}` | Security context for the mlflow container |
 | service.annotations | object | `{}` | Additional service annotations |
+| service.name | string | `"http"` | Default Service name |
 | service.port | int | `5000` | Default Service port |
 | service.type | string | `"ClusterIP"` | Specifies what type of Service should be created |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account. AWS EKS users can assign role arn from here. Please find more information from here: https://docs.aws.amazon.com/eks/latest/userguide/specify-service-account-role.html |
@@ -225,6 +226,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | serviceMonitor.targetLabels | list | `[]` | Set of labels to transfer on the Kubernetes Service onto the target. |
 | serviceMonitor.telemetryPath | string | `"/metrics"` | Set path to mlflow telemtery-path |
 | serviceMonitor.timeout | string | `"10s"` | Set timeout for scrape |
+| serviceMonitor.useServicePort | bool | `false` | When set true then use a service port. On default use a pod port. |
 | tolerations | list | `[]` | Set the tolerations for the pod. |
 
 **Homepage:** <https://mlflow.org>

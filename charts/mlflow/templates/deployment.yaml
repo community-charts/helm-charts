@@ -38,7 +38,7 @@ spec:
           args:
             - server
             - --host=0.0.0.0
-            - --port=5000
+            - --port={{ .Values.service.port }}
           {{- if .Values.backendStore.postgres.enabled }}
             - --backend-store-uri=postgresql://
           {{- else }}
@@ -63,20 +63,20 @@ spec:
             - --{{ kebabcase . }}
           {{- end }}
           ports:
-            - name: http
-              containerPort: 5000
+            - name: {{ .Values.service.name }}
+              containerPort: {{ .Values.service.port }}
               protocol: TCP
           livenessProbe:
             httpGet:
               path: {{ .Values.extraArgs.staticPrefix | default "/" }}
-              port: http
+              port: {{ .Values.service.name }}
           {{- with .Values.livenessProbe }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
           readinessProbe:
             httpGet:
               path: {{ .Values.extraArgs.staticPrefix | default "/" }}
-              port: http
+              port: {{ .Values.service.name }}
           {{- with .Values.readinessProbe }}
             {{- toYaml . | nindent 12 }}
           {{- end }}

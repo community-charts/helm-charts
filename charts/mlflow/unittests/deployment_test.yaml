@@ -182,6 +182,31 @@ tests:
           path: spec.template.spec.containers[0].readinessProbe.failureThreshold
           value: 3
 
+  - it: should use different port number when we change it
+    set:
+      service.port: 80
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[2]
+          value: --port=80
+      - equal:
+          path: spec.template.spec.containers[0].ports[0].containerPort
+          value: 80
+
+  - it: should use different port name when we change it
+    set:
+      service.name: differentname
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].ports[0].name
+          value: differentname
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+          value: differentname
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.port
+          value: differentname
+
   - it: should match snapshot of default values
     release:
       name: mlflow
