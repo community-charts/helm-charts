@@ -58,6 +58,8 @@ service:
   type: ClusterIP
   # -- Default Service port
   port: 5000
+  # -- Default Service name
+  name: http
   # -- Additional service annotations
   annotations: {}
 
@@ -188,6 +190,8 @@ resources: {}
 serviceMonitor:
   # -- When set true then use a ServiceMonitor to configure scraping
   enabled: false
+  # -- When set true then use a service port. On default use a pod port.
+  useServicePort: false
   # -- Set the namespace the ServiceMonitor should be deployed
   namespace: monitoring
   # -- Set how frequently Prometheus should scrape

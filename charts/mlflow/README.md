@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 0.2.13](https://img.shields.io/badge/Version-0.2.13-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.27.0.14](https://img.shields.io/badge/AppVersion-1.27.0.14-informational?style=flat-square)
+![Version: 0.3.3](https://img.shields.io/badge/Version-0.3.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.27.0.25](https://img.shields.io/badge/AppVersion-1.27.0.25-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -176,12 +176,12 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | artifactRoot.s3.path | string | `""` | S3 bucket folder. If you want to use root level, please don't set anything. |
 | backendStore.databaseMigration | bool | `false` | Specifies if you want to run database migration |
 | backendStore.postgres.database | string | `""` | mlflow database name created before in the postgres instance |
+| backendStore.postgres.dbChecker | bool | `false` | add additional init container, which checks for database availability |
 | backendStore.postgres.enabled | bool | `false` | Specifies if you want to use postgres backend storage |
 | backendStore.postgres.host | string | `""` | Postgres host address. e.g. your RDS or Azure Postgres Service endpoint |
 | backendStore.postgres.password | string | `""` | postgres database user password which can access to mlflow database |
 | backendStore.postgres.port | int | `5432` | Postgres service port |
 | backendStore.postgres.user | string | `""` | postgres database user name which can access to mlflow database |
-| backendStore.postgres.dbChecker | bool | `false` | Add additional init container which checks for database availability |
 | extraArgs | object | `{}` | A map of arguments and values to pass to the `mlflow server` command Keys must be camelcase. Helm will turn them to kebabcase style. |
 | extraContainers | list | `[]` | Extra containers for the mlflow pod |
 | extraEnvVars | object | `{}` | Extra environment variables |
@@ -212,6 +212,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | resources | object | `{}` | Set the resources requests and limits |
 | securityContext | object | `{}` | Security context for the mlflow container |
 | service.annotations | object | `{}` | Additional service annotations |
+| service.name | string | `"http"` | Default Service name |
 | service.port | int | `5000` | Default Service port |
 | service.type | string | `"ClusterIP"` | Specifies what type of Service should be created |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account. AWS EKS users can assign role arn from here. Please find more information from here: https://docs.aws.amazon.com/eks/latest/userguide/specify-service-account-role.html |
@@ -226,6 +227,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | serviceMonitor.targetLabels | list | `[]` | Set of labels to transfer on the Kubernetes Service onto the target. |
 | serviceMonitor.telemetryPath | string | `"/metrics"` | Set path to mlflow telemtery-path |
 | serviceMonitor.timeout | string | `"10s"` | Set timeout for scrape |
+| serviceMonitor.useServicePort | bool | `false` | When set true then use a service port. On default use a pod port. |
 | tolerations | list | `[]` | Set the tolerations for the pod. |
 
 **Homepage:** <https://mlflow.org>
