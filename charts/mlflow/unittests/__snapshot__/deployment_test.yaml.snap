@@ -32,7 +32,6 @@ should match snapshot of default values:
             - --host=0.0.0.0
             - --port=5000
             - --backend-store-uri=sqlite:///:memory
-            - --default-artifact-root=./mlruns
             command:
             - mlflow
             env:
@@ -116,7 +115,6 @@ should match snapshot with additional values:
             - --host=0.0.0.0
             - --port=5000
             - --backend-store-uri=sqlite:///:memory
-            - --default-artifact-root=./mlruns
             command:
             - mlflow
             env:

@@ -53,7 +53,7 @@ tests:
       serviceMonitor.enabled: true
     asserts:
       - equal:
-          path: spec.template.spec.containers[0].args[5]
+          path: spec.template.spec.containers[0].args[4]
           value: --expose-prometheus=/mlflow/metrics
 
   - it: should show extra arguments when we pass any
@@ -63,10 +63,10 @@ tests:
         staticPrefix: "/mlflow"
     asserts:
       - equal:
-          path: spec.template.spec.containers[0].args[6]
+          path: spec.template.spec.containers[0].args[5]
           value: --workers=4
       - equal:
-          path: spec.template.spec.containers[0].args[5]
+          path: spec.template.spec.containers[0].args[4]
           value: --static-prefix=/mlflow
 
   - it: should show extra flags when we pass any
@@ -76,10 +76,10 @@ tests:
         - artifactsOnly
     asserts:
       - equal:
-          path: spec.template.spec.containers[0].args[5]
+          path: spec.template.spec.containers[0].args[4]
           value: --serve-artifacts
       - equal:
-          path: spec.template.spec.containers[0].args[6]
+          path: spec.template.spec.containers[0].args[5]
           value: --artifacts-only
 
   - it: should show mlflow version environment variable
