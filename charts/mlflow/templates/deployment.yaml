@@ -50,8 +50,6 @@ spec:
             - --default-artifact-root=s3://{{ .Values.artifactRoot.s3.bucket }}/{{ .Values.artifactRoot.s3.path }}
           {{- else if .Values.artifactRoot.gcs.enabled }}
             - --default-artifact-root=gs://{{ .Values.artifactRoot.gcs.bucket }}/{{ .Values.artifactRoot.gcs.path }}
-          {{- else }}
-            - --default-artifact-root=./mlruns
           {{- end }}
           {{- if .Values.serviceMonitor.enabled }}
             - --expose-prometheus=/mlflow/metrics

@@ -27,12 +27,6 @@ tests:
           path: spec.template.spec.containers[0].args[3]
           value: --backend-store-uri=postgresql://
 
-  - it: should be local folder as an artifact root when azureBlob or s3 or gcs is not enabled
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].args[4]
-          value: --default-artifact-root=./mlruns
-
   - it: should be azureBlob as an artifact root when azureBlob is enabled
     set:
       artifactRoot.azureBlob.enabled: true
