@@ -1,0 +1,71 @@
+should match snapshot of default values:
+  1: |
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      annotations:
+        helm.sh/hook: post-install,post-upgrade
+        helm.sh/hook-delete-policy: hook-succeeded,hook-failed
+      labels:
+        app: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
+      name: mlflow
+    spec:
+      activeDeadlineSeconds: 900
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            app: mlflow
+            app.kubernetes.io/instance: mlflow
+            app.kubernetes.io/name: mlflow
+        spec:
+          containers:
+          - args:
+            - /opt/mlflow/migrations.py
+            command:
+            - python
+            envFrom:
+            - configMapRef:
+                name: mlflow-env-configmap
+            - secretRef:
+                name: mlflow-env-secret
+            image: burakince/mlflow:1.0.0
+            imagePullPolicy: IfNotPresent
+            name: postgres-migration-job
+            resources: {}
+            securityContext: {}
+            volumeMounts:
+            - mountPath: /opt/mlflow/migrations.py
+              name: migrations-config
+              readOnly: true
+              subPath: migrations.py
+          initContainers:
+          - command:
+            - /script/dbchecker.sh
+            envFrom:
+            - configMapRef:
+                name: mlflow-env-configmap
+            image: busybox:1.32
+            imagePullPolicy: IfNotPresent
+            name: dbchecker
+            volumeMounts:
+            - mountPath: /script/dbchecker.sh
+              name: dbchecker
+              subPath: dbchecker.sh
+          restartPolicy: Never
+          securityContext: {}
+          volumes:
+          - configMap:
+              name: mlflow-migrations
+            name: migrations-config
+          - configMap:
+              defaultMode: 511
+              name: mlflow-dbchecker
+            name: dbchecker
+      ttlSecondsAfterFinished: 100

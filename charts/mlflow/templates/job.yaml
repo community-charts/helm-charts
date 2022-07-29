@@ -27,20 +27,19 @@ spec:
       {{- end }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if and .Values.backendStore.postgres.dbChecker }}
+      {{- if .Values.backendStore.databaseConnectionCheck }}
       initContainers:
         - name: dbchecker
-          image: "docker.io/busybox:1.32"
+          image: "busybox:1.32"
           imagePullPolicy: IfNotPresent
-          command:
-            - sh
-            - -c
-            - |
-              echo 'Waiting for Database to become ready...'
-              until printf "." && nc -z -w 2 {{ required ".Values.backendStore.postgres.host is required if dbchecker is enabled!" .Values.backendStore.postgres.host }} {{ required ".Values.backendStore.postgres.port is required if dbchecker is enabled!" .Values.backendStore.postgres.port }}; do
-                  sleep 2;
-              done;
-              echo 'Database OK ✓'
+          command: [ "/script/dbchecker.sh" ]
+          envFrom:
+            - configMapRef:
+                name: {{ template "mlflow.fullname" . }}-env-configmap
+          volumeMounts:
+            - name: dbchecker
+              mountPath: /script/dbchecker.sh
+              subPath: dbchecker.sh
       {{- end }}
       containers:
         - name: postgres-migration-job
@@ -67,6 +66,12 @@ spec:
         - name: migrations-config
           configMap:
             name: {{ template "mlflow.fullname" . }}-migrations
+        {{- if .Values.backendStore.databaseConnectionCheck }}
+        - name: dbchecker
+          configMap:
+            name: {{ template "mlflow.fullname" . }}-dbchecker
+            defaultMode: 0777
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

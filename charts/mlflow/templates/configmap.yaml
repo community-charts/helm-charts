@@ -13,8 +13,8 @@ data:
   PGPORT: {{ required "postgres port must be specified" .Values.backendStore.postgres.port | quote }}
   PGDATABASE: {{ required "postgres database must be specified" .Values.backendStore.postgres.database }}
 {{- end }}
----
 {{- if and .Values.backendStore.postgres.enabled .Values.backendStore.databaseMigration }}
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -31,4 +31,18 @@ data:
 
     engine = utils.create_sqlalchemy_engine_with_retry("postgresql://")
     utils._initialize_tables(engine)
+{{- end }}
+{{- if and .Values.backendStore.databaseConnectionCheck }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "mlflow.fullname" . }}-dbchecker
+  labels:
+    app: {{ template "mlflow.name" . }}
+    chart: {{ template "mlflow.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  {{ (.Files.Glob "files/dbchecker.sh").AsConfig | nindent 2 }}
 {{- end }}

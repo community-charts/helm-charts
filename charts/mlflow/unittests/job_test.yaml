@@ -28,13 +28,13 @@ tests:
     set:
       backendStore:
         databaseMigration: true
+        databaseConnectionCheck: true
         postgres:
           enabled: true
           host: test-host
           database: test-database
           user: test-user
           password: test-password
-          dbChecker: true
     asserts:
       - hasDocuments:
           count: 1
@@ -43,3 +43,23 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: dbchecker
+
+  - it: should match snapshot of default values
+    set:
+      backendStore:
+        databaseMigration: true
+        databaseConnectionCheck: true
+        postgres:
+          enabled: true
+          host: test-host
+          database: test-database
+          user: test-user
+          password: test-password
+    release:
+      name: mlflow
+      namespace: mlflow
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }
