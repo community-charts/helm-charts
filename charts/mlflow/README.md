@@ -36,6 +36,29 @@ Currently database migration only supporting for Postgres DB backend.
 ```yaml
 backendStore:
   databaseMigration: true
+  postgres:
+    enabled: true
+    host: "postgresql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "mlflow"
+    user: "mlflowuser"
+    password: "Pa33w0rd!"
+```
+
+## Database Connection Check Values Files Example
+
+Currently database connection check only supporting for Postgres DB backend.
+
+```yaml
+backendStore:
+  databaseConnectionCheck: true
+  postgres:
+    enabled: true
+    host: "postgresql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "mlflow"
+    user: "mlflowuser"
+    password: "Pa33w0rd!"
 ```
 
 ## AWS Installation Examples
