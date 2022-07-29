@@ -32,7 +32,7 @@ data:
     engine = utils.create_sqlalchemy_engine_with_retry("postgresql://")
     utils._initialize_tables(engine)
 {{- end }}
-{{- if and .Values.backendStore.databaseConnectionCheck }}
+{{- if .Values.backendStore.databaseConnectionCheck }}
 ---
 apiVersion: v1
 kind: ConfigMap
