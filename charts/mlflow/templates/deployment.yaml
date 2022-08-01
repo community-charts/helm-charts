@@ -1,3 +1,18 @@
+{{- $artifactCommandPrefix := "default-artifact-root" }}
+{{- $artifactCommand := printf "--%s=./mlruns" $artifactCommandPrefix }}
+
+{{- if .Values.artifactRoot.proxiedArtifactStorage }}
+  {{- $artifactCommandPrefix = "artifacts-destination" }}
+  {{- $artifactCommand = printf "--%s=./mlartifacts" $artifactCommandPrefix }}
+{{- end }}
+
+{{- if .Values.artifactRoot.azureBlob.enabled }}
+  {{- $artifactCommand = printf "--%s=wasbs://%s@%s.blob.core.windows.net/%s" $artifactCommandPrefix .Values.artifactRoot.azureBlob.container .Values.artifactRoot.azureBlob.storageAccount .Values.artifactRoot.azureBlob.path }}
+{{- else if .Values.artifactRoot.s3.enabled }}
+  {{- $artifactCommand = printf "--%s=s3://%s/%s" $artifactCommandPrefix .Values.artifactRoot.s3.bucket .Values.artifactRoot.s3.path }}
+{{- else if .Values.artifactRoot.gcs.enabled }}
+  {{- $artifactCommand = printf "--%s=gs://%s/%s" $artifactCommandPrefix .Values.artifactRoot.gcs.bucket .Values.artifactRoot.gcs.path }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -60,12 +75,9 @@ spec:
           {{- else }}
             - --backend-store-uri=sqlite:///:memory
           {{- end }}
-          {{- if .Values.artifactRoot.azureBlob.enabled }}
-            - --default-artifact-root=wasbs://{{ .Values.artifactRoot.azureBlob.container }}@{{ .Values.artifactRoot.azureBlob.storageAccount }}.blob.core.windows.net/{{ .Values.artifactRoot.azureBlob.path }}
-          {{- else if .Values.artifactRoot.s3.enabled }}
-            - --default-artifact-root=s3://{{ .Values.artifactRoot.s3.bucket }}/{{ .Values.artifactRoot.s3.path }}
-          {{- else if .Values.artifactRoot.gcs.enabled }}
-            - --default-artifact-root=gs://{{ .Values.artifactRoot.gcs.bucket }}/{{ .Values.artifactRoot.gcs.path }}
+            - {{ $artifactCommand }}
+          {{- if .Values.artifactRoot.proxiedArtifactStorage }}
+            - --serve-artifacts
           {{- end }}
           {{- if .Values.serviceMonitor.enabled }}
             - --expose-prometheus=/mlflow/metrics

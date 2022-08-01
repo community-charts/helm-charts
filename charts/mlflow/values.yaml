@@ -85,6 +85,8 @@ backendStore:
     password: "" # required
 
 artifactRoot:
+  # -- Specifies if you want to enable proxied artifact storage access
+  proxiedArtifactStorage: false
   azureBlob:
     # -- Specifies if you want to use Azure Blob Storage Mlflow Artifact Root
     enabled: false

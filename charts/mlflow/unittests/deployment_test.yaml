@@ -27,6 +27,12 @@ tests:
           path: spec.template.spec.containers[0].args[3]
           value: --backend-store-uri=postgresql://
 
+  - it: should be local folder as an artifact root when azureBlob or s3 or gcs is not enabled
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[4]
+          value: --default-artifact-root=./mlruns
+
   - it: should be azureBlob as an artifact root when azureBlob is enabled
     set:
       artifactRoot.azureBlob.enabled: true
@@ -48,12 +54,76 @@ tests:
           path: spec.template.spec.containers[0].args[4]
           value: --default-artifact-root=s3://test-bucket/mlflow_folder
 
+  - it: should be gcs as an artifact root when gcs is enabled
+    set:
+      artifactRoot.gcs.enabled: true
+      artifactRoot.gcs.bucket: test-bucket
+      artifactRoot.gcs.path: mlflow_folder
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[4]
+          value: --default-artifact-root=gs://test-bucket/mlflow_folder
+
+  - it: should be local folder as an artifact destination when proxy enabled and azureBlob or s3 or gcs is not enabled
+    set:
+      artifactRoot.proxiedArtifactStorage: true
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[4]
+          value: --artifacts-destination=./mlartifacts
+      - equal:
+          path: spec.template.spec.containers[0].args[5]
+          value: --serve-artifacts
+
+  - it: should be azureBlob as an artifact destination when proxy enabled and azureBlob is enabled
+    set:
+      artifactRoot.proxiedArtifactStorage: true
+      artifactRoot.azureBlob.enabled: true
+      artifactRoot.azureBlob.container: test-container
+      artifactRoot.azureBlob.storageAccount: test-account
+      artifactRoot.azureBlob.path: mlflow_folder
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[4]
+          value: --artifacts-destination=wasbs://test-container@test-account.blob.core.windows.net/mlflow_folder
+      - equal:
+          path: spec.template.spec.containers[0].args[5]
+          value: --serve-artifacts
+
+  - it: should be s3 as an artifact destination when proxy enabled and s3 is enabled
+    set:
+      artifactRoot.proxiedArtifactStorage: true
+      artifactRoot.s3.enabled: true
+      artifactRoot.s3.bucket: test-bucket
+      artifactRoot.s3.path: mlflow_folder
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[4]
+          value: --artifacts-destination=s3://test-bucket/mlflow_folder
+      - equal:
+          path: spec.template.spec.containers[0].args[5]
+          value: --serve-artifacts
+
+  - it: should be gcs as an artifact destination when proxy enabled and gcs is enabled
+    set:
+      artifactRoot.proxiedArtifactStorage: true
+      artifactRoot.gcs.enabled: true
+      artifactRoot.gcs.bucket: test-bucket
+      artifactRoot.gcs.path: mlflow_folder
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[4]
+          value: --artifacts-destination=gs://test-bucket/mlflow_folder
+      - equal:
+          path: spec.template.spec.containers[0].args[5]
+          value: --serve-artifacts
+
   - it: should expose prometheus metrics when serviceMonitor is enabled
     set:
       serviceMonitor.enabled: true
     asserts:
       - equal:
-          path: spec.template.spec.containers[0].args[4]
+          path: spec.template.spec.containers[0].args[5]
           value: --expose-prometheus=/mlflow/metrics
 
   - it: should show extra arguments when we pass any
@@ -63,10 +133,10 @@ tests:
         staticPrefix: "/mlflow"
     asserts:
       - equal:
-          path: spec.template.spec.containers[0].args[5]
+          path: spec.template.spec.containers[0].args[6]
           value: --workers=4
       - equal:
-          path: spec.template.spec.containers[0].args[4]
+          path: spec.template.spec.containers[0].args[5]
           value: --static-prefix=/mlflow
 
   - it: should show extra flags when we pass any
@@ -76,10 +146,10 @@ tests:
         - artifactsOnly
     asserts:
       - equal:
-          path: spec.template.spec.containers[0].args[4]
+          path: spec.template.spec.containers[0].args[5]
           value: --serve-artifacts
       - equal:
-          path: spec.template.spec.containers[0].args[5]
+          path: spec.template.spec.containers[0].args[6]
           value: --artifacts-only
 
   - it: should show mlflow version environment variable
