@@ -58,7 +58,7 @@ annotations:
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |
-    - Update to AppVersion 1.27.0.28
+    - Add a flag to enable proxied artifact storage access
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:1.27.0.28
