@@ -27,6 +27,20 @@ spec:
       {{- end }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.backendStore.databaseConnectionCheck }}
+      initContainers:
+        - name: dbchecker
+          image: "busybox:1.32"
+          imagePullPolicy: IfNotPresent
+          command: [ "/script/dbchecker.sh" ]
+          envFrom:
+            - configMapRef:
+                name: {{ template "mlflow.fullname" . }}-env-configmap
+          volumeMounts:
+            - name: dbchecker
+              mountPath: /script/dbchecker.sh
+              subPath: dbchecker.sh
+      {{- end }}
       containers:
         - name: postgres-migration-job
           securityContext:
@@ -52,6 +66,12 @@ spec:
         - name: migrations-config
           configMap:
             name: {{ template "mlflow.fullname" . }}-migrations
+        {{- if .Values.backendStore.databaseConnectionCheck }}
+        - name: dbchecker
+          configMap:
+            name: {{ template "mlflow.fullname" . }}-dbchecker
+            defaultMode: 0777
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

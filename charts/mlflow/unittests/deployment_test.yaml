@@ -133,6 +133,45 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].readinessProbe.httpGet.path
           value: /mlflow
+  
+  - it: should check that the db checker init container is present if enabled
+    set:
+      backendStore:
+        databaseConnectionCheck: true
+        postgres:
+          enabled: true
+          host: test-host
+          database: test-database
+          user: test-user
+          password: test-password
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker
+  
+  - it: should check that the db checker and additional init containers are present
+    set:
+      initContainers:
+        - name: init-container-test
+          image: test:3.2
+          command:
+            - sleep
+            - infinity
+      backendStore:
+        databaseConnectionCheck: true
+        postgres:
+          enabled: true
+          host: test-host
+          database: test-database
+          user: test-user
+          password: test-password
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: init-container-test
 
   - it: should set liveness probe configurations when we pass it
     set:
@@ -213,6 +252,9 @@ tests:
 
   - it: should match snapshot with additional values
     set:
+      backendStore:
+        databaseMigration: true
+        databaseConnectionCheck: true
       podAnnotations:
         test-key: test-value
       podSecurityContext:

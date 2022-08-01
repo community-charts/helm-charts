@@ -156,6 +156,18 @@ should match snapshot with additional values:
             - mountPath: /example
               name: example
           initContainers:
+          - command:
+            - /script/dbchecker.sh
+            envFrom:
+            - configMapRef:
+                name: mlflow-env-configmap
+            image: busybox:1.32
+            imagePullPolicy: IfNotPresent
+            name: dbchecker
+            volumeMounts:
+            - mountPath: /script/dbchecker.sh
+              name: dbchecker
+              subPath: dbchecker.sh
           - image: busybox:1.28
             name: init-myservice
           nodeSelector:
@@ -168,6 +180,10 @@ should match snapshot with additional values:
             key: example-key
             operator: Exists
           volumes:
+          - configMap:
+              defaultMode: 511
+              name: mlflow-dbchecker
+            name: dbchecker
           - name: mlflow-volume
             persistentVolumeClaim:
               claimName: mlflow-pv-volume

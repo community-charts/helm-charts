@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 0.3.2](https://img.shields.io/badge/Version-0.3.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.27.0.25](https://img.shields.io/badge/AppVersion-1.27.0.25-informational?style=flat-square)
+![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.27.0.28](https://img.shields.io/badge/AppVersion-1.27.0.28-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -36,6 +36,29 @@ Currently database migration only supporting for Postgres DB backend.
 ```yaml
 backendStore:
   databaseMigration: true
+  postgres:
+    enabled: true
+    host: "postgresql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "mlflow"
+    user: "mlflowuser"
+    password: "Pa33w0rd!"
+```
+
+## Database Connection Check Values Files Example
+
+Currently database connection check only supporting for Postgres DB backend.
+
+```yaml
+backendStore:
+  databaseConnectionCheck: true
+  postgres:
+    enabled: true
+    host: "postgresql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "mlflow"
+    user: "mlflowuser"
+    password: "Pa33w0rd!"
 ```
 
 ## AWS Installation Examples
@@ -174,6 +197,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | artifactRoot.s3.bucket | string | `""` | S3 bucket name |
 | artifactRoot.s3.enabled | bool | `false` | Specifies if you want to use AWS S3 Mlflow Artifact Root |
 | artifactRoot.s3.path | string | `""` | S3 bucket folder. If you want to use root level, please don't set anything. |
+| backendStore.databaseConnectionCheck | bool | `false` | Add an additional init container, which checks for database availability |
 | backendStore.databaseMigration | bool | `false` | Specifies if you want to run database migration |
 | backendStore.postgres.database | string | `""` | mlflow database name created before in the postgres instance |
 | backendStore.postgres.enabled | bool | `false` | Specifies if you want to use postgres backend storage |

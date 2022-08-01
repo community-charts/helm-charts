@@ -66,6 +66,10 @@ service:
 backendStore:
   # -- Specifies if you want to run database migration
   databaseMigration: false
+
+  # -- Add an additional init container, which checks for database availability
+  databaseConnectionCheck: false
+
   postgres:
     # -- Specifies if you want to use postgres backend storage
     enabled: false
