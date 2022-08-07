@@ -1,0 +1,28 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "subramaniam20jan",
+      "name": "subramaniam20jan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6160977?v=4",
+      "profile": "https://github.com/subramaniam20jan",
+      "contributions": [
+        "code",
+        "doc",
+        "bug",
+        "ideas",
+        "test"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "helm-charts",
+  "projectOwner": "community-charts",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
