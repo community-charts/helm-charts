@@ -17,6 +17,19 @@
         "ideas",
         "test"
       ]
+    },
+    {
+      "login": "ryshoooo",
+      "name": "Richard Nemeth",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12965813?v=4",
+      "profile": "https://github.com/ryshoooo",
+      "contributions": [
+        "code",
+        "doc",
+        "bug",
+        "ideas",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
