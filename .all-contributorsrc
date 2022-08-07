@@ -43,6 +43,20 @@
         "ideas",
         "test"
       ]
+    },
+    {
+      "login": "burakince",
+      "name": "Burak Ince",
+      "avatar_url": "https://avatars.githubusercontent.com/u/858202?v=4",
+      "profile": "https://www.burakince.net",
+      "contributions": [
+        "code",
+        "doc",
+        "bug",
+        "review",
+        "ideas",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
