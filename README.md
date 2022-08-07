@@ -40,9 +40,6 @@ Community Charts are made with <3 thanks to these wonderful people:
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
 ## License
 
 <!-- Keep full URL links to repo files because this README syncs from main to gh-pages.  -->
