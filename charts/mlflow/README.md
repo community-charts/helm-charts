@@ -259,14 +259,14 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | backendStore.databaseConnectionCheck | bool | `false` | Add an additional init container, which checks for database availability |
 | backendStore.databaseMigration | bool | `false` | Specifies if you want to run database migration |
 | backendStore.mysql.database | string | `""` | mlflow database name created before in the mysql instance |
-| backendStore.mysql.driver | string | `"pymysql"` | mysql database driver. e.g.: "pymysql" |
+| backendStore.mysql.driver | string | `"pymysql"` | mysql database connection driver. e.g.: "pymysql" |
 | backendStore.mysql.enabled | bool | `false` | Specifies if you want to use mysql backend storage |
 | backendStore.mysql.host | string | `""` | MySQL host address. e.g. your Amazon RDS for MySQL |
 | backendStore.mysql.password | string | `""` | mysql database user password which can access to mlflow database |
 | backendStore.mysql.port | int | `3306` | MySQL service port |
 | backendStore.mysql.user | string | `""` | mysql database user name which can access to mlflow database |
 | backendStore.postgres.database | string | `""` | mlflow database name created before in the postgres instance |
-| backendStore.postgres.driver | string | `""` | postgres database driver. e.g.: "psycopg2" |
+| backendStore.postgres.driver | string | `""` | postgres database connection driver. e.g.: "psycopg2" |
 | backendStore.postgres.enabled | bool | `false` | Specifies if you want to use postgres backend storage |
 | backendStore.postgres.host | string | `""` | Postgres host address. e.g. your RDS or Azure Postgres Service endpoint |
 | backendStore.postgres.password | string | `""` | postgres database user password which can access to mlflow database |

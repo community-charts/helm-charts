@@ -83,7 +83,7 @@ backendStore:
     user: "" # required
     # -- postgres database user password which can access to mlflow database
     password: "" # required
-    # -- postgres database driver. e.g.: "psycopg2"
+    # -- postgres database connection driver. e.g.: "psycopg2"
     driver: ""
 
   mysql:
@@ -99,7 +99,7 @@ backendStore:
     user: "" # required
     # -- mysql database user password which can access to mlflow database
     password: "" # required
-    # -- mysql database driver. e.g.: "pymysql"
+    # -- mysql database connection driver. e.g.: "pymysql"
     driver: "pymysql"
 
 artifactRoot:
