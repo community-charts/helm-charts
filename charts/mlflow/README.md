@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 0.5.14](https://img.shields.io/badge/Version-0.5.14-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.28.0.4](https://img.shields.io/badge/AppVersion-1.28.0.4-informational?style=flat-square)
+![Version: 0.6.0](https://img.shields.io/badge/Version-0.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.28.0.4](https://img.shields.io/badge/AppVersion-1.28.0.4-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -27,11 +27,24 @@ _See [helm install](https://helm.sh/docs/helm/helm_install/) for command documen
 
 > **Tip**: Search all available chart versions using `helm search repo community-charts -l`. Please don't forget to run `helm repo update` before the command.
 
+## Supported Databases
+
+Currently, we support the following two databases as a backend repository for Mlflow.
+
+* [PostgreSQL](https://www.postgresql.org/)
+* [MySQL](https://www.mysql.com/)
+
+## Supported Cloud Providers
+
+We currently support the following three cloud providers for [BLOB](https://de.wikipedia.org/wiki/Binary_Large_Object) storage integration.
+
+* [AWS (S3)](https://aws.amazon.com/s3/)
+* [Google CLoud Platform (Cloud Storage)](https://cloud.google.com/storage)
+* [Azure Cloud (Azure Blob Storage)](https://azure.microsoft.com/en-us/services/storage/blobs/)
+
 ## Values Files Examples
 
-## Database Migration Values Files Example
-
-Currently database migration only supporting for Postgres DB backend.
+## Postgres Database Migration Values Files Example
 
 ```yaml
 backendStore:
@@ -45,9 +58,21 @@ backendStore:
     password: "Pa33w0rd!"
 ```
 
-## Database Connection Check Values Files Example
+## MySQL Database Migration Values Files Example
 
-Currently database connection check only supporting for Postgres DB backend.
+```yaml
+backendStore:
+  databaseMigration: true
+  mysql:
+    enabled: true
+    host: "mysql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 3306
+    database: "mlflow"
+    user: "mlflowuser"
+    password: "Pa33w0rd!"
+```
+
+## Postgres Database Connection Check Values Files Example
 
 ```yaml
 backendStore:
@@ -56,6 +81,20 @@ backendStore:
     enabled: true
     host: "postgresql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
     port: 5432
+    database: "mlflow"
+    user: "mlflowuser"
+    password: "Pa33w0rd!"
+```
+
+## MySQL Database Connection Check Values Files Example
+
+```yaml
+backendStore:
+  databaseConnectionCheck: true
+  mysql:
+    enabled: true
+    host: "mysql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 3306
     database: "mlflow"
     user: "mlflowuser"
     password: "Pa33w0rd!"
@@ -70,7 +109,7 @@ You can use 2 different way to connect your S3 backend.
 
 > **Tip**: Please follow [this tutorial](https://aws.amazon.com/getting-started/hands-on/create-connect-postgresql-db/) to create your own RDS postgres cluster.
 
-## S3 (Minio) Configuration on Helm Upgrade Command Example
+## S3 (Minio) and PostgreSQL DB Configuration on Helm Upgrade Command Example
 
 ```console
 helm upgrade --install mlflow community-charts/mlflow \
@@ -81,6 +120,25 @@ helm upgrade --install mlflow community-charts/mlflow \
   --set backendStore.postgres.database=postgres \
   --set backendStore.postgres.user=postgres \
   --set backendStore.postgres.password=postgres \
+  --set artifactRoot.s3.enabled=true \
+  --set artifactRoot.s3.bucket=mlflow \
+  --set artifactRoot.s3.awsAccessKeyId=minioadmin \
+  --set artifactRoot.s3.awsSecretAccessKey=minioadmin \
+  --set extraEnvVars.MLFLOW_S3_ENDPOINT_URL=http://minio-service:9000 \
+  --set serviceMonitor.enabled=true
+```
+
+## S3 (Minio) and MySQL DB Configuration on Helm Upgrade Command Example
+
+```console
+helm upgrade --install mlflow community-charts/mlflow \
+  --set backendStore.databaseMigration=true \
+  --set backendStore.mysql.enabled=true \
+  --set backendStore.mysql.host=mysql-service \
+  --set backendStore.mysql.port=3306 \
+  --set backendStore.mysql.database=mlflow \
+  --set backendStore.mysql.user=mlflow \
+  --set backendStore.mysql.password=mlflow \
   --set artifactRoot.s3.enabled=true \
   --set artifactRoot.s3.bucket=mlflow \
   --set artifactRoot.s3.awsAccessKeyId=minioadmin \
