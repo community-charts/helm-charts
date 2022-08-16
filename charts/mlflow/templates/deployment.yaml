@@ -13,6 +13,13 @@
 {{- else if .Values.artifactRoot.gcs.enabled }}
   {{- $artifactCommand = printf "--%s=gs://%s/%s" $artifactCommandPrefix .Values.artifactRoot.gcs.bucket .Values.artifactRoot.gcs.path }}
 {{- end }}
+
+{{- $dbConnectionDriver := "" }}
+{{- if and .Values.backendStore.postgres.enabled .Values.backendStore.postgres.driver }}
+  {{- $dbConnectionDriver = printf "+%s" .Values.backendStore.postgres.driver }}
+{{- else if and .Values.backendStore.mysql.enabled .Values.backendStore.mysql.driver }}
+  {{- $dbConnectionDriver = printf "+%s" .Values.backendStore.mysql.driver }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -71,7 +78,9 @@ spec:
             - --host=0.0.0.0
             - --port={{ .Values.service.port }}
           {{- if .Values.backendStore.postgres.enabled }}
-            - --backend-store-uri=postgresql://
+            - --backend-store-uri=postgresql{{ $dbConnectionDriver }}://
+          {{- else if .Values.backendStore.mysql.enabled }}
+            - --backend-store-uri=mysql{{ $dbConnectionDriver }}://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
           {{- else }}
             - --backend-store-uri=sqlite:///:memory
           {{- end }}

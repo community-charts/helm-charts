@@ -34,6 +34,36 @@ tests:
       - hasDocuments:
           count: 2
 
+  - it: should have mysql environments when mysql is enabled
+    set:
+      backendStore.mysql.enabled: true
+      backendStore.mysql.host: mysql-service
+      backendStore.mysql.port: 3306
+      backendStore.mysql.database: mysql
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: data.MYSQL_HOST
+          value: mysql-service
+      - equal:
+          path: data.MYSQL_TCP_PORT
+          value: "3306"
+      - equal:
+          path: data.MYSQL_DATABASE
+          value: mysql
+
+  - it: should have mysql environments and migration configmaps when mysql and migration are enabled
+    set:
+      backendStore.mysql.enabled: true
+      backendStore.mysql.host: mysql-service
+      backendStore.mysql.port: 3306
+      backendStore.mysql.database: mysql
+      backendStore.databaseMigration: true
+    asserts:
+      - hasDocuments:
+          count: 2
+
   - it: should match snapshot of default values
     release:
       name: mlflow

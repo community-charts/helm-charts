@@ -1,7 +1,20 @@
 #!/bin/sh
 
-HOST="${PGHOST:-localhost}"
-PORT="${PGPORT:-5432}"
+if [[ -z "${PGHOST}" && -z "${MYSQL_HOST}" ]]; then
+  HOST="localhost"
+elif [[ -z "${PGHOST}" ]]; then
+  HOST="${MYSQL_HOST}"
+else
+  HOST="${PGHOST}"
+fi
+
+if [[ -z "${PGPORT}" && -z "${MYSQL_TCP_PORT}" ]]; then
+  PORT="5432"
+elif [[ -z "${PGPORT}" ]]; then
+  PORT="${MYSQL_TCP_PORT}"
+else
+  PORT="${PGPORT}"
+fi
 
 COUNT=0
 

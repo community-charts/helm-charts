@@ -1,4 +1,4 @@
-{{- if and .Values.backendStore.postgres.enabled .Values.backendStore.databaseMigration }}
+{{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) .Values.backendStore.databaseMigration }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -42,7 +42,7 @@ spec:
               subPath: dbchecker.sh
       {{- end }}
       containers:
-        - name: postgres-migration-job
+        - name: mlflow-db-migration-job
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"

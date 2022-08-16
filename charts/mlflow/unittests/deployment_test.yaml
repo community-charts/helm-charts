@@ -13,19 +13,47 @@ tests:
           path: spec.template.spec.serviceAccountName
           value: customsa
 
-  - it: should be memory backended when postgres is not enabled
+  - it: should be a memory backend when Postgres or MySQL are not enabled
     asserts:
       - equal:
           path: spec.template.spec.containers[0].args[3]
           value: --backend-store-uri=sqlite:///:memory
 
-  - it: should be postgres backended when postgres is enabled
+  - it: should be Postgres backend when Postgres is enabled
     set:
       backendStore.postgres.enabled: true
+      backendStore.postgres.driver: ""
     asserts:
       - equal:
           path: spec.template.spec.containers[0].args[3]
           value: --backend-store-uri=postgresql://
+
+  - it: should use DB connection driver with Postgres backend when Postgres is enabled and driver defined
+    set:
+      backendStore.postgres.enabled: true
+      backendStore.postgres.driver: "psycopg2"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[3]
+          value: --backend-store-uri=postgresql+psycopg2://
+
+  - it: should be MySQL backend when MySQL is enabled
+    set:
+      backendStore.mysql.enabled: true
+      backendStore.mysql.driver: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[3]
+          value: --backend-store-uri=mysql://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
+
+  - it: should use DB connection driver with MySQL backend when MySQL is enabled and driver defined
+    set:
+      backendStore.mysql.enabled: true
+      backendStore.mysql.driver: "pymysql"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[3]
+          value: --backend-store-uri=mysql+pymysql://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
 
   - it: should be local folder as an artifact root when azureBlob or s3 or gcs is not enabled
     asserts:
@@ -204,7 +232,7 @@ tests:
           path: spec.template.spec.containers[0].readinessProbe.httpGet.path
           value: /mlflow
   
-  - it: should check that the db checker init container is present if enabled
+  - it: should check that the db checker init container is present if enabled with postgres
     set:
       backendStore:
         databaseConnectionCheck: true
@@ -218,8 +246,23 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: dbchecker
+
+  - it: should check that the db checker init container is present if enabled with mysql
+    set:
+      backendStore:
+        databaseConnectionCheck: true
+        mysql:
+          enabled: true
+          host: test-host
+          database: test-database
+          user: test-user
+          password: test-password
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker
   
-  - it: should check that the db checker and additional init containers are present
+  - it: should check that the db checker and additional init containers are present with postgres
     set:
       initContainers:
         - name: init-container-test
@@ -230,6 +273,30 @@ tests:
       backendStore:
         databaseConnectionCheck: true
         postgres:
+          enabled: true
+          host: test-host
+          database: test-database
+          user: test-user
+          password: test-password
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: init-container-test
+
+  - it: should check that the db checker and additional init containers are present with mysql
+    set:
+      initContainers:
+        - name: init-container-test
+          image: test:3.2
+          command:
+            - sleep
+            - infinity
+      backendStore:
+        databaseConnectionCheck: true
+        mysql:
           enabled: true
           host: test-host
           database: test-database
