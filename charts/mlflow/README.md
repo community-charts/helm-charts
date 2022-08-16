@@ -39,7 +39,7 @@ Currently, we support the following two databases as a backend repository for Ml
 We currently support the following three cloud providers for [BLOB](https://de.wikipedia.org/wiki/Binary_Large_Object) storage integration.
 
 * [AWS (S3)](https://aws.amazon.com/s3/)
-* [Google CLoud Platform (Cloud Storage)](https://cloud.google.com/storage)
+* [Google Cloud Platform (Cloud Storage)](https://cloud.google.com/storage)
 * [Azure Cloud (Azure Blob Storage)](https://azure.microsoft.com/en-us/services/storage/blobs/)
 
 ## Values Files Examples

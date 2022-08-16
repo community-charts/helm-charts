@@ -54,7 +54,7 @@ data:
   {{- end }}
     utils._initialize_tables(engine)
 {{- end }}
-{{- if .Values.backendStore.databaseConnectionCheck }}
+{{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
 ---
 apiVersion: v1
 kind: ConfigMap

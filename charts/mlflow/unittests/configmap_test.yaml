@@ -34,6 +34,17 @@ tests:
       - hasDocuments:
           count: 2
 
+  - it: should have postgres environments and database connection checker configmaps when postgres and database connection check are enabled
+    set:
+      backendStore.postgres.enabled: true
+      backendStore.postgres.host: postgres-service
+      backendStore.postgres.port: 5432
+      backendStore.postgres.database: postgres
+      backendStore.databaseConnectionCheck: true
+    asserts:
+      - hasDocuments:
+          count: 2
+
   - it: should have mysql environments when mysql is enabled
     set:
       backendStore.mysql.enabled: true

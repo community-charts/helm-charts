@@ -47,9 +47,9 @@ spec:
       serviceAccountName: {{ include "mlflow.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if or .Values.backendStore.databaseConnectionCheck .Values.initContainers }}
+      {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) .Values.backendStore.databaseConnectionCheck) .Values.initContainers }}
       initContainers:
-        {{- if .Values.backendStore.databaseConnectionCheck }}
+        {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
         - name: dbchecker
           image: "busybox:1.32"
           imagePullPolicy: IfNotPresent
@@ -152,9 +152,9 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if or .Values.backendStore.databaseConnectionCheck .Values.extraVolumes }}
+      {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) .Values.backendStore.databaseConnectionCheck) .Values.extraVolumes }}
       volumes:
-        {{- if .Values.backendStore.databaseConnectionCheck }}
+        {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
         - name: dbchecker
           configMap:
             name: {{ template "mlflow.fullname" . }}-dbchecker

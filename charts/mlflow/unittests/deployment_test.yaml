@@ -392,6 +392,12 @@ tests:
       backendStore:
         databaseMigration: true
         databaseConnectionCheck: true
+        postgres:
+          enabled: true
+          host: test-host
+          database: test-database
+          user: test-user
+          password: test-password
       podAnnotations:
         test-key: test-value
       podSecurityContext:
