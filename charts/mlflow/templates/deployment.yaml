@@ -47,7 +47,7 @@ spec:
       serviceAccountName: {{ include "mlflow.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) .Values.backendStore.databaseConnectionCheck) .Values.initContainers }}
+      {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) (or .Values.backendStore.databaseConnectionCheck .Values.backendStore.databaseMigration) ) .Values.initContainers }}
       initContainers:
         {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
         - name: dbchecker
@@ -61,6 +61,28 @@ spec:
             - name: dbchecker
               mountPath: /script/dbchecker.sh
               subPath: dbchecker.sh
+        {{- end }}
+        {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) .Values.backendStore.databaseMigration }}
+        - name: mlflow-db-migration
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          envFrom:
+            - configMapRef:
+                name: {{ template "mlflow.fullname" . }}-env-configmap
+            - secretRef:
+                name: {{ template "mlflow.fullname" . }}-env-secret
+          command: ["python"]
+          args:
+            - /opt/mlflow/migrations.py
+          volumeMounts:
+            - name: migrations-config
+              mountPath: /opt/mlflow/migrations.py
+              subPath: migrations.py
+              readOnly: true
         {{- end }}
       {{- with .Values.initContainers }}
         {{- toYaml . | nindent 8 }}
@@ -152,13 +174,18 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) .Values.backendStore.databaseConnectionCheck) .Values.extraVolumes }}
+      {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) (or .Values.backendStore.databaseConnectionCheck .Values.backendStore.databaseMigration) ) .Values.extraVolumes }}
       volumes:
         {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
         - name: dbchecker
           configMap:
             name: {{ template "mlflow.fullname" . }}-dbchecker
             defaultMode: 0777
+        {{- end }}
+        {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) .Values.backendStore.databaseMigration }}
+        - name: migrations-config
+          configMap:
+            name: {{ template "mlflow.fullname" . }}-migrations
         {{- end }}
       {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}

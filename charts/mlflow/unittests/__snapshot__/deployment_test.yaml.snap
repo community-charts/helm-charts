@@ -170,6 +170,33 @@ should match snapshot with additional values:
             - mountPath: /script/dbchecker.sh
               name: dbchecker
               subPath: dbchecker.sh
+          - args:
+            - /opt/mlflow/migrations.py
+            command:
+            - python
+            envFrom:
+            - configMapRef:
+                name: mlflow-env-configmap
+            - secretRef:
+                name: mlflow-env-secret
+            image: burakince/mlflow:1.0.0
+            imagePullPolicy: IfNotPresent
+            name: mlflow-db-migration
+            resources:
+              limits:
+                cpu: 100m
+                memory: 128Mi
+              requests:
+                cpu: 100m
+                memory: 128Mi
+            securityContext:
+              runAsNonRoot: true
+              runAsUser: 1000
+            volumeMounts:
+            - mountPath: /opt/mlflow/migrations.py
+              name: migrations-config
+              readOnly: true
+              subPath: migrations.py
           - image: busybox:1.28
             name: init-myservice
           nodeSelector:
@@ -186,6 +213,9 @@ should match snapshot with additional values:
               defaultMode: 511
               name: mlflow-dbchecker
             name: dbchecker
+          - configMap:
+              name: mlflow-migrations
+            name: migrations-config
           - name: mlflow-volume
             persistentVolumeClaim:
               claimName: mlflow-pv-volume

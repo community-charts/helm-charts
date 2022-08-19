@@ -310,6 +310,140 @@ tests:
           path: spec.template.spec.initContainers[1].name
           value: init-container-test
 
+  - it: should have a DB migration init container present if enabled with PostgreSQL
+    set:
+      backendStore:
+        databaseMigration: true
+        postgres:
+          enabled: true
+          host: test-host
+          database: test-database
+          user: test-user
+          password: test-password
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: mlflow-db-migration
+
+  - it: should have a DB migration init container present if enabled with MySQL
+    set:
+      backendStore:
+        databaseMigration: true
+        mysql:
+          enabled: true
+          host: test-host
+          database: test-database
+          user: test-user
+          password: test-password
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: mlflow-db-migration
+
+  - it: should have a DB migration init container and additional init containers are present with PostgreSQL
+    set:
+      initContainers:
+        - name: init-container-test
+          image: test:3.2
+          command:
+            - sleep
+            - infinity
+      backendStore:
+        databaseMigration: true
+        postgres:
+          enabled: true
+          host: test-host
+          database: test-database
+          user: test-user
+          password: test-password
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: mlflow-db-migration
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: init-container-test
+
+  - it: should have a DB migration init container and additional init containers are present with MySQL
+    set:
+      initContainers:
+        - name: init-container-test
+          image: test:3.2
+          command:
+            - sleep
+            - infinity
+      backendStore:
+        databaseMigration: true
+        mysql:
+          enabled: true
+          host: test-host
+          database: test-database
+          user: test-user
+          password: test-password
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: mlflow-db-migration
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: init-container-test
+
+  - it: should have a DB checker init container, DB migration init container and additional init containers are present with PostgreSQL
+    set:
+      initContainers:
+        - name: init-container-test
+          image: test:3.2
+          command:
+            - sleep
+            - infinity
+      backendStore:
+        databaseConnectionCheck: true
+        databaseMigration: true
+        postgres:
+          enabled: true
+          host: test-host
+          database: test-database
+          user: test-user
+          password: test-password
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: mlflow-db-migration
+      - equal:
+          path: spec.template.spec.initContainers[2].name
+          value: init-container-test
+
+  - it: should have a DB checker init container, DB migration init container and additional init containers are present with MySQL
+    set:
+      initContainers:
+        - name: init-container-test
+          image: test:3.2
+          command:
+            - sleep
+            - infinity
+      backendStore:
+        databaseConnectionCheck: true
+        databaseMigration: true
+        mysql:
+          enabled: true
+          host: test-host
+          database: test-database
+          user: test-user
+          password: test-password
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: mlflow-db-migration
+      - equal:
+          path: spec.template.spec.initContainers[2].name
+          value: init-container-test
+
   - it: should set liveness probe configurations when we pass it
     set:
       livenessProbe:
