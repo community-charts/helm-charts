@@ -103,7 +103,7 @@ spec:
             - --backend-store-uri=postgresql{{ $dbConnectionDriver }}://
           {{- else if .Values.backendStore.mysql.enabled }}
             - --backend-store-uri=mysql{{ $dbConnectionDriver }}://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
-          {{- else }}
+          {{- else if .Values.backendStore.secret != '' }}
             - --backend-store-uri=sqlite:///:memory
           {{- end }}
             - {{ $artifactCommand }}
@@ -140,6 +140,13 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
+            {{ - if .Values.backendStore.secret }}
+            - name: MLFLOW_BACKEND_STORE_URI
+              valueFrom:
+                secretKeyRef:  
+                  name: {{ .Values.backendStore.secret }}
+                  key: backend-store-uri
+            {{- end }}
             - name: MLFLOW_VERSION
               value: {{ .Values.image.tag | default .Chart.AppVersion | quote }}
           {{- range $key, $value := .Values.extraEnvVars }}

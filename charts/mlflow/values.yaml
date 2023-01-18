@@ -70,7 +70,10 @@ backendStore:
   # -- Add an additional init container, which checks for database availability
   databaseConnectionCheck: false
 
-  postgres:
+  # -- Specifies if you want to use postgres backend storage
+  secret: ""
+
+  postgres:  
     # -- Specifies if you want to use postgres backend storage
     enabled: false
     # -- Postgres host address. e.g. your RDS or Azure Postgres Service endpoint
