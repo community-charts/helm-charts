@@ -256,6 +256,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | artifactRoot.s3.bucket | string | `""` | S3 bucket name |
 | artifactRoot.s3.enabled | bool | `false` | Specifies if you want to use AWS S3 Mlflow Artifact Root |
 | artifactRoot.s3.path | string | `""` | S3 bucket folder. If you want to use root level, please don't set anything. |
+| backendStore.secret | string | `""` | Provide a pre-defined secret that can be used to provide the database credentials |
 | backendStore.databaseConnectionCheck | bool | `false` | Add an additional init container, which checks for database availability |
 | backendStore.databaseMigration | bool | `false` | Specifies if you want to run database migration |
 | backendStore.mysql.database | string | `""` | mlflow database name created before in the mysql instance |
