@@ -24,6 +24,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "mlflow.fullname" . }}
+  namespace: {{ include "mlflow.namespace" . | quote }}
   labels:
     {{- include "mlflow.labels" . | nindent 4 }}
 spec:

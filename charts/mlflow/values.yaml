@@ -20,6 +20,9 @@ imagePullSecrets: []
 # -- String to override the default generated name
 nameOverride: ""
 
+# -- String to override the default namespace
+namespaceOverride: ""
+
 # -- String to override the default generated fullname
 fullnameOverride: ""
 
