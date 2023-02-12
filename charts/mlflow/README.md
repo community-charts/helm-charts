@@ -294,6 +294,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | initContainers | list | `[]` | Init Containers for Mlflow Pod |
 | livenessProbe | object | `{}` | Liveness probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes). |
 | nameOverride | string | `""` | String to override the default generated name |
+| namespaceOverride | string | `""` | String to override the default namespace |
 | nodeSelector | object | `{}` | Set the node selector for the pod. |
 | podAnnotations | object | `{}` | Annotations for the pod |
 | podSecurityContext | object | `{}` | Security context for all pod |

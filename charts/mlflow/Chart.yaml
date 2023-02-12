@@ -58,7 +58,7 @@ annotations:
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |
-    - Update Mlflow image version to 2.1.1
+    - Added namespace fields
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:2.1.1
