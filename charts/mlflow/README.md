@@ -245,7 +245,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | artifactRoot.azureBlob.connectionString | string | `""` | Azure Cloud Connection String for the container. Only onnectionString or accessKey required |
 | artifactRoot.azureBlob.container | string | `""` | Azure blob container name |
 | artifactRoot.azureBlob.enabled | bool | `false` | Specifies if you want to use Azure Blob Storage Mlflow Artifact Root |
-| artifactRoot.azureBlob.path | string | `""` | Azure blobk container folder. If you want to use root level, please don't set anything. |
+| artifactRoot.azureBlob.path | string | `""` | Azure blob container folder. If you want to use root level, please don't set anything. |
 | artifactRoot.azureBlob.storageAccount | string | `""` | Azure storage account name |
 | artifactRoot.gcs.bucket | string | `""` | Google Cloud Storage bucket name |
 | artifactRoot.gcs.enabled | bool | `false` | Specifies if you want to use Google Cloud Storage Mlflow Artifact Root |
