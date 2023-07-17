@@ -17,7 +17,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].args[3]
-          value: --backend-store-uri=sqlite:///:memory
+          value: "--backend-store-uri=sqlite:///:memory:"
 
   - it: should be Postgres backend when Postgres is enabled
     set:
