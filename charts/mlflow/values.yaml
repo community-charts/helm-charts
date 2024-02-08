@@ -218,7 +218,7 @@ serviceMonitor:
   namespace: monitoring
   # -- Set how frequently Prometheus should scrape
   interval: 30s
-  # -- Set path to mlflow telemtery-path
+  # -- Set path to mlflow telemetry-path
   telemetryPath: /metrics
   # -- Set labels for the ServiceMonitor, use this to define your scrape label for Prometheus Operator
   labels:
