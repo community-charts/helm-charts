@@ -593,3 +593,14 @@ tests:
       appVersion: 1.0.0
     asserts:
       - matchSnapshot: { }
+
+  - it: should use different image registry when we change it
+    set:
+      image.registry: my.image.registry.io
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.initContainers[1].image
+          value: my.image.registry.io$
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          value: my.image.registry.io$

@@ -281,6 +281,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | extraVolumes | list | `[]` | Extra Volumes for the pod |
 | fullnameOverride | string | `""` | String to override the default generated fullname |
 | image.pullPolicy | string | `"IfNotPresent"` | The docker image pull policy |
+| image.registry | string | `"docker.io"` | The docker image registry to pull images from |
 | image.repository | string | `"burakince/mlflow"` | The docker image repository to use |
 | image.tag | string | `""` | The docker image tag to use. Default app version |
 | imagePullSecrets | list | `[]` | Image pull secrets for private docker registry usages |

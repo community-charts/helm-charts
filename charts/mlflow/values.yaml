@@ -7,6 +7,8 @@ replicaCount: 1
 
 # Image of mlflow
 image:
+  # -- The docker image registry to pull images from, default is Docker Hub
+  registry: docker.io
   # -- The docker image repository to use
   repository: burakince/mlflow
   # -- The docker image pull policy
