@@ -2,7 +2,7 @@
 apiVersion: v1
 data:
   config-defaults.yaml: |
-    podsPerRuntime: {{ .Values.kserve.modelmesh.config.podPerRuntime }}
+    podsPerRuntime: {{ .Values.kserve.modelmesh.config.podsPerRuntime }}
     headlessService: true
     modelMeshImage:
       name: {{ .Values.kserve.modelmesh.config.modelmeshImage }}
