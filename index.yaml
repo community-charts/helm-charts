@@ -1,5 +1,63 @@
 apiVersion: v1
 entries:
+  actualbudget:
+  - annotations:
+      artifacthub.io/containsSecurityUpdates: "false"
+      artifacthub.io/images: |
+        - name: actualbudget
+          image: actualbudget/actual-server:24.12.0
+      artifacthub.io/license: MIT
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/community-charts/helm-charts
+        - name: Upstream Project
+          url: https://github.com/actualbudget/actual
+      artifacthub.io/maintainers: |
+        - name: burakince
+          email: burak.ince@linux.org.tr
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/screenshots: |
+        - title: User Interface Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-overview-of-user-interface.png
+        - title: Account Register Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-account-register-overview.png
+        - title: Budget Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-budget-overview.png
+        - title: Payees Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-payees-overview.png
+        - title: Reports Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-reports-overview.png
+        - title: Rules Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-rules-overview.png
+        - title: Schedules Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-schedules-overview.png
+    apiVersion: v2
+    appVersion: 24.12.0
+    created: "2024-12-08T09:22:32.270136687Z"
+    description: A local-first personal finance app
+    digest: 7a19c3d201ff1d715e812b1d875369ec937bcba390c353d500e5c46af6ef6ffa
+    home: https://actualbudget.org/
+    icon: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/actual.png
+    keywords:
+    - docker
+    - finance
+    - personal-finance
+    - money
+    - budgeting
+    kubeVersion: '>=1.16.0-0'
+    maintainers:
+    - email: burak.ince@linux.org.tr
+      name: burakince
+      url: https://www.burakince.com
+    name: actualbudget
+    sources:
+    - https://github.com/community-charts/helm-charts
+    - https://github.com/actualbudget/actual
+    type: application
+    urls:
+    - https://github.com/community-charts/helm-charts/releases/download/actualbudget-1.0.0/actualbudget-1.0.0.tgz
+    version: 1.0.0
   drone:
   - annotations:
       artifacthub.io/changes: |
@@ -9877,4 +9935,4 @@ entries:
     urls:
     - https://github.com/community-charts/helm-charts/releases/download/mlflow-0.0.1/mlflow-0.0.1.tgz
     version: 0.0.1
-generated: "2023-01-18T01:16:41.428625729Z"
+generated: "2024-12-08T09:22:32.270487682Z"
