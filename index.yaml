@@ -182,6 +182,58 @@ entries:
   cloudflared:
   - annotations:
       artifacthub.io/changes: |
+        - Update cloudflare/cloudflared image version to 2024.12.1
+      artifacthub.io/containsSecurityUpdates: "false"
+      artifacthub.io/images: |
+        - name: cloudflared
+          image: cloudflare/cloudflared:2024.12.1
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/community-charts/helm-charts
+        - name: Upstream Project
+          url: https://github.com/cloudflare/cloudflared
+        - name: Official Documentation
+          url: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/
+      artifacthub.io/maintainers: |
+        - name: burakince
+          email: burak.ince@linux.org.tr
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/screenshots: |
+        - title: Cloudflared Tunnel Overview
+          url: https://raw.githubusercontent.com/cloudflare/cloudflare-docs/refs/heads/production/src/assets/images/cloudflare-one/connections/connect-apps/handshake.jpg
+      artifacthub.io/signKey: |
+        fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
+        url: https://keybase.io/communitycharts/pgp_keys.asc
+    apiVersion: v2
+    appVersion: 2024.12.1
+    created: "2024-12-12T11:42:08.0901425Z"
+    description: A Helm chart for cloudflare tunnel
+    digest: 77ab038dfcae395e9ac4a0a9f1bcf364e2f6c3a97f21bd75dbfd30bd7fa7ce29
+    home: https://github.com/cloudflare/cloudflared
+    icon: https://raw.githubusercontent.com/cloudflare/color/refs/heads/master/static/thinking/logo.png
+    keywords:
+    - reverse-proxy
+    - cloudflare
+    - argo-tunnel
+    - zero-trust-network-access
+    - cloudflare-tunnel
+    kubeVersion: '>=1.16.0-0'
+    maintainers:
+    - email: burak.ince@linux.org.tr
+      name: burakince
+      url: https://www.burakince.com
+    name: cloudflared
+    sources:
+    - https://github.com/community-charts/helm-charts
+    - https://github.com/cloudflare/cloudflared
+    type: application
+    urls:
+    - https://github.com/community-charts/helm-charts/releases/download/cloudflared-1.0.1/cloudflared-1.0.1.tgz
+    version: 1.0.1
+  - annotations:
+      artifacthub.io/changes: |
         - Add initial helm chart.
       artifacthub.io/containsSecurityUpdates: "false"
       artifacthub.io/images: |
@@ -10226,4 +10278,4 @@ entries:
     urls:
     - https://github.com/community-charts/helm-charts/releases/download/mlflow-0.0.1/mlflow-0.0.1.tgz
     version: 0.0.1
-generated: "2024-12-12T11:34:46.792532611Z"
+generated: "2024-12-12T11:42:08.090463691Z"
