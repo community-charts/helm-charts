@@ -11000,6 +11000,55 @@ entries:
   pypiserver:
   - annotations:
       artifacthub.io/changes: |
+        - Update pypiserver/pypiserver image version to v2.2.0
+      artifacthub.io/containsSecurityUpdates: "false"
+      artifacthub.io/images: |
+        - name: pypiserver
+          image: pypiserver/pypiserver:v2.2.0
+          platforms:
+            - linux/amd64
+            - linux/arm64
+      artifacthub.io/license: MIT
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/community-charts/helm-charts
+        - name: Upstream Project
+          url: https://github.com/pypiserver/pypiserver
+      artifacthub.io/maintainers: |
+        - name: burakince
+          email: burak.ince@linux.org.tr
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/signKey: |
+        fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
+        url: https://keybase.io/communitycharts/pgp_keys.asc
+    apiVersion: v2
+    appVersion: v2.2.0
+    created: "2024-12-16T11:07:35.187988807Z"
+    description: A Helm chart for PyPI Server
+    digest: 0e75e40ab020207e43b778708c495032f0e5877a35834e3c31ba1f9c2ea89b32
+    home: https://github.com/pypiserver/pypiserver
+    icon: https://raw.githubusercontent.com/pypiserver/pypiserver/refs/heads/main/docs/__resources__/pypiserver_logo.png
+    keywords:
+    - pypi
+    - self-hosted
+    - package-management
+    - pypi-server
+    kubeVersion: '>=1.13.0-0'
+    maintainers:
+    - email: burak.ince@linux.org.tr
+      name: burakince
+      url: https://www.burakince.com
+    name: pypiserver
+    sources:
+    - https://github.com/community-charts/helm-charts
+    - https://github.com/pypiserver/pypiserver
+    type: application
+    urls:
+    - https://github.com/community-charts/helm-charts/releases/download/pypiserver-0.1.1/pypiserver-0.1.1.tgz
+    version: 0.1.1
+  - annotations:
+      artifacthub.io/changes: |
         - Add initial chart
       artifacthub.io/containsSecurityUpdates: "false"
       artifacthub.io/images: |
@@ -11047,4 +11096,4 @@ entries:
     urls:
     - https://github.com/community-charts/helm-charts/releases/download/pypiserver-0.1.0/pypiserver-0.1.0.tgz
     version: 0.1.0
-generated: "2024-12-16T10:52:58.977623298Z"
+generated: "2024-12-16T11:07:35.188380359Z"
