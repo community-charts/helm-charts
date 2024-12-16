@@ -11024,6 +11024,55 @@ entries:
         url: https://keybase.io/communitycharts/pgp_keys.asc
     apiVersion: v2
     appVersion: v2.3.2
+    created: "2024-12-16T13:06:54.901742426Z"
+    description: A Helm chart for PyPI Server
+    digest: f25a04fa6ca3bb9156a50528557ac3450283d08df2f0b24c3ff9c2d324ec4229
+    home: https://github.com/pypiserver/pypiserver
+    icon: https://raw.githubusercontent.com/pypiserver/pypiserver/refs/heads/main/docs/__resources__/pypiserver_logo.png
+    keywords:
+    - pypi
+    - self-hosted
+    - package-management
+    - pypi-server
+    kubeVersion: '>=1.13.0-0'
+    maintainers:
+    - email: burak.ince@linux.org.tr
+      name: burakince
+      url: https://www.burakince.com
+    name: pypiserver
+    sources:
+    - https://github.com/community-charts/helm-charts
+    - https://github.com/pypiserver/pypiserver
+    type: application
+    urls:
+    - https://github.com/community-charts/helm-charts/releases/download/pypiserver-0.1.4/pypiserver-0.1.4.tgz
+    version: 0.1.4
+  - annotations:
+      artifacthub.io/changes: |
+        - Update pypiserver/pypiserver image version to v2.3.2
+      artifacthub.io/containsSecurityUpdates: "false"
+      artifacthub.io/images: |
+        - name: pypiserver
+          image: pypiserver/pypiserver:v2.3.2
+          platforms:
+            - linux/amd64
+            - linux/arm64
+      artifacthub.io/license: MIT
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/community-charts/helm-charts
+        - name: Upstream Project
+          url: https://github.com/pypiserver/pypiserver
+      artifacthub.io/maintainers: |
+        - name: burakince
+          email: burak.ince@linux.org.tr
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/signKey: |
+        fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
+        url: https://keybase.io/communitycharts/pgp_keys.asc
+    apiVersion: v2
+    appVersion: v2.3.2
     created: "2024-12-16T13:01:02.700544161Z"
     description: A Helm chart for PyPI Server
     digest: f5fdf80dc63d6aefcc255b8af129f011d49af554aee03a0dde3c4fb19354b23e
@@ -11194,4 +11243,4 @@ entries:
     urls:
     - https://github.com/community-charts/helm-charts/releases/download/pypiserver-0.1.0/pypiserver-0.1.0.tgz
     version: 0.1.0
-generated: "2024-12-16T13:01:02.701011279Z"
+generated: "2024-12-16T13:06:54.902092221Z"
