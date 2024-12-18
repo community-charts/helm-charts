@@ -3,6 +3,72 @@ entries:
   actualbudget:
   - annotations:
       artifacthub.io/changes: |
+        - Change multiple json types to single type for artifacthub support
+      artifacthub.io/containsSecurityUpdates: "false"
+      artifacthub.io/images: |
+        - name: actualbudget
+          image: actualbudget/actual-server:24.12.0
+          platforms:
+            - linux/amd64
+            - linux/arm64
+            - linux/arm/v7
+      artifacthub.io/license: MIT
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/community-charts/helm-charts
+        - name: Upstream Project
+          url: https://github.com/actualbudget/actual
+      artifacthub.io/maintainers: |
+        - name: burakince
+          email: burak.ince@linux.org.tr
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/screenshots: |
+        - title: User Interface Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-overview-of-user-interface.png
+        - title: Account Register Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-account-register-overview.png
+        - title: Budget Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-budget-overview.png
+        - title: Payees Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-payees-overview.png
+        - title: Reports Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-reports-overview.png
+        - title: Rules Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-rules-overview.png
+        - title: Schedules Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-schedules-overview.png
+      artifacthub.io/signKey: |
+        fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
+        url: https://keybase.io/communitycharts/pgp_keys.asc
+    apiVersion: v2
+    appVersion: 24.12.0
+    created: "2024-12-18T14:45:32.020056138Z"
+    description: A local-first personal finance app
+    digest: 89b024ab9cf654d8be8311eef880a0f2e2b7341928a032822c843693b8202007
+    home: https://actualbudget.org/
+    icon: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/actual.png
+    keywords:
+    - docker
+    - finance
+    - personal-finance
+    - money
+    - budgeting
+    kubeVersion: '>=1.16.0-0'
+    maintainers:
+    - email: burak.ince@linux.org.tr
+      name: burakince
+      url: https://www.burakince.com
+    name: actualbudget
+    sources:
+    - https://github.com/community-charts/helm-charts
+    - https://github.com/actualbudget/actual
+    type: application
+    urls:
+    - https://github.com/community-charts/helm-charts/releases/download/actualbudget-1.1.4/actualbudget-1.1.4.tgz
+    version: 1.1.4
+  - annotations:
+      artifacthub.io/changes: |
         - Update documentation
       artifacthub.io/containsSecurityUpdates: "false"
       artifacthub.io/images: |
@@ -512,6 +578,61 @@ entries:
   cloudflared:
   - annotations:
       artifacthub.io/changes: |
+        - Change multiple json types to single type for artifacthub support
+      artifacthub.io/containsSecurityUpdates: "false"
+      artifacthub.io/images: |
+        - name: cloudflared
+          image: cloudflare/cloudflared:2024.12.1
+          platforms:
+            - linux/amd64
+            - linux/arm64
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/community-charts/helm-charts
+        - name: Upstream Project
+          url: https://github.com/cloudflare/cloudflared
+        - name: Official Documentation
+          url: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/
+      artifacthub.io/maintainers: |
+        - name: burakince
+          email: burak.ince@linux.org.tr
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/screenshots: |
+        - title: Cloudflared Tunnel Overview
+          url: https://raw.githubusercontent.com/cloudflare/cloudflare-docs/refs/heads/production/src/assets/images/cloudflare-one/connections/connect-apps/handshake.jpg
+      artifacthub.io/signKey: |
+        fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
+        url: https://keybase.io/communitycharts/pgp_keys.asc
+    apiVersion: v2
+    appVersion: 2024.12.1
+    created: "2024-12-18T14:45:32.204893922Z"
+    description: A Helm chart for cloudflare tunnel
+    digest: 260c079342f6dcf09415c027c0967797792b48e581d642ff448097270308091b
+    home: https://github.com/cloudflare/cloudflared
+    icon: https://raw.githubusercontent.com/cloudflare/color/refs/heads/master/static/thinking/logo.png
+    keywords:
+    - reverse-proxy
+    - cloudflare
+    - argo-tunnel
+    - zero-trust-network-access
+    - cloudflare-tunnel
+    kubeVersion: '>=1.16.0-0'
+    maintainers:
+    - email: burak.ince@linux.org.tr
+      name: burakince
+      url: https://www.burakince.com
+    name: cloudflared
+    sources:
+    - https://github.com/community-charts/helm-charts
+    - https://github.com/cloudflare/cloudflared
+    type: application
+    urls:
+    - https://github.com/community-charts/helm-charts/releases/download/cloudflared-1.1.2/cloudflared-1.1.2.tgz
+    version: 1.1.2
+  - annotations:
+      artifacthub.io/changes: |
         - Update documentation
       artifacthub.io/containsSecurityUpdates: "false"
       artifacthub.io/images: |
@@ -780,6 +901,69 @@ entries:
     - https://github.com/community-charts/helm-charts/releases/download/cloudflared-1.0.0/cloudflared-1.0.0.tgz
     version: 1.0.0
   drone:
+  - annotations:
+      artifacthub.io/changes: |
+        - Change multiple json types to single type for artifacthub support
+      artifacthub.io/containsSecurityUpdates: "false"
+      artifacthub.io/images: |
+        - name: drone
+          image: drone/drone:2.25.0
+          platforms:
+            - linux/amd64
+            - linux/arm64
+      artifacthub.io/license: MIT
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/community-charts/helm-charts
+      artifacthub.io/maintainers: |
+        - name: burakince
+          email: burak.ince@linux.org.tr
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/screenshots: |
+        - title: Build List
+          url: https://raw.githubusercontent.com/drone/brand/master/screenshots/screenshot_build_list.png
+        - title: Build Running
+          url: https://raw.githubusercontent.com/drone/brand/master/screenshots/screenshot_build_running.png
+        - title: Build Success
+          url: https://raw.githubusercontent.com/drone/brand/master/screenshots/screenshot_build_success.png
+        - title: Build Failure
+          url: https://raw.githubusercontent.com/drone/brand/master/screenshots/screenshot_build_failure.png
+      artifacthub.io/signKey: |
+        fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
+        url: https://keybase.io/communitycharts/pgp_keys.asc
+    apiVersion: v2
+    appVersion: 2.25.0
+    created: "2024-12-18T14:45:32.316788285Z"
+    description: A Helm chart for Drone Server and Drone Kubernetes Runner
+    digest: e6c395b4b7cc68b00911c3cc97374a381b801dac3ea112baeb0f46cd5f2af07f
+    home: https://www.drone.io
+    icon: https://raw.githubusercontent.com/drone/brand/master/logos/png/dark/drone-logo-png-dark-128.png
+    keywords:
+    - kubernetes
+    - drone
+    - drone.io
+    - droneci
+    - drone-ci
+    - CI
+    - CD
+    - continuous-delivery
+    - continuous-deployment
+    - continuous-integration
+    - code-pipeline
+    kubeVersion: '>=1.13.0-0'
+    maintainers:
+    - email: burak.ince@linux.org.tr
+      name: burakince
+      url: https://www.burakince.com
+    name: drone
+    sources:
+    - https://github.com/community-charts/helm-charts
+    - https://github.com/drone
+    type: application
+    urls:
+    - https://github.com/community-charts/helm-charts/releases/download/drone-0.1.2/drone-0.1.2.tgz
+    version: 0.1.2
   - annotations:
       artifacthub.io/changes: |
         - Update documentation
@@ -1989,6 +2173,79 @@ entries:
     - https://github.com/community-charts/helm-charts/releases/download/kserve-0.0.1/kserve-0.0.1.tgz
     version: 0.0.1
   mlflow:
+  - annotations:
+      artifacthub.io/changes: |
+        - Change multiple json types to single type for artifacthub support
+      artifacthub.io/containsSecurityUpdates: "false"
+      artifacthub.io/images: |
+        - name: mlflow
+          image: burakince/mlflow:2.19.0
+      artifacthub.io/license: MIT
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/community-charts/helm-charts
+        - name: Upstream Project
+          url: https://github.com/burakince/mlflow
+      artifacthub.io/maintainers: |
+        - name: burakince
+          email: burak.ince@linux.org.tr
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/screenshots: |
+        - title: Quickstart UI screenshot
+          url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/quickstart-ui-screenshot.png
+        - title: OSS registry 1 register
+          url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/oss_registry_1_register.png
+        - title: OSS Registry 2 dialog
+          url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/oss_registry_2_dialog.png
+        - title: OSS Registry 3 overview
+          url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/oss_registry_3_overview.png
+        - title: OSS Registry 3b version
+          url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/oss_registry_3b_version.png
+        - title: OSS Registry 3c version
+          url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/oss_registry_3c_version.png
+        - title: OSS Registry 4 version
+          url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/oss_registry_4_version.png
+        - title: OSS Registry 5 transition
+          url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/oss_registry_5_transition.png
+        - title: Experiment compare
+          url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/tutorial-compare.png
+      artifacthub.io/signKey: |
+        fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
+        url: https://keybase.io/communitycharts/pgp_keys.asc
+    apiVersion: v2
+    appVersion: 2.19.0
+    created: "2024-12-18T14:45:32.459634709Z"
+    description: A Helm chart for Mlflow open source platform for the machine learning
+      lifecycle
+    digest: 01b2e8e2e568c54cf1b3e84047bf8f7e2e71cca938aff1ac693c81b5504180e3
+    home: https://mlflow.org
+    icon: https://raw.githubusercontent.com/mlflow/mlflow/master/assets/logo.svg
+    keywords:
+    - docker
+    - machine-learning
+    - ai
+    - ml
+    - model-management
+    - mlflow
+    - mlflow-tracking-server
+    - mlflow-docker
+    - mlflow-tracking
+    - mlflow-kube
+    kubeVersion: '>=1.16.0-0'
+    maintainers:
+    - email: burak.ince@linux.org.tr
+      name: burakince
+      url: https://www.burakince.com
+    name: mlflow
+    sources:
+    - https://github.com/community-charts/helm-charts
+    - https://github.com/burakince/mlflow
+    - https://github.com/mlflow/mlflow
+    type: application
+    urls:
+    - https://github.com/community-charts/helm-charts/releases/download/mlflow-0.9.1/mlflow-0.9.1.tgz
+    version: 0.9.1
   - annotations:
       artifacthub.io/changes: |
         - Add exprimental basic authentication configuration
@@ -11549,4 +11806,4 @@ entries:
     urls:
     - https://github.com/community-charts/helm-charts/releases/download/pypiserver-0.1.0/pypiserver-0.1.0.tgz
     version: 0.1.0
-generated: "2024-12-18T13:54:23.666099872Z"
+generated: "2024-12-18T14:45:32.632304289Z"
