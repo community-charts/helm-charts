@@ -528,9 +528,15 @@
           "required": [],
           "title": "tls",
           "type": "array"
+        },
+        "webhook": {
+          "default": true,
+          "required": [],
+          "title": "webhook",
+          "type": "boolean"
         }
       },
-      "required": ["enabled", "className", "annotations", "hosts", "tls"],
+      "required": ["enabled", "className", "annotations", "hosts", "tls", "webhook"],
       "title": "ingress",
       "type": "object"
     },
