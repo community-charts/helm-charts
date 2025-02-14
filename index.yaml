@@ -2859,6 +2859,79 @@ entries:
   mlflow:
   - annotations:
       artifacthub.io/changes: |
+        - Update burakince/mlflow image version to 2.20.2 and add basic auth with LDAP backend support.
+      artifacthub.io/containsSecurityUpdates: "false"
+      artifacthub.io/images: |
+        - name: mlflow
+          image: burakince/mlflow:2.20.2
+      artifacthub.io/license: MIT
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/community-charts/helm-charts
+        - name: Upstream Project
+          url: https://github.com/burakince/mlflow
+      artifacthub.io/maintainers: |
+        - name: burakince
+          email: burak.ince@linux.org.tr
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/screenshots: |
+        - title: Quickstart UI screenshot
+          url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/quickstart-ui-screenshot.png
+        - title: OSS registry 1 register
+          url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/oss_registry_1_register.png
+        - title: OSS Registry 2 dialog
+          url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/oss_registry_2_dialog.png
+        - title: OSS Registry 3 overview
+          url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/oss_registry_3_overview.png
+        - title: OSS Registry 3b version
+          url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/oss_registry_3b_version.png
+        - title: OSS Registry 3c version
+          url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/oss_registry_3c_version.png
+        - title: OSS Registry 4 version
+          url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/oss_registry_4_version.png
+        - title: OSS Registry 5 transition
+          url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/oss_registry_5_transition.png
+        - title: Experiment compare
+          url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/tutorial-compare.png
+      artifacthub.io/signKey: |
+        fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
+        url: https://keybase.io/communitycharts/pgp_keys.asc
+    apiVersion: v2
+    appVersion: 2.20.2
+    created: "2025-02-14T15:30:55.823972227Z"
+    description: A Helm chart for Mlflow open source platform for the machine learning
+      lifecycle
+    digest: 4bda566c4dba90633c4d53353360f146fb99c48508546b6ed280b8c022929de0
+    home: https://mlflow.org
+    icon: https://raw.githubusercontent.com/mlflow/mlflow/master/assets/logo.svg
+    keywords:
+    - docker
+    - machine-learning
+    - ai
+    - ml
+    - model-management
+    - mlflow
+    - mlflow-tracking-server
+    - mlflow-docker
+    - mlflow-tracking
+    - mlflow-kube
+    kubeVersion: '>=1.16.0-0'
+    maintainers:
+    - email: burak.ince@linux.org.tr
+      name: burakince
+      url: https://www.burakince.com
+    name: mlflow
+    sources:
+    - https://github.com/community-charts/helm-charts
+    - https://github.com/burakince/mlflow
+    - https://github.com/mlflow/mlflow
+    type: application
+    urls:
+    - https://github.com/community-charts/helm-charts/releases/download/mlflow-0.13.0/mlflow-0.13.0.tgz
+    version: 0.13.0
+  - annotations:
+      artifacthub.io/changes: |
         - Update burakince/mlflow image version to 2.20.1
       artifacthub.io/containsSecurityUpdates: "false"
       artifacthub.io/images: |
@@ -14420,4 +14493,4 @@ entries:
     urls:
     - https://github.com/community-charts/helm-charts/releases/download/pypiserver-0.1.0/pypiserver-0.1.0.tgz
     version: 0.1.0
-generated: "2025-02-14T02:46:14.934360575Z"
+generated: "2025-02-14T15:30:55.824717465Z"
