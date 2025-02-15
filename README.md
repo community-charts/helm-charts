@@ -46,6 +46,10 @@ Community Charts are made with <3 thanks to these wonderful people
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
+## Repo Beats
+
+![Alt](https://repobeats.axiom.co/api/embed/6b096d887f659cf42c4cb85d2986fce29b9d2f85.svg "Repobeats analytics image")
+
 ## License
 
 <!-- Keep full URL links to repo files because this README syncs from main to gh-pages.  -->
