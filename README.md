@@ -57,4 +57,4 @@ Community Charts are made with <3 thanks to these wonderful people
 
 ## Helm charts build status
 
-![Release Charts](https://github.com/community-charts/helm-charts/workflows/Release%20Charts/badge.svg?branch=main)
+![Release Charts](https://github.com/community-charts/helm-charts/actions/workflows/release.yml/badge.svg?branch=main)
