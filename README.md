@@ -3,7 +3,7 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-5-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-![MIT License](https://img.shields.io/github/license/community-charts/helm-charts) ![Release Charts](https://github.com/community-charts/helm-charts/workflows/Release%20Charts/badge.svg?branch=main) [![Releases downloads](https://img.shields.io/github/downloads/community-charts/helm-charts/total.svg)](https://github.com/community-charts/helm-charts/releases) [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/community-charts)](https://artifacthub.io/packages/search?repo=community-charts)
+![MIT License](https://img.shields.io/github/license/community-charts/helm-charts) ![Release Charts](https://github.com/community-charts/helm-charts/actions/workflows/release.yml/badge.svg?branch=main) [![Releases downloads](https://img.shields.io/github/downloads/community-charts/helm-charts/total.svg)](https://github.com/community-charts/helm-charts/releases) [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/community-charts)](https://artifacthub.io/packages/search?repo=community-charts)
 
 ## Usage
 
@@ -55,6 +55,3 @@ Community Charts are made with <3 thanks to these wonderful people
 <!-- Keep full URL links to repo files because this README syncs from main to gh-pages.  -->
 [MIT License](https://github.com/community-charts/helm-charts/blob/main/LICENSE).
 
-## Helm charts build status
-
-![Release Charts](https://github.com/community-charts/helm-charts/actions/workflows/release.yml/badge.svg?branch=main)
