@@ -14531,6 +14531,82 @@ entries:
     urls:
     - https://github.com/community-charts/helm-charts/releases/download/n8n-0.1.0/n8n-0.1.0.tgz
     version: 0.1.0
+  outline:
+  - annotations:
+      artifacthub.io/changes: |
+        - Add initial version of the chart with outline 0.81.1
+      artifacthub.io/containsSecurityUpdates: "false"
+      artifacthub.io/images: |
+        - name: outline
+          image: outlinewiki/outline:0.81.1
+          platforms:
+            - linux/amd64
+            - linux/arm64
+            - linux/arm/v7
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/community-charts/helm-charts
+        - name: Upstream Project
+          url: https://github.com/outline/outline/
+        - name: Official Usage Documentation
+          url: https://docs.getoutline.com/s/guide
+        - name: Official Hosting Documentation
+          url: https://docs.getoutline.com/s/hosting/
+      artifacthub.io/maintainers: |
+        - name: burakince
+          email: burak.ince@linux.org.tr
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/screenshots: |
+        - title: Outline Home Page
+          url: https://outline-production-attachments.s3-accelerate.amazonaws.com/uploads/292079f8-0319-4111-bb5b-315e8ae8f14e/4e8a7188-02af-406f-8db0-368bd1454eee/image%2028.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIA4EOUDTOVUICLPZ4P%2F20250216%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250216T105301Z&X-Amz-Expires=3600&X-Amz-Signature=6abcea244a9dc8a6113f60021da722c830a56063153d3c70b76ed8dfd05124cb&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject
+      artifacthub.io/signKey: |
+        fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
+        url: https://keybase.io/communitycharts/pgp_keys.asc
+    apiVersion: v2
+    appVersion: 0.81.1
+    created: "2025-02-20T21:41:12.89875851Z"
+    dependencies:
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 20.7.0
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 16.4.8
+    - condition: minio.enabled
+      name: minio
+      repository: https://charts.min.io/
+      version: 5.4.0
+    description: A Helm chart for the fastest knowledge base for growing teams. Beautiful,
+      realtime collaborative, feature packed, and markdown compatible.
+    digest: eb04646050623e55a5bf576dda6ca05db2fe40e18b30e01c02f59fd5943966f9
+    home: https://www.getoutline.com/
+    icon: https://avatars.githubusercontent.com/u/1765001?s=200&v=4
+    keywords:
+    - outline
+    - knowledge base
+    - knowledge
+    - docs
+    - documentation
+    - collaboration
+    - markdown
+    - wiki
+    kubeVersion: '>=1.23.0-0'
+    maintainers:
+    - email: burak.ince@linux.org.tr
+      name: burakince
+      url: https://www.burakince.com
+    name: outline
+    sources:
+    - https://github.com/community-charts/helm-charts
+    - https://github.com/outline/outline/
+    type: application
+    urls:
+    - https://github.com/community-charts/helm-charts/releases/download/outline-0.1.0/outline-0.1.0.tgz
+    version: 0.1.0
   pypiserver:
   - annotations:
       artifacthub.io/changes: |
@@ -14875,4 +14951,4 @@ entries:
     urls:
     - https://github.com/community-charts/helm-charts/releases/download/pypiserver-0.1.0/pypiserver-0.1.0.tgz
     version: 0.1.0
-generated: "2025-02-18T14:13:40.383844804Z"
+generated: "2025-02-20T21:41:12.899088826Z"
