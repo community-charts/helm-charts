@@ -1844,6 +1844,69 @@ entries:
   drone:
   - annotations:
       artifacthub.io/changes: |
+        - Update drone/drone image version to 2.26.0
+      artifacthub.io/containsSecurityUpdates: "false"
+      artifacthub.io/images: |
+        - name: drone
+          image: drone/drone:2.26.0
+          platforms:
+            - linux/amd64
+            - linux/arm64
+      artifacthub.io/license: MIT
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/community-charts/helm-charts
+      artifacthub.io/maintainers: |
+        - name: burakince
+          email: burak.ince@linux.org.tr
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/screenshots: |
+        - title: Build List
+          url: https://raw.githubusercontent.com/drone/brand/master/screenshots/screenshot_build_list.png
+        - title: Build Running
+          url: https://raw.githubusercontent.com/drone/brand/master/screenshots/screenshot_build_running.png
+        - title: Build Success
+          url: https://raw.githubusercontent.com/drone/brand/master/screenshots/screenshot_build_success.png
+        - title: Build Failure
+          url: https://raw.githubusercontent.com/drone/brand/master/screenshots/screenshot_build_failure.png
+      artifacthub.io/signKey: |
+        fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
+        url: https://keybase.io/communitycharts/pgp_keys.asc
+    apiVersion: v2
+    appVersion: 2.26.0
+    created: "2025-03-01T02:40:06.198763183Z"
+    description: A Helm chart for Drone Server and Drone Kubernetes Runner
+    digest: 6d8f5a365e22304f42e7fcf735ab5e84b68710a61292aa00b83cea3abb787f8b
+    home: https://www.drone.io
+    icon: https://raw.githubusercontent.com/drone/brand/master/logos/png/dark/drone-logo-png-dark-128.png
+    keywords:
+    - kubernetes
+    - drone
+    - drone.io
+    - droneci
+    - drone-ci
+    - CI
+    - CD
+    - continuous-delivery
+    - continuous-deployment
+    - continuous-integration
+    - code-pipeline
+    kubeVersion: '>=1.13.0-0'
+    maintainers:
+    - email: burak.ince@linux.org.tr
+      name: burakince
+      url: https://www.burakince.com
+    name: drone
+    sources:
+    - https://github.com/community-charts/helm-charts
+    - https://github.com/drone
+    type: application
+    urls:
+    - https://github.com/community-charts/helm-charts/releases/download/drone-0.1.3/drone-0.1.3.tgz
+    version: 0.1.3
+  - annotations:
+      artifacthub.io/changes: |
         - Change multiple json types to single type for artifacthub support
       artifacthub.io/containsSecurityUpdates: "false"
       artifacthub.io/images: |
@@ -16072,4 +16135,4 @@ entries:
     urls:
     - https://github.com/community-charts/helm-charts/releases/download/pypiserver-0.1.0/pypiserver-0.1.0.tgz
     version: 0.1.0
-generated: "2025-02-28T02:47:32.34901953Z"
+generated: "2025-03-01T02:40:06.199618418Z"
