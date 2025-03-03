@@ -3150,6 +3150,54 @@ entries:
   kserve:
   - annotations:
       artifacthub.io/changes: |
+        - kind: deprecated
+          description: This chart is no longer maintained and has been deprecated. Please consider using [Official KServe Helm Chart](https://kserve.github.io/website/latest/admin/serverless/serverless/#4-install-kserve) instead.
+      artifacthub.io/containsSecurityUpdates: "false"
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/community-charts/helm-charts
+        - name: Upstream Project
+          url: http://github.com/kserve/kserve
+        - name: Official KServe Helm Chart Documentation
+          url: https://kserve.github.io/website/latest/admin/serverless/serverless/#4-install-kserve
+        - name: Official KServe Helm Chart Repository
+          url: https://github.com/kserve/kserve/pkgs/container/charts%2Fkserve
+      artifacthub.io/maintainers: |
+        - name: burakince
+          email: burak.ince@linux.org.tr
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+    apiVersion: v2
+    appVersion: v0.8.0
+    created: "2025-03-03T09:30:55.547559836Z"
+    dependencies:
+    - alias: cert-manager
+      condition: cert-manager.enabled
+      name: cert-manager
+      repository: https://charts.jetstack.io
+      version: '>=1.5.0'
+    description: Helm chart for KServe Serverless Inferencing on Kubernetes
+    digest: d7552dd45836a37b7ae699a900c515d5967fcb7163e4035a433bf5e026c6f316
+    home: https://kserve.github.io/website/
+    icon: https://raw.githubusercontent.com/kserve/artwork/main/icon/color/k-serve-icon-color.png
+    keywords:
+    - kserve
+    - modelmesh
+    maintainers:
+    - email: burak.ince@linux.org.tr
+      name: burakince
+      url: https://www.burakince.net
+    name: kserve
+    sources:
+    - http://github.com/kserve/kserve
+    - https://github.com/community-charts/helm-charts
+    type: application
+    urls:
+    - https://github.com/community-charts/helm-charts/releases/download/kserve-1.0.2/kserve-1.0.2.tgz
+    version: 1.0.2
+  - annotations:
+      artifacthub.io/changes: |
         - Add cert manager as a dependency
       artifacthub.io/containsSecurityUpdates: "false"
       artifacthub.io/license: Apache-2.0
@@ -16370,4 +16418,4 @@ entries:
     urls:
     - https://github.com/community-charts/helm-charts/releases/download/pypiserver-0.1.0/pypiserver-0.1.0.tgz
     version: 0.1.0
-generated: "2025-03-03T02:47:58.231693407Z"
+generated: "2025-03-03T09:30:55.547870605Z"
