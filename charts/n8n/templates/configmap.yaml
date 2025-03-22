@@ -256,14 +256,25 @@ metadata:
     heritage: {{ .Release.Service }}
 data:
   N8N_DEFAULT_BINARY_DATA_MODE: {{ .Values.binaryData.mode | quote }}
-  {{- if gt (len .Values.binaryData.availableModes) 0 }}
+{{- if gt (len .Values.binaryData.availableModes) 0 }}
   N8N_AVAILABLE_BINARY_DATA_MODES: {{ join "," .Values.binaryData.availableModes | quote }}
-  {{- end }}
-  {{- if and (has "filesystem" .Values.binaryData.availableModes) (ne .Values.binaryData.localStoragePath "") }}
+{{- end }}
+{{- if and (has "filesystem" .Values.binaryData.availableModes) (ne .Values.binaryData.localStoragePath "") }}
   N8N_BINARY_DATA_STORAGE_PATH: {{ .Values.binaryData.localStoragePath | quote }}
-  {{- end }}
-  {{- if has "s3" .Values.binaryData.availableModes }}
+{{- end }}
+{{- if has "s3" .Values.binaryData.availableModes }}
+  {{- if .Values.minio.enabled }}
+  N8N_EXTERNAL_STORAGE_S3_HOST: {{ template "n8n.fullname" . }}-minio:9000
+    {{- if gt (len .Values.minio.buckets) 0 }}
+      {{- with (first .Values.minio.buckets) }}
+  N8N_EXTERNAL_STORAGE_S3_BUCKET_NAME: {{ .name | quote }}
+      {{- end }}
+    {{- else }}
+  N8N_EXTERNAL_STORAGE_S3_BUCKET_NAME: {{ .Values.binaryData.s3.bucketName | quote }}
+    {{- end }}
+  {{- else }}
   N8N_EXTERNAL_STORAGE_S3_HOST: {{ .Values.binaryData.s3.host | quote }}
   N8N_EXTERNAL_STORAGE_S3_BUCKET_NAME: {{ .Values.binaryData.s3.bucketName | quote }}
-  N8N_EXTERNAL_STORAGE_S3_BUCKET_REGION: {{ .Values.binaryData.s3.bucketRegion | quote }}
   {{- end }}
+  N8N_EXTERNAL_STORAGE_S3_BUCKET_REGION: {{ .Values.binaryData.s3.bucketRegion | quote }}
+{{- end }}

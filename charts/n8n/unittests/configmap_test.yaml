@@ -866,6 +866,61 @@ tests:
           path: data.N8N_EXTERNAL_STORAGE_S3_BUCKET_REGION
           value: eu-central-1
 
+  - it: should set s3 configurations from minio when binaryData.availableModes includes s3 and minio is enabled
+    set:
+      minio:
+        enabled: true
+        buckets:
+          - name: fake-bucket
+            policy: none
+            purge: false
+            versioning: false
+      binaryData:
+        mode: s3
+        availableModes:
+          - s3
+        s3:
+          bucketRegion: eu-central-1
+    documentSelector:
+      path: metadata.name
+      value: n8n-binary-data-configmap
+    asserts:
+      - equal:
+          path: data.N8N_EXTERNAL_STORAGE_S3_HOST
+          value: n8n-minio:9000
+      - equal:
+          path: data.N8N_EXTERNAL_STORAGE_S3_BUCKET_NAME
+          value: fake-bucket
+      - equal:
+          path: data.N8N_EXTERNAL_STORAGE_S3_BUCKET_REGION
+          value: eu-central-1
+
+  - it: should set bucket name from s3 object when binaryData.availableModes includes s3 and minio is enabled but buckets are not set
+    set:
+      minio:
+        enabled: true
+        buckets: []
+      binaryData:
+        mode: s3
+        availableModes:
+          - s3
+        s3:
+          bucketName: another-bucket
+          bucketRegion: eu-west-1
+    documentSelector:
+      path: metadata.name
+      value: n8n-binary-data-configmap
+    asserts:
+      - equal:
+          path: data.N8N_EXTERNAL_STORAGE_S3_HOST
+          value: n8n-minio:9000
+      - equal:
+          path: data.N8N_EXTERNAL_STORAGE_S3_BUCKET_NAME
+          value: another-bucket
+      - equal:
+          path: data.N8N_EXTERNAL_STORAGE_S3_BUCKET_REGION
+          value: eu-west-1
+
   - it: should match snapshot of default values
     release:
       name: n8n

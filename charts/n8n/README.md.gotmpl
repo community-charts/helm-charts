@@ -401,6 +401,55 @@ kubectl auth can-i watch services --namespace n8n --as=system:serviceaccount:mon
 kubectl auth can-i watch endpoints --namespace n8n --as=system:serviceaccount:monitoring:prometheus-k8s
 ```
 
+## Enterprise License Configuration
+
+The chart now supports enterprise license configuration. To enable and configure it, update the `values.yaml` file:
+
+```yaml
+license:
+  enabled: true
+  activationKey: "your-activation-key"
+```
+
+If you have an existing secret for the activation key with `N8N_LICENSE_ACTIVATION_KEY` secret key, configure it as follows:
+
+```yaml
+license:
+  enabled: true
+  existingActivationKeySecret: "your-existing-secret"
+```
+
+## S3 Binary Storage Configuration
+
+The chart now supports storing binary data in S3-compatible external storage. To enable and configure it, update the `values.yaml` file:
+
+```yaml
+binaryData:
+  availableModes:
+    - s3
+  mode: "s3"
+  s3:
+    host: "s3.us-east-1.amazonaws.com"
+    bucketName: "your-bucket-name"
+    bucketRegion: "us-east-1"
+    accessKey: "your-access-key"
+    accessSecret: "your-secret-access-key"
+```
+
+If you have an existing secret for the s3 access key and access secret with `access-key-id` and `secret-access-key` seret key names respectively, configure it as follows:
+
+```yaml
+binaryData:
+  availableModes:
+    - s3
+  mode: "s3"
+  s3:
+    host: "s3.us-east-1.amazonaws.com"
+    bucketName: "your-bucket-name"
+    bucketRegion: "us-east-1"
+    existingSecret: "your-existing-secret"
+```
+
 ## Upgrading
 
 This section outlines major updates and breaking changes for each version of the Helm Chart to help you transition smoothly between releases.
