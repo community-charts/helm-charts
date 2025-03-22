@@ -965,3 +965,133 @@ tests:
             secretRef:
               name: n8n-license-activation-key
         template: deployment-worker.yaml
+
+  - it: should set aws access key id from s3 object when binaryData.mode is s3 and minio is not enabled
+    set:
+      minio:
+        enabled: false
+      binaryData:
+        availableModes:
+          - filesystem
+          - s3
+        mode: s3
+        s3:
+          accessKey: fake-access-key-id
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: N8N_EXTERNAL_STORAGE_S3_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                key: access-key-id
+                name: n8n-s3-secret
+        template: deployment-worker.yaml
+
+  - it: should set aws access key from rootUser key when binaryData.mode is s3 and minio is enabled and users are not set
+    set:
+      binaryData:
+        availableModes:
+          - filesystem
+          - s3
+        mode: s3
+      minio:
+        enabled: true
+        users: []
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: N8N_EXTERNAL_STORAGE_S3_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                key: rootUser
+                name: n8n-minio
+        template: deployment-worker.yaml
+
+  - it: should set aws access key from existing secret when binaryData.mode is s3 and minio is not enabled
+    set:
+      binaryData:
+        availableModes:
+          - filesystem
+          - s3
+        mode: s3
+        s3:
+          existingSecret: fake-existing-secret
+      minio:
+        enabled: false
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: N8N_EXTERNAL_STORAGE_S3_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                key: access-key-id
+                name: fake-existing-secret
+        template: deployment-worker.yaml
+
+  - it: should set aws secret access key from s3 object when binaryData.mode is s3 and minio is not enabled
+    set:
+      minio:
+        enabled: false
+      binaryData:
+        availableModes:
+          - filesystem
+          - s3
+        mode: s3
+        s3:
+          accessSecret: fake-secret-access-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: N8N_EXTERNAL_STORAGE_S3_ACCESS_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: secret-access-key
+                name: n8n-s3-secret
+        template: deployment-worker.yaml
+
+  - it: should set aws secret access key from rootPassword key when binaryData.mode is s3 and minio is enabled and users are not set
+    set:
+      binaryData:
+        availableModes:
+          - filesystem
+          - s3
+        mode: s3
+      minio:
+        enabled: true
+        users: []
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: N8N_EXTERNAL_STORAGE_S3_ACCESS_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: rootPassword
+                name: n8n-minio
+        template: deployment-worker.yaml
+
+  - it: should set aws secret access key from existing secret when binaryData.mode is s3 and minio is not enabled
+    set:
+      binaryData:
+        availableModes:
+          - filesystem
+          - s3
+        mode: s3
+        s3:
+          existingSecret: fake-existing-secret
+      minio:
+        enabled: false
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: N8N_EXTERNAL_STORAGE_S3_ACCESS_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: secret-access-key
+                name: fake-existing-secret
+        template: deployment-worker.yaml

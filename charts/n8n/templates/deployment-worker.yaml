@@ -123,6 +123,28 @@ spec:
                   name: {{ template "n8n.taskRunners.fullname" . }}-secret
                   key: worker-auth-token
           {{- end }}
+          {{- if has "s3" .Values.binaryData.availableModes }}
+            - name: N8N_EXTERNAL_STORAGE_S3_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                {{- if and .Values.minio.enabled (eq (len .Values.minio.users) 0) }}
+                  name: {{ template "n8n.fullname" . }}-minio
+                  key: rootUser
+                {{- else }}
+                  name: {{ default (printf "%s-s3-secret" (include "n8n.fullname" .)) .Values.binaryData.s3.existingSecret }}
+                  key: access-key-id
+                {{- end }}
+            - name: N8N_EXTERNAL_STORAGE_S3_ACCESS_SECRET
+              valueFrom:
+                secretKeyRef:
+                {{- if and .Values.minio.enabled (eq (len .Values.minio.users) 0) }}
+                  name: {{ template "n8n.fullname" . }}-minio
+                  key: rootPassword
+                {{- else }}
+                  name: {{ default (printf "%s-s3-secret" (include "n8n.fullname" .)) .Values.binaryData.s3.existingSecret }}
+                  key: secret-access-key
+                {{- end }}
+          {{- end }}
           {{- range $key, $value := (default .Values.extraEnvVars .Values.worker.extraEnvVars) }}
             - name: {{ upper $key }}
               value: {{ $value | quote }}
@@ -144,6 +166,8 @@ spec:
                 name: {{ template "n8n.fullname" . }}-task-broker-configmap
             - configMapRef:
                 name: {{ template "n8n.fullname" . }}-metrics-configmap
+            - configMapRef:
+                name: {{ template "n8n.fullname" . }}-binary-data-configmap
           {{- if .Values.license.enabled }}
             - configMapRef:
                 name: {{ template "n8n.fullname" . }}-license-configmap

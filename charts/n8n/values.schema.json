@@ -46,6 +46,93 @@
       "title": "api",
       "type": "object"
     },
+    "binaryData": {
+      "additionalProperties": false,
+      "description": "n8n binary data configurations",
+      "properties": {
+        "availableModes": {
+          "default": [],
+          "description": "Available modes of binary data storage. If not set, the default mode will be used. For more information, see https://docs.n8n.io/hosting/configuration/environment-variables/binary-data/",
+          "required": [],
+          "title": "availableModes",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["filesystem", "s3"]
+          }
+        },
+        "mode": {
+          "default": "default",
+          "description": "The default binary data mode. default keeps binary data in memory. Set to filesystem to use the filesystem, or s3 to AWS S3. Note that binary data pruning operates on the active binary data mode. For example, if your instance stored data in S3, and you later switched to filesystem mode, n8n only prunes binary data in the filesystem. This may change in future. Valid values are 'default' | 'filesystem' | 's3'. For more information, see https://docs.n8n.io/hosting/configuration/environment-variables/binary-data/",
+          "required": [],
+          "title": "mode",
+          "type": "string",
+          "enum": ["default", "filesystem", "s3"]
+        },
+        "localStoragePath": {
+          "default": "",
+          "description": "Path for binary data storage in 'filesystem' mode. If not set, the default path will be used. For more information, see https://docs.n8n.io/hosting/configuration/environment-variables/binary-data/",
+          "required": [],
+          "title": "localStoragePath",
+          "type": "string"
+        },
+        "s3": {
+          "additionalProperties": false,
+          "description": "S3-compatible external storage configurations. For more information, see https://docs.n8n.io/hosting/configuration/environment-variables/external-data-storage/",
+          "properties": {
+            "host": {
+              "default": "",
+              "description": "Host of the n8n bucket in S3-compatible external storage. For example, s3.us-east-1.amazonaws.com",
+              "required": [],
+              "title": "host",
+              "type": "string"
+            },
+            "bucketName": {
+              "default": "",
+              "description": "Name of the n8n bucket in S3-compatible external storage.",
+              "required": [],
+              "title": "bucketName",
+              "type": "string"
+            },
+            "bucketRegion": {
+              "default": "us-east-1",
+              "pattern": "^[a-z]{2}-[a-z]+-\\d+$",
+              "description": "Region of the S3-compatible external storage bucket. For example, us-east-1",
+              "required": [],
+              "title": "bucketRegion",
+              "type": "string"
+            },
+            "accessKey": {
+              "default": "",
+              "description": "Access key in S3-compatible external storage",
+              "required": [],
+              "title": "accessKey",
+              "type": "string"
+            },
+            "accessSecret": {
+              "default": "",
+              "description": "Access secret in S3-compatible external storage",
+              "required": [],
+              "title": "accessSecret",
+              "type": "string"
+            },
+            "existingSecret": {
+              "default": "",
+              "description": "This is for setting up the s3 file storage existing secret. Must contain access-key-id and secret-access-key keys.",
+              "required": [],
+              "title": "existingSecret",
+              "type": "string"
+            }
+          },
+          "required": ["host", "bucketName", "bucketRegion", "accessKey", "accessSecret", "existingSecret"],
+          "title": "s3",
+          "type": "object"
+        }
+      },
+      "required": ["mode", "localStoragePath", "s3"],
+      "title": "binaryData",
+      "type": "object"
+    },
     "db": {
       "additionalProperties": false,
       "description": "n8n database configurations",
@@ -2869,6 +2956,437 @@
       "required": ["enabled", "namespace", "interval", "labels", "timeout", "targetLabels", "metricRelabelings", "metricsPrefix", "include"],
       "title": "serviceMonitor",
       "type": "object"
+    },
+    "minio": {
+      "additionalProperties": true,
+      "description": "Minio configuration",
+      "properties": {
+        "buckets": {
+          "description": "Minio buckets",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "default": "n8n-bucket",
+                "description": "This is for setting up the bucket name.",
+                "required": [],
+                "title": "name", 
+                "type": "string"
+              },
+              "policy": {
+                "default": "none",
+                "enum": ["none", "download", "upload", "public"],
+                "description": "This is for setting up the bucket policy.",
+                "required": [],
+                "title": "policy",
+                "type": "string"
+              },
+              "purge": {
+                "default": false,
+                "description": "This is for setting up the purge.",
+                "required": [],
+                "title": "purge",
+                "type": "boolean"
+              },
+              "versioning": {
+                "default": false,
+                "description": "This is for setting up the versioning.",
+                "required": [],
+                "title": "versioning",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "name",
+              "policy",
+              "purge",
+              "versioning"
+            ],
+            "type": "object"
+          },
+          "required": [],
+          "title": "buckets",
+          "type": "array"
+        },
+        "consoleIngress": {
+          "additionalProperties": true,
+          "description": "Minio console ingress",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "description": "Enable ingress",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "hosts": {
+              "description": "Ingress hosts",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "required": [],
+              "title": "hosts",
+              "type": "array"
+            },
+            "path": {
+              "default": "/",
+              "description": "Ingress path",
+              "required": [],
+              "title": "path",
+              "type": "string"
+            }
+          },
+          "required": [
+            "enabled",
+            "hosts",
+            "path"
+          ],
+          "title": "consoleIngress",
+          "type": "object"
+        },
+        "deploymentUpdate": {
+          "additionalProperties": true,
+          "description": "Minio deployment update strategy",
+          "properties": {
+            "type": {
+              "default": "Recreate",
+              "required": [],
+              "title": "type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "title": "deploymentUpdate",
+          "type": "object"
+        },
+        "drivesPerNode": {
+          "default": 1,
+          "description": "Number of drives attached to a node",
+          "required": [],
+          "title": "drivesPerNode",
+          "type": "integer"
+        },
+        "enabled": {
+          "default": false,
+          "description": "Enable minio",
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "ingress": {
+          "additionalProperties": true,
+          "description": "Minio ingress. n8n will use this ingress to access Minio. It's required when fileStorage.mode is s3.",
+          "properties": {
+            "enabled": {
+              "default": true,
+              "description": "Enable ingress",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "hosts": {
+              "description": "Ingress hosts",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "required": [],
+              "title": "hosts",
+              "type": "array"
+            },
+            "path": {
+              "default": "/",
+              "description": "Ingress path",
+              "required": [],
+              "title": "path",
+              "type": "string"
+            }
+          },
+          "required": [
+            "enabled",
+            "hosts",
+            "path"
+          ],
+          "title": "ingress",
+          "type": "object"
+        },
+        "mode": {
+          "default": "standalone",
+          "description": "Minio mode",
+          "required": [],
+          "title": "mode",
+          "type": "string"
+        },
+        "persistence": {
+          "additionalProperties": true,
+          "description": "Minio persistence",
+          "properties": {
+            "accessMode": {
+              "default": "ReadWriteOnce",
+              "description": "Minio persistence access mode",
+              "required": [],
+              "title": "accessMode",
+              "type": "string"
+            },
+            "annotations": {
+              "additionalProperties": true,
+              "default": {},
+              "description": "Minio persistence annotations",
+              "required": [],
+              "title": "annotations",
+              "type": "object"
+            },
+            "enabled": {
+              "default": true,
+              "description": "Enable persistence",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "existingClaim": {
+              "default": "",
+              "description": "Minio persistence existing claim",
+              "required": [],
+              "title": "existingClaim",
+              "type": "string"
+            },
+            "size": {
+              "default": "40Gi",
+              "pattern": "^[0-9]+(Gi|Mi|Ki|G|M|K)$",
+              "description": "Minio persistence size",
+              "required": [],
+              "title": "size",
+              "type": "string"
+            },
+            "storageClass": {
+              "default": "",
+              "description": "Minio persistence storage class",
+              "required": [],
+              "title": "storageClass",
+              "type": "string"
+            },
+            "subPath": {
+              "default": "",
+              "description": "Minio persistence sub path",
+              "required": [],
+              "title": "subPath",
+              "type": "string"
+            },
+            "volumeName": {
+              "default": "",
+              "description": "Minio persistence volume name",
+              "required": [],
+              "title": "volumeName",
+              "type": "string"
+            }
+          },
+          "required": [
+            "enabled",
+            "annotations",
+            "existingClaim",
+            "storageClass",
+            "volumeName",
+            "accessMode",
+            "size",
+            "subPath"
+          ],
+          "title": "persistence",
+          "type": "object"
+        },
+        "policies": {
+          "description": "Minio policies",
+          "items": {
+            "additionalProperties": true,
+            "properties": {
+              "name": {
+                "default": "n8n-policy",
+                "description": "This is for setting up the policy name.",
+                "required": [],
+                "title": "name",
+                "type": "string"
+              },
+              "statements": {
+                "items": {
+                  "additionalProperties": true,
+                  "properties": {
+                    "actions": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "minItems": 1,
+                      "required": [],
+                      "title": "actions", 
+                      "type": "array"
+                    },
+                    "resources": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "minItems": 1,
+                      "required": [],
+                      "title": "resources",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "actions",
+                    "resources"
+                  ],
+                  "type": "object"
+                },
+                "required": [],
+                "title": "statements",
+                "type": "array"
+              }
+            },
+            "required": [
+              "name",
+              "statements"
+            ],
+            "type": "object"
+          },
+          "required": [],
+          "title": "policies",
+          "type": "array"
+        },
+        "pools": {
+          "default": 1,
+          "minimum": 1,
+          "description": "Number of expanded MinIO clusters",
+          "required": [],
+          "title": "pools",
+          "type": "integer"
+        },
+        "replicas": {
+          "default": 1,
+          "minimum": 1,
+          "description": "Number of MinIO containers running",
+          "required": [],
+          "title": "replicas",
+          "type": "integer"
+        },
+        "resources": {
+          "additionalProperties": true,
+          "description": "Minio resources",
+          "properties": {
+            "requests": {
+              "additionalProperties": true,
+              "description": "Minio requests",
+              "properties": {
+                "memory": {
+                  "default": "1Gi",
+                  "pattern": "^[0-9]+(Gi|Mi|Ki|G|M|K)$",
+                  "description": "Minio requests memory",
+                  "required": [],
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "memory"
+              ],
+              "title": "requests",
+              "type": "object"
+            }
+          },
+          "required": [
+            "requests"
+          ],
+          "title": "resources",
+          "type": "object"
+        },
+        "rootPassword": {
+          "default": "",
+          "description": "Minio root password. Length should be at least 8 characters.",
+          "required": [],
+          "title": "rootPassword",
+          "type": "string"
+        },
+        "rootUser": {
+          "default": "",
+          "description": "Minio root user. Length should be at least 3 characters.",
+          "required": [],
+          "title": "rootUser",
+          "type": "string"
+        },
+        "statefulSetUpdate": {
+          "additionalProperties": true,
+          "description": "Minio statefulset update strategy",
+          "properties": {
+            "updateStrategy": {
+              "default": "Recreate",
+              "required": [],
+              "title": "updateStrategy",
+              "type": "string"
+            }
+          },
+          "required": [
+            "updateStrategy"
+          ],
+          "title": "statefulSetUpdate",
+          "type": "object"
+        },
+        "users": {
+          "description": "Minio users",
+          "items": {
+            "additionalProperties": true,
+            "properties": {
+              "accessKey": {
+                "default": "n8n-user",
+                "required": [],
+                "title": "accessKey", 
+                "type": "string"
+              },
+              "policy": {
+                "default": "n8n-policy",
+                "description": "n8n user policy",
+                "required": [],
+                "title": "policy",
+                "type": "string"
+              },
+              "secretKey": {
+                "default": "Change_Me",
+                "description": "n8n user secret key",
+                "required": [],
+                "title": "secretKey",
+                "type": "string"
+              }
+            },
+            "required": [
+              "accessKey",
+              "secretKey", 
+              "policy"
+            ],
+            "type": "object"
+          },
+          "required": [],
+          "title": "users",
+          "type": "array"
+        }
+      },
+      "required": [
+        "enabled",
+        "mode",
+        "deploymentUpdate",
+        "statefulSetUpdate",
+        "drivesPerNode",
+        "replicas",
+        "pools",
+        "rootUser",
+        "rootPassword",
+        "resources",
+        "persistence",
+        "ingress",
+        "consoleIngress",
+        "policies",
+        "users",
+        "buckets"
+      ],
+      "title": "minio",
+      "type": "object"
     }
   },
   "required": [
@@ -2884,6 +3402,7 @@
     "securityContext",
     "service",
     "log",
+    "binaryData",
     "db",
     "sentry",
     "diagnostics",
@@ -2915,7 +3434,8 @@
     "externalRedis",
     "postgresql",
     "externalPostgresql",
-    "serviceMonitor"
+    "serviceMonitor",
+    "minio"
   ],
   "type": "object"
 }
