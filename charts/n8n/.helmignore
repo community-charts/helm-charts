@@ -21,3 +21,6 @@
 .idea/
 *.tmproj
 .vscode/
+
+README.md.gotmpl
+values-kind.yaml
