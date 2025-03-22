@@ -1,0 +1,22 @@
+log:
+  level: info
+
+db:
+  type: postgresdb
+
+worker:
+  mode: queue
+  count: 1
+
+webhook:
+  mode: queue
+  count: 1
+
+redis:
+  enabled: true
+
+postgresql:
+  enabled: true
+  primary:
+    persistence:
+      enabled: false

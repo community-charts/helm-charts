@@ -687,17 +687,78 @@
       "title": "log",
       "type": "object"
     },
+    "license": {
+      "additionalProperties": false,
+      "description": "n8n license configurations",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "description": "Whether to enable the license",
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "activationKey": {
+          "description": "Activation key to initialize license. Not applicable if the n8n instance was already activated. For more information please refer to the following link: https://docs.n8n.io/enterprise-key/",
+          "required": [],
+          "title": "activationKey",
+          "type": "string"
+        },
+        "existingActivationKeySecret": {
+          "description": "The name of an existing secret with license activation key. The secret must contain a key with the name N8N_LICENSE_ACTIVATION_KEY.",
+          "required": [],
+          "title": "existingActivationKeySecret",
+          "type": "string"
+        },
+        "autoNenew": {
+          "description": "The auto new license configuration",
+          "properties": {
+            "enabled": {
+              "default": true,
+              "description": "Enables (true) or disables (false) autorenewal for licenses. If disabled, you need to manually renew the license every 10 days by navigating to Settings > Usage and plan, and pressing F5. Failure to renew the license will disable Enterprise features.",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "offsetInHours": {
+              "default": 72,
+              "description": "The offset in hours before expiry a license should automatically renew. The default value is 72 hours (3 days).",
+              "required": [],
+              "title": "offsetInHours",
+              "type": "integer"
+            }
+          },
+          "required": ["enabled", "offsetInHours"],
+          "title": "autoNenew",
+          "type": "object"
+        },
+        "serverUrl": {
+          "description": "Server URL to retrieve license. The default value is https://license.n8n.io/v1.",
+          "required": [],
+          "title": "serverUrl",
+          "type": "string"
+        },
+        "tenantId": {
+          "description": "Tenant ID associated with the license. Only set this variable if explicitly instructed by n8n.",
+          "required": [],
+          "title": "tenantId",
+          "type": "integer"
+        }
+      },
+      "required": ["enabled", "activationKey", "existingActivationKeySecret", "autoNenew", "serverUrl", "tenantId"],
+      "title": "license",
+      "type": "object"
+    },
     "main": {
       "additionalProperties": false,
       "description": "Main node configuration",
       "properties": {
         "count": {
           "default": 1,
-          "description": "Number of main nodes. Only enterprise license users can have two main nodes.",
+          "description": "Number of main nodes. Only enterprise license users can have one leader main node and mutiple follower main nodes.",
           "required": [],
           "title": "count",
           "minimum": 0,
-          "maximum": 2,
           "type": "integer"
         },
         "pdb": {
@@ -2845,6 +2906,7 @@
     "readinessProbe",
     "volumes",
     "volumeMounts",
+    "license",
     "main",
     "nodeSelector",
     "tolerations",

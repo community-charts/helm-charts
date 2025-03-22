@@ -937,3 +937,82 @@ tests:
             configMapRef:
               name: n8n-task-runners-configmap
         template: deployment.yaml
+
+  - it: should add license info command when license.enabled is true and license.activationKey is set
+    set:
+      license:
+        enabled: true
+        activationKey: fake-activation-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n")].command
+          content:
+            "/bin/sh"
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n")].args
+          content:
+            "-c"
+          any: true
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n")].args
+          content:
+            "n8n license:info && n8n"
+          any: true
+        template: deployment.yaml
+
+  - it: should add license info command when license.enabled is true and license.existingActivationKeySecret is set
+    set:
+      license:
+        enabled: true
+        existingActivationKeySecret: fake-existing-activation-key-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n")].command
+          content:
+            "/bin/sh"
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n")].args
+          content:
+            "-c"
+          any: true
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n")].args
+          content:
+            "n8n license:info && n8n"
+          any: true
+        template: deployment.yaml
+
+  - it: should have multi main setup enabled when main.count is greater than 1
+    set:
+      main:
+        count: 2
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          content:
+            name: N8N_MULTI_MAIN_SETUP_ENABLED
+            value: "true"
+          any: true
+        template: deployment.yaml
+
+  - it: should use license configmap and secret when license.enabled is true
+    set:
+      license:
+        enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          content:
+            configMapRef:
+              name: n8n-license-configmap
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          content:
+            secretRef:
+              name: n8n-license-activation-key
+        template: deployment.yaml

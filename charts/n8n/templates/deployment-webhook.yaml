@@ -142,6 +142,12 @@ spec:
                 name: {{ template "n8n.fullname" . }}-public-api-configmap
             - configMapRef:
                 name: {{ template "n8n.fullname" . }}-queue-configmap
+          {{- if .Values.license.enabled }}
+            - configMapRef:
+                name: {{ template "n8n.fullname" . }}-license-configmap
+            - secretRef:
+                name: {{ default (printf "%s-license-activation-key" (include "n8n.fullname" .)) .Values.license.existingActivationKeySecret }}
+          {{- end }}
             - secretRef:
                 name: {{ default (printf "%s-encryption-key-secret-v2" (include "n8n.fullname" .)) .Values.existingEncryptionKeySecret }}
           {{- range (default .Values.extraSecretNamesForEnvFrom .Values.webhook.extraSecretNamesForEnvFrom) }}

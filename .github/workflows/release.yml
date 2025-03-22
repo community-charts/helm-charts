@@ -74,7 +74,7 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
         run: |
           helm env
-          helm plugin install https://github.com/helm-unittest/helm-unittest.git --version v0.7.0
+          helm plugin install https://github.com/helm-unittest/helm-unittest.git --version v0.8.0
 
       - name: Run chart-testing (lint)
         run: ct lint --debug --config ./.github/configs/ct-lint.yaml --lint-conf ./.github/configs/lintconf.yaml
@@ -84,7 +84,11 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
 
       - name: Run chart-testing (install)
-        run: ct install --config ./.github/configs/ct-lint.yaml
+        run: |
+          for chart in ${{ steps.list-changed.outputs.changed_charts }}; do
+            echo "Testing $chart"
+            ct install --config ./.github/configs/ct-lint.yaml --charts "$chart" --helm-extra-args "--timeout 600s -f $chart/values-kind.yaml"
+          done
         if: steps.list-changed.outputs.changed == 'true'
 
   release:

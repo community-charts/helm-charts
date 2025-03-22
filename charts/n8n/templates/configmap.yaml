@@ -31,7 +31,6 @@ data:
   DB_LOGGING_OPTIONS: {{ .Values.db.logging.options | quote }}
   DB_LOGGING_MAX_EXECUTION_TIME: {{ .Values.db.logging.maxQueryExecutionTime | quote }}
 {{- end }}
-
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -53,7 +52,6 @@ data:
 {{- if gt (len .Values.log.scopes) 0 }}
   N8N_LOG_SCOPES: {{ join "," .Values.log.scopes | quote }}
 {{- end }}
-
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -87,7 +85,6 @@ data:
   N8N_SENTRY_DSN: ""
   N8N_FRONTEND_SENTRY_DSN: ""
 {{- end }}
-
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -104,7 +101,6 @@ data:
   N8N_VERSION_NOTIFICATIONS_ENDPOINT: {{ .Values.versionNotifications.endpoint | quote }}
   N8N_VERSION_NOTIFICATIONS_INFO_URL: {{ .Values.versionNotifications.infoUrl | quote }}
 {{- end }}
-
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -119,7 +115,6 @@ data:
   N8N_PUBLIC_API_DISABLED: {{ not .Values.api.enabled | quote }}
   N8N_PUBLIC_API_ENDPOINT: {{ .Values.api.path | quote }}
   N8N_PUBLIC_API_SWAGGERUI_DISABLED: {{ not .Values.api.swagger.enabled | quote }}
-
 {{- if and (eq .Values.db.type "postgresdb") (or (eq .Values.worker.mode "queue") (eq .Values.webhook.mode "queue")) }}
 ---
 apiVersion: v1
@@ -143,7 +138,6 @@ data:
   N8N_DISABLE_PRODUCTION_MAIN_PROCESS: "true"
   {{- end }}
 {{- end }}
-
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -157,7 +151,6 @@ metadata:
 data:
   N8N_WORKFLOW_HISTORY_ENABLED: {{ .Values.workflowHistory.enabled | quote }}
   N8N_WORKFLOW_HISTORY_PRUNE_TIME: {{ .Values.workflowHistory.pruneTime | quote }}
-
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -179,7 +172,6 @@ data:
 {{- else }}
   N8N_RUNNERS_MAX_CONCURRENCY: {{ .Values.taskRunners.maxConcurrency | quote }}
 {{- end }}
-
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -204,7 +196,6 @@ data:
   N8N_METRICS_INCLUDE_API_METHOD_LABEL: {{ .Values.serviceMonitor.include.apiMethodLabel | quote }}
   N8N_METRICS_INCLUDE_API_STATUS_CODE_LABEL: {{ .Values.serviceMonitor.include.apiStatusCodeLabel | quote }}
   N8N_METRICS_INCLUDE_QUEUE_METRICS: {{ .Values.serviceMonitor.include.queueMetrics | quote }}
-
 {{- if eq .Values.taskRunners.mode "external" }}
 ---
 apiVersion: v1
@@ -233,4 +224,23 @@ data:
 {{- else }}
   SENTRY_DSN: ""
 {{- end }}
+{{- end }}
+{{- if .Values.license.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "n8n.fullname" . }}-license-configmap
+  labels:
+    app: {{ include "n8n.name" . }}
+    chart: {{ include "n8n.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  N8N_LICENSE_AUTO_RENEW_ENABLED: {{ .Values.license.autoNenew.enabled | quote }}
+  N8N_LICENSE_AUTO_RENEW_OFFSET: {{ .Values.license.autoNenew.offsetInHours | mul 3600 | quote }}
+  N8N_LICENSE_SERVER_URL: {{ .Values.license.serverUrl | quote }}
+  {{- if ne (int .Values.license.tenantId) 1 }}
+  N8N_LICENSE_TENANT_ID: {{ .Values.license.tenantId | quote }}
+  {{- end }}
 {{- end }}

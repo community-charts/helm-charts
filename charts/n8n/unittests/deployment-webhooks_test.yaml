@@ -925,3 +925,21 @@ tests:
             name: N8N_RUNNERS_MAX_CONCURRENCY
             value: "2"
         template: deployment-webhook.yaml
+
+  - it: should use license configmap and secret when license.enabled is true
+    set:
+      license:
+        enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].envFrom
+          content:
+            configMapRef:
+              name: n8n-license-configmap
+        template: deployment-webhook.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].envFrom
+          content:
+            secretRef:
+              name: n8n-license-activation-key
+        template: deployment-webhook.yaml

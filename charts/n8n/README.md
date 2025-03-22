@@ -519,6 +519,15 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
 | ingress | object | `{"annotations":{},"className":"","enabled":false,"hosts":[{"host":"n8n.local","paths":[{"path":"/","pathType":"Prefix"}]}],"tls":[]}` | This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/ |
+| license | object | `{"activationKey":"","autoNenew":{"enabled":true,"offsetInHours":72},"enabled":false,"existingActivationKeySecret":"","serverUrl":"http://license.n8n.io/v1","tenantId":1}` | n8n enterprise license configurations |
+| license.activationKey | string | `""` | Activation key to initialize license. Not applicable if the n8n instance was already activated. For more information please refer to the following link: https://docs.n8n.io/enterprise-key/ |
+| license.autoNenew | object | `{"enabled":true,"offsetInHours":72}` | The auto new license configuration |
+| license.autoNenew.enabled | bool | `true` | Enables (true) or disables (false) autorenewal for licenses. If disabled, you need to manually renew the license every 10 days by navigating to Settings > Usage and plan, and pressing F5. Failure to renew the license will disable Enterprise features. |
+| license.autoNenew.offsetInHours | int | `72` | Time in hours before expiry a license should automatically renew. |
+| license.enabled | bool | `false` | Whether to enable the enterprise license |
+| license.existingActivationKeySecret | string | `""` | The name of an existing secret with license activation key. The secret must contain a key with the name N8N_LICENSE_ACTIVATION_KEY. |
+| license.serverUrl | string | `"http://license.n8n.io/v1"` | Server URL to retrieve license. |
+| license.tenantId | int | `1` | Tenant ID associated with the license. Only set this variable if explicitly instructed by n8n. |
 | livenessProbe | object | `{"httpGet":{"path":"/healthz","port":"http"}}` | This is to setup the liveness probe more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | log | object | `{"file":{"location":"logs/n8n.log","maxcount":"100","maxsize":16},"level":"info","output":["console"],"scopes":[]}` | n8n log configurations |
 | log.file.location | string | `"logs/n8n.log"` | Location of the log files inside `~/.n8n`. Only for `file` log output. |
@@ -528,7 +537,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | log.output | list | `["console"]` | Where to output logs to. Options are: `console` or `file` or both. |
 | log.scopes | list | `[]` | Scopes to filter logs by. Nothing is filtered by default. Supported log scopes: concurrency, external-secrets, license, multi-main-setup, pubsub, redis, scaling, waiting-executions |
 | main | object | `{"count":1,"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"resources":{},"volumeMounts":[],"volumes":[]}` | Main node configurations |
-| main.count | int | `1` | Number of main nodes. Only enterprise license users can have two main nodes. |
+| main.count | int | `1` | Number of main nodes. Only enterprise license users can have one leader main node and mutiple follower main nodes. |
 | main.extraEnvVars | object | `{}` | Extra environment variables |
 | main.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
 | main.pdb | object | `{"enabled":true,"maxUnavailable":null,"minAvailable":1}` | Whether to enable the PodDisruptionBudget for the main pod. |

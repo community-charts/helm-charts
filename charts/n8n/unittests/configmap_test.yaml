@@ -774,6 +774,32 @@ tests:
           path: data.SENTRY_DSN
           value: ""
 
+  - it: should set license environment variables when license.enabled is true
+    set:
+      license:
+        enabled: true
+        autoNenew:
+          enabled: false
+          offsetInHours: 1
+        serverUrl: "https://license.mydomain.com"
+        tenantId: 999
+    documentSelector:
+      path: metadata.name
+      value: n8n-license-configmap
+    asserts:
+      - equal:
+          path: data.N8N_LICENSE_AUTO_RENEW_ENABLED
+          value: "false"
+      - equal:
+          path: data.N8N_LICENSE_AUTO_RENEW_OFFSET
+          value: "3600"
+      - equal:
+          path: data.N8N_LICENSE_SERVER_URL
+          value: "https://license.mydomain.com"
+      - equal:
+          path: data.N8N_LICENSE_TENANT_ID
+          value: "999"
+
   - it: should match snapshot of default values
     release:
       name: n8n

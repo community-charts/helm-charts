@@ -160,9 +160,28 @@ api:
   swagger:
     enabled: true
 
+# -- n8n enterprise license configurations
+license:
+  # -- Whether to enable the enterprise license
+  enabled: false
+  # -- Activation key to initialize license. Not applicable if the n8n instance was already activated. For more information please refer to the following link: https://docs.n8n.io/enterprise-key/
+  activationKey: ""
+  # -- The name of an existing secret with license activation key. The secret must contain a key with the name N8N_LICENSE_ACTIVATION_KEY.
+  existingActivationKeySecret: ""
+  # -- The auto new license configuration
+  autoNenew:
+    # -- Enables (true) or disables (false) autorenewal for licenses. If disabled, you need to manually renew the license every 10 days by navigating to Settings > Usage and plan, and pressing F5. Failure to renew the license will disable Enterprise features.
+    enabled: true
+    # -- Time in hours before expiry a license should automatically renew.
+    offsetInHours: 72
+  # -- Server URL to retrieve license.
+  serverUrl: "http://license.n8n.io/v1"
+  # -- Tenant ID associated with the license. Only set this variable if explicitly instructed by n8n.
+  tenantId: 1
+
 # -- Main node configurations
 main:
-  # -- Number of main nodes. Only enterprise license users can have two main nodes.
+  # -- Number of main nodes. Only enterprise license users can have one leader main node and mutiple follower main nodes.
   count: 1
 
   # -- Whether to enable the PodDisruptionBudget for the main pod.

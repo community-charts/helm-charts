@@ -45,6 +45,12 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- if and .Values.license.enabled (or (ne .Values.license.activationKey "") (ne .Values.license.existingActivationKeySecret "")) }}
+          command: ["/bin/sh"]
+          args:
+            - "-c"
+            - "n8n license:info && n8n"
+        {{- end }}
           ports:
             - name: {{ .Values.service.name }}
               containerPort: {{ .Values.service.port }}
@@ -109,6 +115,10 @@ spec:
                   name: {{ template "n8n.taskRunners.fullname" . }}-secret
                   key: auth-token
           {{- end }}
+          {{- if gt (int .Values.main.count) 1 }}
+            - name: N8N_MULTI_MAIN_SETUP_ENABLED
+              value: "true"
+          {{- end }}
           {{- range $key, $value := (default .Values.extraEnvVars .Values.main.extraEnvVars) }}
             - name: {{ upper $key }}
               value: {{ $value | quote }}
@@ -134,6 +144,12 @@ spec:
                 name: {{ template "n8n.fullname" . }}-task-broker-configmap
             - configMapRef:
                 name: {{ template "n8n.fullname" . }}-metrics-configmap
+          {{- if .Values.license.enabled }}
+            - configMapRef:
+                name: {{ template "n8n.fullname" . }}-license-configmap
+            - secretRef:
+                name: {{ default (printf "%s-license-activation-key" (include "n8n.fullname" .)) .Values.license.existingActivationKeySecret }}
+          {{- end }}
             - secretRef:
                 name: {{ default (printf "%s-encryption-key-secret-v2" (include "n8n.fullname" .)) .Values.existingEncryptionKeySecret }}
           {{- range (default .Values.extraSecretNamesForEnvFrom .Values.main.extraSecretNamesForEnvFrom) }}

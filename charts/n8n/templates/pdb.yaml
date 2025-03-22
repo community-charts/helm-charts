@@ -1,4 +1,4 @@
-{{- if and .Values.main.pdb.enabled (or (eq (int .Values.main.count) 2) (not (eq .Values.strategy.type "Recreate"))) }}
+{{- if and .Values.main.pdb.enabled (or (gt (int .Values.main.count) 1) (not (eq .Values.strategy.type "Recreate"))) }}
 ---
 apiVersion: policy/v1
 kind: PodDisruptionBudget
