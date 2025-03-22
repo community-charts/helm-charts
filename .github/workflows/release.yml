@@ -94,7 +94,7 @@ jobs:
         run: |
           for chart in ${{ steps.list-changed.outputs.changed_charts }}; do
             echo "Testing $chart"
-            ct install --config ./.github/configs/ct-lint.yaml --charts "$chart" --helm-extra-args "--timeout 600s --values $chart/values-kind.yaml --debug"
+            ct install --config ./.github/configs/ct-lint.yaml --charts "$chart" --helm-extra-set-args "--values $chart/values-kind.yaml" --helm-extra-args "--timeout 600s"
           done
         if: steps.list-changed.outputs.changed == 'true'
 
