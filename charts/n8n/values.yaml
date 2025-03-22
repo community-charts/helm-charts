@@ -811,13 +811,13 @@ minio:
             - "s3:DeleteObject"
             - "s3:PutObject"
             - "s3:ListMultipartUploadParts"
-          resources: 
+          resources:
             - "arn:aws:s3:::n8n-bucket/*"
         - actions:
             - "s3:GetBucketLocation"
             - "s3:ListBucket"
             - "s3:ListBucketMultipartUploads"
-          resources: 
+          resources:
             - "arn:aws:s3:::n8n-bucket"
 
   # -- Minio users
