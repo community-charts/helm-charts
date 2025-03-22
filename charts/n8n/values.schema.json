@@ -811,7 +811,7 @@
               ]
             }
           },
-          "required": ["enabled", "minAvailable", "maxUnavailable"],
+          "required": ["enabled"],
           "title": "pdb",
           "type": "object",
           "if": {
@@ -1827,7 +1827,7 @@
               ]
             }
           },
-          "required": ["enabled", "minAvailable", "maxUnavailable"],
+          "required": ["enabled"],
           "title": "pdb",
           "type": "object",
           "if": {
@@ -2372,7 +2372,7 @@
               ]
             }
           },
-          "required": ["enabled", "minAvailable", "maxUnavailable"],
+          "required": ["enabled"],
           "title": "pdb",
           "type": "object",
           "if": {
