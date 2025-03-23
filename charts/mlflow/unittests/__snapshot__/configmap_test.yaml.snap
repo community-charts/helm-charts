@@ -10,3 +10,63 @@ should match snapshot of default values:
         heritage: Helm
         release: mlflow
       name: mlflow-env-configmap
+should match snapshot of default values with bitnami mysql:
+  1: |
+    apiVersion: v1
+    data:
+      MYSQL_DATABASE: mlflow
+      MYSQL_HOST: mlflow-mysql
+      MYSQL_TCP_PORT: "3306"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-env-configmap
+should match snapshot of default values with bitnami postgresql:
+  1: |
+    apiVersion: v1
+    data:
+      PGDATABASE: mlflow
+      PGHOST: mlflow-postgresql
+      PGPORT: "5432"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-env-configmap
+should match snapshot of default values with mysql:
+  1: |
+    apiVersion: v1
+    data:
+      MYSQL_DATABASE: mlflow
+      MYSQL_HOST: mysql-custom-service
+      MYSQL_TCP_PORT: "3306"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-env-configmap
+should match snapshot of default values with postgres:
+  1: |
+    apiVersion: v1
+    data:
+      PGDATABASE: mlflow
+      PGHOST: postgres-custom-service
+      PGPORT: "5432"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-env-configmap

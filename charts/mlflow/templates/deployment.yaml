@@ -98,7 +98,7 @@ spec:
               mountPath: /script/dbchecker.sh
               subPath: dbchecker.sh
         {{- end }}
-        {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled) .Values.backendStore.databaseMigration }}
+        {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseMigration }}
         - name: mlflow-db-migration
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}

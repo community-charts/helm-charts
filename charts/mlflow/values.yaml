@@ -115,7 +115,7 @@ backendStore:
     # -- mysql database connection driver. e.g.: "pymysql"
     driver: "pymysql"
 
-# -- Bitnami PostgreSQL configuration
+# -- Bitnami PostgreSQL configuration. For more information checkout: https://github.com/bitnami/charts/tree/main/bitnami/postgresql
 postgresql:
   # -- Enable postgresql
   enabled: false
@@ -136,7 +136,7 @@ postgresql:
     # -- The name of the PostgreSQL database.
     database: "mlflow"
 
-# -- Bitnami MySQL configuration
+# -- Bitnami MySQL configuration. For more information checkout: https://github.com/bitnami/charts/tree/main/bitnami/mysql
 mysql:
   # -- Enable mysql
   enabled: false
@@ -154,6 +154,7 @@ mysql:
   auth:
     username: ""
     password: ""
+    # -- The name of the MySQL database.
     database: "mlflow"
 
 # Mlflow blob storage settings

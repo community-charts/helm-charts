@@ -21,7 +21,7 @@ tests:
           path: spec.template.spec.serviceAccountName
           value: customsa
 
-  - it: should be a memory backend when Postgres or MySQL are not enabled
+  - it: should be a memory backend when Postgres or MySQL or bitnami Postgres or bitnami MySQL are not enabled
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
@@ -63,10 +63,34 @@ tests:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --backend-store-uri=mysql://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
 
+  - it: should be MySQL backend when bitnami mysql is enabled
+    set:
+      mysql:
+        enabled: true
+      backendStore:
+        mysql:
+          driver: ""
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --backend-store-uri=mysql://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
+
   - it: should use DB connection driver with MySQL backend when MySQL is enabled and driver defined
     set:
       backendStore.mysql.enabled: true
       backendStore.mysql.driver: "pymysql"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --backend-store-uri=mysql+pymysql://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
+
+  - it: should use DB connection driver with MySQL backend when bitnami mysql is enabled and driver defined
+    set:
+      mysql:
+        enabled: true
+      backendStore:
+        mysql:
+          driver: "pymysql"
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
@@ -292,6 +316,20 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: dbchecker
+
+  - it: should check that the db checker init container is present if enabled with bitnami mysql
+    set:
+      mysql:
+        enabled: true
+        auth:
+          username: test-user
+          password: test-password
+      backendStore:
+        databaseConnectionCheck: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker
   
   - it: should check that the db checker and additional init containers are present with postgres
     set:
@@ -365,6 +403,29 @@ tests:
           path: spec.template.spec.initContainers[1].name
           value: init-container-test
 
+  - it: should check that the db checker and additional init containers are present with bitnami mysql
+    set:
+      initContainers:
+        - name: init-container-test
+          image: test:3.2
+          command:
+            - sleep
+            - infinity
+      mysql:
+        enabled: true
+        auth:
+          username: test-user
+          password: test-password
+      backendStore:
+        databaseConnectionCheck: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: init-container-test
+
   - it: should have a DB migration init container present if enabled with postgres
     set:
       backendStore:
@@ -405,6 +466,20 @@ tests:
           database: test-database
           user: test-user
           password: test-password
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: mlflow-db-migration
+
+  - it: should have a DB migration init container present if enabled with bitnami mysql
+    set:
+      mysql:
+        enabled: true
+        auth:
+          username: test-user
+          password: test-password
+      backendStore:
+        databaseMigration: true
     asserts:
       - equal:
           path: spec.template.spec.initContainers[0].name
@@ -474,6 +549,29 @@ tests:
           database: test-database
           user: test-user
           password: test-password
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: mlflow-db-migration
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: init-container-test
+
+  - it: should have a DB migration init container and additional init containers are present with bitnami MySQL
+    set:
+      initContainers:
+        - name: init-container-test
+          image: test:3.2
+          command:
+            - sleep
+            - infinity
+      mysql:
+        enabled: true
+        auth:
+          username: test-user
+          password: test-password
+      backendStore:
+        databaseMigration: true
     asserts:
       - equal:
           path: spec.template.spec.initContainers[0].name
@@ -555,6 +653,33 @@ tests:
           database: test-database
           user: test-user
           password: test-password
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: mlflow-db-migration
+      - equal:
+          path: spec.template.spec.initContainers[2].name
+          value: init-container-test
+
+  - it: should have a DB checker init container, DB migration init container and additional init containers are present with bitnami MySQL
+    set:
+      initContainers:
+        - name: init-container-test
+          image: test:3.2
+          command:
+            - sleep
+            - infinity
+      mysql:
+        enabled: true
+        auth:
+          username: test-user
+          password: test-password
+      backendStore:
+        databaseConnectionCheck: true
+        databaseMigration: true
     asserts:
       - equal:
           path: spec.template.spec.initContainers[0].name
@@ -864,7 +989,232 @@ tests:
       backendStore:
         databaseMigration: true
         databaseConnectionCheck: true
+        postgres:
+          enabled: true
+          host: test-host
+          database: test-database
+          user: test-user
+          password: test-password
+      podAnnotations:
+        test-key: test-value
+      podSecurityContext:
+        fsGroup: 2000
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      initContainers:
+        - name: init-myservice
+          image: busybox:1.28
+      resources:
+        limits:
+          cpu: 100m
+          memory: 128Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      extraVolumeMounts:
+        - name: mlflow-volume
+          mountPath: /mlflow/data
+        - name: example
+          mountPath: /example
+      extraVolumes:
+        - name: mlflow-volume
+          persistentVolumeClaim:
+            claimName: mlflow-pv-volume
+        - name: example
+          configMap:
+            name: example
+      nodeSelector:
+        disktype: ssd
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/e2e-az-name
+                    operator: In
+                    values:
+                      - e2e-az1
+                      - e2e-az2
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              preference:
+                matchExpressions:
+                  - key: custom-key
+                    operator: In
+                    values:
+                      - custom-value
+      tolerations:
+        - key: "example-key"
+          operator: "Exists"
+          effect: "NoSchedule"
+    release:
+      name: mlflow
+      namespace: mlflow
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should match snapshot with additional values when bitnami postgresql is enabled
+    set:
+      auth:
+        enabled: true
+      backendStore:
+        databaseMigration: true
+        databaseConnectionCheck: true
       postgresql:
+        enabled: true
+        auth:
+          database: test-database
+          username: test-user
+          password: test-password
+      podAnnotations:
+        test-key: test-value
+      podSecurityContext:
+        fsGroup: 2000
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      initContainers:
+        - name: init-myservice
+          image: busybox:1.28
+      resources:
+        limits:
+          cpu: 100m
+          memory: 128Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      extraVolumeMounts:
+        - name: mlflow-volume
+          mountPath: /mlflow/data
+        - name: example
+          mountPath: /example
+      extraVolumes:
+        - name: mlflow-volume
+          persistentVolumeClaim:
+            claimName: mlflow-pv-volume
+        - name: example
+          configMap:
+            name: example
+      nodeSelector:
+        disktype: ssd
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/e2e-az-name
+                    operator: In
+                    values:
+                      - e2e-az1
+                      - e2e-az2
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              preference:
+                matchExpressions:
+                  - key: custom-key
+                    operator: In
+                    values:
+                      - custom-value
+      tolerations:
+        - key: "example-key"
+          operator: "Exists"
+          effect: "NoSchedule"
+    release:
+      name: mlflow
+      namespace: mlflow
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should match snapshot with additional values when mysql is enabled
+    set:
+      auth:
+        enabled: true
+      backendStore:
+        databaseMigration: true
+        databaseConnectionCheck: true
+        mysql:
+          enabled: true
+          host: test-host
+          database: test-database
+          user: test-user
+          password: test-password
+      podAnnotations:
+        test-key: test-value
+      podSecurityContext:
+        fsGroup: 2000
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      initContainers:
+        - name: init-myservice
+          image: busybox:1.28
+      resources:
+        limits:
+          cpu: 100m
+          memory: 128Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      extraVolumeMounts:
+        - name: mlflow-volume
+          mountPath: /mlflow/data
+        - name: example
+          mountPath: /example
+      extraVolumes:
+        - name: mlflow-volume
+          persistentVolumeClaim:
+            claimName: mlflow-pv-volume
+        - name: example
+          configMap:
+            name: example
+      nodeSelector:
+        disktype: ssd
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/e2e-az-name
+                    operator: In
+                    values:
+                      - e2e-az1
+                      - e2e-az2
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              preference:
+                matchExpressions:
+                  - key: custom-key
+                    operator: In
+                    values:
+                      - custom-value
+      tolerations:
+        - key: "example-key"
+          operator: "Exists"
+          effect: "NoSchedule"
+    release:
+      name: mlflow
+      namespace: mlflow
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should match snapshot with additional values when bitnami mysql is enabled
+    set:
+      auth:
+        enabled: true
+      backendStore:
+        databaseMigration: true
+        databaseConnectionCheck: true
+      mysql:
         enabled: true
         auth:
           database: test-database
