@@ -136,6 +136,26 @@ postgresql:
     # -- The name of the PostgreSQL database.
     database: "mlflow"
 
+# -- Bitnami MySQL configuration
+mysql:
+  # -- Enable mysql
+  enabled: false
+  architecture: standalone
+
+  primary:
+    service:
+      ports:
+        mysql: 3306
+
+    persistence:
+      enabled: true
+      existingClaim: ""
+
+  auth:
+    username: ""
+    password: ""
+    database: "mlflow"
+
 # Mlflow blob storage settings
 artifactRoot:
   # -- Specifies if you want to enable proxied artifact storage access

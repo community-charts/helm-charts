@@ -98,3 +98,8 @@ dependencies:
     version: 16.5.2
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
+
+  - name: mysql
+    version: 12.3.2
+    repository: https://charts.bitnami.com/bitnami
+    condition: mysql.enabled
