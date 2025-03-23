@@ -133,7 +133,7 @@ postgresql:
   auth:
     username: ""
     password: ""
-    # -- The name of the PostgreSQL database. For more information: https://docs.n8n.io/hosting/configuration/supported-databases-settings/#required-permissions
+    # -- The name of the PostgreSQL database.
     database: "mlflow"
 
 # Mlflow blob storage settings
