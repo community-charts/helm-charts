@@ -81,3 +81,17 @@ Usage: {{ include "mlflow.generateRandomHex" 32 }}
 {{- end -}}
 {{- $result -}}
 {{- end -}}
+
+{{/*
+Create postgresql name secret name.
+*/}}
+{{- define "mlflow.postgresql.fullname" -}}
+{{- printf "%s-postgresql" (include "mlflow.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Create mysql name secret name.
+*/}}
+{{- define "mlflow.mysql.fullname" -}}
+{{- printf "%s-mysql" (include "mlflow.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}

@@ -115,6 +115,15 @@ backendStore:
     # -- mysql database connection driver. e.g.: "pymysql"
     driver: "pymysql"
 
+  # -- Specifies if you want to use an existing database secret.
+  existingDatabaseSecret:
+    # -- The name of the existing database secret.
+    name: ""
+    # -- The key of the username in the existing database secret.
+    usernameKey: "username"
+    # -- The key of the password in the existing database secret.
+    passwordKey: "password"
+
 # -- Bitnami PostgreSQL configuration. For more information checkout: https://github.com/bitnami/charts/tree/main/bitnami/postgresql
 postgresql:
   # -- Enable postgresql

@@ -897,6 +897,172 @@ tests:
           path: spec.replicas
           value: 1
 
+  - it: should use username and password from existing secret when backendStore.existingDatabaseSecret is set and postgres is enabled
+    set:
+      backendStore:
+        existingDatabaseSecret:
+          name: test-secret
+          usernameKey: customUsername
+          passwordKey: customPassword
+        postgres:
+          enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: PGUSER
+            valueFrom:
+              secretKeyRef:
+                name: test-secret
+                key: customUsername
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: PGPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: test-secret
+                key: customPassword
+
+  - it: should use username and password from existing secret when backendStore.existingDatabaseSecret is set and mysql is enabled
+    set:
+      backendStore:
+        existingDatabaseSecret:
+          name: test-secret
+          usernameKey: customUsername
+          passwordKey: customPassword
+        mysql:
+          enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: MYSQL_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: test-secret
+                key: customUsername
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: MYSQL_PWD
+            valueFrom:
+              secretKeyRef:
+                name: test-secret
+                key: customPassword
+
+  - it: should use username and password from existing secret when backendStore.existingDatabaseSecret is set and postgres is enabled and database check connection is enabled
+    set:
+      backendStore:
+        databaseConnectionCheck: true
+        postgres:
+          enabled: true
+        existingDatabaseSecret:
+          name: test-secret
+          usernameKey: customUsername
+          passwordKey: customPassword
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "dbchecker")].env
+          content:
+            name: PGUSER
+            valueFrom:
+              secretKeyRef:
+                name: test-secret
+                key: customUsername
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "dbchecker")].env
+          content:
+            name: PGPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: test-secret
+                key: customPassword
+
+  - it: should use username and password from existing secret when backendStore.existingDatabaseSecret is set and mysql is enabled and database check connection is enabled
+    set:
+      backendStore:
+        databaseConnectionCheck: true
+        mysql:
+          enabled: true
+        existingDatabaseSecret:
+          name: test-secret
+          usernameKey: customUsername
+          passwordKey: customPassword
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "dbchecker")].env
+          content:
+            name: MYSQL_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: test-secret
+                key: customUsername
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "dbchecker")].env
+          content:
+            name: MYSQL_PWD
+            valueFrom:
+              secretKeyRef:
+                name: test-secret
+                key: customPassword
+
+  - it: should use username and password from existing secret when backendStore.existingDatabaseSecret is set and postgres is enabled and database migration is enabled
+    set:
+      backendStore:
+        databaseMigration: true
+        postgres:
+          enabled: true
+        existingDatabaseSecret:
+          name: test-secret
+          usernameKey: customUsername
+          passwordKey: customPassword
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "mlflow-db-migration")].env
+          content:
+            name: PGUSER
+            valueFrom:
+              secretKeyRef:
+                name: test-secret
+                key: customUsername
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "mlflow-db-migration")].env
+          content:
+            name: PGPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: test-secret
+                key: customPassword
+
+  - it: should use username and password from existing secret when backendStore.existingDatabaseSecret is set and mysql is enabled and database migration is enabled
+    set:
+      backendStore:
+        databaseMigration: true
+        mysql:
+          enabled: true
+        existingDatabaseSecret:
+          name: test-secret
+          usernameKey: customUsername
+          passwordKey: customPassword
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "mlflow-db-migration")].env
+          content:
+            name: MYSQL_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: test-secret
+                key: customUsername
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "mlflow-db-migration")].env
+          content:
+            name: MYSQL_PWD
+            valueFrom:
+              secretKeyRef:
+                name: test-secret
+                key: customPassword
+
   - it: should match snapshot of default values
     release:
       name: mlflow

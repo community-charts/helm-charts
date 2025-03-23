@@ -56,38 +56,65 @@ spec:
       serviceAccountName: {{ include "mlflow.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) (or .Values.backendStore.databaseConnectionCheck .Values.backendStore.databaseMigration) ) .Values.initContainers }}
+    {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) (or .Values.backendStore.databaseConnectionCheck .Values.backendStore.databaseMigration) ) .Values.initContainers }}
       initContainers:
-        {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
+    {{- end }}
+      {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
         - name: dbchecker
           image: "busybox:1.32"
           imagePullPolicy: IfNotPresent
           command: [ "/script/dbchecker.sh" ]
-          {{- if or .Values.postgresql.enabled .Values.mysql.enabled }}
+        {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name }}
           env:
-            {{- if .Values.postgresql.enabled }}
+        {{- end }}
+          {{- if .Values.postgresql.enabled }}
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "mlflow.fullname" . }}-postgresql
+                  name: {{ (include "mlflow.postgresql.fullname" .) }}
               {{- if .Values.postgresql.auth.username }}
                   key: password
               {{- else }}
                   key: postgres-password
               {{- end }}
                   optional: true
-            {{- end }}
-            {{- if .Values.mysql.enabled }}
+          {{- end }}
+          {{- if .Values.mysql.enabled }}
             - name: MYSQL_PWD
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "mlflow.fullname" . }}-mysql
+                  name: {{ (include "mlflow.mysql.fullname" .) }}
               {{- if .Values.mysql.auth.username }}
                   key: password
               {{- else }}
                   key: mysql-root-password
               {{- end }}
                   optional: true
+          {{- end }}
+          {{- if .Values.backendStore.existingDatabaseSecret.name }}
+            {{- if .Values.backendStore.postgres.enabled }}
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+                  key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+                  key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
+            {{- end }}
+            {{- if .Values.backendStore.mysql.enabled }}
+            - name: MYSQL_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+                  key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
+            - name: MYSQL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+                  key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
             {{- end }}
           {{- end }}
           envFrom:
@@ -97,40 +124,66 @@ spec:
             - name: dbchecker
               mountPath: /script/dbchecker.sh
               subPath: dbchecker.sh
-        {{- end }}
-        {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseMigration }}
-        - name: mlflow-db-migration
+      {{- end }}
+      {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseMigration }}
+        - name: "mlflow-db-migration"
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- if or .Values.postgresql.enabled .Values.mysql.enabled }}
+        {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name }}
           env:
-            {{- if .Values.postgresql.enabled }}
+        {{- end }}
+          {{- if .Values.postgresql.enabled }}
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "mlflow.fullname" . }}-postgresql
+                  name: {{ (include "mlflow.postgresql.fullname" .) }}
               {{- if .Values.postgresql.auth.username }}
                   key: password
               {{- else }}
                   key: postgres-password
               {{- end }}
                   optional: true
-            {{- end }}
-            {{- if .Values.mysql.enabled }}
+          {{- end }}
+          {{- if .Values.mysql.enabled }}
             - name: MYSQL_PWD
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "mlflow.fullname" . }}-mysql
+                  name: {{ (include "mlflow.mysql.fullname" .) }}
               {{- if .Values.mysql.auth.username }}
                   key: password
               {{- else }}
                   key: mysql-root-password
               {{- end }}
                   optional: true
+          {{- end }}
+          {{- if .Values.backendStore.existingDatabaseSecret.name }}
+            {{- if .Values.backendStore.postgres.enabled }}
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+                  key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+                  key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
+            {{- end }}
+            {{- if .Values.backendStore.mysql.enabled }}
+            - name: MYSQL_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+                  key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
+            - name: MYSQL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+                  key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
             {{- end }}
           {{- end }}
           envFrom:
@@ -148,10 +201,9 @@ spec:
               mountPath: /opt/mlflow/migrations.py
               subPath: migrations.py
               readOnly: true
-        {{- end }}
+      {{- end }}
       {{- with .Values.initContainers }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
@@ -227,7 +279,7 @@ spec:
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "mlflow.fullname" . }}-postgresql
+                  name: {{ (include "mlflow.postgresql.fullname" .) }}
               {{- if .Values.postgresql.auth.username }}
                   key: password
               {{- else }}
@@ -239,13 +291,39 @@ spec:
             - name: MYSQL_PWD
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "mlflow.fullname" . }}-mysql
+                  name: {{ (include "mlflow.mysql.fullname" .) }}
               {{- if .Values.mysql.auth.username }}
                   key: password
               {{- else }}
                   key: mysql-root-password
               {{- end }}
                   optional: true
+          {{- end }}
+          {{- if .Values.backendStore.existingDatabaseSecret.name }}
+            {{- if .Values.backendStore.postgres.enabled }}
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+                  key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+                  key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
+            {{- end }}
+            {{- if .Values.backendStore.mysql.enabled }}
+            - name: MYSQL_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+                  key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
+            - name: MYSQL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+                  key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
+            {{- end }}
           {{- end }}
           {{- range $key, $value := .Values.extraEnvVars }}
             - name: {{ upper $key }}
