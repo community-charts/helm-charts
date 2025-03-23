@@ -58,7 +58,7 @@ annotations:
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |
-    - Add bitnami's postgresql and mysql charts as optional dependencies
+    - Add bitnami's postgresql and mysql charts as optional dependencies, and support for existing database secret
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:2.21.0

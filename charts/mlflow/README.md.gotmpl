@@ -58,6 +58,22 @@ backendStore:
     password: "Pa33w0rd!"
 ```
 
+## Postgres Database with Existing Database Secret Example
+
+```yaml
+backendStore:
+  postgres:
+    enabled: true
+    host: "postgresql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "mlflow"
+
+  existingDatabaseSecret:
+    name: "postgres-database-secret"
+    usernameKey: "username"
+    passwordKey: "password"
+```
+
 ## Bitnami's Postgres Database Migration Values Files Example
 
 ```yaml
@@ -79,6 +95,22 @@ backendStore:
     database: "mlflow"
     user: "mlflowuser"
     password: "Pa33w0rd!"
+```
+
+## MySQL Database with Existing Database Secret Example
+
+```yaml
+backendStore:
+  mysql:
+    enabled: true
+    host: "mysql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 3306
+    database: "mlflow"
+
+  existingDatabaseSecret:
+    name: "mysql-database-secret"
+    usernameKey: "username"
+    passwordKey: "password"
 ```
 
 ## Bitnami's MySQL Database Migration Values Files Example
