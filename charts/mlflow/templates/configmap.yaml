@@ -14,7 +14,7 @@ data:
   PGDATABASE: {{ required "postgres database must be specified" .Values.backendStore.postgres.database }}
 {{- end }}
 {{- if .Values.postgresql.enabled }}
-  PGHOST: {{ template "mlflow.name" . }}-postgresql
+  PGHOST: {{ template "mlflow.fullname" . }}-postgresql
   PGPORT: {{ default "5432" .Values.postgresql.primary.service.ports.postgresql | quote }}
   PGDATABASE: {{ .Values.postgresql.auth.database }}
 {{- end }}
