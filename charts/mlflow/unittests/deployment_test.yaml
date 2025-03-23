@@ -36,6 +36,15 @@ tests:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --backend-store-uri=postgresql://
 
+  - it: should be Postgressql backend when postgresql is enabled
+    set:
+      postgresql:
+        enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --backend-store-uri=postgresql://
+
   - it: should use DB connection driver with Postgres backend when Postgres is enabled and driver defined
     set:
       backendStore.postgres.enabled: true
@@ -253,6 +262,21 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: dbchecker
+  
+  - it: should check that the db checker init container is present if enabled with postgresql
+    set:
+      postgresql:
+        enabled: true
+        auth:
+          username: test-user
+          password: test-password
+          database: test-database
+      backendStore:
+        databaseConnectionCheck: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker
 
   - it: should check that the db checker init container is present if enabled with mysql
     set:
@@ -292,6 +316,30 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[1].name
           value: init-container-test
+  
+  - it: should check that the db checker and additional init containers are present with postgresql
+    set:
+      initContainers:
+        - name: init-container-test
+          image: test:3.2
+          command:
+            - sleep
+            - infinity
+      postgresql:
+        enabled: true
+        auth:
+          database: test-database
+          username: test-user
+          password: test-password
+      backendStore:
+        databaseConnectionCheck: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: init-container-test
 
   - it: should check that the db checker and additional init containers are present with mysql
     set:
@@ -317,7 +365,7 @@ tests:
           path: spec.template.spec.initContainers[1].name
           value: init-container-test
 
-  - it: should have a DB migration init container present if enabled with PostgreSQL
+  - it: should have a DB migration init container present if enabled with postgres
     set:
       backendStore:
         databaseMigration: true
@@ -327,6 +375,21 @@ tests:
           database: test-database
           user: test-user
           password: test-password
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: mlflow-db-migration
+
+  - it: should have a DB migration init container present if enabled with postgresql
+    set:
+      postgresql:
+        enabled: true
+        auth:
+          database: test-database
+          username: test-user
+          password: test-password
+      backendStore:
+        databaseMigration: true
     asserts:
       - equal:
           path: spec.template.spec.initContainers[0].name
@@ -347,7 +410,7 @@ tests:
           path: spec.template.spec.initContainers[0].name
           value: mlflow-db-migration
 
-  - it: should have a DB migration init container and additional init containers are present with PostgreSQL
+  - it: should have a DB migration init container and additional init containers are present with postgres
     set:
       initContainers:
         - name: init-container-test
@@ -363,6 +426,30 @@ tests:
           database: test-database
           user: test-user
           password: test-password
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: mlflow-db-migration
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: init-container-test
+
+  - it: should have a DB migration init container and additional init containers are present with postgresql
+    set:
+      initContainers:
+        - name: init-container-test
+          image: test:3.2
+          command:
+            - sleep
+            - infinity
+      postgresql:
+        enabled: true
+        auth:
+          database: test-database
+          username: test-user
+          password: test-password
+      backendStore:
+        databaseMigration: true
     asserts:
       - equal:
           path: spec.template.spec.initContainers[0].name
@@ -395,7 +482,7 @@ tests:
           path: spec.template.spec.initContainers[1].name
           value: init-container-test
 
-  - it: should have a DB checker init container, DB migration init container and additional init containers are present with PostgreSQL
+  - it: should have a DB checker init container, DB migration init container and additional init containers are present with postgres
     set:
       initContainers:
         - name: init-container-test
@@ -411,6 +498,34 @@ tests:
           host: test-host
           database: test-database
           user: test-user
+          password: test-password
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: mlflow-db-migration
+      - equal:
+          path: spec.template.spec.initContainers[2].name
+          value: init-container-test
+
+  - it: should have a DB checker init container, DB migration init container and additional init containers are present with postgresql
+    set:
+      initContainers:
+        - name: init-container-test
+          image: test:3.2
+          command:
+            - sleep
+            - infinity
+      backendStore:
+        databaseConnectionCheck: true
+        databaseMigration: true
+      postgresql:
+        enabled: true
+        auth:
+          database: test-database
+          username: test-user
           password: test-password
     asserts:
       - equal:
@@ -679,6 +794,81 @@ tests:
           host: test-host
           database: test-database
           user: test-user
+          password: test-password
+      podAnnotations:
+        test-key: test-value
+      podSecurityContext:
+        fsGroup: 2000
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      initContainers:
+        - name: init-myservice
+          image: busybox:1.28
+      resources:
+        limits:
+          cpu: 100m
+          memory: 128Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      extraVolumeMounts:
+        - name: mlflow-volume
+          mountPath: /mlflow/data
+        - name: example
+          mountPath: /example
+      extraVolumes:
+        - name: mlflow-volume
+          persistentVolumeClaim:
+            claimName: mlflow-pv-volume
+        - name: example
+          configMap:
+            name: example
+      nodeSelector:
+        disktype: ssd
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/e2e-az-name
+                    operator: In
+                    values:
+                      - e2e-az1
+                      - e2e-az2
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              preference:
+                matchExpressions:
+                  - key: custom-key
+                    operator: In
+                    values:
+                      - custom-value
+      tolerations:
+        - key: "example-key"
+          operator: "Exists"
+          effect: "NoSchedule"
+    release:
+      name: mlflow
+      namespace: mlflow
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should match snapshot with additional values when postgresql is enabled
+    set:
+      auth:
+        enabled: true
+      backendStore:
+        databaseMigration: true
+        databaseConnectionCheck: true
+      postgresql:
+        enabled: true
+        auth:
+          database: test-database
+          username: test-user
           password: test-password
       podAnnotations:
         test-key: test-value

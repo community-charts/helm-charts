@@ -3,6 +3,14 @@ suite: test configmap
 templates:
   - configmap.yaml
 
+release:
+  name: mlflow
+  namespace: mlflow
+
+chart:
+  version: 1.0.0
+  appVersion: 1.0.0
+
 tests:
   - it: should have postgres environments when postgres is enabled
     set:
@@ -71,6 +79,62 @@ tests:
       backendStore.mysql.port: 3306
       backendStore.mysql.database: mysql
       backendStore.databaseMigration: true
+    asserts:
+      - hasDocuments:
+          count: 2
+
+  - it: should have postgresql environments when postgresql is enabled
+    set:
+      postgresql:
+        enabled: true
+        auth:
+          database: custom-db
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.PGHOST
+          value: mlflow-postgresql
+      - equal:
+          path: data.PGPORT
+          value: "5432"
+      - equal:
+          path: data.PGDATABASE
+          value: custom-db
+
+  - it: should use different postgresql port when postgresql is enabled and postgresql.primary.service.ports.postgresql is set
+    set:
+      postgresql:
+        enabled: true
+        primary:
+          service:
+            ports:
+              postgresql: 5433
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.PGPORT
+          value: "5433"
+
+  - it: should have postgresql environments and migration configmaps when postgres and migration are enabled
+    set:
+      postgresql:
+        enabled: true
+      backendStore:
+        databaseMigration: true
+    asserts:
+      - hasDocuments:
+          count: 2
+
+  - it: should have postgresql environments and database connection checker configmaps when postgres and database connection check are enabled
+    set:
+      postgresql:
+        enabled: true
+      backendStore:
+        databaseConnectionCheck: true
     asserts:
       - hasDocuments:
           count: 2

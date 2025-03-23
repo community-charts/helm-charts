@@ -263,3 +263,209 @@ should match snapshot with additional values:
             - configMap:
                 name: example
               name: example
+should match snapshot with additional values when postgresql is enabled:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
+      name: mlflow
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: mlflow
+          app.kubernetes.io/instance: mlflow
+          app.kubernetes.io/name: mlflow
+      strategy:
+        rollingUpdate:
+          maxSurge: 100%
+          maxUnavailable: 0
+        type: RollingUpdate
+      template:
+        metadata:
+          annotations:
+            test-key: test-value
+          labels:
+            app: mlflow
+            app.kubernetes.io/instance: mlflow
+            app.kubernetes.io/name: mlflow
+        spec:
+          affinity:
+            nodeAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+                - preference:
+                    matchExpressions:
+                      - key: custom-key
+                        operator: In
+                        values:
+                          - custom-value
+                  weight: 1
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: kubernetes.io/e2e-az-name
+                        operator: In
+                        values:
+                          - e2e-az1
+                          - e2e-az2
+          containers:
+            - args:
+                - server
+                - --host=0.0.0.0
+                - --port=5000
+                - --backend-store-uri=postgresql://
+                - --default-artifact-root=./mlruns
+                - --app-name=basic-auth
+              command:
+                - mlflow
+              env:
+                - name: MLFLOW_VERSION
+                  value: 1.0.0
+                - name: MLFLOW_AUTH_CONFIG_PATH
+                  value: /etc/mlflow/auth/basic_auth.ini
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: password
+                      name: mlflow-postgresql
+                      optional: true
+              envFrom:
+                - configMapRef:
+                    name: mlflow-env-configmap
+                - secretRef:
+                    name: mlflow-env-secret
+                - secretRef:
+                    name: mlflow-flask-server-secret-key
+              image: burakince/mlflow:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 5
+                httpGet:
+                  path: /health
+                  port: http
+                initialDelaySeconds: 10
+                periodSeconds: 30
+                timeoutSeconds: 3
+              name: mlflow
+              ports:
+                - containerPort: 5000
+                  name: http
+                  protocol: TCP
+              readinessProbe:
+                failureThreshold: 5
+                httpGet:
+                  path: /health
+                  port: http
+                initialDelaySeconds: 10
+                periodSeconds: 30
+                timeoutSeconds: 3
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+              securityContext:
+                runAsNonRoot: true
+                runAsUser: 1000
+              volumeMounts:
+                - mountPath: /etc/mlflow/auth
+                  name: auth-config-secret
+                  readOnly: true
+                - mountPath: /mlflow/data
+                  name: mlflow-volume
+                - mountPath: /example
+                  name: example
+          initContainers:
+            - command:
+                - /script/dbchecker.sh
+              env:
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: password
+                      name: mlflow-postgresql
+                      optional: true
+              envFrom:
+                - configMapRef:
+                    name: mlflow-env-configmap
+              image: busybox:1.32
+              imagePullPolicy: IfNotPresent
+              name: dbchecker
+              volumeMounts:
+                - mountPath: /script/dbchecker.sh
+                  name: dbchecker
+                  subPath: dbchecker.sh
+            - args:
+                - /opt/mlflow/migrations.py
+              command:
+                - python
+              env:
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: password
+                      name: mlflow-postgresql
+                      optional: true
+              envFrom:
+                - configMapRef:
+                    name: mlflow-env-configmap
+                - secretRef:
+                    name: mlflow-env-secret
+                - secretRef:
+                    name: mlflow-flask-server-secret-key
+              image: burakince/mlflow:1.0.0
+              imagePullPolicy: IfNotPresent
+              name: mlflow-db-migration
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+              securityContext:
+                runAsNonRoot: true
+                runAsUser: 1000
+              volumeMounts:
+                - mountPath: /opt/mlflow/migrations.py
+                  name: migrations-config
+                  readOnly: true
+                  subPath: migrations.py
+            - image: busybox:1.28
+              name: init-myservice
+          nodeSelector:
+            disktype: ssd
+          securityContext:
+            fsGroup: 2000
+          serviceAccountName: mlflow
+          tolerations:
+            - effect: NoSchedule
+              key: example-key
+              operator: Exists
+          volumes:
+            - configMap:
+                defaultMode: 511
+                name: mlflow-dbchecker
+              name: dbchecker
+            - configMap:
+                name: mlflow-migrations
+              name: migrations-config
+            - name: auth-config-secret
+              secret:
+                secretName: mlflow-auth-config-secret
+            - name: mlflow-volume
+              persistentVolumeClaim:
+                claimName: mlflow-pv-volume
+            - configMap:
+                name: example
+              name: example
