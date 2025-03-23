@@ -15,7 +15,7 @@
 {{- end }}
 
 {{- $dbConnectionDriver := "" }}
-{{- if and .Values.backendStore.postgres.enabled .Values.backendStore.postgres.driver }}
+{{- if and (or .Values.backendStore.postgres.enabled .Values.postgresql.enabled) .Values.backendStore.postgres.driver }}
   {{- $dbConnectionDriver = printf "+%s" .Values.backendStore.postgres.driver }}
 {{- else if and .Values.backendStore.mysql.enabled .Values.backendStore.mysql.driver }}
   {{- $dbConnectionDriver = printf "+%s" .Values.backendStore.mysql.driver }}
@@ -56,13 +56,26 @@ spec:
       serviceAccountName: {{ include "mlflow.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) (or .Values.backendStore.databaseConnectionCheck .Values.backendStore.databaseMigration) ) .Values.initContainers }}
+      {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled) (or .Values.backendStore.databaseConnectionCheck .Values.backendStore.databaseMigration) ) .Values.initContainers }}
       initContainers:
-        {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
+        {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled) .Values.backendStore.databaseConnectionCheck }}
         - name: dbchecker
           image: "busybox:1.32"
           imagePullPolicy: IfNotPresent
           command: [ "/script/dbchecker.sh" ]
+          {{- if .Values.postgresql.enabled }}
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "mlflow.fullname" . }}-postgresql
+              {{- if .Values.postgresql.auth.username }}
+                  key: password
+              {{- else }}
+                  key: postgres-password
+              {{- end }}
+                  optional: true
+          {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ template "mlflow.fullname" . }}-env-configmap
@@ -71,7 +84,7 @@ spec:
               mountPath: /script/dbchecker.sh
               subPath: dbchecker.sh
         {{- end }}
-        {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) .Values.backendStore.databaseMigration }}
+        {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled) .Values.backendStore.databaseMigration }}
         - name: mlflow-db-migration
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
@@ -79,6 +92,19 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.postgresql.enabled }}
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "mlflow.fullname" . }}-postgresql
+              {{- if .Values.postgresql.auth.username }}
+                  key: password
+              {{- else }}
+                  key: postgres-password
+              {{- end }}
+                  optional: true
+          {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ template "mlflow.fullname" . }}-env-configmap
@@ -110,7 +136,7 @@ spec:
             - server
             - --host=0.0.0.0
             - --port={{ .Values.service.port }}
-          {{- if .Values.backendStore.postgres.enabled }}
+          {{- if or .Values.backendStore.postgres.enabled .Values.postgresql.enabled }}
             - --backend-store-uri=postgresql{{ $dbConnectionDriver }}://
           {{- else if .Values.backendStore.mysql.enabled }}
             - --backend-store-uri=mysql{{ $dbConnectionDriver }}://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
@@ -169,6 +195,18 @@ spec:
               value: "/certs/ca.crt"
             {{- end }}
           {{- end }}
+          {{- if .Values.postgresql.enabled }}
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "mlflow.fullname" . }}-postgresql
+              {{- if .Values.postgresql.auth.username }}
+                  key: password
+              {{- else }}
+                  key: postgres-password
+              {{- end }}
+                  optional: true
+          {{- end }}
           {{- range $key, $value := .Values.extraEnvVars }}
             - name: {{ upper $key }}
               value: {{ $value | quote }}
@@ -220,15 +258,15 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) (or .Values.backendStore.databaseConnectionCheck .Values.backendStore.databaseMigration) ) .Values.extraVolumes .Values.auth.enabled .Values.ldapAuth.enabled }}
+      {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled) (or .Values.backendStore.databaseConnectionCheck .Values.backendStore.databaseMigration) ) .Values.extraVolumes .Values.auth.enabled .Values.ldapAuth.enabled }}
       volumes:
-        {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
+        {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled) .Values.backendStore.databaseConnectionCheck }}
         - name: dbchecker
           configMap:
             name: {{ template "mlflow.fullname" . }}-dbchecker
             defaultMode: 0777
         {{- end }}
-        {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) .Values.backendStore.databaseMigration }}
+        {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled) .Values.backendStore.databaseMigration }}
         - name: migrations-config
           configMap:
             name: {{ template "mlflow.fullname" . }}-migrations

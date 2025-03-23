@@ -16,7 +16,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.15.0
+version: 0.16.0
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
@@ -58,7 +58,7 @@ annotations:
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |
-    - Add autoscaling support
+    - Add bitnami's postgresql chart as an optional dependency
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:2.21.0
@@ -93,4 +93,8 @@ annotations:
     fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
     url: https://keybase.io/communitycharts/pgp_keys.asc
 
-dependencies: []
+dependencies:
+  - name: postgresql
+    version: 16.5.2
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled

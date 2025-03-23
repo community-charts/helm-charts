@@ -13,6 +13,11 @@ data:
   PGPORT: {{ required "postgres port must be specified" .Values.backendStore.postgres.port | quote }}
   PGDATABASE: {{ required "postgres database must be specified" .Values.backendStore.postgres.database }}
 {{- end }}
+{{- if .Values.postgresql.enabled }}
+  PGHOST: {{ template "mlflow.name" . }}-postgresql
+  PGPORT: {{ default "5432" .Values.postgresql.primary.service.ports.postgresql | quote }}
+  PGDATABASE: {{ .Values.postgresql.auth.database }}
+{{- end }}
 {{- if .Values.backendStore.mysql.enabled }}
   MYSQL_HOST: {{ required "mysql host must be specified" .Values.backendStore.mysql.host }}
   MYSQL_TCP_PORT: {{ required "mysql port must be specified" .Values.backendStore.mysql.port | quote }}
@@ -20,9 +25,9 @@ data:
 {{- end }}
 
 ---
-{{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) .Values.backendStore.databaseMigration }}
+{{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled) .Values.backendStore.databaseMigration }}
 {{- $dbConnectionDriver := "" }}
-{{- if and .Values.backendStore.postgres.enabled .Values.backendStore.postgres.driver }}
+{{- if and (or .Values.backendStore.postgres.enabled .Values.postgresql.enabled .Values.postgresql.enabled) .Values.backendStore.postgres.driver }}
   {{- $dbConnectionDriver = printf "+%s" .Values.backendStore.postgres.driver }}
 {{- else if and .Values.backendStore.mysql.enabled .Values.backendStore.mysql.driver }}
   {{- $dbConnectionDriver = printf "+%s" .Values.backendStore.mysql.driver }}
@@ -42,7 +47,7 @@ data:
     import os
 
 
-  {{- if .Values.backendStore.postgres.enabled }}
+  {{- if or .Values.backendStore.postgres.enabled .Values.postgresql.enabled }}
     engine = utils.create_sqlalchemy_engine_with_retry("postgresql{{ $dbConnectionDriver }}://")
   {{- else if .Values.backendStore.mysql.enabled }}
     username = os.getenv("MYSQL_USERNAME")
@@ -54,7 +59,7 @@ data:
   {{- end }}
     utils._initialize_tables(engine)
 {{- end }}
-{{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
+{{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled) .Values.backendStore.databaseConnectionCheck }}
 ---
 apiVersion: v1
 kind: ConfigMap

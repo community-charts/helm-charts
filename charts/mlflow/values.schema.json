@@ -316,6 +316,105 @@
       "title": "backendStore",
       "type": "object"
     },
+    "postgresql": {
+      "additionalProperties": true,
+      "description": "Bitnami PostgreSQL configuration",
+      "properties": {
+        "architecture": {
+          "default": "standalone",
+          "required": [],
+          "title": "architecture",
+          "type": "string"
+        },
+        "auth": {
+          "additionalProperties": true,
+          "properties": {
+            "database": {
+              "default": "mlflow",
+              "description": "The name of the PostgreSQL database. For more information: https://docs.n8n.io/hosting/configuration/supported-databases-settings/#required-permissions",
+              "required": [],
+              "title": "database",
+              "type": "string"
+            },
+            "password": {
+              "default": "",
+              "required": [],
+              "title": "password",
+              "type": "string"
+            },
+            "username": {
+              "default": "",
+              "required": [],
+              "title": "username",
+              "type": "string"
+            }
+          },
+          "required": ["username", "password", "database"],
+          "title": "auth",
+          "type": "object"
+        },
+        "enabled": {
+          "default": false,
+          "description": "Enable postgresql",
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "primary": {
+          "additionalProperties": true,
+          "properties": {
+            "persistence": {
+              "additionalProperties": true,
+              "properties": {
+                "enabled": {
+                  "default": true,
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "existingClaim": {
+                  "default": "",
+                  "required": [],
+                  "title": "existingClaim",
+                  "type": "string"
+                }
+              },
+              "required": ["enabled", "existingClaim"],
+              "title": "persistence",
+              "type": "object"
+            },
+            "service": {
+              "additionalProperties": true,
+              "properties": {
+                "ports": {
+                  "additionalProperties": true,
+                  "properties": {
+                    "postgresql": {
+                      "default": 5432,
+                      "required": [],
+                      "title": "postgresql",
+                      "type": "integer"
+                    }
+                  },
+                  "required": ["postgresql"],
+                  "title": "ports",
+                  "type": "object"
+                }
+              },
+              "required": ["ports"],
+              "title": "service",
+              "type": "object"
+            }
+          },
+          "required": ["service", "persistence"],
+          "title": "primary",
+          "type": "object"
+        }
+      },
+      "required": ["enabled", "architecture", "primary", "auth"],
+      "title": "postgresql",
+      "type": "object"
+    },
     "extraArgs": {
       "additionalProperties": true,
       "description": "A map of arguments and values to pass to the `mlflow server` command. Keys must be camelcase. Helm will turn them to kebabcase style.",
@@ -1633,6 +1732,7 @@
     "securityContext",
     "service",
     "backendStore",
+    "postgresql",
     "artifactRoot",
     "extraArgs",
     "extraFlags",

@@ -115,6 +115,27 @@ backendStore:
     # -- mysql database connection driver. e.g.: "pymysql"
     driver: "pymysql"
 
+# -- Bitnami PostgreSQL configuration
+postgresql:
+  # -- Enable postgresql
+  enabled: false
+  architecture: standalone
+
+  primary:
+    service:
+      ports:
+        postgresql: 5432
+
+    persistence:
+      enabled: true
+      existingClaim: ""
+
+  auth:
+    username: ""
+    password: ""
+    # -- The name of the PostgreSQL database. For more information: https://docs.n8n.io/hosting/configuration/supported-databases-settings/#required-permissions
+    database: "mlflow"
+
 # Mlflow blob storage settings
 artifactRoot:
   # -- Specifies if you want to enable proxied artifact storage access
