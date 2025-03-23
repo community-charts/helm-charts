@@ -58,6 +58,15 @@ backendStore:
     password: "Pa33w0rd!"
 ```
 
+## Bitnami's Postgres Database Migration Values Files Example
+
+```yaml
+backendStore:
+  databaseMigration: true
+postgres:
+  enabled: true
+```
+
 ## MySQL Database Migration Values Files Example
 
 ```yaml
@@ -70,6 +79,15 @@ backendStore:
     database: "mlflow"
     user: "mlflowuser"
     password: "Pa33w0rd!"
+```
+
+## Bitnami's MySQL Database Migration Values Files Example
+
+```yaml
+backendStore:
+  databaseMigration: true
+mysql:
+  enabled: true
 ```
 
 ## Postgres Database Connection Check Values Files Example
@@ -86,6 +104,15 @@ backendStore:
     password: "Pa33w0rd!"
 ```
 
+## Bitnami's Postgres Database Connection Check Values Files Example
+
+```yaml
+backendStore:
+  databaseConnectionCheck: true
+postgres:
+  enabled: true
+```
+
 ## MySQL Database Connection Check Values Files Example
 
 ```yaml
@@ -98,6 +125,15 @@ backendStore:
     database: "mlflow"
     user: "mlflowuser"
     password: "Pa33w0rd!"
+```
+
+## Bitnami's MySQL Database Connection Check Values Files Example
+
+```yaml
+backendStore:
+  databaseConnectionCheck: true
+mysql:
+  enabled: true
 ```
 
 ## AWS Installation Examples
