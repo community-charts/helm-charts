@@ -151,7 +151,7 @@ jobs:
       - name: Detect Changed Charts
         id: detect-changed
         run: |
-          changed=$(git diff --name-only ${{ github.sha }}^ ${{ github.sha }} | grep '^charts/' | sed 's|^charts/||' | cut -d/ -f1 | sort -u)
+          changed=$(git diff --name-only ${{ github.sha }}^ ${{ github.sha }} | grep '^charts/' | cut -d/ -f1-2 | sort -u)
           echo "Changed charts: '$changed'"
           charts=$(echo "$changed" | tr '\n' ' ' | xargs)
           if [[ -n "$changed" ]]; then
