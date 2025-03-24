@@ -179,7 +179,7 @@ artifactRoot:
     container: "" # required
     # -- Azure storage account name
     storageAccount: "" # required
-    # -- Azure blobk container folder. If you want to use root level, please don't set anything.
+    # -- Azure blob container folder. If you want to use root level, please don't set anything.
     path: "" # optional
     # -- Azure Cloud Connection String for the container. Only onnectionString or accessKey required
     connectionString: "" # connectionString or accessKey required
@@ -399,7 +399,7 @@ serviceMonitor:
   namespace: monitoring
   # -- Set how frequently Prometheus should scrape
   interval: 30s
-  # -- Set path to mlflow telemtery-path
+  # -- Set path to mlflow telemetry-path
   telemetryPath: /metrics
   # -- Set labels for the ServiceMonitor, use this to define your scrape label for Prometheus Operator
   labels:

@@ -221,7 +221,7 @@ spec:
           {{- else if or .Values.backendStore.mysql.enabled .Values.mysql.enabled }}
             - --backend-store-uri=mysql{{ $dbConnectionDriver }}://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
           {{- else }}
-            - --backend-store-uri=sqlite:///:memory
+            - "--backend-store-uri=sqlite:///:memory:"
           {{- end }}
             - {{ $artifactCommand }}
           {{- if .Values.artifactRoot.proxiedArtifactStorage }}

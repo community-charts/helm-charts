@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 0.16.0](https://img.shields.io/badge/Version-0.16.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.21.0](https://img.shields.io/badge/AppVersion-2.21.0-informational?style=flat-square)
+![Version: 0.16.1](https://img.shields.io/badge/Version-0.16.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.21.0](https://img.shields.io/badge/AppVersion-2.21.0-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -501,7 +501,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | artifactRoot.azureBlob.connectionString | string | `""` | Azure Cloud Connection String for the container. Only onnectionString or accessKey required |
 | artifactRoot.azureBlob.container | string | `""` | Azure blob container name |
 | artifactRoot.azureBlob.enabled | bool | `false` | Specifies if you want to use Azure Blob Storage Mlflow Artifact Root |
-| artifactRoot.azureBlob.path | string | `""` | Azure blobk container folder. If you want to use root level, please don't set anything. |
+| artifactRoot.azureBlob.path | string | `""` | Azure blob container folder. If you want to use root level, please don't set anything. |
 | artifactRoot.azureBlob.storageAccount | string | `""` | Azure storage account name |
 | artifactRoot.gcs | object | `{"bucket":"","enabled":false,"path":""}` | Specifies if you want to use Google Cloud Storage Mlflow Artifact Root |
 | artifactRoot.gcs.bucket | string | `""` | Google Cloud Storage bucket name |
@@ -624,7 +624,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | serviceMonitor.metricRelabelings | list | `[]` | Set of rules to relabel your exist metric labels |
 | serviceMonitor.namespace | string | `"monitoring"` | Set the namespace the ServiceMonitor should be deployed |
 | serviceMonitor.targetLabels | list | `[]` | Set of labels to transfer on the Kubernetes Service onto the target. |
-| serviceMonitor.telemetryPath | string | `"/metrics"` | Set path to mlflow telemtery-path |
+| serviceMonitor.telemetryPath | string | `"/metrics"` | Set path to mlflow telemetry-path |
 | serviceMonitor.timeout | string | `"10s"` | Set timeout for scrape |
 | serviceMonitor.useServicePort | bool | `false` | When set true then use a service port. On default use a pod port. |
 | strategy | object | `{"rollingUpdate":{"maxSurge":"100%","maxUnavailable":0},"type":"RollingUpdate"}` | This will set the deployment strategy more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy |

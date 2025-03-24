@@ -45,7 +45,7 @@
             },
             "path": {
               "default": "",
-              "description": "Azure blobk container folder. If you want to use root level, please don't set anything.",
+              "description": "Azure blob container folder. If you want to use root level, please don't set anything.",
               "required": [],
               "title": "path",
               "type": "string"
@@ -1210,7 +1210,7 @@
         },
         "telemetryPath": {
           "default": "/metrics",
-          "description": "Set path to mlflow telemtery-path",
+          "description": "Set path to mlflow telemetry-path",
           "required": [],
           "title": "telemetryPath",
           "type": "string"

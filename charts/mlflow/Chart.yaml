@@ -16,7 +16,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.16.0
+version: 0.16.1
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
@@ -58,7 +58,7 @@ annotations:
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |
-    - Add bitnami's postgresql and mysql charts as optional dependencies, and support for existing database secret
+    - Fix wrong sqlite memory syntax.
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:2.21.0
