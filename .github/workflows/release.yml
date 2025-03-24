@@ -33,7 +33,7 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v4
         with:
-          version: $HELM_VERSION
+          version: ${{ env.HELM_VERSION }}
 
       - uses: actions/setup-python@v5
         with:
@@ -82,7 +82,7 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
         run: |
           helm env
-          helm plugin install https://github.com/helm-unittest/helm-unittest.git --version $HELM_UNITTEST_VERSION
+          helm plugin install https://github.com/helm-unittest/helm-unittest.git --version ${{ env.HELM_UNITTEST_VERSION }}
 
       - name: Run chart-testing (lint)
         run: ct lint --debug --config ./.github/configs/ct-lint.yaml --lint-conf ./.github/configs/lintconf.yaml
@@ -129,7 +129,7 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v4
         with:
-          version: $HELM_VERSION
+          version: ${{ env.HELM_VERSION }}
 
       - name: Prepare GPG environment for Helm
         id: import-gpg
