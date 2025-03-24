@@ -541,7 +541,7 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | database | object | `{"connectionPoolMax":"20","connectionPoolMin":"","sslMode":"disable"}` | Database configuration |
 | database.connectionPoolMax | string | `"20"` | The maximum number of connections in the connection pool. |
 | database.connectionPoolMin | string | `""` | The minimum number of connections in the connection pool. |
-| database.sslMode | string | `"disable"` | The SSL mode to use for the database connection. possible values are: "disable", "allow", "require", "prefer", "verify-ca", "verify-full"  |
+| database.sslMode | string | `"disable"` | The SSL mode to use for the database connection. possible values are: "disable", "allow", "require", "prefer", "verify-ca", "verify-full" |
 | defaultLanguage | string | `"en_US"` | This is for setting up the default language. See translate.getoutline.com for a list of available language codes and their rough percentage translated |
 | externalPostgresql | object | `{"database":"outline","existingSecret":"","host":"","password":"","port":5432,"username":"postgres"}` | External PostgreSQL parameters |
 | externalPostgresql.database | string | `"outline"` | The name of the external PostgreSQL database. For more information: https://docs.getoutline.com/s/hosting/doc/docker-7pfeLP5a8t |

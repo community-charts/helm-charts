@@ -586,7 +586,7 @@ database:
   connectionPoolMin: ""
   # -- The maximum number of connections in the connection pool.
   connectionPoolMax: "20"
-  # -- The SSL mode to use for the database connection. possible values are: "disable", "allow", "require", "prefer", "verify-ca", "verify-full" 
+  # -- The SSL mode to use for the database connection. possible values are: "disable", "allow", "require", "prefer", "verify-ca", "verify-full"
   sslMode: disable
 
 # -- Bitnami PostgreSQL configuration
@@ -732,13 +732,13 @@ minio:
             - "s3:DeleteObject"
             - "s3:PutObject"
             - "s3:ListMultipartUploadParts"
-          resources: 
+          resources:
             - "arn:aws:s3:::outline/*"
         - actions:
             - "s3:GetBucketLocation"
             - "s3:ListBucket"
             - "s3:ListBucketMultipartUploads"
-          resources: 
+          resources:
             - "arn:aws:s3:::outline"
 
   # -- Minio users
