@@ -216,7 +216,7 @@ spec:
                   key: secret-access-key
                 {{- end }}
 
-          {{- if and .Values.minio.enabled .Values.minio.buckets }}
+          {{- if and .Values.minio.enabled (gt (len .Values.minio.buckets) 0) }}
           {{- with (first .Values.minio.buckets) }}
             - name: AWS_S3_UPLOAD_BUCKET_NAME
               value: {{ .name | quote }}

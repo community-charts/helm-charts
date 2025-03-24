@@ -21,3 +21,8 @@
 .idea/
 *.tmproj
 .vscode/
+
+unittests/
+
+README.md.gotmpl
+values-kind.yaml
