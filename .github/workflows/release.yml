@@ -92,12 +92,16 @@ jobs:
         run: |
           for chart in ${{ steps.list-changed.outputs.changed_charts }}; do
             echo "Testing $chart"
-            if [ -f "$chart/values-kind.yaml" ]; then
-              echo "Using values-kind.yaml for $chart"
-              ct install --config ./.github/configs/ct-lint.yaml --charts "$chart" --helm-extra-set-args "--values $chart/values-kind.yaml" --helm-extra-args "--timeout 600s"
+            if [ -f "$chart/.skip-kind-test" ]; then
+              echo "Skipping Kind test for $chart due to .skip-kind-test file"
             else
-              echo "No values-kind.yaml for $chart"
-              ct install --config ./.github/configs/ct-lint.yaml --charts "$chart" --helm-extra-args "--timeout 600s"
+              if [ -f "$chart/values-kind.yaml" ]; then
+                echo "Using values-kind.yaml for $chart"
+                ct install --config ./.github/configs/ct-lint.yaml --charts "$chart" --helm-extra-set-args "--values $chart/values-kind.yaml" --helm-extra-args "--timeout 600s"
+              else
+                echo "No values-kind.yaml for $chart"
+                ct install --config ./.github/configs/ct-lint.yaml --charts "$chart" --helm-extra-args "--timeout 600s"
+              fi
             fi
           done
         if: steps.list-changed.outputs.changed == 'true'

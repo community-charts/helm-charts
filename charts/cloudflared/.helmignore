@@ -26,3 +26,4 @@ unittests/
 
 README.md.gotmpl
 values-kind.yaml
+.skip-kind-test
