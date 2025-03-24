@@ -4,7 +4,7 @@
 
 A Helm chart for cloudflare tunnel
 
-![Version: 2.0.1](https://img.shields.io/badge/Version-2.0.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.2.1](https://img.shields.io/badge/AppVersion-2025.2.1-informational?style=flat-square)
+![Version: 2.0.2](https://img.shields.io/badge/Version-2.0.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.2.1](https://img.shields.io/badge/AppVersion-2025.2.1-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -102,15 +102,11 @@ This section outlines major updates and breaking changes for each version of the
 
 ### Version-Specific Upgrade Notes
 
-<details>
+#### Upgrading to 2.x.x
 
-<summary>Upgrading to 2.x.x</summary>
-
-#### Breaking Changes
+##### Breaking Changes
 
 - Your Kubernetes server must be at or later than version v1.21.
-
-</details>
 
 ## Requirements
 
