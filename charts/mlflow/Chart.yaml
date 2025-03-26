@@ -16,13 +16,13 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.16.1
+version: 0.16.2
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "2.21.0"
+appVersion: "2.21.1"
 
 kubeVersion: ">=1.16.0-0"
 
@@ -58,10 +58,10 @@ annotations:
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |
-    - Fix wrong sqlite memory syntax.
+    - Update burakince/mlflow image version to 2.21.1
   artifacthub.io/images: |
     - name: mlflow
-      image: burakince/mlflow:2.21.0
+      image: burakince/mlflow:2.21.1
   artifacthub.io/license: MIT
   artifacthub.io/maintainers: |
     - name: burakince
@@ -95,7 +95,7 @@ annotations:
 
 dependencies:
   - name: postgresql
-    version: 16.5.2
+    version: 16.5.6
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
 
