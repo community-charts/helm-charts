@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 0.16.3](https://img.shields.io/badge/Version-0.16.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.21.2](https://img.shields.io/badge/AppVersion-2.21.2-informational?style=flat-square)
+![Version: 0.16.4](https://img.shields.io/badge/Version-0.16.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.21.3](https://img.shields.io/badge/AppVersion-2.21.3-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -473,7 +473,7 @@ Kubernetes: `>=1.16.0-0`
 | Repository | Name | Version |
 |------------|------|---------|
 | https://charts.bitnami.com/bitnami | mysql | 12.3.2 |
-| https://charts.bitnami.com/bitnami | postgresql | 16.5.6 |
+| https://charts.bitnami.com/bitnami | postgresql | 16.6.0 |
 
 ## Uninstall Helm Chart
 
