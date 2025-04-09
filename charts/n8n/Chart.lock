@@ -4,9 +4,9 @@ dependencies:
   version: 20.11.4
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
-  version: 16.6.0
+  version: 16.6.2
 - name: minio
   repository: https://charts.min.io/
   version: 5.4.0
-digest: sha256:bdf93a2e8d37a9c5bf0a14b135b0cab98009469ff45d79e52e07892ff488a615
-generated: "2025-04-01T02:49:18.643234269Z"
+digest: sha256:248cbefa5686f6555cf0aabd257779f987fa678be98eaa42e73b01be8f6f10dd
+generated: "2025-04-09T02:48:34.783100446Z"
