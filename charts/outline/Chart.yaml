@@ -16,13 +16,13 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.3.3
+version: 0.3.4
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "0.82.0"
+appVersion: "0.83.0"
 
 kubeVersion: ">=1.23.0-0"
 
@@ -59,10 +59,10 @@ annotations:
       url: https://docs.getoutline.com/s/hosting/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |
-    - Fix wrong scopes format in OIDC scopes secret
+    - Update outlinewiki/outline image version to 0.83.0
   artifacthub.io/images: |
     - name: outline
-      image: outlinewiki/outline:0.82.0
+      image: outlinewiki/outline:0.83.0
       platforms:
         - linux/amd64
         - linux/arm64
@@ -82,12 +82,12 @@ annotations:
 
 dependencies:
   - name: redis
-    version: 20.8.0
+    version: 20.11.5
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
 
   - name: postgresql
-    version: 16.4.13
+    version: 16.6.3
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
 
