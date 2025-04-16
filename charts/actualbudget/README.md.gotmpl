@@ -52,6 +52,24 @@ persistence:
   existingClaim: actualbudget-volume
 ```
 
+## Upgrading
+
+This section provides information about significant updates and breaking changes in each version of the Helm Chart to facilitate a smooth upgrade process.
+
+---
+
+### Version-Specific Upgrade Notes
+
+#### Upgrading to Version 1.5.x
+
+##### Deprecation Notice
+
+- The `login.openid.dicovertUrl` field has been deprecated.
+
+##### Required Action
+
+Please update your configuration to use the `login.openid.discoveryUrl` field in place of the deprecated one.
+
 {{ template "chart.requirementsSection" . }}
 
 ## Uninstall Helm Chart
