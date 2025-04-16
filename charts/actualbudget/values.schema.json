@@ -92,48 +92,64 @@
           "properties": {
             "enforce": {
               "default": true,
+              "description": "Whether to enforce the openid login.",
               "required": [],
               "title": "enforce",
               "type": "boolean"
             },
             "providerName": {
               "default": "OpenID Connect",
+              "description": "The provider name for the openid provider.",
               "required": [],
               "title": "providerName",
               "type": "string"
             },
+            "discoveryUrl": {
+              "default": "",
+              "description": "The discovery url for the openid provider.",
+              "required": [],
+              "title": "discoveryUrl",
+              "type": "string"
+            },
             "dicovertUrl": {
               "default": "",
+              "deprecated": true,
+              "description": "Please use discoveryUrl instead. This field will be removed in next major version.",
               "required": [],
               "title": "dicovertUrl",
               "type": "string"
             },
             "clientId": {
               "default": "",
+              "description": "The client id for the openid provider.",
               "required": [],
               "title": "clientId",
               "type": "string"
             },
             "clientSecret": {
               "default": "",
+              "description": "The client secret for the openid provider.",
               "required": [],
               "title": "clientSecret",
               "type": "string"
             },
             "authorizationEndpoint": {
               "default": "",
+              "description": "The authorization endpoint for the openid provider.",
               "required": [],
               "title": "authorizationEndpoint",
               "type": "string"
             },
             "tokenEndpoint": {
               "default": "",
+              "description": "The token endpoint for the openid provider.",
               "required": [],
               "title": "tokenEndpoint",
               "type": "string"
             },
             "userInfoEndpoint": {
               "default": "",
+              "description": "The user info endpoint for the openid provider.",
               "required": [],
               "title": "userInfoEndpoint",
               "type": "string"
@@ -142,6 +158,7 @@
           "required": [
             "enforce",
             "providerName",
+            "discoveryUrl",
             "dicovertUrl",
             "clientId",
             "clientSecret",
@@ -163,6 +180,14 @@
         "properties": {
           "openid": {
             "oneOf": [
+              {
+                "required": ["discoveryUrl", "clientId", "clientSecret"],
+                "properties": {
+                  "discoveryUrl": { "minLength": 1 },
+                  "clientId": { "minLength": 1 },
+                  "clientSecret": { "minLength": 1 }
+                }
+              },
               {
                 "required": ["dicovertUrl", "clientId", "clientSecret"],
                 "properties": {

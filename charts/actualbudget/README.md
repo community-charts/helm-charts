@@ -4,7 +4,7 @@
 
 A local-first personal finance app
 
-![Version: 1.4.3](https://img.shields.io/badge/Version-1.4.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 25.4.0](https://img.shields.io/badge/AppVersion-25.4.0-informational?style=flat-square)
+![Version: 1.5.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 25.4.0](https://img.shields.io/badge/AppVersion-25.4.0-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -90,14 +90,15 @@ helm upgrade [RELEASE_NAME] community-charts/actualbudget
 | ingress | object | `{"annotations":{},"className":"","enabled":false,"hosts":[{"host":"actualbudget.local","paths":[{"path":"/","pathType":"ImplementationSpecific"}]}],"tls":[]}` | This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/ |
 | initContainers | list | `[]` | Additional init containers on the output Deployment definition. |
 | livenessProbe | object | `{"httpGet":{"path":"/","port":"http"}}` | This is to setup the liveness probe more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
-| login | object | `{"allowedLoginMethods":["password","header","openid"],"method":"password","openid":{"authorizationEndpoint":"","clientId":"","clientSecret":"","dicovertUrl":"","enforce":true,"providerName":"OpenID Connect","tokenEndpoint":"","userInfoEndpoint":""},"skipSSLVerification":false}` | This is for setting up the login for the server. For more information checkout: https://actualbudget.org/docs/config/#loginmethod |
+| login | object | `{"allowedLoginMethods":["password","header","openid"],"method":"password","openid":{"authorizationEndpoint":"","clientId":"","clientSecret":"","dicovertUrl":"","discoveryUrl":"","enforce":true,"providerName":"OpenID Connect","tokenEndpoint":"","userInfoEndpoint":""},"skipSSLVerification":false}` | This is for setting up the login for the server. For more information checkout: https://actualbudget.org/docs/config/#loginmethod |
 | login.allowedLoginMethods | list | `["password","header","openid"]` | This is the allowed login methods. |
 | login.method | string | `"password"` | This is the method to use for login. Possible values are "password" or "header" or "openid". |
-| login.openid | object | `{"authorizationEndpoint":"","clientId":"","clientSecret":"","dicovertUrl":"","enforce":true,"providerName":"OpenID Connect","tokenEndpoint":"","userInfoEndpoint":""}` | This is for setting up the openid login. For more information checkout: https://actualbudget.org/docs/experimental/oauth-auth/ |
+| login.openid | object | `{"authorizationEndpoint":"","clientId":"","clientSecret":"","dicovertUrl":"","discoveryUrl":"","enforce":true,"providerName":"OpenID Connect","tokenEndpoint":"","userInfoEndpoint":""}` | This is for setting up the openid login. For more information checkout: https://actualbudget.org/docs/experimental/oauth-auth/ |
 | login.openid.authorizationEndpoint | string | `""` | This is the authorization endpoint for the openid provider. |
 | login.openid.clientId | string | `""` | This is the client id for the openid provider. |
 | login.openid.clientSecret | string | `""` | This is the client secret for the openid provider. |
-| login.openid.dicovertUrl | string | `""` | This is the dicovert url for the openid provider. |
+| login.openid.dicovertUrl | string | `""` | Deprecated: Please use discoveryUrl instead. This field will be removed in next major version. |
+| login.openid.discoveryUrl | string | `""` | This is the discovery url for the openid provider. |
 | login.openid.enforce | bool | `true` | This is for setting the enforce for the openid login. |
 | login.openid.providerName | string | `"OpenID Connect"` | This is the provider name for the openid provider. |
 | login.openid.tokenEndpoint | string | `""` | This is the token endpoint for the openid provider. |

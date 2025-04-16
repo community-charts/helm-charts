@@ -104,8 +104,10 @@ login:
     enforce: true
     # -- This is the provider name for the openid provider.
     providerName: "OpenID Connect"
-    # -- This is the dicovert url for the openid provider.
+    # -- Deprecated: Please use discoveryUrl instead. This field will be removed in next major version.
     dicovertUrl: ""
+    # -- This is the discovery url for the openid provider.
+    discoveryUrl: ""
     # -- This is the client id for the openid provider.
     clientId: ""
     # -- This is the client secret for the openid provider.
