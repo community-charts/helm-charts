@@ -57,12 +57,8 @@ annotations:
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |
-<<<<<<< HEAD
-    - Update n8nio/n8n image version to 1.89.2
-=======
     - Add startupProbe for n8n webhook and worker to wait n8n process ready
     - Add initContainers for n8n webhook and worker to wait main node ready
->>>>>>> 4aa620a (Add initial startup probe support)
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:1.89.2
