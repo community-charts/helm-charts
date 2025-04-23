@@ -27,6 +27,7 @@ tests:
       - hasDocuments:
           count: 0
         template: deployment-webhook.yaml
+
   - it: should not have webhook deployment when webhook mode is regular
     set:
       webhook:
@@ -942,4 +943,33 @@ tests:
           content:
             secretRef:
               name: n8n-license-activation-key
+        template: deployment-webhook.yaml
+
+  - it: should use init container to wait main node ready
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers
+          content:
+            name: wait-for-main
+            image: busybox:1.36
+          any: true
+        template: deployment-webhook.yaml
+
+  - it: should use startupProbe to wait n8n process ready
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].startupProbe.exec.command
+          value: ["/bin/sh", "-c", "ps aux | grep '[n]8n'"]
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].startupProbe.initialDelaySeconds
+          value: 10
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].startupProbe.periodSeconds
+          value: 5
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].startupProbe.failureThreshold
+          value: 30
         template: deployment-webhook.yaml

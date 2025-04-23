@@ -28,6 +28,7 @@ tests:
       - hasDocuments:
           count: 0
         template: deployment-worker.yaml
+
   - it: should not have worker deployment when worker mode is regular
     set:
       worker:
@@ -1094,4 +1095,33 @@ tests:
               secretKeyRef:
                 key: secret-access-key
                 name: fake-existing-secret
+        template: deployment-worker.yaml
+
+  - it: should use init container to wait main node ready
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers
+          content:
+            name: wait-for-main
+            image: busybox:1.36
+          any: true
+        template: deployment-worker.yaml
+
+  - it: should use startupProbe to wait n8n process ready
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.exec.command
+          value: ["/bin/sh", "-c", "ps aux | grep '[n]8n'"]
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.initialDelaySeconds
+          value: 10
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.periodSeconds
+          value: 5
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.failureThreshold
+          value: 30
         template: deployment-worker.yaml

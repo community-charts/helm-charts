@@ -53,6 +53,23 @@ spec:
       serviceAccountName: {{ include "n8n.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: wait-for-main
+          image: busybox:1.36
+          command: ["/bin/sh", "-c"]
+          args:
+          - |
+            until wget -q --spider http://{{ include "n8n.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}/healthz; do
+              echo "Waiting for main node to be ready..."
+              sleep 2
+            done
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "16Mi"
+            limits:
+              cpu: "100m"
+              memory: "64Mi"
       containers:
         - name: {{ include "n8n.worker.name" . }}
           securityContext:
@@ -65,6 +82,12 @@ spec:
             - name: {{ .Values.service.name }}
               containerPort: {{ .Values.service.port }}
               protocol: TCP
+          startupProbe:
+            exec:
+              command: ["/bin/sh", "-c", "ps aux | grep '[n]8n'"]
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 30
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
