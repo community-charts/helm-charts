@@ -16,13 +16,13 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.5.8
+version: 1.5.9
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "1.89.2"
+appVersion: "1.90.2"
 
 kubeVersion: ">=1.23.0-0"
 
@@ -57,10 +57,10 @@ annotations:
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |
-    - Update n8nio/n8n image version to 1.89.2
+    - Update n8nio/n8n image version to 1.90.2
   artifacthub.io/images: |
     - name: n8n
-      image: n8nio/n8n:1.89.2
+      image: n8nio/n8n:1.90.2
       platforms:
         - linux/amd64
         - linux/arm64
@@ -113,12 +113,12 @@ annotations:
 
 dependencies:
   - name: redis
-    version: 20.13.0
+    version: 20.13.4
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
 
   - name: postgresql
-    version: 16.6.3
+    version: 16.6.6
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
 
