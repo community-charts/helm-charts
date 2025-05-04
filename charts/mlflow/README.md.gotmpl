@@ -284,6 +284,60 @@ artifactRoot:
     accessKey: "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=="
 ```
 
+## PVC Mount with Sqlite and File Based Artifactory Example
+
+### Prerequisites
+
+Please create your PVC before the installation of your helm chart. You can use something similar as the following yaml file.
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mlflow-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: standard
+```
+
+You need to create the PVC under same namespace as your mlflow helm chart.
+
+### Example Chart Parameters
+
+```yaml
+strategy:
+  type: Recreate
+
+extraVolumes:
+  - name: mlflow-volume
+    persistentVolumeClaim:
+      claimName: mlflow-pvc
+
+extraVolumeMounts:
+  - name: mlflow-volume
+    mountPath: /mlflow/data
+
+backendStore:
+  defaultSqlitePath: "mlflow/data/mlflow.db"
+
+artifactRoot:
+  proxiedArtifactStorage: true
+  defaultArtifactRoot: "http://my-mlflow-server-domain-name.com/api/2.0/mlflow-artifacts/artifacts/experiments"
+  defaultArtifactsDestination: "./data/mlartifacts"
+
+ingress:
+  enabled: true
+  hosts:
+    - host: my-mlflow-server-domain-name.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+```
+
 ## Authentication Example
 
 > **Tip**: auth and ldapAuth can not be enabled at same time!

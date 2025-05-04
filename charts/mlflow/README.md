@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 0.16.5](https://img.shields.io/badge/Version-0.16.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.22.0](https://img.shields.io/badge/AppVersion-2.22.0-informational?style=flat-square)
+![Version: 0.17.0](https://img.shields.io/badge/Version-0.17.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.22.0](https://img.shields.io/badge/AppVersion-2.22.0-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -284,6 +284,60 @@ artifactRoot:
     accessKey: "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=="
 ```
 
+## PVC Mount with Sqlite and File Based Artifactory Example
+
+### Prerequisites
+
+Please create your PVC before the installation of your helm chart. You can use something similar as the following yaml file.
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mlflow-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: standard
+```
+
+You need to create the PVC under same namespace as your mlflow helm chart.
+
+### Example Chart Parameters
+
+```yaml
+strategy:
+  type: Recreate
+
+extraVolumes:
+  - name: mlflow-volume
+    persistentVolumeClaim:
+      claimName: mlflow-pvc
+
+extraVolumeMounts:
+  - name: mlflow-volume
+    mountPath: /mlflow/data
+
+backendStore:
+  defaultSqlitePath: "mlflow/data/mlflow.db"
+
+artifactRoot:
+  proxiedArtifactStorage: true
+  defaultArtifactRoot: "http://my-mlflow-server-domain-name.com/api/2.0/mlflow-artifacts/artifacts/experiments"
+  defaultArtifactsDestination: "./data/mlartifacts"
+
+ingress:
+  enabled: true
+  hosts:
+    - host: my-mlflow-server-domain-name.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+```
+
 ## Authentication Example
 
 > **Tip**: auth and ldapAuth can not be enabled at same time!
@@ -498,11 +552,13 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | affinity | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
 | artifactRoot.azureBlob | object | `{"accessKey":"","connectionString":"","container":"","enabled":false,"path":"","storageAccount":""}` | Specifies if you want to use Azure Blob Storage Mlflow Artifact Root |
 | artifactRoot.azureBlob.accessKey | string | `""` | Azure Cloud Storage Account Access Key for the container |
-| artifactRoot.azureBlob.connectionString | string | `""` | Azure Cloud Connection String for the container. Only onnectionString or accessKey required |
+| artifactRoot.azureBlob.connectionString | string | `""` | Azure Cloud Connection String for the container. Only connectionString or accessKey required |
 | artifactRoot.azureBlob.container | string | `""` | Azure blob container name |
 | artifactRoot.azureBlob.enabled | bool | `false` | Specifies if you want to use Azure Blob Storage Mlflow Artifact Root |
 | artifactRoot.azureBlob.path | string | `""` | Azure blob container folder. If you want to use root level, please don't set anything. |
 | artifactRoot.azureBlob.storageAccount | string | `""` | Azure storage account name |
+| artifactRoot.defaultArtifactRoot | string | `"./mlruns"` | Specifies the default artifact root. Please find more information from here: https://github.com/mlflow/mlflow/tree/master/examples/mlflow_artifacts |
+| artifactRoot.defaultArtifactsDestination | string | `"./mlartifacts"` | Specifies the default artifacts destination |
 | artifactRoot.gcs | object | `{"bucket":"","enabled":false,"path":""}` | Specifies if you want to use Google Cloud Storage Mlflow Artifact Root |
 | artifactRoot.gcs.bucket | string | `""` | Google Cloud Storage bucket name |
 | artifactRoot.gcs.enabled | bool | `false` | Specifies if you want to use Google Cloud Storage Mlflow Artifact Root |
@@ -539,9 +595,10 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | autoscaling.maxReplicas | int | `5` | The maximum number of replicas. |
 | autoscaling.metrics | list | `[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}]` | The metrics to use for autoscaling. |
 | autoscaling.minReplicas | int | `1` | The minimum number of replicas. |
-| backendStore | object | `{"databaseConnectionCheck":false,"databaseMigration":false,"existingDatabaseSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"mysql":{"database":"","driver":"pymysql","enabled":false,"host":"","password":"","port":3306,"user":""},"postgres":{"database":"","driver":"","enabled":false,"host":"","password":"","port":5432,"user":""}}` | Mlflow database connection settings |
+| backendStore | object | `{"databaseConnectionCheck":false,"databaseMigration":false,"defaultSqlitePath":":memory:","existingDatabaseSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"mysql":{"database":"","driver":"pymysql","enabled":false,"host":"","password":"","port":3306,"user":""},"postgres":{"database":"","driver":"","enabled":false,"host":"","password":"","port":5432,"user":""}}` | Mlflow database connection settings |
 | backendStore.databaseConnectionCheck | bool | `false` | Add an additional init container, which checks for database availability |
 | backendStore.databaseMigration | bool | `false` | Specifies if you want to run database migration |
+| backendStore.defaultSqlitePath | string | `":memory:"` | Specifies the default sqlite path |
 | backendStore.existingDatabaseSecret | object | `{"name":"","passwordKey":"password","usernameKey":"username"}` | Specifies if you want to use an existing database secret. |
 | backendStore.existingDatabaseSecret.name | string | `""` | The name of the existing database secret. |
 | backendStore.existingDatabaseSecret.passwordKey | string | `"password"` | The key of the password in the existing database secret. |

@@ -27,6 +27,14 @@ tests:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: "--backend-store-uri=sqlite:///:memory:"
 
+  - it: should be a defined sqlite path backend when Postgres or MySQL or bitnami Postgres or bitnami MySQL are not enabled and sqlite path is defined
+    set:
+      backendStore.defaultSqlitePath: mlflow/data/mlflow.db
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: "--backend-store-uri=sqlite:///mlflow/data/mlflow.db"
+
   - it: should be Postgres backend when Postgres is enabled
     set:
       backendStore.postgres.enabled: true
@@ -102,6 +110,14 @@ tests:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --default-artifact-root=./mlruns
 
+  - it: should be a defined artifact root when azureBlob or s3 or gcs is not enabled and artifact root is defined
+    set:
+      artifactRoot.defaultArtifactRoot: http://my-mlflowserver.com/api/2.0/mlflow-artifacts/artifacts/experiments
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --default-artifact-root=http://my-mlflowserver.com/api/2.0/mlflow-artifacts/artifacts/experiments
+
   - it: should be azureBlob as an artifact root when azureBlob is enabled
     set:
       artifactRoot.azureBlob.enabled: true
@@ -140,6 +156,19 @@ tests:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --artifacts-destination=./mlartifacts
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --serve-artifacts
+
+  - it: should be a defined artifact destination when proxy enabled and azureBlob or s3 or gcs is not enabled and artifact destination is defined
+    set:
+      artifactRoot:
+        proxiedArtifactStorage: true
+        defaultArtifactsDestination: ./data/mlartifacts
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --artifacts-destination=./data/mlartifacts
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --serve-artifacts

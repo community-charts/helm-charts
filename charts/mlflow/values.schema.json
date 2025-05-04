@@ -12,6 +12,20 @@
     "artifactRoot": {
       "additionalProperties": false,
       "properties": {
+        "defaultArtifactRoot": {
+          "default": "./mlruns",
+          "description": "Specifies the default artifact root. Please find more information from here: https://www.mlflow.org/docs/latest/tracking.html#artifact-stores",
+          "required": [],
+          "title": "defaultArtifactRoot",
+          "type": "string"
+        },
+        "defaultArtifactsDestination": {
+          "default": "./mlartifacts",
+          "description": "Specifies the default artifacts destination",
+          "required": [],
+          "title": "defaultArtifactsDestination",
+          "type": "string"
+        },
         "azureBlob": {
           "additionalProperties": false,
           "properties": {
@@ -24,7 +38,7 @@
             },
             "connectionString": {
               "default": "",
-              "description": "Azure Cloud Connection String for the container. Only onnectionString or accessKey required",
+              "description": "Azure Cloud Connection String for the container. Only connectionString or accessKey required",
               "required": [],
               "title": "connectionString",
               "type": "string"
@@ -155,13 +169,20 @@
           "type": "object"
         }
       },
-      "required": ["proxiedArtifactStorage", "azureBlob", "s3", "gcs"],
+      "required": ["proxiedArtifactStorage", "defaultArtifactRoot", "defaultArtifactsDestination", "azureBlob", "s3", "gcs"],
       "title": "artifactRoot",
       "type": "object"
     },
     "backendStore": {
       "additionalProperties": false,
       "properties": {
+        "defaultSqlitePath": {
+          "default": ":memory:",
+          "description": "Specifies the default sqlite path",
+          "required": [],
+          "title": "defaultSqlitePath",
+          "type": "string"
+        },
         "databaseConnectionCheck": {
           "default": false,
           "description": "Add an additional init container, which checks for database availability",
@@ -339,6 +360,7 @@
       "required": [
         "databaseMigration",
         "databaseConnectionCheck",
+        "defaultSqlitePath",
         "postgres",
         "mysql",
         "existingDatabaseSecret"

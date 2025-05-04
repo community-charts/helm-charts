@@ -83,6 +83,9 @@ backendStore:
   # -- Add an additional init container, which checks for database availability
   databaseConnectionCheck: false
 
+  # -- Specifies the default sqlite path
+  defaultSqlitePath: ":memory:"
+
   postgres:
     # -- Specifies if you want to use postgres backend storage
     enabled: false
@@ -171,6 +174,12 @@ artifactRoot:
   # -- Specifies if you want to enable proxied artifact storage access
   proxiedArtifactStorage: false
 
+  # -- Specifies the default artifact root. Please find more information from here: https://github.com/mlflow/mlflow/tree/master/examples/mlflow_artifacts
+  defaultArtifactRoot: "./mlruns"
+
+  # -- Specifies the default artifacts destination
+  defaultArtifactsDestination: "./mlartifacts"
+
   # -- Specifies if you want to use Azure Blob Storage Mlflow Artifact Root
   azureBlob:
     # -- Specifies if you want to use Azure Blob Storage Mlflow Artifact Root
@@ -181,10 +190,10 @@ artifactRoot:
     storageAccount: "" # required
     # -- Azure blob container folder. If you want to use root level, please don't set anything.
     path: "" # optional
-    # -- Azure Cloud Connection String for the container. Only onnectionString or accessKey required
+    # -- Azure Cloud Connection String for the container. Only connectionString or accessKey required
     connectionString: "" # connectionString or accessKey required
     # -- Azure Cloud Storage Account Access Key for the container
-    accessKey: "" # connectionString or accessKey required. Only onnectionString or accessKey required
+    accessKey: "" # connectionString or accessKey required. Only connectionString or accessKey required
 
   # -- Specifies if you want to use AWS S3 Mlflow Artifact Root
   s3:
