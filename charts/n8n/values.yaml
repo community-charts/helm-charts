@@ -95,6 +95,55 @@ log:
     # -- Max number of log files to keep, or max number of days to keep logs for. Once the limit is reached, the oldest log files will be rotated out. If using days, append a `d` suffix. Only for `file` log output.
     maxcount: "100"
 
+# -- Node configurations for built-in and external npm packages
+nodes:
+  # -- Enable built-in node functions (e.g., HTTP Request, Code Node, etc.)
+  builtin:
+    # -- Enable built-in modules for the Code node
+    enabled: false
+    # -- List of built-in Node.js modules to allow in the Code node (e.g., crypto, fs). Use '*' to allow all.
+    modules: []
+      # - crypto
+      # - fs
+  # -- External npm packages to install and allow in the Code node
+  external:
+    # -- List of npm package names and versions (e.g., "package-name@1.0.0")
+    packages: []
+      # - "moment@2.29.4"
+      # - "lodash@4.17.21"
+  # -- Image for the init container to install npm packages
+  initContainer:
+    # -- Image for the init container to install npm packages
+    image:
+      # -- Repository for the init container to install npm packages
+      repository: node
+      # -- Tag for the init container to install npm packages
+      tag: "20-alpine"
+      # -- Pull policy for the init container to install npm packages
+      pullPolicy: IfNotPresent
+    # -- Resources for the init container
+    resources: {}
+      # requests:
+      #   cpu: 100m
+      #   memory: 128Mi
+      # limits:
+      #   cpu: 500m
+      #   memory: 256Mi
+
+# -- Configuration for private npm registry
+npmRegistry:
+  # -- Enable private npm registry
+  enabled: false
+  # -- URL of the private npm registry (e.g., https://registry.npmjs.org/)
+  url: ""
+  # -- Name of the Kubernetes secret containing npm registry credentials
+  secretName: ""
+  # -- Key in the secret for the .npmrc content or auth token
+  secretKey: "npmrc"
+  # -- Custom .npmrc content (optional, overrides secret if provided)
+  customNpmrc: ""
+
+# -- Configuration for binary data storage
 binaryData:
   # -- Available modes of binary data storage. If not set, the default mode will be used. For more information, see https://docs.n8n.io/hosting/configuration/environment-variables/binary-data/
   availableModes: []
@@ -247,6 +296,9 @@ main:
   #   mountPath: "/etc/foo"
   #   readOnly: true
 
+  # -- Additional init containers for the main pod
+  initContainers: []
+
 # -- Worker node configurations
 worker:
   # -- Use `regular` to use main node as executer, or use `queue` to have worker nodes
@@ -346,6 +398,9 @@ worker:
   # - name: foo
   #   mountPath: "/etc/foo"
   #   readOnly: true
+
+  # -- Additional init containers for the worker pod
+  initContainers: []
 
 # -- Webhook node configurations
 webhook:

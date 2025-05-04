@@ -48,7 +48,7 @@
     },
     "binaryData": {
       "additionalProperties": false,
-      "description": "n8n binary data configurations",
+      "description": "Configuration for binary data storage",
       "properties": {
         "availableModes": {
           "default": [],
@@ -774,6 +774,194 @@
       "title": "log",
       "type": "object"
     },
+    "nodes": {
+      "additionalProperties": false,
+      "description": "Node configurations for built-in and external npm packages",
+      "properties": {
+        "builtin": {
+          "additionalProperties": false,
+          "description": "Enable built-in node functions (e.g., HTTP Request, Code Node, etc.)",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "description": "Enable built-in modules for the Code node",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "modules": {
+              "default": [],
+              "description": "List of built-in Node.js modules to allow in the Code node (e.g., crypto, fs). Use '*' to allow all.",
+              "items": {
+                "type": "string"
+              },
+              "uniqueItems": true,
+              "minItems": 0,
+              "required": [],
+              "title": "modules",
+              "type": "array"
+            }
+          }
+        },
+        "external": {
+          "additionalProperties": false,
+          "description": "External npm packages to install and allow in the Code node",
+          "properties": {
+            "packages": {
+              "default": [],
+              "description": "List of npm package names and versions (e.g., \"package-name@1.0.0\")",
+              "items": {
+                "type": "string"
+              },
+              "uniqueItems": true,
+              "minItems": 0,
+              "required": [],
+              "title": "packages",
+              "type": "array"
+            }
+          },
+          "required": ["packages"],
+          "title": "external",
+          "type": "object"
+        },
+        "initContainer": {
+          "additionalProperties": false,
+          "description": "Image for the init container to install npm packages",
+          "properties": {
+            "image": {
+              "additionalProperties": false,
+              "description": "Image for the init container to install npm packages",
+              "properties": {
+                "repository": {
+                  "default": "node",
+                  "description": "Repository for the init container to install npm packages",
+                  "required": [],
+                  "title": "repository",
+                  "type": "string"
+                },
+                "tag": {
+                  "default": "20-alpine",
+                  "description": "Tag for the init container to install npm packages",
+                  "required": [],
+                  "title": "tag",
+                  "type": "string"
+                },
+                "pullPolicy": {
+                  "default": "IfNotPresent",
+                  "description": "Pull policy for the init container to install npm packages",
+                  "required": [],
+                  "title": "pullPolicy",
+                  "type": "string"
+                }
+              },
+              "required": ["repository", "tag", "pullPolicy"],
+              "title": "image",
+              "type": "object"
+            },
+            "resources": {
+              "additionalProperties": true,
+              "description": "This block is for setting up the resource management for the init container more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
+              "properties": {
+                "limits": {
+                  "additionalProperties": true,
+                  "description": "This block is for setting up the resource management for the init container more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
+                  "properties": {
+                    "cpu": {
+                      "default": "100m",
+                      "description": "CPU for the init container to install npm packages",
+                      "required": [],
+                      "title": "cpu",
+                      "type": "string"
+                    },
+                    "memory": {
+                      "default": "128Mi",
+                      "description": "Memory for the init container to install npm packages",
+                      "required": [],
+                      "title": "memory",
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "title": "limits",
+                  "type": "object"
+                },
+                "requests": {
+                  "additionalProperties": true,
+                  "description": "This block is for setting up the resource management for the init container more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
+                  "properties": {
+                    "cpu": {
+                      "default": "100m",
+                      "description": "CPU for the init container to install npm packages",
+                      "required": [],
+                      "title": "cpu",
+                      "type": "string"
+                    },
+                    "memory": {
+                      "default": "128Mi",
+                      "description": "Memory for the init container to install npm packages",
+                      "required": [],
+                      "title": "memory",
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "title": "requests",
+                  "type": "object"
+                }
+              },
+              "required": [],
+              "title": "resources",
+              "type": "object"
+            }
+          },
+          "required": ["image", "resources"],
+          "title": "initContainer",
+          "type": "object"
+        }
+      },
+      "required": ["initContainer"],
+      "title": "nodes",
+      "type": "object"
+    },
+    "npmRegistry": {
+      "type": "object",
+      "title": "npmRegistry",
+      "description": "Configuration for private npm registry",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "enabled",
+          "description": "Enable private npm registry",
+          "default": false
+        },
+        "url": {
+          "type": "string",
+          "title": "url",
+          "description": "URL of the private npm registry (e.g., https://registry.npmjs.org/)",
+          "default": ""
+        },
+        "secretName": {
+          "type": "string",
+          "title": "secretName",
+          "description": "Name of the Kubernetes secret containing npm registry credentials",
+          "default": ""
+        },
+        "secretKey": {
+          "type": "string",
+          "title": "secretKey",
+          "description": "Key in the secret for the .npmrc content or auth token",
+          "default": "npmrc"
+        },
+        "customNpmrc": {
+          "type": "string",
+          "title": "customNpmrc",
+          "description": "Custom .npmrc content (optional, overrides secret if provided)",
+          "default": ""
+        }
+      },
+      "required": ["enabled", "url", "secretName", "secretKey", "customNpmrc"]
+    },
     "license": {
       "additionalProperties": false,
       "description": "n8n license configurations",
@@ -1001,9 +1189,18 @@
           "required": [],
           "title": "volumeMounts",
           "type": "array"
+        },
+        "initContainers": {
+          "description": "Additional init containers for the main pod",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "initContainers",
+          "type": "array"
         }
       },
-      "required": ["count", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb"],
+      "required": ["count", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers"],
       "title": "main",
       "type": "object"
     },
@@ -2562,9 +2759,18 @@
           "required": [],
           "title": "volumeMounts",
           "type": "array"
+        },
+        "initContainers": {
+          "description": "Additional init containers for the worker pod",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "initContainers",
+          "type": "array"
         }
       },
-      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb"],
+      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers"],
       "allOf": [
         {
           "if": {
@@ -3402,6 +3608,8 @@
     "securityContext",
     "service",
     "log",
+    "nodes",
+    "npmRegistry",
     "binaryData",
     "db",
     "sentry",
