@@ -16,7 +16,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.17.0
+version: 0.17.1
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
@@ -58,9 +58,7 @@ annotations:
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |
-    - Add default sqlite path variable with value ":memory:"
-    - Add default artifact root variable with value "./mlruns"
-    - Add default artifacts destination variable with value "./mlartifacts"
+    - Fix the documentation for default sqlite path usage
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:2.22.0

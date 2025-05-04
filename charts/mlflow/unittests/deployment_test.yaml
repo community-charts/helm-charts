@@ -29,11 +29,11 @@ tests:
 
   - it: should be a defined sqlite path backend when Postgres or MySQL or bitnami Postgres or bitnami MySQL are not enabled and sqlite path is defined
     set:
-      backendStore.defaultSqlitePath: mlflow/data/mlflow.db
+      backendStore.defaultSqlitePath: /mlflow/data/mlflow.db
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
-          content: "--backend-store-uri=sqlite:///mlflow/data/mlflow.db"
+          content: "--backend-store-uri=sqlite:////mlflow/data/mlflow.db"
 
   - it: should be Postgres backend when Postgres is enabled
     set:
