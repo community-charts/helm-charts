@@ -59,6 +59,10 @@ annotations:
   artifacthub.io/changes: |
     - Add startupProbe for n8n webhook and worker to wait n8n process ready
     - Add initContainers for n8n webhook and worker to wait main node ready
+    - Add initContainers for n8n main pod
+    - Add initContainers for n8n worker pod
+    - Add node internal builtin modules and external npm packages support
+    - Add private npm registry support
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:1.90.2
