@@ -1160,7 +1160,7 @@ tests:
             name: npm-install
             volumeMounts:
               - name: node-modules
-                mountPath: "/home/node/.n8n/custom"
+                mountPath: "/data"
                 readOnly: false
           any: true
         template: deployment.yaml
@@ -1168,7 +1168,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n")].volumeMounts
           content:
             name: node-modules
-            mountPath: "/home/node/.n8n/custom"
+            mountPath: "/home/node/.n8n"
             readOnly: false
           any: true
         template: deployment.yaml
@@ -1243,7 +1243,7 @@ tests:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
           content:
             name: node-modules
-            mountPath: "/home/node/.n8n/custom"
+            mountPath: "/data"
             readOnly: false
           any: true
         template: deployment.yaml

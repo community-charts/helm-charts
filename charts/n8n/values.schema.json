@@ -2221,9 +2221,18 @@
           "required": [],
           "title": "volumeMounts",
           "type": "array"
+        },
+        "initContainers": {
+          "description": "Additional init containers for the pod",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "initContainers",
+          "type": "array"
         }
       },
-      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb"],
+      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers"],
       "allOf": [
         {
           "if": {

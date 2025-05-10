@@ -67,6 +67,9 @@ spec:
             limits:
               cpu: "100m"
               memory: "64Mi"
+      {{- with .Values.webhook.initContainers }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ include "n8n.webhook.name" . }}
           securityContext:

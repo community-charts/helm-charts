@@ -1125,3 +1125,33 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.failureThreshold
           value: 30
         template: deployment-worker.yaml
+
+  - it: should add init container to main pod when main.initContainers is defined
+    set:
+      worker:
+        initContainers:
+          - name: my-init-container
+            image: "my-image:1.0.0"
+            imagePullPolicy: IfNotPresent
+            command:
+              - sleep
+              - infinity
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "my-init-container")].name
+          value: my-init-container
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "my-init-container")].image
+          value: "my-image:1.0.0"
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "my-init-container")].imagePullPolicy
+          value: IfNotPresent
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "my-init-container")].command
+          value:
+            - sleep
+            - infinity
+        template: deployment-worker.yaml

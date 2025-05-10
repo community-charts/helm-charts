@@ -973,3 +973,33 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n-webhook")].startupProbe.failureThreshold
           value: 30
         template: deployment-webhook.yaml
+
+  - it: should add init container to main pod when main.initContainers is defined
+    set:
+      webhook:
+        initContainers:
+          - name: my-init-container
+            image: "my-image:1.0.0"
+            imagePullPolicy: IfNotPresent
+            command:
+              - sleep
+              - infinity
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "my-init-container")].name
+          value: my-init-container
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "my-init-container")].image
+          value: "my-image:1.0.0"
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "my-init-container")].imagePullPolicy
+          value: IfNotPresent
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "my-init-container")].command
+          value:
+            - sleep
+            - infinity
+        template: deployment-webhook.yaml

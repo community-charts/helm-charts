@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.6.0](https://img.shields.io/badge/Version-1.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.90.2](https://img.shields.io/badge/AppVersion-1.90.2-informational?style=flat-square)
+![Version: 1.6.0](https://img.shields.io/badge/Version-1.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.91.3](https://img.shields.io/badge/AppVersion-1.91.3-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -745,7 +745,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | versionNotifications.infoUrl | string | `"https://docs.n8n.io/hosting/installation/updating/"` | URL for versions panel to page instructing user on how to update n8n instance |
 | volumeMounts | list | `[]` | DEPRECATED: Use main, worker, and webhook blocks volumeMounts fields instead. This field will be removed in a future release. |
 | volumes | list | `[]` | DEPRECATED: Use main, worker, and webhook blocks volumes fields instead. This field will be removed in a future release. |
-| webhook | object | `{"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"count":2,"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"mode":"regular","pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"resources":{},"url":"","volumeMounts":[],"volumes":[]}` | Webhook node configurations |
+| webhook | object | `{"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"count":2,"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"initContainers":[],"mode":"regular","pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"resources":{},"url":"","volumeMounts":[],"volumes":[]}` | Webhook node configurations |
 | webhook.allNodes | bool | `false` | If true, all k8s nodes will deploy exatly one webhook pod |
 | webhook.autoscaling | object | `{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2}` | If true, the number of webhooks will be automatically scaled based on default metrics. On default, it will scale based on CPU. Scale by requests can be done by setting a custom metric. For more information can be found here: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/ |
 | webhook.autoscaling.behavior | object | `{}` | The behavior of the autoscaler. |
@@ -756,6 +756,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | webhook.count | int | `2` | Static number of webhooks. If allNodes or autoscaling is enabled, this value will be ignored. |
 | webhook.extraEnvVars | object | `{}` | Extra environment variables |
 | webhook.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
+| webhook.initContainers | list | `[]` | Additional init containers for the webhook pod |
 | webhook.mode | string | `"regular"` | Use `regular` to use main node as webhook node, or use `queue` to have webhook nodes |
 | webhook.pdb | object | `{"enabled":true,"maxUnavailable":null,"minAvailable":1}` | Whether to enable the PodDisruptionBudget for the webhook pod |
 | webhook.pdb.enabled | bool | `true` | Whether to enable the PodDisruptionBudget |

@@ -51,10 +51,9 @@ spec:
             - -c
             - |
               export PACKAGES="{{ join " " .Values.nodes.external.packages }}"
-              if [ ! -d "/home/node/.n8n/custom/node_modules" ]; then
-                npm install --no-save $PACKAGES --prefix /home/node/.n8n/custom
+              if [ ! -d "/data/node_modules" ]; then
+                npm install --no-save $PACKAGES --prefix /data
               fi
-              # chown -R 1000:1000 /home/node/.n8n/custom
           volumeMounts:
             {{- if .Values.npmRegistry.enabled }}
             - name: npmrc
@@ -63,7 +62,7 @@ spec:
               readOnly: true
             {{- end }}
             - name: node-modules
-              mountPath: "/home/node/.n8n/custom"
+              mountPath: "/data"
               readOnly: false
           {{- with .Values.nodes.initContainer.resources }}
           resources:
@@ -234,7 +233,7 @@ spec:
           {{- end }}
           {{- if .Values.nodes.external.packages }}
             - name: node-modules
-              mountPath: "/home/node/.n8n/custom"
+              mountPath: "/home/node/.n8n"
               readOnly: false
           {{- end }}
           {{- if .Values.npmRegistry.enabled }}
