@@ -974,7 +974,7 @@ tests:
           value: 30
         template: deployment-webhook.yaml
 
-  - it: should add init container to main pod when main.initContainers is defined
+  - it: should add init container to webhook pod when webhook.initContainers is defined
     set:
       webhook:
         initContainers:

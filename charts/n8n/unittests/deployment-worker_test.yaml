@@ -1319,7 +1319,7 @@ tests:
           value: 30
         template: deployment-worker.yaml
 
-  - it: should add init container to main pod when main.initContainers is defined
+  - it: should add init container to worker pod when worker.initContainers is defined
     set:
       worker:
         initContainers:
