@@ -1097,6 +1097,199 @@ tests:
                 name: fake-existing-secret
         template: deployment-worker.yaml
 
+  - it: should set npm install init container with mount to internal task runner when nodes.external.packages is set and taskRunners.mode is internal
+    set:
+      taskRunners:
+        mode: internal
+      nodes:
+        external:
+          packages:
+            - "moment@2.29.4"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers
+          content:
+            name: npm-install
+            volumeMounts:
+              - name: node-modules
+                mountPath: "/data"
+                readOnly: false
+          any: true
+        template: deployment-worker.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].volumeMounts
+          content:
+            name: node-modules
+            mountPath: "/home/node/.n8n"
+            readOnly: false
+          any: true
+        template: deployment-worker.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: node-modules
+            emptyDir: {}
+          any: true
+        template: deployment-worker.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: NODE_FUNCTION_ALLOW_EXTERNAL
+            value: "moment"
+          any: true
+        template: deployment-worker.yaml
+
+  - it: should allow builtin node functions in internal task runner when nodes.builtin.modules is set and taskRunners.mode is internal
+    set:
+      taskRunners:
+        mode: internal
+      nodes:
+        builtin:
+          enabled: true
+          modules:
+            - "fs"
+            - "crypto"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: NODE_FUNCTION_ALLOW_BUILTIN
+            value: "fs,crypto"
+          any: true
+        template: deployment-worker.yaml
+
+  - it: should allow all builtin node functions in internal task runner when nodes.builtin.modules is enabled and taskRunners.mode is internal
+    set:
+      taskRunners:
+        mode: internal
+      nodes:
+        builtin:
+          enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: NODE_FUNCTION_ALLOW_BUILTIN
+            value: "*"
+          any: true
+        template: deployment-worker.yaml
+
+  - it: should set npm install init container with mount to external task runner when nodes.external.packages is set and taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        external:
+          packages:
+            - "moment@2.29.4"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers
+          content:
+            name: npm-install
+            volumeMounts:
+              - name: node-modules
+                mountPath: "/data"
+                readOnly: false
+          any: true
+        template: deployment-worker.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].volumeMounts
+          content:
+            name: node-modules
+            mountPath: "/home/node/.n8n"
+            readOnly: false
+          any: true
+        template: deployment-worker.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: node-modules
+            emptyDir: {}
+          any: true
+        template: deployment-worker.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].env
+          content:
+            name: NODE_FUNCTION_ALLOW_EXTERNAL
+            value: "moment"
+          any: true
+        template: deployment-worker.yaml
+
+  - it: should allow builtin node functions in internal task runner when nodes.builtin.modules is set and taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        builtin:
+          enabled: true
+          modules:
+            - "fs"
+            - "crypto"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].env
+          content:
+            name: NODE_FUNCTION_ALLOW_BUILTIN
+            value: "fs,crypto"
+          any: true
+        template: deployment-worker.yaml
+
+  - it: should allow all builtin node functions in external task runner when nodes.builtin.modules is enabled and taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        builtin:
+          enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].env
+          content:
+            name: NODE_FUNCTION_ALLOW_BUILTIN
+            value: "*"
+          any: true
+        template: deployment-worker.yaml
+
+  - it: should use private npm registry when npmRegistry.enabled is true
+    set:
+      nodes:
+        external:
+          packages:
+            - "@mycompany/custom-n8n-functions@1.0.0"
+      npmRegistry:
+        enabled: true
+        url: "https://my-registry.com"
+        secretName: "n8n-npm-registry-secret"
+        secretKey: "npmrc"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
+          content:
+            name: npmrc
+            mountPath: "/home/node/.npmrc"
+            subPath: "npmrc"
+            readOnly: true
+          any: true
+        template: deployment-worker.yaml
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
+          content:
+            name: node-modules
+            mountPath: "/data"
+            readOnly: false
+          any: true
+        template: deployment-worker.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: npmrc
+            secret:
+              optional: true
+              secretName: n8n-npm-registry-secret
+          any: true
+        template: deployment-worker.yaml
+
   - it: should use init container to wait main node ready
     asserts:
       - contains:
