@@ -39,6 +39,38 @@ spec:
       serviceAccountName: {{ include "n8n.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if or .Values.main.initContainers .Values.nodes.external.packages }}
+      initContainers:
+      {{- end }}
+        {{- if .Values.nodes.external.packages }}
+        - name: npm-install
+          image: "{{ .Values.nodes.initContainer.image.repository }}:{{ .Values.nodes.initContainer.image.tag }}"
+          imagePullPolicy: {{ .Values.nodes.initContainer.image.pullPolicy }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              export PACKAGES="{{ join " " .Values.nodes.external.packages }}"
+              if [ ! -d "/data/node_modules" ]; then
+                npm install --no-save $PACKAGES --prefix /data
+              fi
+          volumeMounts:
+            {{- if .Values.npmRegistry.enabled }}
+            - name: npmrc
+              mountPath: "/home/node/.npmrc"
+              subPath: {{ (default "npmrc" .Values.npmRegistry.secretKey) | quote }}
+              readOnly: true
+            {{- end }}
+            - name: node-modules
+              mountPath: "/data"
+              readOnly: false
+          {{- with .Values.nodes.initContainer.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- end }}
+      {{- with .Values.main.initContainers }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -141,6 +173,21 @@ spec:
                   key: secret-access-key
                 {{- end }}
           {{- end }}
+          {{- if and .Values.nodes.builtin.enabled (eq .Values.taskRunners.mode "internal") }}
+            - name: NODE_FUNCTION_ALLOW_BUILTIN
+              value: {{ if .Values.nodes.builtin.modules }}{{ join "," .Values.nodes.builtin.modules }}{{ else }}"*"{{ end }}
+          {{- end }}
+          {{- if and .Values.nodes.external.packages (eq .Values.taskRunners.mode "internal") }}
+            - name: NODE_FUNCTION_ALLOW_EXTERNAL
+              value: {{ $packageNames := list -}}
+              {{- range .Values.nodes.external.packages -}}
+                {{- $matches := regexFindAll "[^@]+" . -1 -}}
+                {{- if $matches -}}
+                  {{- $packageNames = append $packageNames (index $matches 0) -}}
+                {{- end -}}
+              {{- end -}}
+              {{- join "," $packageNames }}
+          {{- end }}
           {{- range $key, $value := (default .Values.extraEnvVars .Values.main.extraEnvVars) }}
             - name: {{ upper $key }}
               value: {{ $value | quote }}
@@ -180,8 +227,15 @@ spec:
             - secretRef:
                 name: {{ . }}
           {{- end }}
-          {{- with (default .Values.volumeMounts .Values.main.volumeMounts) }}
+          {{- if or .Values.volumeMounts .Values.main.volumeMounts .Values.nodes.external.packages .Values.npmRegistry.enabled }}
           volumeMounts:
+          {{- end }}
+          {{- if and .Values.nodes.external.packages (eq .Values.taskRunners.mode "internal") }}
+            - name: node-modules
+              mountPath: "/home/node/.n8n"
+              readOnly: false
+          {{- end }}
+          {{- with (default .Values.volumeMounts .Values.main.volumeMounts) }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
       {{- if eq .Values.taskRunners.mode "external" }}
@@ -210,12 +264,45 @@ spec:
                 secretKeyRef:
                   name: {{ template "n8n.taskRunners.fullname" . }}-secret
                   key: auth-token
+          {{- if .Values.nodes.builtin.enabled }}
+            - name: NODE_FUNCTION_ALLOW_BUILTIN
+              value: {{ if .Values.nodes.builtin.modules }}{{ join "," .Values.nodes.builtin.modules }}{{ else }}"*"{{ end }}
+          {{- end }}
+          {{- if .Values.nodes.external.packages }}
+            - name: NODE_FUNCTION_ALLOW_EXTERNAL
+              value: {{ $packageNames := list -}}
+              {{- range .Values.nodes.external.packages -}}
+                {{- $matches := regexFindAll "[^@]+" . -1 -}}
+                {{- if $matches -}}
+                  {{- $packageNames = append $packageNames (index $matches 0) -}}
+                {{- end -}}
+              {{- end -}}
+              {{- join "," $packageNames }}
+          {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ template "n8n.taskRunners.fullname" . }}-configmap
+          {{- if .Values.nodes.external.packages }}
+          volumeMounts:
+            - name: node-modules
+              mountPath: "/home/node/.n8n"
+              readOnly: false
+          {{- end }}
+      {{- end }}
+      {{- if or .Values.volumes .Values.main.volumes .Values.nodes.external.packages }}
+      volumes:
+      {{- end }}
+      {{- if .Values.nodes.external.packages }}
+        - name: node-modules
+          emptyDir: {}
+      {{- end }}
+      {{- if .Values.npmRegistry.enabled }}
+        - name: npmrc
+          secret:
+            secretName: {{ default (printf "%s-npm-registry-secret" (include "n8n.fullname" .)) .Values.npmRegistry.secretName | quote }}
+            optional: true
       {{- end }}
       {{- with (default .Values.volumes .Values.main.volumes) }}
-      volumes:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.nodeSelector }}
