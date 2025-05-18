@@ -1392,3 +1392,57 @@ tests:
               - infinity
           any: true
         template: deployment.yaml
+
+  - it: should set dnsPolicy when dnsPolicy is set
+    set:
+      dnsPolicy: ClusterFirst
+    asserts:
+      - equal:
+          path: spec.template.spec.dnsPolicy
+          value: ClusterFirst
+        template: deployment.yaml
+
+  - it: should set dnsConfig when dnsConfig is set
+    set:
+      dnsConfig:
+        nameservers:
+          - 1.1.1.1
+          - 1.0.0.1
+    asserts:
+      - contains:
+          path: spec.template.spec.dnsConfig.nameservers
+          content:
+            1.1.1.1
+          any: true
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.dnsConfig.nameservers
+          content:
+            1.0.0.1
+          any: true
+        template: deployment.yaml
+
+  - it: should set dnsPolicy and dnsConfig when dnsPolicy and dnsConfig are set
+    set:
+      dnsPolicy: None
+      dnsConfig:
+        nameservers:
+          - 1.1.1.1
+          - 1.0.0.1
+    asserts:
+      - equal:
+          path: spec.template.spec.dnsPolicy
+          value: None
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.dnsConfig.nameservers
+          content:
+            1.1.1.1
+          any: true
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.dnsConfig.nameservers
+          content:
+            1.0.0.1
+          any: true
+        template: deployment.yaml
