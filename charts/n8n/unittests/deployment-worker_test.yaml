@@ -1348,3 +1348,26 @@ tests:
             - sleep
             - infinity
         template: deployment-worker.yaml
+
+  - it: should add extra containers to worker pod when worker.extraContainers is defined
+    set:
+      worker:
+        extraContainers:
+          - name: my-extra-container
+            image: "my-image:1.0.0"
+            imagePullPolicy: IfNotPresent
+            command:
+              - sleep
+              - infinity
+    asserts:
+      - contains:
+          path: spec.template.spec.containers
+          content:
+            name: my-extra-container
+            image: "my-image:1.0.0"
+            imagePullPolicy: IfNotPresent
+            command:
+              - sleep
+              - infinity
+          any: true
+        template: deployment-worker.yaml

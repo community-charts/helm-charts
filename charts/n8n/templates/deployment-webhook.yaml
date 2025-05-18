@@ -184,6 +184,9 @@ spec:
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+      {{- with .Values.webhook.extraContainers }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with (default .Values.volumes .Values.webhook.volumes) }}
       volumes:
         {{- toYaml . | nindent 8 }}

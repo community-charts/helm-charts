@@ -63,6 +63,7 @@ annotations:
     - Add initContainers for n8n worker pod
     - Add node internal builtin modules and external npm packages support
     - Add private npm registry support
+    - Add extraContainers support for n8n main, worker and webhook pods
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:1.91.3

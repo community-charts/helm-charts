@@ -289,6 +289,9 @@ spec:
               readOnly: false
           {{- end }}
       {{- end }}
+      {{- with .Values.main.extraContainers }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- if or .Values.volumes .Values.main.volumes .Values.nodes.external.packages }}
       volumes:
       {{- end }}

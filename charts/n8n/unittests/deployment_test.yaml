@@ -1369,3 +1369,26 @@ tests:
             - sleep
             - infinity
         template: deployment.yaml
+
+  - it: should add extra containers to main pod when main.extraContainers is defined
+    set:
+      main:
+        extraContainers:
+          - name: my-extra-container
+            image: "my-image:1.0.0"
+            imagePullPolicy: IfNotPresent
+            command:
+              - sleep
+              - infinity
+    asserts:
+      - contains:
+          path: spec.template.spec.containers
+          content:
+            name: my-extra-container
+            image: "my-image:1.0.0"
+            imagePullPolicy: IfNotPresent
+            command:
+              - sleep
+              - infinity
+          any: true
+        template: deployment.yaml

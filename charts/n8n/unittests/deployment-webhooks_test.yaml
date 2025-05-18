@@ -1003,3 +1003,26 @@ tests:
             - sleep
             - infinity
         template: deployment-webhook.yaml
+
+  - it: should add extra containers to webhook pod when webhook.extraContainers is defined
+    set:
+      webhook:
+        extraContainers:
+          - name: my-extra-container
+            image: "my-image:1.0.0"
+            imagePullPolicy: IfNotPresent
+            command:
+              - sleep
+              - infinity
+    asserts:
+      - contains:
+          path: spec.template.spec.containers
+          content:
+            name: my-extra-container
+            image: "my-image:1.0.0"
+            imagePullPolicy: IfNotPresent
+            command:
+              - sleep
+              - infinity
+          any: true
+        template: deployment-webhook.yaml

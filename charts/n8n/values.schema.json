@@ -1198,9 +1198,18 @@
           "required": [],
           "title": "initContainers",
           "type": "array"
+        },
+        "extraContainers": {
+          "description": "Additional containers for the main pod",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "extraContainers",
+          "type": "array"
         }
       },
-      "required": ["count", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers"],
+      "required": ["count", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers"],
       "title": "main",
       "type": "object"
     },
@@ -2230,9 +2239,18 @@
           "required": [],
           "title": "initContainers",
           "type": "array"
+        },
+        "extraContainers": {
+          "description": "Additional containers for the webhook pod",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "extraContainers",
+          "type": "array"
         }
       },
-      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers"],
+      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers"],
       "allOf": [
         {
           "if": {
@@ -2777,9 +2795,18 @@
           "required": [],
           "title": "initContainers",
           "type": "array"
+        },
+        "extraContainers": {
+          "description": "Additional containers for the worker pod",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "extraContainers",
+          "type": "array"
         }
       },
-      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers"],
+      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers"],
       "allOf": [
         {
           "if": {
