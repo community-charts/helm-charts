@@ -278,6 +278,87 @@ webhook:
   allNodes: true
 ```
 
+### Enabling Support for Node.js Core and External/Private NPM Packages
+
+Easily incorporate Node.js core packages, public NPM packages, or private NPM packages from your registry into your n8n Code blocks with this Helm chart. Below, we guide you through enabling and configuring these options.
+
+#### Using Node.js Core Packages
+
+To enable Node.js core packages, set the `nodes.builtin.enabled` flag to `true`. This allows access to all built-in Node.js modules.
+
+```yaml
+nodes:
+  builtin:
+    enabled: true
+```
+
+If you prefer to enable only specific core modules, list them in `nodes.builtin.modules`. Here's an example:
+
+```yaml
+nodes:
+  builtin:
+    enabled: true
+    modules:
+      - crypto
+      - fs
+      - http
+      - https
+      - querystring
+      - url
+```
+
+#### Installing External NPM Packages
+
+To install packages from the public NPM registry, add them to the `nodes.external.packages` list. You can specify versions or omit them to use the latest available version.
+
+```yaml
+nodes:
+  external:
+    packages:
+      - "moment@2.29.4"
+      - "lodash@4.17.21"
+      - "date-fns"
+```
+
+#### Using Private NPM Packages
+
+For packages hosted in a private NPM registry, configure access by providing a valid `.npmrc` file. You can either reference an existing Kubernetes secret containing the `.npmrc` content or define custom `.npmrc` content directly in the chart values.
+
+##### Option 1: Using a Secret for `.npmrc`
+
+If your `.npmrc` file is stored in a Kubernetes secret, specify the secret details as shown below:
+
+```yaml
+nodes:
+  external:
+    packages:
+      - "my-private-package"
+
+npmRegistry:
+  enabled: true
+  url: "https://internal.npm.registry.mycompany.com"
+  secretName: "npmrc-secret"
+  secretKey: "npmrc"
+```
+
+##### Option 2: Providing Custom `.npmrc` Content
+
+Alternatively, you can define the `.npmrc` content directly in the chart values. This is useful for registries like GitHub Packages that require authentication tokens:
+
+```yaml
+nodes:
+  external:
+    packages:
+      - "my-private-package"
+
+npmRegistry:
+  enabled: true
+  url: "https://npm.pkg.github.com"
+  customNpmrc: |
+    @myGithubOrg:registry=https://npm.pkg.github.com
+    //npm.pkg.github.com/:_authToken=ghp_MyGithubClassicToken
+```
+
 ### Enabling Autoscaling  
 
 To enable autoscaling, set the `enabled` field under `autoscaling` to `true`:  

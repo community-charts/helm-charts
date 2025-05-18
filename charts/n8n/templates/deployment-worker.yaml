@@ -78,8 +78,12 @@ spec:
           args:
             - |
               export PACKAGES="{{ join " " .Values.nodes.external.packages }}"
-              if [ ! -d "/data/node_modules" ]; then
+              echo "$PACKAGES" | sha256sum > /data/packages.hash.new
+              if [ ! -f /data/packages.hash ] || ! cmp /data/packages.hash /data/packages.hash.new; then
                 npm install --no-save $PACKAGES --prefix /data
+                mv /data/packages.hash.new /data/packages.hash
+              else
+                rm /data/packages.hash.new
               fi
           volumeMounts:
             {{- if .Values.npmRegistry.enabled }}
