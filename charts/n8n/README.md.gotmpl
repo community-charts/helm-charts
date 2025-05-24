@@ -53,8 +53,13 @@ main:
 
 worker:
   mode: queue
+
   autoscaling:
     enabled: true
+
+  waitMainNodeReady:
+    enabled: true
+
   resources:
     requests:
       cpu: 1000m
@@ -78,9 +83,15 @@ ingress:
 
 webhook:
   mode: queue
+
   url: "https://webhook.mydomain.com"
+
   autoscaling:
     enabled: true
+
+  waitMainNodeReady:
+    enabled: true
+
   resources:
     requests:
       cpu: 100m
@@ -609,6 +620,7 @@ This section outlines major updates and breaking changes for each version of the
 ##### Action Required
 
 Please consider using the corresponding fields in the `main`, `worker` and `webhook` blocks instead. The deprecated fields will be removed in the next major release.
+The Worker and Webhook nodes no longer include a default init container to wait for the main node to become ready. If this behavior is required, please enable it explicitly by setting `worker.waitMainNodeReady.enabled` and `webhook.waitMainNodeReady.enabled` to `true`.
 
 #### Upgrading to Version 1.3.1
 
