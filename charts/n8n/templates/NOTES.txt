@@ -24,6 +24,6 @@
 {{- range $field := $deprecatedFields }}
   {{- $value := get $.Values $field }}
   {{- if and (hasKey $.Values $field) $value }}
-    !!! We detected deprecated root level {{ $field }} configuration usage. Please consider using main, worker, and webhook blocks {{ $field }} fields instead. This field will be removed in a future release.
+!!! We detected deprecated root level {{ $field }} configuration usage. Please consider using main, worker, and webhook blocks {{ $field }} fields instead. This field will be removed in a future release.
   {{- end }}
 {{- end }}
