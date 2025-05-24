@@ -85,9 +85,13 @@ spec:
           startupProbe:
             {{- toYaml .Values.webhook.startupProbe | nindent 12 }}
           livenessProbe:
-            {{- toYaml (default .Values.webhook.livenessProbe .Values.livenessProbe) | nindent 12 }}
+            {{- $rootLiveness := .Values.livenessProbe | default dict }}
+            {{- $webhookLiveness := .Values.webhook.livenessProbe | default dict }}
+            {{- toYaml (merge $webhookLiveness $rootLiveness) | nindent 12 }}
           readinessProbe:
-            {{- toYaml (default .Values.webhook.readinessProbe .Values.readinessProbe) | nindent 12 }}
+            {{- $rootReadiness := .Values.readinessProbe | default dict }}
+            {{- $webhookReadiness := .Values.webhook.readinessProbe | default dict }}
+            {{- toYaml (merge $webhookReadiness $rootReadiness) | nindent 12 }}
           resources:
             {{- toYaml (default .Values.resources .Values.webhook.resources) | nindent 12 }}
           env:

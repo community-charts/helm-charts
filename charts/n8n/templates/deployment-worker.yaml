@@ -118,9 +118,13 @@ spec:
           startupProbe:
             {{- toYaml .Values.worker.startupProbe | nindent 12 }}
           livenessProbe:
-            {{- toYaml (default .Values.worker.livenessProbe .Values.livenessProbe) | nindent 12 }}
+            {{- $rootLiveness := .Values.livenessProbe | default dict }}
+            {{- $workerLiveness := .Values.worker.livenessProbe | default dict }}
+            {{- toYaml (merge $workerLiveness $rootLiveness) | nindent 12 }}
           readinessProbe:
-            {{- toYaml (default .Values.worker.readinessProbe .Values.readinessProbe) | nindent 12 }}
+            {{- $rootReadiness := .Values.readinessProbe | default dict }}
+            {{- $workerReadiness := .Values.worker.readinessProbe | default dict }}
+            {{- toYaml (merge $workerReadiness $rootReadiness) | nindent 12 }}
           resources:
             {{- toYaml (default .Values.resources .Values.worker.resources) | nindent 12 }}
           env:
