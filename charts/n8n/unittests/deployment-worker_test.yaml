@@ -234,6 +234,51 @@ tests:
           value: TCP
         template: deployment-worker.yaml
 
+  - it: should set startup probe when worker.startupProbe is set
+    set:
+      worker:
+        startupProbe:
+          exec:
+            command: ["/bin/sh", "-c", "ps aux | grep '[n]8n'"]
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 30
+          timeoutSeconds: 5
+          successThreshold: 1
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.exec.command[0]
+          value: /bin/sh
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.exec.command[1]
+          value: -c
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.exec.command[2]
+          value: ps aux | grep '[n]8n'
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.initialDelaySeconds
+          value: 10
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.periodSeconds
+          value: 5
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.timeoutSeconds
+          value: 5
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.failureThreshold
+          value: 30
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.successThreshold
+          value: 1
+        template: deployment-worker.yaml
+
   - it: should set liveness probe when livenessProbe is set
     set:
       livenessProbe:
@@ -275,6 +320,48 @@ tests:
           value: 1
         template: deployment-worker.yaml
 
+  - it: should set liveness probe when worker.livenessProbe is set
+    set:
+      worker:
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.httpGet.path
+          value: /healthz
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.httpGet.port
+          value: http
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.initialDelaySeconds
+          value: 10
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.periodSeconds
+          value: 10
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.timeoutSeconds
+          value: 5
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.failureThreshold
+          value: 3
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.successThreshold
+          value: 1
+        template: deployment-worker.yaml
+
   - it: should set readiness probe when readinessProbe is set
     set:
       readinessProbe:
@@ -286,6 +373,48 @@ tests:
         timeoutSeconds: 5
         failureThreshold: 3
         successThreshold: 1
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.httpGet.path
+          value: /healthz/readiness
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.httpGet.port
+          value: http
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.initialDelaySeconds
+          value: 10
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.periodSeconds
+          value: 10
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.timeoutSeconds
+          value: 5
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.failureThreshold
+          value: 3
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.successThreshold
+          value: 1
+        template: deployment-worker.yaml
+
+  - it: should set readiness probe when worker.readinessProbe is set
+    set:
+      worker:
+        readinessProbe:
+          httpGet:
+            path: /healthz/readiness
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
     asserts:
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.httpGet.path

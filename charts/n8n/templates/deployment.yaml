@@ -92,9 +92,9 @@ spec:
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           livenessProbe:
-            {{- toYaml .Values.livenessProbe | nindent 12 }}
+            {{- toYaml (default .Values.main.livenessProbe .Values.livenessProbe) | nindent 12 }}
           readinessProbe:
-            {{- toYaml .Values.readinessProbe | nindent 12 }}
+            {{- toYaml (default .Values.main.readinessProbe .Values.readinessProbe) | nindent 12 }}
           resources:
             {{- toYaml (default .Values.resources .Values.main.resources) | nindent 12 }}
           env:

@@ -666,7 +666,7 @@
     },
     "livenessProbe": {
       "additionalProperties": true,
-      "description": "This is to setup the liveness probe more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
+      "description": "DEPRECATED: Use main, worker, and webhook blocks livenessProbe field instead. This field will be removed in a future release.",
       "properties": {
         "httpGet": {
           "additionalProperties": true,
@@ -689,7 +689,7 @@
           "type": "object"
         }
       },
-      "required": ["httpGet"],
+      "required": [],
       "title": "livenessProbe",
       "type": "object"
     },
@@ -1163,6 +1163,64 @@
           "title": "resources",
           "type": "object"
         },
+        "livenessProbe": {
+          "additionalProperties": true,
+          "description": "This is to setup the liveness probe for the main pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
+          "properties": {
+            "httpGet": {
+              "additionalProperties": true,
+              "properties": {
+                "path": {
+                  "default": "/healthz",
+                  "required": [],
+                  "title": "path",
+                  "type": "string"
+                },
+                "port": {
+                  "default": "http",
+                  "required": [],
+                  "title": "port",
+                  "type": "string"
+                }
+              },
+              "required": ["path", "port"],
+              "title": "httpGet",
+              "type": "object"
+            }
+          },
+          "required": ["httpGet"],
+          "title": "livenessProbe",
+          "type": "object"
+        },
+        "readinessProbe": {
+          "additionalProperties": true,
+          "description": "This is to setup the readiness probe for the main pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
+          "properties": {
+            "httpGet": {
+              "additionalProperties": true,
+              "properties": {
+                "path": {
+                  "default": "/healthz/readiness",
+                  "required": [],
+                  "title": "path",
+                  "type": "string"
+                },
+                "port": {
+                  "default": "http",
+                  "required": [],
+                  "title": "port",
+                  "type": "string"
+                }
+              },
+              "required": ["path", "port"],
+              "title": "httpGet",
+              "type": "object"
+            }
+          },
+          "required": ["httpGet"],
+          "title": "readinessProbe",
+          "type": "object"
+        },
         "extraEnvVars": {
           "additionalProperties": true,
           "description": "Extra environment variables",
@@ -1216,7 +1274,7 @@
           "type": "array"
         }
       },
-      "required": ["count", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers"],
+      "required": ["count", "resources", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers"],
       "title": "main",
       "type": "object"
     },
@@ -1391,7 +1449,7 @@
     },
     "readinessProbe": {
       "additionalProperties": true,
-      "description": "This is to setup the readiness probe more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
+      "description": "DEPRECATED: Use main, worker, and webhook blocks readinessProbe field instead. This field will be removed in a future release.",
       "properties": {
         "httpGet": {
           "additionalProperties": true,
@@ -1414,7 +1472,7 @@
           "type": "object"
         }
       },
-      "required": ["httpGet"],
+      "required": [],
       "title": "readinessProbe",
       "type": "object"
     },
@@ -2204,6 +2262,105 @@
           "title": "resources",
           "type": "object"
         },
+        "startupProbe": {
+          "additionalProperties": true,
+          "description": "This is to setup the startup probe for the webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
+          "properties": {
+            "exec": {
+              "additionalProperties": true,
+              "properties": {
+                "command": {
+                  "default": ["/bin/sh", "-c", "ps aux | grep '[n]8n'"],
+                  "required": [],
+                  "title": "command",
+                  "type": "array"
+                }
+              },
+              "required": ["command"],
+              "title": "exec",
+              "type": "object"
+            },
+            "initialDelaySeconds": {
+              "default": 10,
+              "required": [],
+              "title": "initialDelaySeconds",
+              "type": "integer"
+            },
+            "periodSeconds": {
+              "default": 5,
+              "required": [],
+              "title": "periodSeconds",
+              "type": "integer"
+            },
+            "failureThreshold": {
+              "default": 30,
+              "required": [],
+              "title": "failureThreshold",
+              "type": "integer"
+            }
+          },
+          "required": ["exec", "initialDelaySeconds", "periodSeconds", "failureThreshold"],
+          "title": "startupProbe",
+          "type": "object"
+        },
+        "livenessProbe": {
+          "additionalProperties": true,
+          "description": "This is to setup the liveness probe for the webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
+          "properties": {
+            "httpGet": {
+              "additionalProperties": true,
+              "properties": {
+                "path": {
+                  "default": "/healthz",
+                  "required": [],
+                  "title": "path",
+                  "type": "string"
+                },
+                "port": {
+                  "default": "http",
+                  "required": [],
+                  "title": "port",
+                  "type": "string"
+                }
+              },
+              "required": ["path", "port"],
+              "title": "httpGet",
+              "type": "object"
+            }
+          },
+          "required": ["httpGet"],
+          "title": "livenessProbe",
+          "type": "object"
+        },
+        "readinessProbe": {
+          "additionalProperties": true,
+          "description": "This is to setup the readiness probe for the webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
+          "properties": {
+            "httpGet": {
+              "additionalProperties": true,
+              "properties": {
+                "path": {
+                  "default": "/healthz/readiness",
+                  "required": [],
+                  "title": "path",
+                  "type": "string"
+                },
+                "port": {
+                  "default": "http",
+                  "required": [],
+                  "title": "port",
+                  "type": "string"
+                }
+              },
+              "required": ["path", "port"],
+              "title": "httpGet",
+              "type": "object"
+            }
+          },
+          "required": ["httpGet"],
+          "title": "readinessProbe",
+          "type": "object"
+        },
         "extraEnvVars": {
           "additionalProperties": true,
           "description": "Extra environment variables",
@@ -2257,7 +2414,7 @@
           "type": "array"
         }
       },
-      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers"],
+      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers"],
       "allOf": [
         {
           "if": {
@@ -2760,6 +2917,105 @@
           "title": "resources",
           "type": "object"
         },
+        "startupProbe": {
+          "additionalProperties": true,
+          "description": "This is to setup the startup probe for the worker pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
+          "properties": {
+            "exec": {
+              "additionalProperties": true,
+              "properties": {
+                "command": {
+                  "default": ["/bin/sh", "-c", "ps aux | grep '[n]8n'"],
+                  "required": [],
+                  "title": "command",
+                  "type": "array"
+                }
+              },
+              "required": ["command"],
+              "title": "exec",
+              "type": "object"
+            },
+            "initialDelaySeconds": {
+              "default": 10,
+              "required": [],
+              "title": "initialDelaySeconds",
+              "type": "integer"
+            },
+            "periodSeconds": {
+              "default": 5,
+              "required": [],
+              "title": "periodSeconds",
+              "type": "integer"
+            },
+            "failureThreshold": {
+              "default": 30,
+              "required": [],
+              "title": "failureThreshold",
+              "type": "integer"
+            }
+          },
+          "required": ["exec", "initialDelaySeconds", "periodSeconds", "failureThreshold"],
+          "title": "startupProbe",
+          "type": "object"
+        },
+        "livenessProbe": {
+          "additionalProperties": true,
+          "description": "This is to setup the liveness probe for the worker pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
+          "properties": {
+            "httpGet": {
+              "additionalProperties": true,
+              "properties": {
+                "path": {
+                  "default": "/healthz",
+                  "required": [],
+                  "title": "path",
+                  "type": "string"
+                },
+                "port": {
+                  "default": "http",
+                  "required": [],
+                  "title": "port",
+                  "type": "string"
+                }
+              },
+              "required": ["path", "port"],
+              "title": "httpGet",
+              "type": "object"
+            }
+          },
+          "required": ["httpGet"],
+          "title": "livenessProbe",
+          "type": "object"
+        },
+        "readinessProbe": {
+          "additionalProperties": true,
+          "description": "This is to setup the readiness probe for the worker pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
+          "properties": {
+            "httpGet": {
+              "additionalProperties": true,
+              "properties": {
+                "path": {
+                  "default": "/healthz/readiness",
+                  "required": [],
+                  "title": "path",
+                  "type": "string"
+                },
+                "port": {
+                  "default": "http",
+                  "required": [],
+                  "title": "port",
+                  "type": "string"
+                }
+              },
+              "required": ["path", "port"],
+              "title": "httpGet",
+              "type": "object"
+            }
+          },
+          "required": ["httpGet"],
+          "title": "readinessProbe",
+          "type": "object"
+        },
         "extraEnvVars": {
           "additionalProperties": true,
           "description": "Extra environment variables",
@@ -2813,7 +3069,7 @@
           "type": "array"
         }
       },
-      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers"],
+      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers"],
       "allOf": [
         {
           "if": {
@@ -3725,13 +3981,6 @@
     "defaultLocale",
     "gracefulShutdownTimeout",
     "ingress",
-    "extraEnvVars",
-    "extraSecretNamesForEnvFrom",
-    "resources",
-    "livenessProbe",
-    "readinessProbe",
-    "volumes",
-    "volumeMounts",
     "license",
     "main",
     "nodeSelector",

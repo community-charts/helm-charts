@@ -83,15 +83,11 @@ spec:
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           startupProbe:
-            exec:
-              command: ["/bin/sh", "-c", "ps aux | grep '[n]8n'"]
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            failureThreshold: 30
+            {{- toYaml .Values.webhook.startupProbe | nindent 12 }}
           livenessProbe:
-            {{- toYaml .Values.livenessProbe | nindent 12 }}
+            {{- toYaml (default .Values.webhook.livenessProbe .Values.livenessProbe) | nindent 12 }}
           readinessProbe:
-            {{- toYaml .Values.readinessProbe | nindent 12 }}
+            {{- toYaml (default .Values.webhook.readinessProbe .Values.readinessProbe) | nindent 12 }}
           resources:
             {{- toYaml (default .Values.resources .Values.webhook.resources) | nindent 12 }}
           env:
