@@ -279,6 +279,18 @@ main:
   #   cpu: 2000m
   #   memory: 1Gi
 
+  # -- This is to setup the liveness probe for the main pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: http
+
+  # -- This is to setup the readiness probe for the main pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  readinessProbe:
+    httpGet:
+      path: /healthz/readiness
+      port: http
+
   # -- Extra environment variables
   extraEnvVars: {}
 
@@ -372,6 +384,20 @@ worker:
     # -- Maximum number of unavailable replicas
     maxUnavailable: null
 
+  # -- This is to setup the wait for the main node to be ready.
+  waitMainNodeReady:
+    # -- Whether to enable the wait for the main node to be ready.
+    enabled: false
+    # -- The schema to use for request to the main node. On default, it will use identify the schema from the main N8N_PROTOCOL environment variable or use http.
+    overwriteSchema: ""
+    # -- The URL to use for request to the main node. On default, it will use service name and port.
+    overwriteUrl: ""
+    # -- The health check path to use for request to the main node.
+    healthCheckPath: "/healthz"
+    # -- The additional parameters to use part of wget command. e.g. --no-check-certificate
+    additionalParameters: []
+      # - "--no-check-certificate"
+
   # -- This block is for setting up the resource management for the worker pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -384,6 +410,26 @@ worker:
   # limits:
   #   cpu: 2000m
   #   memory: 1Gi
+
+  # -- This is to setup the startup probe for the worker pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  startupProbe:
+    exec:
+      command: ["/bin/sh", "-c", "ps aux | grep '[n]8n'"]
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    failureThreshold: 30
+
+  # -- This is to setup the liveness probe for the worker pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: http
+
+  # -- This is to setup the readiness probe for the worker pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  readinessProbe:
+    httpGet:
+      path: /healthz/readiness
+      port: http
 
   # -- Extra environment variables
   extraEnvVars: {}
@@ -490,6 +536,20 @@ webhook:
     # -- Maximum number of unavailable replicas
     maxUnavailable: null
 
+  # -- This is to setup the wait for the webhook node to be ready.
+  waitMainNodeReady:
+    # -- Whether to enable the wait for the webhook node to be ready.
+    enabled: false
+    # -- The schema to use for request to the main node. On default, it will use identify the schema from the main N8N_PROTOCOL environment variable or use http.
+    overwriteSchema: ""
+    # -- The URL to use for request to the main node. On default, it will use service name and port.
+    overwriteUrl: ""
+    # -- The health check path to use for request to the main node.
+    healthCheckPath: "/healthz"
+    # -- The additional parameters to use part of wget command. e.g. --no-check-certificate
+    additionalParameters: []
+      # - "--no-check-certificate"
+
   # -- This block is for setting up the resource management for the webhook pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -502,6 +562,26 @@ webhook:
   # limits:
   #   cpu: 2000m
   #   memory: 1Gi
+
+  # -- This is to setup the startup probe for the webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  startupProbe:
+    exec:
+      command: ["/bin/sh", "-c", "ps aux | grep '[n]8n'"]
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    failureThreshold: 30
+
+  # -- This is to setup the liveness probe for the webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: http
+
+  # -- This is to setup the readiness probe for the webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  readinessProbe:
+    httpGet:
+      path: /healthz/readiness
+      port: http
 
   # -- Extra environment variables
   extraEnvVars: {}
@@ -690,17 +770,11 @@ resources: {}
   #   cpu: 2000m
   #   memory: 1Gi
 
-# -- This is to setup the liveness probe more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-livenessProbe:
-  httpGet:
-    path: /healthz
-    port: http
+# -- DEPRECATED: Use main, worker, and webhook blocks livenessProbe field instead. This field will be removed in a future release.
+livenessProbe: {}
 
-# -- This is to setup the readiness probe more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-readinessProbe:
-  httpGet:
-    path: /healthz/readiness
-    port: http
+# -- DEPRECATED: Use main, worker, and webhook blocks readinessProbe field instead. This field will be removed in a future release.
+readinessProbe: {}
 
 # -- DEPRECATED: Use main, worker, and webhook blocks volumes fields instead. This field will be removed in a future release.
 volumes: []

@@ -50,13 +50,20 @@ spec:
       serviceAccountName: {{ include "n8n.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if or .Values.webhook.waitMainNodeReady.enabled .Values.webhook.initContainers  }}
       initContainers:
+      {{- end }}
+        {{- if .Values.webhook.waitMainNodeReady.enabled }}
         - name: wait-for-main
           image: busybox:1.36
           command: ["/bin/sh", "-c"]
           args:
+          {{- $overwriteSchema := default (default "http" (get .Values.main.extraEnvVars "N8N_PROTOCOL")) .Values.webhook.waitMainNodeReady.overwriteSchema }}
+          {{- $overwriteUrl := default (printf "%s.%s.svc.cluster.local:%d" (include "n8n.fullname" .) .Release.Namespace (.Values.service.port | int)) .Values.webhook.waitMainNodeReady.overwriteUrl }}
+          {{- $healthCheckPath := default "/healthz" .Values.webhook.waitMainNodeReady.healthCheckPath }}
+          {{- $additionalParameters := printf "--spider %s" (join " " .Values.webhook.waitMainNodeReady.additionalParameters) | trimSuffix " " }}
           - |
-            until wget -q --spider http://{{ include "n8n.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}/healthz; do
+            until wget -q {{ $additionalParameters }} {{ $overwriteSchema }}://{{ $overwriteUrl }}{{ $healthCheckPath }}; do
               echo "Waiting for main node to be ready..."
               sleep 2
             done
@@ -67,6 +74,7 @@ spec:
             limits:
               cpu: "100m"
               memory: "64Mi"
+        {{- end }}
       {{- with .Values.webhook.initContainers }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -83,15 +91,15 @@ spec:
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           startupProbe:
-            exec:
-              command: ["/bin/sh", "-c", "ps aux | grep '[n]8n'"]
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            failureThreshold: 30
+            {{- toYaml .Values.webhook.startupProbe | nindent 12 }}
           livenessProbe:
-            {{- toYaml .Values.livenessProbe | nindent 12 }}
+            {{- $rootLiveness := .Values.livenessProbe | default dict }}
+            {{- $webhookLiveness := .Values.webhook.livenessProbe | default dict }}
+            {{- toYaml (merge $webhookLiveness $rootLiveness) | nindent 12 }}
           readinessProbe:
-            {{- toYaml .Values.readinessProbe | nindent 12 }}
+            {{- $rootReadiness := .Values.readinessProbe | default dict }}
+            {{- $webhookReadiness := .Values.webhook.readinessProbe | default dict }}
+            {{- toYaml (merge $webhookReadiness $rootReadiness) | nindent 12 }}
           resources:
             {{- toYaml (default .Values.resources .Values.webhook.resources) | nindent 12 }}
           env:

@@ -226,6 +226,51 @@ tests:
           value: TCP
         template: deployment-webhook.yaml
 
+  - it: should set startup probe when webhook.startupProbe is set
+    set:
+      webhook:
+        startupProbe:
+          exec:
+            command: ["/bin/sh", "-c", "ps aux | grep '[n]8n'"]
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 30
+          timeoutSeconds: 5
+          successThreshold: 1
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].startupProbe.exec.command[0]
+          value: /bin/sh
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].startupProbe.exec.command[1]
+          value: -c
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].startupProbe.exec.command[2]
+          value: ps aux | grep '[n]8n'
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].startupProbe.initialDelaySeconds
+          value: 10
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].startupProbe.periodSeconds
+          value: 5
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].startupProbe.timeoutSeconds
+          value: 5
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].startupProbe.failureThreshold
+          value: 30
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].startupProbe.successThreshold
+          value: 1
+        template: deployment-webhook.yaml
+
   - it: should set liveness probe when livenessProbe is set
     set:
       livenessProbe:
@@ -267,6 +312,48 @@ tests:
           value: 1
         template: deployment-webhook.yaml
 
+  - it: should set liveness probe when webhook.livenessProbe is set
+    set:
+      webhook:
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].livenessProbe.httpGet.path
+          value: /healthz
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].livenessProbe.httpGet.port
+          value: http
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].livenessProbe.initialDelaySeconds
+          value: 10
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].livenessProbe.periodSeconds
+          value: 10
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].livenessProbe.timeoutSeconds
+          value: 5
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].livenessProbe.failureThreshold
+          value: 3
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].livenessProbe.successThreshold
+          value: 1
+        template: deployment-webhook.yaml
+
   - it: should set readiness probe when readinessProbe is set
     set:
       readinessProbe:
@@ -278,6 +365,48 @@ tests:
         timeoutSeconds: 5
         failureThreshold: 3
         successThreshold: 1
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].readinessProbe.httpGet.path
+          value: /healthz/readiness
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].readinessProbe.httpGet.port
+          value: http
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].readinessProbe.initialDelaySeconds
+          value: 10
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].readinessProbe.periodSeconds
+          value: 10
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].readinessProbe.timeoutSeconds
+          value: 5
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].readinessProbe.failureThreshold
+          value: 3
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].readinessProbe.successThreshold
+          value: 1
+        template: deployment-webhook.yaml
+
+  - it: should set readiness probe when webhook.readinessProbe is set
+    set:
+      webhook:
+        readinessProbe:
+          httpGet:
+            path: /healthz/readiness
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
     asserts:
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-webhook")].readinessProbe.httpGet.path
@@ -945,7 +1074,11 @@ tests:
               name: n8n-license-activation-key
         template: deployment-webhook.yaml
 
-  - it: should use init container to wait main node ready
+  - it: should use init container to wait main node ready when webhook.waitMainNodeReady.enabled is true
+    set:
+      webhook:
+        waitMainNodeReady:
+          enabled: true
     asserts:
       - contains:
           path: spec.template.spec.initContainers
@@ -953,6 +1086,107 @@ tests:
             name: wait-for-main
             image: busybox:1.36
           any: true
+        template: deployment-webhook.yaml
+
+  - it: should use init container to wait main node ready with http schema when overwriteSchema is not set
+    set:
+      webhook:
+        waitMainNodeReady:
+          enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].args[0]
+          value: |
+            until wget -q --spider http://n8n.n8n.svc.cluster.local:5678/healthz; do
+              echo "Waiting for main node to be ready..."
+              sleep 2
+            done
+        template: deployment-webhook.yaml
+
+  - it: should use init container to wait main node ready from main N8N_PROTOCOL environment variable when overwriteSchema is not set
+    set:
+      main:
+        extraEnvVars:
+          N8N_PROTOCOL: https
+      webhook:
+        waitMainNodeReady:
+          enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].args[0]
+          value: |
+            until wget -q --spider https://n8n.n8n.svc.cluster.local:5678/healthz; do
+              echo "Waiting for main node to be ready..."
+              sleep 2
+            done
+        template: deployment-webhook.yaml
+
+  - it: should use init container to wait main node ready with https schema when overwriteSchema is set https
+    set:
+      webhook:
+        waitMainNodeReady:
+          enabled: true
+          overwriteSchema: https
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].args[0]
+          value: |
+            until wget -q --spider https://n8n.n8n.svc.cluster.local:5678/healthz; do
+              echo "Waiting for main node to be ready..."
+              sleep 2
+            done
+        template: deployment-webhook.yaml
+
+  - it: should use init container to wait main node ready with different service name when overwriteUrl is set
+    set:
+      webhook:
+        waitMainNodeReady:
+          enabled: true
+          overwriteUrl: "n8n-different-name.n8n.svc.cluster.local:1234"
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].args[0]
+          value: |
+            until wget -q --spider http://n8n-different-name.n8n.svc.cluster.local:1234/healthz; do
+              echo "Waiting for main node to be ready..."
+              sleep 2
+            done
+        template: deployment-webhook.yaml
+
+  - it: should use init container to wait main node ready with different health check path when healthCheckPath is set different
+    set:
+      webhook:
+        waitMainNodeReady:
+          enabled: true
+          healthCheckPath: "/healthz-different"
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].args[0]
+          value: |
+            until wget -q --spider http://n8n.n8n.svc.cluster.local:5678/healthz-different; do
+              echo "Waiting for main node to be ready..."
+              sleep 2
+            done
+        template: deployment-webhook.yaml
+
+  - it: should use init container to wait main node ready with parameters when additionalParameters is set
+    set:
+      main:
+        extraEnvVars:
+          N8N_PROTOCOL: https
+      webhook:
+        waitMainNodeReady:
+          enabled: true
+          additionalParameters:
+            - "--no-check-certificate"
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].args[0]
+          value: |
+            until wget -q --spider --no-check-certificate https://n8n.n8n.svc.cluster.local:5678/healthz; do
+              echo "Waiting for main node to be ready..."
+              sleep 2
+            done
         template: deployment-webhook.yaml
 
   - it: should use startupProbe to wait n8n process ready

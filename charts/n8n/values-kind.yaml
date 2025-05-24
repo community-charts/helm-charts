@@ -8,9 +8,35 @@ worker:
   mode: queue
   count: 1
 
+  waitMainNodeReady:
+    enabled: true
+
+  livenessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    failureThreshold: 5
+
+  readinessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    failureThreshold: 5
+
 webhook:
   mode: queue
   count: 1
+
+  waitMainNodeReady:
+    enabled: true
+
+  livenessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    failureThreshold: 5
+
+  readinessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    failureThreshold: 5
 
 redis:
   enabled: true
@@ -20,13 +46,3 @@ postgresql:
   primary:
     persistence:
       enabled: false
-
-livenessProbe:
-  initialDelaySeconds: 60
-  periodSeconds: 20
-  failureThreshold: 5
-
-readinessProbe:
-  initialDelaySeconds: 60
-  periodSeconds: 20
-  failureThreshold: 5

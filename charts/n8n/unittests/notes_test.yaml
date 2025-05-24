@@ -1,0 +1,63 @@
+suite: Test NOTES.txt
+
+templates:
+  - NOTES.txt
+
+tests:
+  - it: should not show deprecation notices when no deprecated fields are set
+    set: {}
+    asserts:
+      - equal:
+          path: raw
+          value: |-
+            1. Get the application URL by running these commands:
+              export POD_NAME=$(kubectl get pods --namespace NAMESPACE -l "app.kubernetes.io/name=n8n,app.kubernetes.io/instance=RELEASE-NAME" -o jsonpath="{.items[0].metadata.name}")
+              export CONTAINER_PORT=$(kubectl get pod --namespace NAMESPACE $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+              echo "Visit http://127.0.0.1:8080 to use your application"
+              kubectl --namespace NAMESPACE port-forward $POD_NAME 8080:$CONTAINER_PORT
+      - notMatchRegex:
+          path: raw
+          pattern: "!!! We detected deprecated root level .* configuration usage"
+
+  - it: should show deprecation notice for non-empty extraEnvVars
+    set:
+      extraEnvVars:
+        FOO: "bar"
+    asserts:
+      - matchRegex:
+          path: raw
+          pattern: "!!! We detected deprecated root level extraEnvVars configuration usage"
+
+  - it: should not show deprecation notice for empty extraEnvVars
+    set:
+      extraEnvVars: {}
+    asserts:
+      - notMatchRegex:
+          path: raw
+          pattern: "!!! We detected deprecated root level extraEnvVars configuration usage"
+
+  - it: should show deprecation notices for multiple non-empty fields
+    set:
+      extraSecretNamesForEnvFrom:
+        - secret1
+      livenessProbe:
+        path: "/health"
+    asserts:
+      - matchRegex:
+          path: raw
+          pattern: "!!! We detected deprecated root level extraSecretNamesForEnvFrom configuration usage"
+      - matchRegex:
+          path: raw
+          pattern: "!!! We detected deprecated root level livenessProbe configuration usage"
+
+  - it: should not show deprecation notices for empty or undefined fields
+    set:
+      resources: {}
+      volumes: []
+    asserts:
+      - notMatchRegex:
+          path: raw
+          pattern: "!!! We detected deprecated root level resources configuration usage"
+      - notMatchRegex:
+          path: raw
+          pattern: "!!! We detected deprecated root level volumes configuration usage"

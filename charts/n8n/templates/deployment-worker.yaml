@@ -53,13 +53,20 @@ spec:
       serviceAccountName: {{ include "n8n.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if or .Values.worker.waitMainNodeReady.enabled .Values.nodes.external.packages .Values.worker.initContainers  }}
       initContainers:
+      {{- end }}
+        {{- if .Values.worker.waitMainNodeReady.enabled }}
         - name: wait-for-main
           image: busybox:1.36
           command: ["/bin/sh", "-c"]
           args:
+          {{- $overwriteSchema := default (default "http" (get .Values.main.extraEnvVars "N8N_PROTOCOL")) .Values.worker.waitMainNodeReady.overwriteSchema }}
+          {{- $overwriteUrl := default (printf "%s.%s.svc.cluster.local:%d" (include "n8n.fullname" .) .Release.Namespace (.Values.service.port | int)) .Values.worker.waitMainNodeReady.overwriteUrl }}
+          {{- $healthCheckPath := default "/healthz" .Values.worker.waitMainNodeReady.healthCheckPath }}
+          {{- $additionalParameters := printf "--spider %s" (join " " .Values.worker.waitMainNodeReady.additionalParameters) | trimSuffix " " }}
           - |
-            until wget -q --spider http://{{ include "n8n.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}/healthz; do
+            until wget -q {{ $additionalParameters }} {{ $overwriteSchema }}://{{ $overwriteUrl }}{{ $healthCheckPath }}; do
               echo "Waiting for main node to be ready..."
               sleep 2
             done
@@ -70,6 +77,7 @@ spec:
             limits:
               cpu: "100m"
               memory: "64Mi"
+        {{- end }}
         {{- if .Values.nodes.external.packages }}
         - name: npm-install
           image: "{{ .Values.nodes.initContainer.image.repository }}:{{ .Values.nodes.initContainer.image.tag }}"
@@ -116,15 +124,15 @@ spec:
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           startupProbe:
-            exec:
-              command: ["/bin/sh", "-c", "ps aux | grep '[n]8n'"]
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            failureThreshold: 30
+            {{- toYaml .Values.worker.startupProbe | nindent 12 }}
           livenessProbe:
-            {{- toYaml .Values.livenessProbe | nindent 12 }}
+            {{- $rootLiveness := .Values.livenessProbe | default dict }}
+            {{- $workerLiveness := .Values.worker.livenessProbe | default dict }}
+            {{- toYaml (merge $workerLiveness $rootLiveness) | nindent 12 }}
           readinessProbe:
-            {{- toYaml .Values.readinessProbe | nindent 12 }}
+            {{- $rootReadiness := .Values.readinessProbe | default dict }}
+            {{- $workerReadiness := .Values.worker.readinessProbe | default dict }}
+            {{- toYaml (merge $workerReadiness $rootReadiness) | nindent 12 }}
           resources:
             {{- toYaml (default .Values.resources .Values.worker.resources) | nindent 12 }}
           env:

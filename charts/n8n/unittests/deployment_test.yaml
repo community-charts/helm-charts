@@ -222,6 +222,48 @@ tests:
           value: 1
         template: deployment.yaml
 
+  - it: should set liveness probe when main.livenessProbe is set
+    set:
+      main:
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.httpGet.path
+          value: /healthz
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.httpGet.port
+          value: http
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.initialDelaySeconds
+          value: 10
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.periodSeconds
+          value: 10
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.timeoutSeconds
+          value: 5
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.failureThreshold
+          value: 3
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.successThreshold
+          value: 1
+        template: deployment.yaml
+
   - it: should set readiness probe when readinessProbe is set
     set:
       readinessProbe:
@@ -233,6 +275,48 @@ tests:
         timeoutSeconds: 5
         failureThreshold: 3
         successThreshold: 1
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.httpGet.path
+          value: /healthz/readiness
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.httpGet.port
+          value: http
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.initialDelaySeconds
+          value: 10
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.periodSeconds
+          value: 10
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.timeoutSeconds
+          value: 5
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.failureThreshold
+          value: 3
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.successThreshold
+          value: 1
+        template: deployment.yaml
+
+  - it: should set readiness probe when main.readinessProbe is set
+    set:
+      main:
+        readinessProbe:
+          httpGet:
+            path: /healthz/readiness
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
     asserts:
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.httpGet.path

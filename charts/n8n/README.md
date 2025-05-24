@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.6.2](https://img.shields.io/badge/Version-1.6.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.93.0](https://img.shields.io/badge/AppVersion-1.93.0-informational?style=flat-square)
+![Version: 1.7.0](https://img.shields.io/badge/Version-1.7.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.93.0](https://img.shields.io/badge/AppVersion-1.93.0-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -53,8 +53,13 @@ main:
 
 worker:
   mode: queue
+
   autoscaling:
     enabled: true
+
+  waitMainNodeReady:
+    enabled: true
+
   resources:
     requests:
       cpu: 1000m
@@ -78,9 +83,15 @@ ingress:
 
 webhook:
   mode: queue
+
   url: "https://webhook.mydomain.com"
+
   autoscaling:
     enabled: true
+
+  waitMainNodeReady:
+    enabled: true
+
   resources:
     requests:
       cpu: 100m
@@ -257,11 +268,11 @@ taskRunners:
   mode: external
 ```
 
-## Autoscaling Configuration 
+## Autoscaling Configuration
 
 > **Note:** The `autoscaling` and `allNodes` options cannot be enabled simultaneously.
 
-### Deploying Worker and Webhook Pods on All Nodes 
+### Deploying Worker and Webhook Pods on All Nodes
 
 To deploy worker or webhook pods on all Kubernetes nodes, set the `allNodes` flag to `true`: 
 
@@ -278,11 +289,72 @@ webhook:
   allNodes: true
 ```
 
-### Enabling Support for Node.js Core and External/Private NPM Packages
+### Enabling Autoscaling
+
+To enable autoscaling, set the `enabled` field under `autoscaling` to `true`:
+
+```yaml
+db:
+  type: postgresdb
+
+worker:
+  mode: queue
+  autoscaling:
+    enabled: true
+
+webhook:
+  mode: queue
+  autoscaling:
+    enabled: true
+```
+
+Ensure that you configure either `allNodes` or `autoscaling` based on your deployment requirements.
+
+## Main Node Ready status Waiter
+
+Running `main` nodes, `worker` nodes, and `webhooks` nodes at sametime sometimes creates migration error because multiple containers trying to apply same migration to the database. If we enable `wait-for-main` init container, only main node will apply database migrations and after nodes will start after starting to get ready status from the main node.
+
+### Enabling `wait-for-main` for Worker Nodes and Webhook Nodes
+
+If you set `N8N_PROTOCOL` environment variable to your main node, if will read the value and set the corrrect schema for you.
+
+```yaml
+worker:
+  waitMainNodeReady:
+    enabled: true
+
+webhook:
+  waitMainNodeReady:
+    enabled: true
+```
+
+You can also overwrite the automatically defined values with you desired settings.
+
+```yaml
+worker:
+  waitMainNodeReady:
+    enabled: true
+    overwriteSchema: "https"
+    overwriteUrl: "n8n.n8n.svc.cluster.local:5678"
+    healthCheckPath: "/healthz"
+    additionalParameters:
+      - "--no-check-certificate"
+
+webhook:
+  waitMainNodeReady:
+    enabled: true
+    overwriteSchema: "https"
+    overwriteUrl: "n8n.n8n.svc.cluster.local:5678"
+    healthCheckPath: "/healthz"
+    additionalParameters:
+      - "--no-check-certificate"
+```
+
+## Enabling Support for Node.js Core and External/Private NPM Packages
 
 Easily incorporate Node.js core packages, public NPM packages, or private NPM packages from your registry into your n8n Code blocks with this Helm chart. Below, we guide you through enabling and configuring these options.
 
-#### Using Node.js Core Packages
+### Using Node.js Core Packages
 
 To enable Node.js core packages, set the `nodes.builtin.enabled` flag to `true`. This allows access to all built-in Node.js modules.
 
@@ -307,7 +379,7 @@ nodes:
       - url
 ```
 
-#### Installing External NPM Packages
+### Installing External NPM Packages
 
 To install packages from the public NPM registry, add them to the `nodes.external.packages` list. You can specify versions or omit them to use the latest available version.
 
@@ -320,7 +392,7 @@ nodes:
       - "date-fns"
 ```
 
-##### Supporting Scoped NPM Packages (e.g., @scoped/package)
+#### Supporting Scoped NPM Packages (e.g., @scoped/package)
 
 Our Helm chart supports installing NPM packages, including scoped packages (those starting with `@`, such as `@stdlib/math`). However, the Node.js Task Runner may encounter issues when processing internal package definitions that include scoped package names. To address this, we've implemented a convenient workaround: enabling the `nodes.external.allowAll` option allows all external package definitions, including scoped packages, to be processed seamlessly.
 
@@ -337,15 +409,15 @@ nodes:
       - "@stdlib/math@0.3.3"
 ```
 
-###### How It Works
+##### How It Works
 
 By setting `nodes.external.allowAll` to `true`, the chart bypasses the Node.js Task Runner's limitations for scoped packages, ensuring smooth installation of all listed packages. You can include both scoped (e.g., `@stdlib/math`) and non-scoped packages in the `nodes.external.packages` list, with or without specific versions.
 
-#### Using Private NPM Packages
+### Using Private NPM Packages
 
 For packages hosted in a private NPM registry, configure access by providing a valid `.npmrc` file. You can either reference an existing Kubernetes secret containing the `.npmrc` content or define custom `.npmrc` content directly in the chart values.
 
-##### Option 1: Using a Secret for `.npmrc`
+#### Option 1: Using a Secret for `.npmrc`
 
 If your `.npmrc` file is stored in a Kubernetes secret, specify the secret details as shown below:
 
@@ -362,7 +434,7 @@ npmRegistry:
   secretKey: "npmrc"
 ```
 
-##### Option 2: Providing Custom `.npmrc` Content
+#### Option 2: Providing Custom `.npmrc` Content
 
 Alternatively, you can define the `.npmrc` content directly in the chart values. This is useful for registries like GitHub Packages that require authentication tokens:
 
@@ -379,27 +451,6 @@ npmRegistry:
     @myGithubOrg:registry=https://npm.pkg.github.com
     //npm.pkg.github.com/:_authToken=ghp_MyGithubClassicToken
 ```
-
-### Enabling Autoscaling 
-
-To enable autoscaling, set the `enabled` field under `autoscaling` to `true`: 
-
-```yaml
-db:
-  type: postgresdb
-
-worker:
-  mode: queue
-  autoscaling:
-    enabled: true
-
-webhook:
-  mode: queue
-  autoscaling:
-    enabled: true
-```
-
-Ensure that you configure either `allNodes` or `autoscaling` based on your deployment requirements.
 
 ## Service Monitor Examples
 
@@ -560,6 +611,17 @@ This section outlines major updates and breaking changes for each version of the
 
 ###  Version-Specific Upgrade Notes
 
+#### Upgrading to Version 1.7.x
+
+##### Deprecation Notices
+
+- The top-level fields `livenessProbe`, and `readinessProbe` are deprecated.
+
+##### Action Required
+
+Please consider using the corresponding fields in the `main`, `worker` and `webhook` blocks instead. The deprecated fields will be removed in the next major release.
+The Worker and Webhook nodes no longer include a default init container to wait for the main node to become ready. If this behavior is required, please enable it explicitly by setting `worker.waitMainNodeReady.enabled` and `webhook.waitMainNodeReady.enabled` to `true`.
+
 #### Upgrading to Version 1.3.1
 
 ##### Deprecation Notices
@@ -693,7 +755,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | license.existingActivationKeySecret | string | `""` | The name of an existing secret with license activation key. The secret must contain a key with the name N8N_LICENSE_ACTIVATION_KEY. |
 | license.serverUrl | string | `"http://license.n8n.io/v1"` | Server URL to retrieve license. |
 | license.tenantId | int | `1` | Tenant ID associated with the license. Only set this variable if explicitly instructed by n8n. |
-| livenessProbe | object | `{"httpGet":{"path":"/healthz","port":"http"}}` | This is to setup the liveness probe more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
+| livenessProbe | object | `{}` | DEPRECATED: Use main, worker, and webhook blocks livenessProbe field instead. This field will be removed in a future release. |
 | log | object | `{"file":{"location":"logs/n8n.log","maxcount":"100","maxsize":16},"level":"info","output":["console"],"scopes":[]}` | n8n log configurations |
 | log.file.location | string | `"logs/n8n.log"` | Location of the log files inside `~/.n8n`. Only for `file` log output. |
 | log.file.maxcount | string | `"100"` | Max number of log files to keep, or max number of days to keep logs for. Once the limit is reached, the oldest log files will be rotated out. If using days, append a `d` suffix. Only for `file` log output. |
@@ -701,16 +763,18 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | log.level | string | `"info"` | The log output level. The available options are (from lowest to highest level) are error, warn, info, and debug. The default value is info. You can learn more about these options [here](https://docs.n8n.io/hosting/logging-monitoring/logging/#log-levels). |
 | log.output | list | `["console"]` | Where to output logs to. Options are: `console` or `file` or both. |
 | log.scopes | list | `[]` | Scopes to filter logs by. Nothing is filtered by default. Supported log scopes: concurrency, external-secrets, license, multi-main-setup, pubsub, redis, scaling, waiting-executions |
-| main | object | `{"count":1,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"initContainers":[],"pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"resources":{},"volumeMounts":[],"volumes":[]}` | Main node configurations |
+| main | object | `{"count":1,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"volumeMounts":[],"volumes":[]}` | Main node configurations |
 | main.count | int | `1` | Number of main nodes. Only enterprise license users can have one leader main node and mutiple follower main nodes. |
 | main.extraContainers | list | `[]` | Additional containers for the main pod |
 | main.extraEnvVars | object | `{}` | Extra environment variables |
 | main.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
 | main.initContainers | list | `[]` | Additional init containers for the main pod |
+| main.livenessProbe | object | `{"httpGet":{"path":"/healthz","port":"http"}}` | This is to setup the liveness probe for the main pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | main.pdb | object | `{"enabled":true,"maxUnavailable":null,"minAvailable":1}` | Whether to enable the PodDisruptionBudget for the main pod. |
 | main.pdb.enabled | bool | `true` | Whether to enable the PodDisruptionBudget |
 | main.pdb.maxUnavailable | string | `nil` | Maximum number of unavailable replicas |
 | main.pdb.minAvailable | int | `1` | Minimum number of available replicas |
+| main.readinessProbe | object | `{"httpGet":{"path":"/healthz/readiness","port":"http"}}` | This is to setup the readiness probe for the main pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | main.resources | object | `{}` | This block is for setting up the resource management for the main pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
 | main.volumeMounts | list | `[]` | Additional volumeMounts on the output Deployment definition. |
 | main.volumes | list | `[]` | Additional volumes on the output Deployment definition. |
@@ -781,7 +845,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | postgresql | object | `{"architecture":"standalone","auth":{"database":"n8n","password":"","username":""},"enabled":false,"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"postgresql":5432}}}}` | Bitnami PostgreSQL configuration |
 | postgresql.auth.database | string | `"n8n"` | The name of the PostgreSQL database. For more information: https://docs.n8n.io/hosting/configuration/supported-databases-settings/#required-permissions |
 | postgresql.enabled | bool | `false` | Enable postgresql |
-| readinessProbe | object | `{"httpGet":{"path":"/healthz/readiness","port":"http"}}` | This is to setup the readiness probe more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
+| readinessProbe | object | `{}` | DEPRECATED: Use main, worker, and webhook blocks readinessProbe field instead. This field will be removed in a future release. |
 | redis | object | `{"architecture":"standalone","enabled":false,"master":{"persistence":{"enabled":false}}}` | Bitnami Redis configuration |
 | redis.enabled | bool | `false` | Enable redis |
 | resources | object | `{}` | DEPRECATED: Use main, worker, and webhook blocks resources fields instead. This field will be removed in a future release. |
@@ -851,7 +915,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | versionNotifications.infoUrl | string | `"https://docs.n8n.io/hosting/installation/updating/"` | URL for versions panel to page instructing user on how to update n8n instance |
 | volumeMounts | list | `[]` | DEPRECATED: Use main, worker, and webhook blocks volumeMounts fields instead. This field will be removed in a future release. |
 | volumes | list | `[]` | DEPRECATED: Use main, worker, and webhook blocks volumes fields instead. This field will be removed in a future release. |
-| webhook | object | `{"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"count":2,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"initContainers":[],"mode":"regular","pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"resources":{},"url":"","volumeMounts":[],"volumes":[]}` | Webhook node configurations |
+| webhook | object | `{"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"count":2,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"mode":"regular","pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"url":"","volumeMounts":[],"volumes":[],"waitMainNodeReady":{"additionalParameters":[],"enabled":false,"healthCheckPath":"/healthz","overwriteSchema":"","overwriteUrl":""}}` | Webhook node configurations |
 | webhook.allNodes | bool | `false` | If true, all k8s nodes will deploy exatly one webhook pod |
 | webhook.autoscaling | object | `{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2}` | If true, the number of webhooks will be automatically scaled based on default metrics. On default, it will scale based on CPU. Scale by requests can be done by setting a custom metric. For more information can be found here: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/ |
 | webhook.autoscaling.behavior | object | `{}` | The behavior of the autoscaler. |
@@ -864,16 +928,24 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | webhook.extraEnvVars | object | `{}` | Extra environment variables |
 | webhook.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
 | webhook.initContainers | list | `[]` | Additional init containers for the webhook pod |
+| webhook.livenessProbe | object | `{"httpGet":{"path":"/healthz","port":"http"}}` | This is to setup the liveness probe for the webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | webhook.mode | string | `"regular"` | Use `regular` to use main node as webhook node, or use `queue` to have webhook nodes |
 | webhook.pdb | object | `{"enabled":true,"maxUnavailable":null,"minAvailable":1}` | Whether to enable the PodDisruptionBudget for the webhook pod |
 | webhook.pdb.enabled | bool | `true` | Whether to enable the PodDisruptionBudget |
 | webhook.pdb.maxUnavailable | string | `nil` | Maximum number of unavailable replicas |
 | webhook.pdb.minAvailable | int | `1` | Minimum number of available replicas |
+| webhook.readinessProbe | object | `{"httpGet":{"path":"/healthz/readiness","port":"http"}}` | This is to setup the readiness probe for the webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | webhook.resources | object | `{}` | This block is for setting up the resource management for the webhook pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
+| webhook.startupProbe | object | `{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5}` | This is to setup the startup probe for the webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | webhook.url | string | `""` | Webhook url together with http or https schema |
 | webhook.volumeMounts | list | `[]` | Additional volumeMounts on the output Deployment definition. |
 | webhook.volumes | list | `[]` | Additional volumes on the output Deployment definition. |
-| worker | object | `{"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"concurrency":10,"count":2,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"initContainers":[],"mode":"regular","pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"resources":{},"volumeMounts":[],"volumes":[]}` | Worker node configurations |
+| webhook.waitMainNodeReady | object | `{"additionalParameters":[],"enabled":false,"healthCheckPath":"/healthz","overwriteSchema":"","overwriteUrl":""}` | This is to setup the wait for the webhook node to be ready. |
+| webhook.waitMainNodeReady.enabled | bool | `false` | Whether to enable the wait for the webhook node to be ready. |
+| webhook.waitMainNodeReady.healthCheckPath | string | `"/healthz"` | The health check path to use for request to the main node. |
+| webhook.waitMainNodeReady.overwriteSchema | string | `""` | The schema to use for request to the main node. On default, it will use identify the schema from the main N8N_PROTOCOL environment variable or use http. |
+| webhook.waitMainNodeReady.overwriteUrl | string | `""` | The URL to use for request to the main node. On default, it will use service name and port. |
+| worker | object | `{"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"concurrency":10,"count":2,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"mode":"regular","pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"volumeMounts":[],"volumes":[],"waitMainNodeReady":{"additionalParameters":[],"enabled":false,"healthCheckPath":"/healthz","overwriteSchema":"","overwriteUrl":""}}` | Worker node configurations |
 | worker.allNodes | bool | `false` | If true, all k8s nodes will deploy exatly one worker pod |
 | worker.autoscaling | object | `{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2}` | If true, the number of workers will be automatically scaled based on default metrics. On default, it will scale based on CPU and memory. For more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/ |
 | worker.autoscaling.behavior | object | `{}` | The behavior of the autoscaler. |
@@ -887,14 +959,22 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | worker.extraEnvVars | object | `{}` | Extra environment variables |
 | worker.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
 | worker.initContainers | list | `[]` | Additional init containers for the worker pod |
+| worker.livenessProbe | object | `{"httpGet":{"path":"/healthz","port":"http"}}` | This is to setup the liveness probe for the worker pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | worker.mode | string | `"regular"` | Use `regular` to use main node as executer, or use `queue` to have worker nodes |
 | worker.pdb | object | `{"enabled":true,"maxUnavailable":null,"minAvailable":1}` | Whether to enable the PodDisruptionBudget for the worker pod |
 | worker.pdb.enabled | bool | `true` | Whether to enable the PodDisruptionBudget |
 | worker.pdb.maxUnavailable | string | `nil` | Maximum number of unavailable replicas |
 | worker.pdb.minAvailable | int | `1` | Minimum number of available replicas |
+| worker.readinessProbe | object | `{"httpGet":{"path":"/healthz/readiness","port":"http"}}` | This is to setup the readiness probe for the worker pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | worker.resources | object | `{}` | This block is for setting up the resource management for the worker pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
+| worker.startupProbe | object | `{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5}` | This is to setup the startup probe for the worker pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | worker.volumeMounts | list | `[]` | Additional volumeMounts on the output Deployment definition. |
 | worker.volumes | list | `[]` | Additional volumes on the output Deployment definition. |
+| worker.waitMainNodeReady | object | `{"additionalParameters":[],"enabled":false,"healthCheckPath":"/healthz","overwriteSchema":"","overwriteUrl":""}` | This is to setup the wait for the main node to be ready. |
+| worker.waitMainNodeReady.enabled | bool | `false` | Whether to enable the wait for the main node to be ready. |
+| worker.waitMainNodeReady.healthCheckPath | string | `"/healthz"` | The health check path to use for request to the main node. |
+| worker.waitMainNodeReady.overwriteSchema | string | `""` | The schema to use for request to the main node. On default, it will use identify the schema from the main N8N_PROTOCOL environment variable or use http. |
+| worker.waitMainNodeReady.overwriteUrl | string | `""` | The URL to use for request to the main node. On default, it will use service name and port. |
 | workflowHistory | object | `{"enabled":true,"pruneTime":336}` | The workflow history configuration |
 | workflowHistory.enabled | bool | `true` | Whether to save workflow history versions |
 | workflowHistory.pruneTime | int | `336` | Time (in hours) to keep workflow history versions for. To disable it, use -1 as a value |

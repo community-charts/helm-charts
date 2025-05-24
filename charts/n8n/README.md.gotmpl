@@ -53,8 +53,13 @@ main:
 
 worker:
   mode: queue
+
   autoscaling:
     enabled: true
+
+  waitMainNodeReady:
+    enabled: true
+
   resources:
     requests:
       cpu: 1000m
@@ -78,9 +83,15 @@ ingress:
 
 webhook:
   mode: queue
+
   url: "https://webhook.mydomain.com"
+
   autoscaling:
     enabled: true
+
+  waitMainNodeReady:
+    enabled: true
+
   resources:
     requests:
       cpu: 100m
@@ -257,11 +268,11 @@ taskRunners:
   mode: external
 ```
 
-## Autoscaling Configuration  
+## Autoscaling Configuration
 
 > **Note:** The `autoscaling` and `allNodes` options cannot be enabled simultaneously.
 
-### Deploying Worker and Webhook Pods on All Nodes  
+### Deploying Worker and Webhook Pods on All Nodes
 
 To deploy worker or webhook pods on all Kubernetes nodes, set the `allNodes` flag to `true`:  
 
@@ -278,11 +289,72 @@ webhook:
   allNodes: true
 ```
 
-### Enabling Support for Node.js Core and External/Private NPM Packages
+### Enabling Autoscaling
+
+To enable autoscaling, set the `enabled` field under `autoscaling` to `true`:
+
+```yaml
+db:
+  type: postgresdb
+
+worker:
+  mode: queue
+  autoscaling:
+    enabled: true
+
+webhook:
+  mode: queue
+  autoscaling:
+    enabled: true
+```
+
+Ensure that you configure either `allNodes` or `autoscaling` based on your deployment requirements.
+
+## Main Node Ready status Waiter
+
+Running `main` nodes, `worker` nodes, and `webhooks` nodes at sametime sometimes creates migration error because multiple containers trying to apply same migration to the database. If we enable `wait-for-main` init container, only main node will apply database migrations and after nodes will start after starting to get ready status from the main node.
+
+### Enabling `wait-for-main` for Worker Nodes and Webhook Nodes
+
+If you set `N8N_PROTOCOL` environment variable to your main node, if will read the value and set the corrrect schema for you.
+
+```yaml
+worker:
+  waitMainNodeReady:
+    enabled: true
+
+webhook:
+  waitMainNodeReady:
+    enabled: true
+```
+
+You can also overwrite the automatically defined values with you desired settings.
+
+```yaml
+worker:
+  waitMainNodeReady:
+    enabled: true
+    overwriteSchema: "https"
+    overwriteUrl: "n8n.n8n.svc.cluster.local:5678"
+    healthCheckPath: "/healthz"
+    additionalParameters:
+      - "--no-check-certificate"
+
+webhook:
+  waitMainNodeReady:
+    enabled: true
+    overwriteSchema: "https"
+    overwriteUrl: "n8n.n8n.svc.cluster.local:5678"
+    healthCheckPath: "/healthz"
+    additionalParameters:
+      - "--no-check-certificate"
+```
+
+## Enabling Support for Node.js Core and External/Private NPM Packages
 
 Easily incorporate Node.js core packages, public NPM packages, or private NPM packages from your registry into your n8n Code blocks with this Helm chart. Below, we guide you through enabling and configuring these options.
 
-#### Using Node.js Core Packages
+### Using Node.js Core Packages
 
 To enable Node.js core packages, set the `nodes.builtin.enabled` flag to `true`. This allows access to all built-in Node.js modules.
 
@@ -307,7 +379,7 @@ nodes:
       - url
 ```
 
-#### Installing External NPM Packages
+### Installing External NPM Packages
 
 To install packages from the public NPM registry, add them to the `nodes.external.packages` list. You can specify versions or omit them to use the latest available version.
 
@@ -320,7 +392,7 @@ nodes:
       - "date-fns"
 ```
 
-##### Supporting Scoped NPM Packages (e.g., @scoped/package)
+#### Supporting Scoped NPM Packages (e.g., @scoped/package)
 
 Our Helm chart supports installing NPM packages, including scoped packages (those starting with `@`, such as `@stdlib/math`). However, the Node.js Task Runner may encounter issues when processing internal package definitions that include scoped package names. To address this, we've implemented a convenient workaround: enabling the `nodes.external.allowAll` option allows all external package definitions, including scoped packages, to be processed seamlessly.
 
@@ -337,15 +409,15 @@ nodes:
       - "@stdlib/math@0.3.3"
 ```
 
-###### How It Works
+##### How It Works
 
 By setting `nodes.external.allowAll` to `true`, the chart bypasses the Node.js Task Runner's limitations for scoped packages, ensuring smooth installation of all listed packages. You can include both scoped (e.g., `@stdlib/math`) and non-scoped packages in the `nodes.external.packages` list, with or without specific versions.
 
-#### Using Private NPM Packages
+### Using Private NPM Packages
 
 For packages hosted in a private NPM registry, configure access by providing a valid `.npmrc` file. You can either reference an existing Kubernetes secret containing the `.npmrc` content or define custom `.npmrc` content directly in the chart values.
 
-##### Option 1: Using a Secret for `.npmrc`
+#### Option 1: Using a Secret for `.npmrc`
 
 If your `.npmrc` file is stored in a Kubernetes secret, specify the secret details as shown below:
 
@@ -362,7 +434,7 @@ npmRegistry:
   secretKey: "npmrc"
 ```
 
-##### Option 2: Providing Custom `.npmrc` Content
+#### Option 2: Providing Custom `.npmrc` Content
 
 Alternatively, you can define the `.npmrc` content directly in the chart values. This is useful for registries like GitHub Packages that require authentication tokens:
 
@@ -379,27 +451,6 @@ npmRegistry:
     @myGithubOrg:registry=https://npm.pkg.github.com
     //npm.pkg.github.com/:_authToken=ghp_MyGithubClassicToken
 ```
-
-### Enabling Autoscaling  
-
-To enable autoscaling, set the `enabled` field under `autoscaling` to `true`:  
-
-```yaml
-db:
-  type: postgresdb
-
-worker:
-  mode: queue
-  autoscaling:
-    enabled: true
-
-webhook:
-  mode: queue
-  autoscaling:
-    enabled: true
-```
-
-Ensure that you configure either `allNodes` or `autoscaling` based on your deployment requirements.
 
 ## Service Monitor Examples
 
@@ -559,6 +610,17 @@ This section outlines major updates and breaking changes for each version of the
 ---
 
 ###  Version-Specific Upgrade Notes
+
+#### Upgrading to Version 1.7.x
+
+##### Deprecation Notices
+
+- The top-level fields `livenessProbe`, and `readinessProbe` are deprecated.
+
+##### Action Required
+
+Please consider using the corresponding fields in the `main`, `worker` and `webhook` blocks instead. The deprecated fields will be removed in the next major release.
+The Worker and Webhook nodes no longer include a default init container to wait for the main node to become ready. If this behavior is required, please enable it explicitly by setting `worker.waitMainNodeReady.enabled` and `webhook.waitMainNodeReady.enabled` to `true`.
 
 #### Upgrading to Version 1.3.1
 
