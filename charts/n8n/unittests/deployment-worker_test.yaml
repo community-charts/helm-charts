@@ -1451,7 +1451,11 @@ tests:
           any: true
         template: deployment-worker.yaml
 
-  - it: should use init container to wait main node ready
+  - it: should use init container to wait main node ready when worker.waitMainNodeReady.enabled is true
+    set:
+      worker:
+        waitMainNodeReady:
+          enabled: true
     asserts:
       - contains:
           path: spec.template.spec.initContainers
@@ -1459,6 +1463,107 @@ tests:
             name: wait-for-main
             image: busybox:1.36
           any: true
+        template: deployment-worker.yaml
+
+  - it: should use init container to wait main node ready with http schema when overwriteSchema is not set
+    set:
+      worker:
+        waitMainNodeReady:
+          enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].args[0]
+          value: |
+            until wget -q --spider http://n8n.n8n.svc.cluster.local:5678/healthz; do
+              echo "Waiting for main node to be ready..."
+              sleep 2
+            done
+        template: deployment-worker.yaml
+
+  - it: should use init container to wait main node ready from main N8N_PROTOCOL environment variable when overwriteSchema is not set
+    set:
+      main:
+        extraEnvVars:
+          N8N_PROTOCOL: https
+      worker:
+        waitMainNodeReady:
+          enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].args[0]
+          value: |
+            until wget -q --spider https://n8n.n8n.svc.cluster.local:5678/healthz; do
+              echo "Waiting for main node to be ready..."
+              sleep 2
+            done
+        template: deployment-worker.yaml
+
+  - it: should use init container to wait main node ready with https schema when overwriteSchema is set https
+    set:
+      worker:
+        waitMainNodeReady:
+          enabled: true
+          overwriteSchema: https
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].args[0]
+          value: |
+            until wget -q --spider https://n8n.n8n.svc.cluster.local:5678/healthz; do
+              echo "Waiting for main node to be ready..."
+              sleep 2
+            done
+        template: deployment-worker.yaml
+
+  - it: should use init container to wait main node ready with different service name when overwriteUrl is set
+    set:
+      worker:
+        waitMainNodeReady:
+          enabled: true
+          overwriteUrl: "n8n-different-name.n8n.svc.cluster.local:1234"
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].args[0]
+          value: |
+            until wget -q --spider http://n8n-different-name.n8n.svc.cluster.local:1234/healthz; do
+              echo "Waiting for main node to be ready..."
+              sleep 2
+            done
+        template: deployment-worker.yaml
+
+  - it: should use init container to wait main node ready with different health check path when healthCheckPath is set different
+    set:
+      worker:
+        waitMainNodeReady:
+          enabled: true
+          healthCheckPath: "/healthz-different"
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].args[0]
+          value: |
+            until wget -q --spider http://n8n.n8n.svc.cluster.local:5678/healthz-different; do
+              echo "Waiting for main node to be ready..."
+              sleep 2
+            done
+        template: deployment-worker.yaml
+
+  - it: should use init container to wait main node ready with parameters when additionalParameters is set
+    set:
+      main:
+        extraEnvVars:
+          N8N_PROTOCOL: https
+      worker:
+        waitMainNodeReady:
+          enabled: true
+          additionalParameters:
+            - "--no-check-certificate"
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].args[0]
+          value: |
+            until wget -q --spider --no-check-certificate https://n8n.n8n.svc.cluster.local:5678/healthz; do
+              echo "Waiting for main node to be ready..."
+              sleep 2
+            done
         template: deployment-worker.yaml
 
   - it: should use startupProbe to wait n8n process ready

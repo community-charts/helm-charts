@@ -2206,6 +2206,50 @@
             }
           }
         },
+        "waitMainNodeReady": {
+          "additionalProperties": true,
+          "description": "This is to setup the wait for the main node to be ready.",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "description": "Whether to enable the wait for the main node to be ready.",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "overwriteSchema": {
+              "default": "",
+              "description": "The schema to use for request to the main node. On default, it will use identify the schema from the main N8N_PROTOCOL environment variable or use http.",
+              "required": [],
+              "title": "overwriteSchema",
+              "type": "string"
+            },
+            "overwriteUrl": {
+              "default": "",
+              "description": "The URL to use for request to the main node. On default, it will use service name and port.",
+              "required": [],
+              "title": "overwriteUrl",
+              "type": "string"
+            },
+            "healthCheckPath": {
+              "default": "/healthz",
+              "description": "The health check path to use for request to the main node.",
+              "required": [],
+              "title": "healthCheckPath",
+              "type": "string"
+            },
+            "additionalParameters": {
+              "default": [],
+              "description": "The additional parameters to use part of wget command. e.g. --no-check-certificate",
+              "required": [],
+              "title": "additionalParameters",
+              "type": "array"
+            }
+          },
+          "required": ["enabled", "overwriteSchema", "overwriteUrl", "healthCheckPath", "additionalParameters"],
+          "title": "waitMainNodeReady",
+          "type": "object"
+        },
         "url": {
           "default": "",
           "description": "Webhook url together with http schema",
@@ -2414,7 +2458,7 @@
           "type": "array"
         }
       },
-      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers"],
+      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers"],
       "allOf": [
         {
           "if": {
@@ -2868,6 +2912,50 @@
             }
           }
         },
+        "waitMainNodeReady": {
+          "additionalProperties": true,
+          "description": "This is to setup the wait for the main node to be ready.",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "description": "Whether to enable the wait for the main node to be ready.",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "overwriteSchema": {
+              "default": "",
+              "description": "The schema to use for request to the main node. On default, it will use identify the schema from the main N8N_PROTOCOL environment variable or use http.",
+              "required": [],
+              "title": "overwriteSchema",
+              "type": "string"
+            },
+            "overwriteUrl": {
+              "default": "",
+              "description": "The URL to use for request to the main node. On default, it will use service name and port.",
+              "required": [],
+              "title": "overwriteUrl",
+              "type": "string"
+            },
+            "healthCheckPath": {
+              "default": "/healthz",
+              "description": "The health check path to use for request to the main node.",
+              "required": [],
+              "title": "healthCheckPath",
+              "type": "string"
+            },
+            "additionalParameters": {
+              "default": [],
+              "description": "The additional parameters to use part of wget command. e.g. --no-check-certificate",
+              "required": [],
+              "title": "additionalParameters",
+              "type": "array"
+            }
+          },
+          "required": ["enabled", "overwriteSchema", "overwriteUrl", "healthCheckPath", "additionalParameters"],
+          "title": "waitMainNodeReady",
+          "type": "object"
+        },
         "resources": {
           "additionalProperties": true,
           "description": "This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
@@ -3069,7 +3157,7 @@
           "type": "array"
         }
       },
-      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers"],
+      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers"],
       "allOf": [
         {
           "if": {
