@@ -2343,7 +2343,7 @@
               "type": "integer"
             }
           },
-          "required": ["exec", "initialDelaySeconds", "periodSeconds", "failureThreshold"],
+          "required": [],
           "title": "startupProbe",
           "type": "object"
         },
@@ -3042,7 +3042,7 @@
               "type": "integer"
             }
           },
-          "required": ["exec", "initialDelaySeconds", "periodSeconds", "failureThreshold"],
+          "required": [],
           "title": "startupProbe",
           "type": "object"
         },
