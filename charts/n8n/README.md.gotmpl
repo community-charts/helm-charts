@@ -409,6 +409,18 @@ nodes:
       - "@stdlib/math@0.3.3"
 ```
 
+### Installing Community Node Packages
+
+To install packages from the public NPM registry, add them to the `nodes.external.packages` list. Community Node package names must start with `n8n-nodes-`. You can specify versions or omit them to use the latest available version.
+
+```yaml
+nodes:
+  external:
+    packages:
+      - "n8n-nodes-python@0.1.4"
+      - "n8n-nodes-chatwoot@0.1.40"
+```
+
 ##### How It Works
 
 By setting `nodes.external.allowAll` to `true`, the chart bypasses the Node.js Task Runner's limitations for scoped packages, ensuring smooth installation of all listed packages. You can include both scoped (e.g., `@stdlib/math`) and non-scoped packages in the `nodes.external.packages` list, with or without specific versions.

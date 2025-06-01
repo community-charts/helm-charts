@@ -60,7 +60,6 @@ spec:
               echo "$PACKAGES" | sha256sum > /npmdata/packages.hash.new
               if [ ! -f /npmdata/packages.hash ] || ! cmp /npmdata/packages.hash /npmdata/packages.hash.new; then
                 if [ -n "$NON_COMMUNITY_PACKAGES" ]; then
-                  # silent, error, warn, notice, http, info, verbose, silly
                   npm install --loglevel {{ include "n8n.npmLogLevel" .Values.log.level }} --no-save $NON_COMMUNITY_PACKAGES --prefix /npmdata
                 fi
                 if [ -n "$COMMUNITY_PACKAGES" ]; then
