@@ -213,9 +213,45 @@ Extract package names from a list of strings
 {{- $packageNames := list -}}
 {{- range . -}}
   {{- $matches := regexFindAll "^@?[^@]+" . 1 -}}
-  {{- if $matches -}}
+  {{- if and $matches (not (hasPrefix "n8n-nodes-" (index $matches 0))) -}}
     {{- $packageNames = append $packageNames (index $matches 0) -}}
   {{- end -}}
 {{- end -}}
 {{- join "," $packageNames -}}
+{{- end -}}
+
+{{/*
+Filter community packages (starting with n8n-nodes-)
+*/}}
+{{- define "n8n.communityPackages" -}}
+{{- $community := list -}}
+{{- range .Values.nodes.external.packages -}}
+{{- if hasPrefix "n8n-nodes-" . -}}
+{{- $community = append $community . -}}
+{{- end -}}
+{{- end -}}
+{{- join " " $community -}}
+{{- end -}}
+
+{{/*
+Filter non-community packages (as a space-separated string)
+*/}}
+{{- define "n8n.nonCommunityPackages" -}}
+{{- $nonCommunity := list -}}
+{{- range .Values.nodes.external.packages -}}
+{{- if not (hasPrefix "n8n-nodes-" .) -}}
+{{- $nonCommunity = append $nonCommunity . -}}
+{{- end -}}
+{{- end -}}
+{{- join " " $nonCommunity -}}
+{{- end -}}
+
+{{/*
+Convert n8n log level to npm log level
+*/}}
+{{- define "n8n.npmLogLevel" -}}
+{{- $level := . | lower -}}
+{{- if eq $level "debug" }}verbose
+{{- else }}{{ $level }}
+{{- end -}}
 {{- end -}}

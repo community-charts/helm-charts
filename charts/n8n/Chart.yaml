@@ -16,7 +16,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.7.1
+version: 1.8.0
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
@@ -57,10 +57,11 @@ annotations:
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |
-    - Update n8nio/n8n image version to 1.94.1
-    - Add deprecation notices for root level volumes, volumeMounts, extraEnvVars, and extraSecretNamesForEnvFrom fields
-    - Add startup probe to worker and webhook blocks
-    - Add wait-for-main init container to worker and webhook blocks and make it configurable
+    - kind: added
+      description: Add support for Community Node Packages
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/116
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:1.94.1

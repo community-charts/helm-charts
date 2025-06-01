@@ -1241,13 +1241,19 @@ tests:
             - "moment@2.29.4"
     asserts:
       - contains:
-          path: spec.template.spec.initContainers
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
           content:
-            name: npm-install
-            volumeMounts:
-              - name: node-modules
-                mountPath: "/data"
-                readOnly: false
+            name: node-modules
+            mountPath: "/npmdata"
+            readOnly: false
+          any: true
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
+          content:
+            name: community-node-modules
+            mountPath: "/nodesdata/nodes"
+            readOnly: false
           any: true
         template: deployment.yaml
       - contains:
@@ -1318,13 +1324,19 @@ tests:
             - "moment@2.29.4"
     asserts:
       - contains:
-          path: spec.template.spec.initContainers
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
           content:
-            name: npm-install
-            volumeMounts:
-              - name: node-modules
-                mountPath: "/data"
-                readOnly: false
+            name: node-modules
+            mountPath: "/npmdata"
+            readOnly: false
+          any: true
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
+          content:
+            name: community-node-modules
+            mountPath: "/nodesdata/nodes"
+            readOnly: false
           any: true
         template: deployment.yaml
       - contains:
@@ -1442,7 +1454,15 @@ tests:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
           content:
             name: node-modules
-            mountPath: "/data"
+            mountPath: "/npmdata"
+            readOnly: false
+          any: true
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
+          content:
+            name: community-node-modules
+            mountPath: "/nodesdata/nodes"
             readOnly: false
           any: true
         template: deployment.yaml
