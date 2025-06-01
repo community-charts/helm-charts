@@ -814,6 +814,13 @@
               "title": "allowAll",
               "type": "boolean"
             },
+            "reinstallMissingPackages": {
+              "default": false,
+              "description": "Whether to reinstall missing packages. For more information, see https://docs.n8n.io/integrations/community-nodes/troubleshooting/#error-missing-packages",
+              "required": [],
+              "title": "reinstallMissingPackages",
+              "type": "boolean"
+            },
             "packages": {
               "default": [],
               "description": "List of npm package names and versions (e.g., \"package-name@1.0.0\")",
@@ -827,7 +834,7 @@
               "type": "array"
             }
           },
-          "required": ["allowAll", "packages"],
+          "required": ["allowAll", "reinstallMissingPackages", "packages"],
           "title": "external",
           "type": "object"
         },

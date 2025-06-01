@@ -47,6 +47,8 @@ spec:
       {{- end }}
         {{- if .Values.nodes.external.packages }}
         - name: npm-install
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.nodes.initContainer.image.repository }}:{{ .Values.nodes.initContainer.image.tag }}"
           imagePullPolicy: {{ .Values.nodes.initContainer.image.pullPolicy }}
           command: ["/bin/sh", "-c"]
@@ -206,6 +208,10 @@ spec:
             - name: NODE_FUNCTION_ALLOW_EXTERNAL
               value: {{ include "n8n.packageNames" .Values.nodes.external.packages | quote }}
           {{- end }}
+          {{- if and .Values.nodes.external.reinstallMissingPackages (eq .Values.taskRunners.mode "internal") }}
+            - name: N8N_REINSTALL_MISSING_PACKAGES
+              value: "true"
+          {{- end }}
           {{- range $key, $value := (default .Values.extraEnvVars .Values.main.extraEnvVars) }}
             - name: {{ upper $key }}
               value: {{ $value | quote }}
@@ -295,6 +301,10 @@ spec:
           {{- else if .Values.nodes.external.packages }}
             - name: NODE_FUNCTION_ALLOW_EXTERNAL
               value: {{ include "n8n.packageNames" .Values.nodes.external.packages | quote }}
+          {{- end }}
+          {{- if .Values.nodes.external.reinstallMissingPackages }}
+            - name: N8N_REINSTALL_MISSING_PACKAGES
+              value: "true"
           {{- end }}
           envFrom:
             - configMapRef:

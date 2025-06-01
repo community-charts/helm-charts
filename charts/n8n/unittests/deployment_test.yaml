@@ -1429,6 +1429,38 @@ tests:
           any: true
         template: deployment.yaml
 
+  - it: should reinstall missing packages when nodes.external.reinstallMissingPackages is true and taskRunners.mode is internal
+    set:
+      taskRunners:
+        mode: internal
+      nodes:
+        external:
+          reinstallMissingPackages: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          content:
+            name: N8N_REINSTALL_MISSING_PACKAGES
+            value: "true"
+          any: true
+        template: deployment.yaml
+
+  - it: should reinstall missing packages when nodes.external.reinstallMissingPackages is true and taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        external:
+          reinstallMissingPackages: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].env
+          content:
+            name: N8N_REINSTALL_MISSING_PACKAGES
+            value: "true"
+          any: true
+        template: deployment.yaml
+
   - it: should use private npm registry when npmRegistry.enabled is true
     set:
       nodes:

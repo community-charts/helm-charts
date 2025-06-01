@@ -109,6 +109,8 @@ nodes:
   external:
     # -- Allow all external npm packages
     allowAll: false
+    # -- Whether to reinstall missing packages. For more information, see https://docs.n8n.io/integrations/community-nodes/troubleshooting/#error-missing-packages
+    reinstallMissingPackages: false
     # -- List of npm package names and versions (e.g., "package-name@1.0.0")
     packages: []
       # - "moment@2.29.4"
