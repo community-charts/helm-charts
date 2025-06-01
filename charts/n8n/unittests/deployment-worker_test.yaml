@@ -1408,6 +1408,44 @@ tests:
           any: true
         template: deployment-worker.yaml
 
+  - it: should only keep npm packages and not community packages when nodes.external.packages is set and taskRunners.mode is internal
+    set:
+      taskRunners:
+        mode: internal
+      nodes:
+        external:
+          packages:
+            - "moment@2.29.4"
+            - "n8n-nodes-python@0.1.4"
+            - "n8n-nodes-chatwoot@0.1.40"
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].args[0]
+          value: |
+            export PACKAGES="moment@2.29.4 n8n-nodes-python@0.1.4 n8n-nodes-chatwoot@0.1.40"
+            export COMMUNITY_PACKAGES="n8n-nodes-python@0.1.4 n8n-nodes-chatwoot@0.1.40"
+            export NON_COMMUNITY_PACKAGES="moment@2.29.4"
+            echo "$PACKAGES" | sha256sum > /npmdata/packages.hash.new
+            if [ ! -f /npmdata/packages.hash ] || ! cmp /npmdata/packages.hash /npmdata/packages.hash.new; then
+              if [ -n "$NON_COMMUNITY_PACKAGES" ]; then
+                npm install --loglevel info --no-save $NON_COMMUNITY_PACKAGES --prefix /npmdata
+              fi
+              if [ -n "$COMMUNITY_PACKAGES" ]; then
+                npm install --loglevel info --no-save $COMMUNITY_PACKAGES --prefix /nodesdata/nodes
+              fi
+              mv /npmdata/packages.hash.new /npmdata/packages.hash
+            else
+              rm /npmdata/packages.hash.new
+            fi
+        template: deployment-worker.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: NODE_FUNCTION_ALLOW_EXTERNAL
+            value: "moment"
+          any: true
+        template: deployment-worker.yaml
+
   - it: should allow all builtin node functions in external task runner when nodes.builtin.modules is enabled and taskRunners.mode is external
     set:
       taskRunners:
