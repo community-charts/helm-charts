@@ -127,13 +127,8 @@ jobs:
               comment_body+="No changes recorded for this release.\n\n"
             fi
           done
-          echo "DEBUG: comment_body before escaping: $comment_body" >> $GITHUB_STEP_SUMMARY
-          comment_body=$(echo -e "$comment_body" | sed 's/"/\\"/g' | sed "s/'/\\'/g" | sed 's/\\/\\\\/g')
-          echo "DEBUG: comment_body after escaping: $comment_body" >> $GITHUB_STEP_SUMMARY
-          cat <<EOF | jq -n --arg body "$(cat)" '{"body": $body}' > comment.json
-          $comment_body
-          EOF
-          gh pr comment ${{ github.event.pull_request.number }} --body-file comment.json --edit-last --create-if-none || echo "Failed to post or edit comment"
+          echo "DEBUG: comment_body: $comment_body" >> $GITHUB_STEP_SUMMARY
+          gh pr comment ${{ github.event.pull_request.number }} --body "$comment_body" --edit-last --create-if-none || echo "Failed to post or edit comment"
 
   release:
     needs: lint-test
