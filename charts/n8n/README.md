@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.8.0](https://img.shields.io/badge/Version-1.8.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.94.1](https://img.shields.io/badge/AppVersion-1.94.1-informational?style=flat-square)
+![Version: 1.8.1](https://img.shields.io/badge/Version-1.8.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.95.2](https://img.shields.io/badge/AppVersion-1.95.2-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -678,8 +678,8 @@ Kubernetes: `>=1.23.0-0`
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | postgresql | 16.7.5 |
-| https://charts.bitnami.com/bitnami | redis | 21.1.8 |
+| https://charts.bitnami.com/bitnami | postgresql | 16.7.8 |
+| https://charts.bitnami.com/bitnami | redis | 21.1.11 |
 | https://charts.min.io/ | minio | 5.4.0 |
 
 ## Uninstall Helm Chart
