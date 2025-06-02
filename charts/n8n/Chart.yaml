@@ -2,7 +2,6 @@ apiVersion: v2
 name: n8n
 description: A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 icon: https://avatars1.githubusercontent.com/u/45487711?s=200&v=4
-
 # A chart can be either an 'application' or a 'library' chart.
 #
 # Application charts are a collection of templates that can be packaged into versioned archives
@@ -12,31 +11,24 @@ icon: https://avatars1.githubusercontent.com/u/45487711?s=200&v=4
 # a dependency of application charts to inject those utilities and functions into the rendering
 # pipeline. Library charts do not define any templates and therefore cannot be deployed.
 type: application
-
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.8.0
-
+version: 1.8.1
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "1.94.1"
-
+appVersion: "1.95.2"
 kubeVersion: ">=1.23.0-0"
-
 home: https://n8n.io
-
 maintainers:
   - name: burakince
     email: burak.ince@linux.org.tr
     url: https://www.burakince.com
-
 sources:
   - https://github.com/community-charts/helm-charts
   - https://github.com/n8n-io/n8n
-
 keywords:
   - n8n
   - Workflow Automation
@@ -46,7 +38,6 @@ keywords:
   - integration-framework
   - low-code-plattform
   - low-code
-
 annotations:
   artifacthub.io/links: |
     - name: Chart Source
@@ -56,15 +47,15 @@ annotations:
     - name: Official Documentation
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
-  artifacthub.io/changes: |
-    - kind: added
-      description: Add support for Community Node Packages
+  artifacthub.io/changes: |-
+    - kind: changed
+      description: Update n8nio/n8n image version to 1.95.2
       links:
-        - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/116
+        - name: Upstream Project
+          url: https://github.com/n8n-io/n8n
   artifacthub.io/images: |
     - name: n8n
-      image: n8nio/n8n:1.94.1
+      image: n8nio/n8n:1.95.2
       platforms:
         - linux/amd64
         - linux/arm64
@@ -114,18 +105,15 @@ annotations:
   artifacthub.io/signKey: |
     fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
     url: https://keybase.io/communitycharts/pgp_keys.asc
-
 dependencies:
   - name: redis
-    version: 21.1.8
+    version: 21.1.11
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
-
   - name: postgresql
-    version: 16.7.5
+    version: 16.7.8
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
-
   - name: minio
     version: 5.4.0
     repository: https://charts.min.io/
