@@ -117,20 +117,17 @@ jobs:
           comment_body="### Chart Release Changes\n\n"
           for chart in ${{ steps.list-changed.outputs.changed_charts }}; do
             comment_body+="#### $chart\n\n"
-            changes=$(yq eval '.annotations["artifacthub.io/changes"] | select(. != null)' "$chart/Chart.yaml" || echo "Failed to parse $chart/Chart.yaml")
-            echo "DEBUG: changes for $chart: $changes" >> $GITHUB_STEP_SUMMARY
+            changes=$(yq eval '.annotations["artifacthub.io/changes"] | select(. != null)' "$chart/Chart.yaml")
             if [ -n "$changes" ] && [ "$changes" != "Failed to parse $chart/Chart.yaml" ]; then
-              formatted_changes=$(echo "$changes" | yq eval -o=json | jq -r '.[] | "- **\(.kind | .[0:1] | ascii_upcase)\(.kind | .[1:])**: \(.description)\n  \(.links // [] | map("  - [\(.name)](\(.url))") | join("\n"))" || echo "Failed to format changes for $chart")
-              echo "DEBUG: formatted_changes for $chart: $formatted_changes" >> $GITHUB_STEP_SUMMARY
+              formatted_changes=$(echo "$changes" | yq eval -o=json | jq -r '.[] | "- **\(.kind | .[0:1] | ascii_upcase)\(.kind | .[1:])**: \(.description)\n  \(.links // [] | map("  - [\(.name)](\(.url))") | join("\n"))"')
               comment_body+="$formatted_changes\n\n"
             else
               comment_body+="No changes recorded for this release.\n\n"
             fi
           done
-          echo "DEBUG: comment_body: $comment_body" >> $GITHUB_STEP_SUMMARY
-          safe_comment_body=$(echo -n "$comment_body" | sed 's/"/\\"/g' | sed "s/'/\\'/g" | tr -d '\n' | sed 's/\\n/\\\\n/g')
-          echo "DEBUG: safe_comment_body: $safe_comment_body" >> $GITHUB_STEP_SUMMARY
-          gh pr comment ${{ github.event.pull_request.number }} --body "$safe_comment_body" --edit-last --create-if-none || echo "Failed to post or edit comment"
+          safe_comment_body=$(echo -e "$comment_body" | sed 's/"/\\"/g' | sed "s/'/\\'/g")
+          printf '%s' "$safe_comment_body" | jq -n --arg body "$(cat)" '{"body": $body}' > comment.json
+          gh pr comment ${{ github.event.pull_request.number }} --body-file comment.json --edit-last --create-if-none || echo "Failed to post or edit comment"
 
   release:
     needs: lint-test
