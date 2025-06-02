@@ -116,8 +116,8 @@ jobs:
         run: |
           comment_body="### Chart Release Changes\n\n"
           for chart in ${{ steps.list-changed.outputs.changed_charts }}; do
-            comment_body+="#### $chart\n\n"
-            changes=$(yq eval '.annotations["artifacthub.io/changes"] | select(. != null)' "$chart/Chart.yaml")
+            comment_body+="#### $chart changes\n\n"
+            changes=$(yq eval '.annotations["artifacthub.io/changes"] | select(. != null)' "$chart/Chart.yaml" || echo "Failed to parse $chart/Chart.yaml")
             if [ -n "$changes" ] && [ "$changes" != "Failed to parse $chart/Chart.yaml" ]; then
               formatted_changes=$(echo "$changes" | yq eval -o=json | jq -r '.[] | "- **\(.kind | .[0:1] | ascii_upcase)\(.kind | .[1:])**: \(.description)\n  \(.links // [] | map("  - [\(.name)](\(.url))") | join("\n"))"')
               comment_body+="$formatted_changes\n\n"
