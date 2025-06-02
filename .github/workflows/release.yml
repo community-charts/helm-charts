@@ -126,7 +126,7 @@ jobs:
             fi
           done
           safe_comment_body=$(echo -e "$comment_body" | sed 's/"/\\"/g' | sed "s/'/\\'/g")
-          printf '%s' "$safe_comment_body" | jq -n --arg body "$(cat)" '{"body": $body}' > comment.json
+          echo -e "$safe_comment_body" > comment.json
           gh pr comment ${{ github.event.pull_request.number }} --body-file comment.json --edit-last --create-if-none || echo "Failed to post or edit comment"
 
   release:
