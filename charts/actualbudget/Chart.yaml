@@ -2,7 +2,6 @@ apiVersion: v2
 name: actualbudget
 description: A local-first personal finance app
 icon: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/actual.png
-
 # A chart can be either an 'application' or a 'library' chart.
 #
 # Application charts are a collection of templates that can be packaged into versioned archives
@@ -12,38 +11,30 @@ icon: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/stat
 # a dependency of application charts to inject those utilities and functions into the rendering
 # pipeline. Library charts do not define any templates and therefore cannot be deployed.
 type: application
-
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.5.1
-
+version: 1.5.2
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "25.5.0"
-
+appVersion: "25.6.1"
 kubeVersion: ">=1.16.0-0"
-
 home: https://actualbudget.org/
-
 maintainers:
   - name: burakince
     email: burak.ince@linux.org.tr
     url: https://www.burakince.com
-
 sources:
   - https://github.com/community-charts/helm-charts
   - https://github.com/actualbudget/actual
-
 keywords:
   - docker
   - finance
   - personal-finance
   - money
   - budgeting
-
 annotations:
   artifacthub.io/alternativeName: actual
   artifacthub.io/links: |
@@ -52,11 +43,15 @@ annotations:
     - name: Upstream Project
       url: https://github.com/actualbudget/actual
   artifacthub.io/containsSecurityUpdates: "false"
-  artifacthub.io/changes: |
-    - Update actualbudget/actual-server image version to 25.5.0
+  artifacthub.io/changes: |-
+    - kind: changed
+      description: Update actualbudget/actual-server image version to 25.6.1
+      links:
+        - name: Upstream Project
+          url: https://hub.docker.com/r/actualbudget/actual-server
   artifacthub.io/images: |
     - name: actualbudget
-      image: actualbudget/actual-server:25.5.0
+      image: actualbudget/actual-server:25.6.1
       platforms:
         - linux/amd64
         - linux/arm64
@@ -85,5 +80,4 @@ annotations:
   artifacthub.io/signKey: |
     fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
     url: https://keybase.io/communitycharts/pgp_keys.asc
-
 dependencies: []
