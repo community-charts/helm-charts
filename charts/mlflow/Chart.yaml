@@ -2,7 +2,6 @@ apiVersion: v2
 name: mlflow
 description: A Helm chart for Mlflow open source platform for the machine learning lifecycle
 icon: https://raw.githubusercontent.com/mlflow/mlflow/master/assets/logo.svg
-
 # A chart can be either an 'application' or a 'library' chart.
 #
 # Application charts are a collection of templates that can be packaged into versioned archives
@@ -12,32 +11,25 @@ icon: https://raw.githubusercontent.com/mlflow/mlflow/master/assets/logo.svg
 # a dependency of application charts to inject those utilities and functions into the rendering
 # pipeline. Library charts do not define any templates and therefore cannot be deployed.
 type: application
-
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.17.2
-
+version: 0.17.3
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "2.22.0"
-
+appVersion: "2.22.1"
 kubeVersion: ">=1.16.0-0"
-
 home: https://mlflow.org
-
 maintainers:
   - name: burakince
     email: burak.ince@linux.org.tr
     url: https://www.burakince.com
-
 sources:
   - https://github.com/community-charts/helm-charts
   - https://github.com/burakince/mlflow
   - https://github.com/mlflow/mlflow
-
 keywords:
   - docker
   - machine-learning
@@ -49,7 +41,6 @@ keywords:
   - mlflow-docker
   - mlflow-tracking
   - mlflow-kube
-
 annotations:
   artifacthub.io/links: |
     - name: Chart Source
@@ -57,11 +48,15 @@ annotations:
     - name: Upstream Project
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "false"
-  artifacthub.io/changes: |
-    - Fix the documentation for artifact root and artifacts destination usage
+  artifacthub.io/changes: |-
+    - kind: changed
+      description: Update burakince/mlflow image version to 2.22.1
+      links:
+        - name: Upstream Project
+          url: https://hub.docker.com/r/burakince/mlflow
   artifacthub.io/images: |
     - name: mlflow
-      image: burakince/mlflow:2.22.0
+      image: burakince/mlflow:2.22.1
   artifacthub.io/license: MIT
   artifacthub.io/maintainers: |
     - name: burakince
@@ -92,14 +87,12 @@ annotations:
   artifacthub.io/signKey: |
     fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
     url: https://keybase.io/communitycharts/pgp_keys.asc
-
 dependencies:
   - name: postgresql
-    version: 16.6.5
+    version: 16.7.10
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
-
   - name: mysql
-    version: 12.3.4
+    version: 13.0.1
     repository: https://charts.bitnami.com/bitnami
     condition: mysql.enabled
