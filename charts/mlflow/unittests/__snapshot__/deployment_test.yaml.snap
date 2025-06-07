@@ -74,8 +74,19 @@ should match snapshot of default values:
                 periodSeconds: 30
                 timeoutSeconds: 3
               resources: {}
-              securityContext: {}
-          securityContext: {}
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
+          securityContext:
+            fsGroup: 1001
+            fsGroupChangePolicy: OnRootMismatch
           serviceAccountName: mlflow
 should match snapshot with additional values:
   1: |
@@ -183,8 +194,15 @@ should match snapshot with additional values:
                   cpu: 100m
                   memory: 128Mi
               securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
                 runAsNonRoot: true
-                runAsUser: 1000
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /etc/mlflow/auth
                   name: auth-config-secret
@@ -228,8 +246,15 @@ should match snapshot with additional values:
                   cpu: 100m
                   memory: 128Mi
               securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
                 runAsNonRoot: true
-                runAsUser: 1000
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /opt/mlflow/migrations.py
                   name: migrations-config
@@ -240,7 +265,8 @@ should match snapshot with additional values:
           nodeSelector:
             disktype: ssd
           securityContext:
-            fsGroup: 2000
+            fsGroup: 1001
+            fsGroupChangePolicy: OnRootMismatch
           serviceAccountName: mlflow
           tolerations:
             - effect: NoSchedule
@@ -375,8 +401,15 @@ should match snapshot with additional values when bitnami mysql is enabled:
                   cpu: 100m
                   memory: 128Mi
               securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
                 runAsNonRoot: true
-                runAsUser: 1000
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /etc/mlflow/auth
                   name: auth-config-secret
@@ -434,8 +467,15 @@ should match snapshot with additional values when bitnami mysql is enabled:
                   cpu: 100m
                   memory: 128Mi
               securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
                 runAsNonRoot: true
-                runAsUser: 1000
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /opt/mlflow/migrations.py
                   name: migrations-config
@@ -446,7 +486,8 @@ should match snapshot with additional values when bitnami mysql is enabled:
           nodeSelector:
             disktype: ssd
           securityContext:
-            fsGroup: 2000
+            fsGroup: 1001
+            fsGroupChangePolicy: OnRootMismatch
           serviceAccountName: mlflow
           tolerations:
             - effect: NoSchedule
@@ -581,8 +622,15 @@ should match snapshot with additional values when bitnami postgresql is enabled:
                   cpu: 100m
                   memory: 128Mi
               securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
                 runAsNonRoot: true
-                runAsUser: 1000
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /etc/mlflow/auth
                   name: auth-config-secret
@@ -640,8 +688,15 @@ should match snapshot with additional values when bitnami postgresql is enabled:
                   cpu: 100m
                   memory: 128Mi
               securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
                 runAsNonRoot: true
-                runAsUser: 1000
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /opt/mlflow/migrations.py
                   name: migrations-config
@@ -652,7 +707,8 @@ should match snapshot with additional values when bitnami postgresql is enabled:
           nodeSelector:
             disktype: ssd
           securityContext:
-            fsGroup: 2000
+            fsGroup: 1001
+            fsGroupChangePolicy: OnRootMismatch
           serviceAccountName: mlflow
           tolerations:
             - effect: NoSchedule
@@ -781,8 +837,15 @@ should match snapshot with additional values when mysql is enabled:
                   cpu: 100m
                   memory: 128Mi
               securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
                 runAsNonRoot: true
-                runAsUser: 1000
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /etc/mlflow/auth
                   name: auth-config-secret
@@ -826,8 +889,15 @@ should match snapshot with additional values when mysql is enabled:
                   cpu: 100m
                   memory: 128Mi
               securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
                 runAsNonRoot: true
-                runAsUser: 1000
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /opt/mlflow/migrations.py
                   name: migrations-config
@@ -838,7 +908,8 @@ should match snapshot with additional values when mysql is enabled:
           nodeSelector:
             disktype: ssd
           securityContext:
-            fsGroup: 2000
+            fsGroup: 1001
+            fsGroupChangePolicy: OnRootMismatch
           serviceAccountName: mlflow
           tolerations:
             - effect: NoSchedule
@@ -967,8 +1038,15 @@ should match snapshot with additional values when postgresql is enabled:
                   cpu: 100m
                   memory: 128Mi
               securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
                 runAsNonRoot: true
-                runAsUser: 1000
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /etc/mlflow/auth
                   name: auth-config-secret
@@ -1012,8 +1090,15 @@ should match snapshot with additional values when postgresql is enabled:
                   cpu: 100m
                   memory: 128Mi
               securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
                 runAsNonRoot: true
-                runAsUser: 1000
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /opt/mlflow/migrations.py
                   name: migrations-config
@@ -1024,7 +1109,8 @@ should match snapshot with additional values when postgresql is enabled:
           nodeSelector:
             disktype: ssd
           securityContext:
-            fsGroup: 2000
+            fsGroup: 1001
+            fsGroupChangePolicy: OnRootMismatch
           serviceAccountName: mlflow
           tolerations:
             - effect: NoSchedule

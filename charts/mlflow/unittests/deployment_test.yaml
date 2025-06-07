@@ -1118,10 +1118,10 @@ tests:
       podAnnotations:
         test-key: test-value
       podSecurityContext:
-        fsGroup: 2000
+        fsGroup: 1001
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
+        runAsUser: 1001
       initContainers:
         - name: init-myservice
           image: busybox:1.28
@@ -1193,10 +1193,10 @@ tests:
       podAnnotations:
         test-key: test-value
       podSecurityContext:
-        fsGroup: 2000
+        fsGroup: 1001
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
+        runAsUser: 1001
       initContainers:
         - name: init-myservice
           image: busybox:1.28
@@ -1268,10 +1268,10 @@ tests:
       podAnnotations:
         test-key: test-value
       podSecurityContext:
-        fsGroup: 2000
+        fsGroup: 1001
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
+        runAsUser: 1001
       initContainers:
         - name: init-myservice
           image: busybox:1.28
@@ -1343,10 +1343,10 @@ tests:
       podAnnotations:
         test-key: test-value
       podSecurityContext:
-        fsGroup: 2000
+        fsGroup: 1001
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
+        runAsUser: 1001
       initContainers:
         - name: init-myservice
           image: busybox:1.28
@@ -1418,10 +1418,10 @@ tests:
       podAnnotations:
         test-key: test-value
       podSecurityContext:
-        fsGroup: 2000
+        fsGroup: 1001
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
+        runAsUser: 1001
       initContainers:
         - name: init-myservice
           image: busybox:1.28
