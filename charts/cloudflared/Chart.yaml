@@ -2,7 +2,6 @@ apiVersion: v2
 name: cloudflared
 description: A Helm chart for cloudflare tunnel
 icon: https://raw.githubusercontent.com/cloudflare/color/refs/heads/master/static/thinking/logo.png
-
 # A chart can be either an 'application' or a 'library' chart.
 #
 # Application charts are a collection of templates that can be packaged into versioned archives
@@ -12,31 +11,24 @@ icon: https://raw.githubusercontent.com/cloudflare/color/refs/heads/master/stati
 # a dependency of application charts to inject those utilities and functions into the rendering
 # pipeline. Library charts do not define any templates and therefore cannot be deployed.
 type: application
-
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 2.0.5
-
+version: 2.0.6
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "2025.5.0"
-
+appVersion: "2025.6.0"
 kubeVersion: ">=1.21.0-0"
-
 home: https://github.com/cloudflare/cloudflared
-
 maintainers:
   - name: burakince
     email: burak.ince@linux.org.tr
     url: https://www.burakince.com
-
 sources:
   - https://github.com/community-charts/helm-charts
   - https://github.com/cloudflare/cloudflared
-
 keywords:
   - kubernetes
   - reverse-proxy
@@ -47,7 +39,6 @@ keywords:
   - tunnel
   - zero-trust-network-access
   - cloudflare-tunnel
-
 annotations:
   artifacthub.io/alternativeName: cloudflare
   artifacthub.io/links: |
@@ -58,11 +49,15 @@ annotations:
     - name: Official Documentation
       url: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/
   artifacthub.io/containsSecurityUpdates: "false"
-  artifacthub.io/changes: |
-    - Update cloudflare/cloudflared image version to 2025.5.0
+  artifacthub.io/changes: |-
+    - kind: changed
+      description: Update cloudflare/cloudflared image version to 2025.6.0
+      links:
+        - name: Upstream Project
+          url: https://hub.docker.com/r/cloudflare/cloudflared
   artifacthub.io/images: |
     - name: cloudflared
-      image: cloudflare/cloudflared:2025.5.0
+      image: cloudflare/cloudflared:2025.6.0
       platforms:
         - linux/amd64
         - linux/arm64
@@ -78,5 +73,4 @@ annotations:
   artifacthub.io/signKey: |
     fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
     url: https://keybase.io/communitycharts/pgp_keys.asc
-
 dependencies: []
