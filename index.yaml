@@ -1506,6 +1506,70 @@ entries:
     version: 1.0.0
   cloudflared:
   - annotations:
+      artifacthub.io/alternativeName: cloudflare
+      artifacthub.io/changes: |-
+        - kind: changed
+          description: Update cloudflare/cloudflared image version to 2025.6.0
+          links:
+            - name: Upstream Project
+              url: https://hub.docker.com/r/cloudflare/cloudflared
+      artifacthub.io/containsSecurityUpdates: "false"
+      artifacthub.io/images: |
+        - name: cloudflared
+          image: cloudflare/cloudflared:2025.6.0
+          platforms:
+            - linux/amd64
+            - linux/arm64
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/community-charts/helm-charts
+        - name: Upstream Project
+          url: https://github.com/cloudflare/cloudflared
+        - name: Official Documentation
+          url: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/
+      artifacthub.io/maintainers: |
+        - name: burakince
+          email: burak.ince@linux.org.tr
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/screenshots: |
+        - title: Cloudflared Tunnel Overview
+          url: https://raw.githubusercontent.com/cloudflare/cloudflare-docs/refs/heads/production/src/assets/images/cloudflare-one/connections/connect-apps/handshake.jpg
+      artifacthub.io/signKey: |
+        fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
+        url: https://keybase.io/communitycharts/pgp_keys.asc
+    apiVersion: v2
+    appVersion: 2025.6.0
+    created: "2025-06-11T16:49:51.040972918Z"
+    description: A Helm chart for cloudflare tunnel
+    digest: 05a6b5de4b21e417df50d5b9e9c1e4daa23add068fed5a2ecd94427338aee648
+    home: https://github.com/cloudflare/cloudflared
+    icon: https://raw.githubusercontent.com/cloudflare/color/refs/heads/master/static/thinking/logo.png
+    keywords:
+    - kubernetes
+    - reverse-proxy
+    - cloudflare
+    - cloudflared
+    - argo-tunnel
+    - argo
+    - tunnel
+    - zero-trust-network-access
+    - cloudflare-tunnel
+    kubeVersion: '>=1.21.0-0'
+    maintainers:
+    - email: burak.ince@linux.org.tr
+      name: burakince
+      url: https://www.burakince.com
+    name: cloudflared
+    sources:
+    - https://github.com/community-charts/helm-charts
+    - https://github.com/cloudflare/cloudflared
+    type: application
+    urls:
+    - https://github.com/community-charts/helm-charts/releases/download/cloudflared-2.0.6/cloudflared-2.0.6.tgz
+    version: 2.0.6
+  - annotations:
       artifacthub.io/changes: |
         - Update cloudflare/cloudflared image version to 2025.5.0
       artifacthub.io/containsSecurityUpdates: "false"
@@ -22921,4 +22985,4 @@ entries:
     urls:
     - https://github.com/community-charts/helm-charts/releases/download/pypiserver-0.1.0/pypiserver-0.1.0.tgz
     version: 0.1.0
-generated: "2025-06-11T01:45:58.983629884Z"
+generated: "2025-06-11T16:49:51.041473336Z"
