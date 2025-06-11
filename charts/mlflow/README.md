@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 0.18.0](https://img.shields.io/badge/Version-0.18.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.22.1](https://img.shields.io/badge/AppVersion-2.22.1-informational?style=flat-square)
+![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.1.0](https://img.shields.io/badge/AppVersion-3.1.0-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -518,6 +518,20 @@ auth:
     user: "mlflowauth"
     password: "A4m1nPa33w0rd!"
 ```
+
+## Upgrading
+
+This section outlines major updates and breaking changes for each version of the Helm Chart to help you transition smoothly between releases.
+
+---
+
+###  Version-Specific Upgrade Notes
+
+#### Upgrading to Version 1.0.x
+
+##### Action Required
+
+We started to use new `mlflow` major version 3 starting with this chart major version. Please consider to check [mlflow-3 breaking changes](https://mlflow.org/docs/3.0.0rc3/mlflow-3/breaking-changes) official page.
 
 ## Requirements
 

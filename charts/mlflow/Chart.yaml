@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.18.0
+version: 1.0.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "2.22.1"
+appVersion: "3.1.0"
 kubeVersion: ">=1.16.0-0"
 home: https://mlflow.org
 maintainers:
@@ -50,13 +50,13 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update default security context to non-root mlflow user
+      description: Update burakince/mlflow image version to 3.1.0
       links:
-        - name: Upstream Project Dockerfile Change
-          url: https://github.com/burakince/mlflow/blob/9972e361e9315b7be558f52225110ef6afbd6b5c/Dockerfile#L59
+        - name: Upstream Project
+          url: https://hub.docker.com/r/burakince/mlflow
   artifacthub.io/images: |
     - name: mlflow
-      image: burakince/mlflow:2.22.1
+      image: burakince/mlflow:3.1.0
   artifacthub.io/license: MIT
   artifacthub.io/maintainers: |
     - name: burakince

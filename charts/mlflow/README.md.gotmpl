@@ -519,6 +519,20 @@ auth:
     password: "A4m1nPa33w0rd!"
 ```
 
+## Upgrading
+
+This section outlines major updates and breaking changes for each version of the Helm Chart to help you transition smoothly between releases.
+
+---
+
+###  Version-Specific Upgrade Notes
+
+#### Upgrading to Version 1.0.x
+
+##### Action Required
+
+We started to use new `mlflow` major version 3 starting with this chart major version. Please consider to check [mlflow-3 breaking changes](https://mlflow.org/docs/3.0.0rc3/mlflow-3/breaking-changes) official page.
+
 {{ template "chart.requirementsSection" . }}
 
 ## Uninstall Helm Chart
