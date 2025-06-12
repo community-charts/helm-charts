@@ -50,12 +50,12 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
-      description: Upgrade action required documentation
+      description: Major version upgrade required actions documentation updated
       links:
         - name: Github Issue
           url: https://github.com/community-charts/helm-charts/issues/129
     - kind: added
-      description: Add service.enabled configuration
+      description: Add service.enabled configuration to disable service creation
     - kind: added
       description: Add extra pod labels configuration with extraPodLabels field
       links:
