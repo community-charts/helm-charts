@@ -51,6 +51,9 @@ serviceAccount:
 # -- Annotations for the pod
 podAnnotations: {}
 
+# -- Extra labels for the pod
+extraPodLabels: {}
+
 # -- This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
 podSecurityContext:
   fsGroup: 1001
@@ -70,6 +73,8 @@ securityContext:
 
 # -- This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
 service:
+  # -- Specifies if you want to create a service
+  enabled: true
   # -- This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
   type: ClusterIP
   # -- This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports

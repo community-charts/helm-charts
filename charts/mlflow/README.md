@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.1.0](https://img.shields.io/badge/AppVersion-3.1.0-informational?style=flat-square)
+![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.1.0](https://img.shields.io/badge/AppVersion-3.1.0-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -532,6 +532,20 @@ This section outlines major updates and breaking changes for each version of the
 ##### Action Required
 
 We started to use new `mlflow` major version 3 starting with this chart major version. Please consider to check [mlflow-3 breaking changes](https://mlflow.org/docs/3.0.0rc3/mlflow-3/breaking-changes) official page.
+The new `mlflow` major version 3 has some changes in the database schema. Please run database migrations before upgrading to the new version.
+
+You can enable database migrations with the following configuration.
+
+```yaml
+backendStore:
+  databaseMigration: true
+```
+
+Or you can use the following mlflow CLI command to upgrade the database. You can find more information about the database migrations in the [mlflow documentation](https://mlflow.org/docs/latest/api_reference/cli.html#mlflow-db-upgrade).
+
+```console
+mlflow db upgrade <database_uri>
+```
 
 ## Requirements
 
@@ -634,6 +648,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | extraContainers | list | `[]` | Extra containers for the mlflow pod |
 | extraEnvVars | object | `{}` | Extra environment variables |
 | extraFlags | list | `[]` | A list of flags to pass to `mlflow server` command. Items must be camelcase. Helm will turn them to kebabcase style. |
+| extraPodLabels | object | `{}` | Extra labels for the pod |
 | extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
 | extraVolumeMounts | list | `[]` | Extra Volume Mounts for the mlflow container |
 | extraVolumes | list | `[]` | Extra Volumes for the pod |
@@ -678,8 +693,9 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | replicaCount | int | `1` | Numbers of replicas |
 | resources | object | `{}` | This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":false,"runAsGroup":1001,"runAsNonRoot":true,"runAsUser":1001}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
-| service | object | `{"annotations":{},"name":"http","port":5000,"type":"ClusterIP"}` | This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/ |
+| service | object | `{"annotations":{},"enabled":true,"name":"http","port":5000,"type":"ClusterIP"}` | This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/ |
 | service.annotations | object | `{}` | Additional service annotations |
+| service.enabled | bool | `true` | Specifies if you want to create a service |
 | service.name | string | `"http"` | Default Service name |
 | service.port | int | `5000` | This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports |
 | service.type | string | `"ClusterIP"` | This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types |

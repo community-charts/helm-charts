@@ -532,6 +532,21 @@ This section outlines major updates and breaking changes for each version of the
 ##### Action Required
 
 We started to use new `mlflow` major version 3 starting with this chart major version. Please consider to check [mlflow-3 breaking changes](https://mlflow.org/docs/3.0.0rc3/mlflow-3/breaking-changes) official page.
+The new `mlflow` major version 3 has some changes in the database schema. Please run database migrations before upgrading to the new version.
+
+You can enable database migrations with the following configuration.
+
+```yaml
+backendStore:
+  databaseMigration: true
+```
+
+Or you can use the following mlflow CLI command to upgrade the database. You can find more information about the database migrations in the [mlflow documentation](https://mlflow.org/docs/latest/api_reference/cli.html#mlflow-db-upgrade).
+
+```console
+mlflow db upgrade <database_uri>
+```
+
 
 {{ template "chart.requirementsSection" . }}
 

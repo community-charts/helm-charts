@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.0.0
+version: 1.1.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -50,10 +50,17 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update burakince/mlflow image version to 3.1.0
+      description: Upgrade action required documentation
       links:
-        - name: Upstream Project
-          url: https://hub.docker.com/r/burakince/mlflow
+        - name: Github Issue
+          url: https://github.com/community-charts/helm-charts/issues/129
+    - kind: added
+      description: Add service.enabled configuration
+    - kind: added
+      description: Add extra pod labels configuration with extraPodLabels field
+      links:
+        - name: Github Issue
+          url: https://github.com/community-charts/helm-charts/issues/130
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.1.0

@@ -1092,6 +1092,15 @@ tests:
                 name: test-secret
                 key: customPassword
 
+  - it: should set extra pod labels for AKS workload identity when the labels are set
+    set:
+      extraPodLabels:
+        "azure.workload.identity/use": "true"
+    asserts:
+      - equal:
+          path: spec.template.metadata.labels["azure.workload.identity/use"]
+          value: "true"
+
   - it: should match snapshot of default values
     release:
       name: mlflow

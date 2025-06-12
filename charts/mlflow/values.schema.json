@@ -913,6 +913,13 @@
       "title": "podAnnotations",
       "type": "object"
     },
+    "extraPodLabels": {
+      "additionalProperties": true,
+      "description": "Extra labels for the pod",
+      "required": [],
+      "title": "extraPodLabels",
+      "type": "object"
+    },
     "podSecurityContext": {
       "additionalProperties": true,
       "description": "Security context for all pod",
@@ -1104,6 +1111,13 @@
     "service": {
       "additionalProperties": false,
       "properties": {
+        "enabled": {
+          "default": true,
+          "description": "Specifies if you want to create a service",
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
         "annotations": {
           "additionalProperties": true,
           "description": "Additional service annotations",
@@ -1133,7 +1147,7 @@
           "type": "string"
         }
       },
-      "required": ["type", "port", "name", "annotations"],
+      "required": ["enabled", "type", "port", "name", "annotations"],
       "title": "service",
       "type": "object"
     },
@@ -1879,6 +1893,7 @@
     "fullnameOverride",
     "serviceAccount",
     "podAnnotations",
+    "extraPodLabels",
     "podSecurityContext",
     "securityContext",
     "service",
