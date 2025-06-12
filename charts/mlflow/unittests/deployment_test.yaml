@@ -1126,6 +1126,8 @@ tests:
           password: test-password
       podAnnotations:
         test-key: test-value
+      extraPodLabels:
+        "azure.workload.identity/use": "true"
       podSecurityContext:
         fsGroup: 1001
       securityContext:
@@ -1201,6 +1203,8 @@ tests:
           password: test-password
       podAnnotations:
         test-key: test-value
+      extraPodLabels:
+        "azure.workload.identity/use": "true"
       podSecurityContext:
         fsGroup: 1001
       securityContext:
@@ -1276,6 +1280,8 @@ tests:
           password: test-password
       podAnnotations:
         test-key: test-value
+      extraPodLabels:
+        "azure.workload.identity/use": "true"
       podSecurityContext:
         fsGroup: 1001
       securityContext:
@@ -1351,6 +1357,8 @@ tests:
           password: test-password
       podAnnotations:
         test-key: test-value
+      extraPodLabels:
+        "azure.workload.identity/use": "true"
       podSecurityContext:
         fsGroup: 1001
       securityContext:
@@ -1426,6 +1434,8 @@ tests:
           password: test-password
       podAnnotations:
         test-key: test-value
+      extraPodLabels:
+        "azure.workload.identity/use": "true"
       podSecurityContext:
         fsGroup: 1001
       securityContext:

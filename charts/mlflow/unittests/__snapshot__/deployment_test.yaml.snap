@@ -122,6 +122,7 @@ should match snapshot with additional values:
             app: mlflow
             app.kubernetes.io/instance: mlflow
             app.kubernetes.io/name: mlflow
+            azure.workload.identity/use: "true"
         spec:
           affinity:
             nodeAffinity:
@@ -323,6 +324,7 @@ should match snapshot with additional values when bitnami mysql is enabled:
             app: mlflow
             app.kubernetes.io/instance: mlflow
             app.kubernetes.io/name: mlflow
+            azure.workload.identity/use: "true"
         spec:
           affinity:
             nodeAffinity:
@@ -544,6 +546,7 @@ should match snapshot with additional values when bitnami postgresql is enabled:
             app: mlflow
             app.kubernetes.io/instance: mlflow
             app.kubernetes.io/name: mlflow
+            azure.workload.identity/use: "true"
         spec:
           affinity:
             nodeAffinity:
@@ -765,6 +768,7 @@ should match snapshot with additional values when mysql is enabled:
             app: mlflow
             app.kubernetes.io/instance: mlflow
             app.kubernetes.io/name: mlflow
+            azure.workload.identity/use: "true"
         spec:
           affinity:
             nodeAffinity:
@@ -966,6 +970,7 @@ should match snapshot with additional values when postgresql is enabled:
             app: mlflow
             app.kubernetes.io/instance: mlflow
             app.kubernetes.io/name: mlflow
+            azure.workload.identity/use: "true"
         spec:
           affinity:
             nodeAffinity:
