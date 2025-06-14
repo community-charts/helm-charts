@@ -454,6 +454,13 @@
           "title": "storageClass",
           "type": "string"
         },
+        "subPath": {
+          "default": "",
+          "description": "Actual Budget persistence sub path",
+          "required": [],
+          "title": "subPath",
+          "type": "string"
+        },
         "volumeMode": {
           "default": "",
           "description": "Actual Budget persistence volume mode",
@@ -468,6 +475,7 @@
         "annotations",
         "existingClaim",
         "storageClass",
+        "subPath",
         "volumeMode",
         "accessModes",
         "size"

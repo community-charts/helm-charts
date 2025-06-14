@@ -93,6 +93,9 @@ spec:
           {{- if .Values.persistence.enabled }}
             - name: data
               mountPath: {{ default "/data" .Values.files.dataDirectory }}
+            {{- if .Values.persistence.subPath }}
+              subPath: {{ .Values.persistence.subPath }}
+            {{- end }}
           {{- end }}
           {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}

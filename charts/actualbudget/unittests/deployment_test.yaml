@@ -217,6 +217,19 @@ tests:
             persistentVolumeClaim:
               claimName: actualbudget-data
 
+  - it: should set persistence sub path when persistence sub path is set
+    set:
+      persistence:
+        enabled: true
+        subPath: /data/fake-sub-path-file.txt
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].volumeMounts
+          content:
+            mountPath: /data
+            name: data
+            subPath: /data/fake-sub-path-file.txt
+
   - it: should set volume mounts when volumeMounts are set
     set:
       volumeMounts:

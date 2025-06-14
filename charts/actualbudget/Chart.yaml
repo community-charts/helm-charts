@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.5.2
+version: 1.6.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -44,11 +44,8 @@ annotations:
       url: https://github.com/actualbudget/actual
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Update actualbudget/actual-server image version to 25.6.1
-      links:
-        - name: Upstream Project
-          url: https://hub.docker.com/r/actualbudget/actual-server
+    - kind: added
+      description: Add persistence sub path support
   artifacthub.io/images: |
     - name: actualbudget
       image: actualbudget/actual-server:25.6.1

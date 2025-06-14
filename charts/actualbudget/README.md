@@ -4,7 +4,7 @@
 
 A local-first personal finance app
 
-![Version: 1.5.2](https://img.shields.io/badge/Version-1.5.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 25.6.1](https://img.shields.io/badge/AppVersion-25.6.1-informational?style=flat-square)
+![Version: 1.6.0](https://img.shields.io/badge/Version-1.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 25.6.1](https://img.shields.io/badge/AppVersion-25.6.1-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -124,13 +124,14 @@ helm upgrade [RELEASE_NAME] community-charts/actualbudget
 | login.skipSSLVerification | bool | `false` | This is for skipping the SSL verification for the login. |
 | nameOverride | string | `""` | This is to override the chart name. |
 | nodeSelector | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector |
-| persistence | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"existingClaim":"","size":"10Gi","storageClass":"","volumeMode":""}` | This is to setup the persistence for the pod more information can be found here: https://kubernetes.io/docs/concepts/storage/persistent-volumes/ |
+| persistence | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"existingClaim":"","size":"10Gi","storageClass":"","subPath":"","volumeMode":""}` | This is to setup the persistence for the pod more information can be found here: https://kubernetes.io/docs/concepts/storage/persistent-volumes/ |
 | persistence.accessModes | list | `["ReadWriteOnce"]` | Actual Budget persistence access mode |
 | persistence.annotations | object | `{}` | Actual Budget persistence annotations |
 | persistence.enabled | bool | `false` | Enable persistence |
 | persistence.existingClaim | string | `""` | Actual Budget persistence existing claim |
 | persistence.size | string | `"10Gi"` | Actual Budget persistence size |
 | persistence.storageClass | string | `""` | Actual Budget persistence storage class |
+| persistence.subPath | string | `""` | Actual Budget persistence sub path |
 | persistence.volumeMode | string | `""` | Actual Budget persistence volume mode |
 | podAnnotations | object | `{}` | This is for setting Kubernetes Annotations to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
 | podLabels | object | `{}` | This is for setting Kubernetes Labels to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/ |

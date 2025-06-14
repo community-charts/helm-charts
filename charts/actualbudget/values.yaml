@@ -178,6 +178,9 @@ persistence:
   # -- Actual Budget persistence storage class
   storageClass: ""
 
+  # -- Actual Budget persistence sub path
+  subPath: ""
+
   # -- Actual Budget persistence volume mode
   volumeMode: ""
 
