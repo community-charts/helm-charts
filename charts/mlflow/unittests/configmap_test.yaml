@@ -181,9 +181,6 @@ tests:
       - equal:
           path: data.MLFLOW_LOGGING_LEVEL
           value: DEBUG
-      - equal:
-          path: data.PYTHON_LOGGING_LEVEL
-          value: DEBUG
 
   - it: should match snapshot of default values
     release:

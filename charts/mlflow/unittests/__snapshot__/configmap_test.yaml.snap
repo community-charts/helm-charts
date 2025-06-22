@@ -4,7 +4,6 @@ should match snapshot of default values:
     data:
       MLFLOW_CONFIGURE_LOGGING: "true"
       MLFLOW_LOGGING_LEVEL: INFO
-      PYTHON_LOGGING_LEVEL: INFO
     kind: ConfigMap
     metadata:
       labels:
@@ -22,7 +21,6 @@ should match snapshot of default values with bitnami mysql:
       MYSQL_DATABASE: mlflow
       MYSQL_HOST: mlflow-mysql
       MYSQL_TCP_PORT: "3306"
-      PYTHON_LOGGING_LEVEL: INFO
     kind: ConfigMap
     metadata:
       labels:
@@ -40,7 +38,6 @@ should match snapshot of default values with bitnami postgresql:
       PGDATABASE: mlflow
       PGHOST: mlflow-postgresql
       PGPORT: "5432"
-      PYTHON_LOGGING_LEVEL: INFO
     kind: ConfigMap
     metadata:
       labels:
@@ -58,7 +55,6 @@ should match snapshot of default values with mysql:
       MYSQL_DATABASE: mlflow
       MYSQL_HOST: mysql-custom-service
       MYSQL_TCP_PORT: "3306"
-      PYTHON_LOGGING_LEVEL: INFO
     kind: ConfigMap
     metadata:
       labels:
@@ -76,7 +72,6 @@ should match snapshot of default values with postgres:
       PGDATABASE: mlflow
       PGHOST: postgres-custom-service
       PGPORT: "5432"
-      PYTHON_LOGGING_LEVEL: INFO
     kind: ConfigMap
     metadata:
       labels:
