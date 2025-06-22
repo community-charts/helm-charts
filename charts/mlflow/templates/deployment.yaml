@@ -42,8 +42,9 @@ spec:
       {{- include "mlflow.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
@@ -238,8 +239,17 @@ spec:
           {{- else if .Values.ldapAuth.enabled }}
             - --app-name=basic-auth
           {{- end }}
+          {{- if and .Values.log.enabled (not (hasKey .Values.extraArgs "gunicornOpts")) }}
+            - {{ printf "--gunicorn-opts='--log-level=%s'" .Values.log.level }}
+          {{- end }}
           {{- range $key, $value := .Values.extraArgs }}
-            - --{{ kebabcase $key }}={{ $value }}
+            {{- if and $.Values.log.enabled (eq $key "gunicornOpts") (contains "--log-level" $value) }}
+            - {{ printf "--gunicorn-opts='%s'" (regexReplaceAll "--log-level=[^\\s]*" $value (printf "--log-level=%s" $.Values.log.level)) }}
+            {{- else if and $.Values.log.enabled (eq $key "gunicornOpts") (not (contains "--log-level" $value)) }}
+            - {{ printf "--gunicorn-opts='--log-level=%s %s'" $.Values.log.level $value }}
+            {{- else }}
+            - {{ printf "--%s=%s" (kebabcase $key) $value }}
+            {{- end }}
           {{- end }}
           {{- range .Values.extraFlags }}
             - --{{ kebabcase . }}

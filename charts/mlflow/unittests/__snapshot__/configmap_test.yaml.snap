@@ -1,7 +1,10 @@
 should match snapshot of default values:
   1: |
     apiVersion: v1
-    data: null
+    data:
+      MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_LOGGING_LEVEL: INFO
+      PYTHON_LOGGING_LEVEL: INFO
     kind: ConfigMap
     metadata:
       labels:
@@ -14,9 +17,12 @@ should match snapshot of default values with bitnami mysql:
   1: |
     apiVersion: v1
     data:
+      MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_LOGGING_LEVEL: INFO
       MYSQL_DATABASE: mlflow
       MYSQL_HOST: mlflow-mysql
       MYSQL_TCP_PORT: "3306"
+      PYTHON_LOGGING_LEVEL: INFO
     kind: ConfigMap
     metadata:
       labels:
@@ -29,9 +35,12 @@ should match snapshot of default values with bitnami postgresql:
   1: |
     apiVersion: v1
     data:
+      MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_LOGGING_LEVEL: INFO
       PGDATABASE: mlflow
       PGHOST: mlflow-postgresql
       PGPORT: "5432"
+      PYTHON_LOGGING_LEVEL: INFO
     kind: ConfigMap
     metadata:
       labels:
@@ -44,9 +53,12 @@ should match snapshot of default values with mysql:
   1: |
     apiVersion: v1
     data:
+      MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_LOGGING_LEVEL: INFO
       MYSQL_DATABASE: mlflow
       MYSQL_HOST: mysql-custom-service
       MYSQL_TCP_PORT: "3306"
+      PYTHON_LOGGING_LEVEL: INFO
     kind: ConfigMap
     metadata:
       labels:
@@ -59,9 +71,12 @@ should match snapshot of default values with postgres:
   1: |
     apiVersion: v1
     data:
+      MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_LOGGING_LEVEL: INFO
       PGDATABASE: mlflow
       PGHOST: postgres-custom-service
       PGPORT: "5432"
+      PYTHON_LOGGING_LEVEL: INFO
     kind: ConfigMap
     metadata:
       labels:
