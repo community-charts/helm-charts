@@ -1,3 +1,7 @@
+log:
+  enabled: true
+  level: debug
+
 backendStore:
   databaseMigration: true
 

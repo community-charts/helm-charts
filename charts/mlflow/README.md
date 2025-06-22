@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.1.0](https://img.shields.io/badge/AppVersion-3.1.0-informational?style=flat-square)
+![Version: 1.2.0](https://img.shields.io/badge/Version-1.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.1.0](https://img.shields.io/badge/AppVersion-3.1.0-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -679,6 +679,9 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | ldapAuth.uri | string | `""` | LDAP URI. e.g.: "ldap://lldap:3890/dc=mlflow,dc=test" |
 | ldapAuth.userGroupDistinguishedName | string | `""` | LDAP DN for the user group. e.g.: "cn=test-user,ou=groups,dc=mlflow,dc=test" |
 | livenessProbe | object | `{"failureThreshold":5,"initialDelaySeconds":10,"periodSeconds":30,"timeoutSeconds":3}` | Liveness probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes). |
+| log | object | `{"enabled":true,"level":"info"}` | Mlflow logging settings |
+| log.enabled | bool | `true` | Specifies if you want to enable mlflow logging. |
+| log.level | string | `"info"` | Mlflow logging level. |
 | mysql | object | `{"architecture":"standalone","auth":{"database":"mlflow","password":"","username":""},"enabled":false,"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"mysql":3306}}}}` | Bitnami MySQL configuration. For more information checkout: https://github.com/bitnami/charts/tree/main/bitnami/mysql |
 | mysql.auth.database | string | `"mlflow"` | The name of the MySQL database. |
 | mysql.enabled | bool | `false` | Enable mysql |

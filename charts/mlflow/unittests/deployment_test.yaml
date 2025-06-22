@@ -1,6 +1,7 @@
 suite: test deployment
 
 templates:
+  - configmap.yaml
   - deployment.yaml
 
 release:
@@ -20,12 +21,14 @@ tests:
       - equal:
           path: spec.template.spec.serviceAccountName
           value: customsa
+        template: deployment.yaml
 
   - it: should be a memory backend when Postgres or MySQL or bitnami Postgres or bitnami MySQL are not enabled
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: "--backend-store-uri=sqlite:///:memory:"
+        template: deployment.yaml
 
   - it: should be a defined sqlite path backend when Postgres or MySQL or bitnami Postgres or bitnami MySQL are not enabled and sqlite path is defined
     set:
@@ -34,15 +37,21 @@ tests:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: "--backend-store-uri=sqlite:////mlflow/data/mlflow.db"
+        template: deployment.yaml
 
   - it: should be Postgres backend when Postgres is enabled
     set:
-      backendStore.postgres.enabled: true
-      backendStore.postgres.driver: ""
+      backendStore:
+        postgres:
+          enabled: true
+          host: test-host
+          database: test-database
+          driver: ""
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --backend-store-uri=postgresql://
+        template: deployment.yaml
 
   - it: should be Postgressql backend when postgresql is enabled
     set:
@@ -52,24 +61,35 @@ tests:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --backend-store-uri=postgresql://
+        template: deployment.yaml
 
   - it: should use DB connection driver with Postgres backend when Postgres is enabled and driver defined
     set:
-      backendStore.postgres.enabled: true
-      backendStore.postgres.driver: "psycopg2"
+      backendStore:
+        postgres:
+          enabled: true
+          host: test-host
+          database: test-database
+          driver: "psycopg2"
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --backend-store-uri=postgresql+psycopg2://
+        template: deployment.yaml
 
   - it: should be MySQL backend when MySQL is enabled
     set:
-      backendStore.mysql.enabled: true
-      backendStore.mysql.driver: ""
+      backendStore:
+        mysql:
+          enabled: true
+          host: test-host
+          database: test-database
+          driver: ""
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --backend-store-uri=mysql://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
+        template: deployment.yaml
 
   - it: should be MySQL backend when bitnami mysql is enabled
     set:
@@ -82,15 +102,21 @@ tests:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --backend-store-uri=mysql://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
+        template: deployment.yaml
 
   - it: should use DB connection driver with MySQL backend when MySQL is enabled and driver defined
     set:
-      backendStore.mysql.enabled: true
-      backendStore.mysql.driver: "pymysql"
+      backendStore:
+        mysql:
+          enabled: true
+          host: test-host
+          database: test-database
+          driver: "pymysql"
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --backend-store-uri=mysql+pymysql://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
+        template: deployment.yaml
 
   - it: should use DB connection driver with MySQL backend when bitnami mysql is enabled and driver defined
     set:
@@ -103,12 +129,14 @@ tests:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --backend-store-uri=mysql+pymysql://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
+        template: deployment.yaml
 
   - it: should be local folder as an artifact root when azureBlob or s3 or gcs is not enabled
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --default-artifact-root=./mlruns
+        template: deployment.yaml
 
   - it: should be a defined artifact root when azureBlob or s3 or gcs is not enabled and artifact root is defined
     set:
@@ -117,37 +145,47 @@ tests:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --default-artifact-root=http://my-mlflowserver.com/api/2.0/mlflow-artifacts/artifacts/experiments
+        template: deployment.yaml
 
   - it: should be azureBlob as an artifact root when azureBlob is enabled
     set:
-      artifactRoot.azureBlob.enabled: true
-      artifactRoot.azureBlob.container: test-container
-      artifactRoot.azureBlob.storageAccount: test-account
-      artifactRoot.azureBlob.path: mlflow_folder
+      artifactRoot:
+        azureBlob:
+          enabled: true
+          container: test-container
+          storageAccount: test-account
+          path: mlflow_folder
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --default-artifact-root=wasbs://test-container@test-account.blob.core.windows.net/mlflow_folder
+        template: deployment.yaml
 
   - it: should be s3 as an artifact root when s3 is enabled
     set:
-      artifactRoot.s3.enabled: true
-      artifactRoot.s3.bucket: test-bucket
-      artifactRoot.s3.path: mlflow_folder
+      artifactRoot:
+        s3:
+          enabled: true
+          bucket: test-bucket
+          path: mlflow_folder
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --default-artifact-root=s3://test-bucket/mlflow_folder
+        template: deployment.yaml
 
   - it: should be gcs as an artifact root when gcs is enabled
     set:
-      artifactRoot.gcs.enabled: true
-      artifactRoot.gcs.bucket: test-bucket
-      artifactRoot.gcs.path: mlflow_folder
+      artifactRoot:
+        gcs:
+          enabled: true
+          bucket: test-bucket
+          path: mlflow_folder
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --default-artifact-root=gs://test-bucket/mlflow_folder
+        template: deployment.yaml
 
   - it: should be local folder as an artifact destination when proxy enabled and azureBlob or s3 or gcs is not enabled
     set:
@@ -156,9 +194,11 @@ tests:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --artifacts-destination=./mlartifacts
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --serve-artifacts
+        template: deployment.yaml
 
   - it: should be a defined artifact destination when proxy enabled and azureBlob or s3 or gcs is not enabled and artifact destination is defined
     set:
@@ -169,52 +209,66 @@ tests:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --artifacts-destination=/mlflow/data/mlartifacts
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --serve-artifacts
+        template: deployment.yaml
 
   - it: should be azureBlob as an artifact destination when proxy enabled and azureBlob is enabled
     set:
-      artifactRoot.proxiedArtifactStorage: true
-      artifactRoot.azureBlob.enabled: true
-      artifactRoot.azureBlob.container: test-container
-      artifactRoot.azureBlob.storageAccount: test-account
-      artifactRoot.azureBlob.path: mlflow_folder
+      artifactRoot:
+        proxiedArtifactStorage: true
+        azureBlob:
+          enabled: true
+          container: test-container
+          storageAccount: test-account
+          path: mlflow_folder
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --artifacts-destination=wasbs://test-container@test-account.blob.core.windows.net/mlflow_folder
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --serve-artifacts
+        template: deployment.yaml
 
   - it: should be s3 as an artifact destination when proxy enabled and s3 is enabled
     set:
-      artifactRoot.proxiedArtifactStorage: true
-      artifactRoot.s3.enabled: true
-      artifactRoot.s3.bucket: test-bucket
-      artifactRoot.s3.path: mlflow_folder
+      artifactRoot:
+        proxiedArtifactStorage: true
+        s3:
+          enabled: true
+          bucket: test-bucket
+          path: mlflow_folder
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --artifacts-destination=s3://test-bucket/mlflow_folder
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --serve-artifacts
+        template: deployment.yaml
 
   - it: should be gcs as an artifact destination when proxy enabled and gcs is enabled
     set:
-      artifactRoot.proxiedArtifactStorage: true
-      artifactRoot.gcs.enabled: true
-      artifactRoot.gcs.bucket: test-bucket
-      artifactRoot.gcs.path: mlflow_folder
+      artifactRoot:
+        proxiedArtifactStorage: true
+        gcs:
+          enabled: true
+          bucket: test-bucket
+          path: mlflow_folder
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --artifacts-destination=gs://test-bucket/mlflow_folder
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --serve-artifacts
+        template: deployment.yaml
 
   - it: should expose prometheus metrics when serviceMonitor is enabled
     set:
@@ -223,6 +277,44 @@ tests:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --expose-prometheus=/mlflow/metrics
+        template: deployment.yaml
+
+  - it: should set log level to gunicorn when log level is set and gunicornOpts is not set
+    set:
+      log:
+        enabled: true
+        level: debug
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --gunicorn-opts='--log-level=debug'
+        template: deployment.yaml
+
+  - it: should set log level to gunicorn when log level is set and gunicornOpts is set without log level
+    set:
+      log:
+        enabled: true
+        level: debug
+      extraArgs:
+        gunicornOpts: "--workers=4"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --gunicorn-opts='--log-level=debug --workers=4'
+        template: deployment.yaml
+
+  - it: should set log level to gunicorn when log level is set and gunicornOpts is set with different log level
+    set:
+      log:
+        enabled: true
+        level: debug
+      extraArgs:
+        gunicornOpts: "--log-level=info --workers=4"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --gunicorn-opts='--log-level=debug --workers=4'
+        template: deployment.yaml
 
   - it: should show extra arguments when we pass any
     set:
@@ -233,9 +325,11 @@ tests:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --workers=4
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --static-prefix=/mlflow
+        template: deployment.yaml
 
   - it: should show extra flags when we pass any
     set:
@@ -246,9 +340,11 @@ tests:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --serve-artifacts
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --artifacts-only
+        template: deployment.yaml
 
   - it: should show mlflow version environment variable
     chart:
@@ -260,6 +356,7 @@ tests:
           content:
             name: MLFLOW_VERSION
             value: "1.27.0"
+        template: deployment.yaml
 
   - it: should show extra environment variables when we pass any
     set:
@@ -272,11 +369,13 @@ tests:
           content:
             name: MLFLOW_S3_IGNORE_TLS
             value: "true"
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].env
           content:
             name: AWS_DEFAULT_REGION
             value: eu-central-1
+        template: deployment.yaml
 
   - it: should show extra secret environment variables from secrets when we pass any
     set:
@@ -288,6 +387,7 @@ tests:
           content: 
             secretRef:
               name: mysupersecret
+        template: deployment.yaml
 
   - it: should check liveness and rediness with static prefix when we set static prefix from extra arguments
     set:
@@ -297,9 +397,11 @@ tests:
       - equal:
           path: spec.template.spec.containers[?(@.name == "mlflow")].livenessProbe.httpGet.path
           value: /mlflow/health
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "mlflow")].readinessProbe.httpGet.path
           value: /mlflow/health
+        template: deployment.yaml
   
   - it: should check that the db checker init container is present if enabled with postgres
     set:
@@ -315,6 +417,7 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: dbchecker
+        template: deployment.yaml
   
   - it: should check that the db checker init container is present if enabled with postgresql
     set:
@@ -330,6 +433,7 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: dbchecker
+        template: deployment.yaml
 
   - it: should check that the db checker init container is present if enabled with mysql
     set:
@@ -345,6 +449,7 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: dbchecker
+        template: deployment.yaml
 
   - it: should check that the db checker init container is present if enabled with bitnami mysql
     set:
@@ -359,6 +464,7 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: dbchecker
+        template: deployment.yaml
   
   - it: should check that the db checker and additional init containers are present with postgres
     set:
@@ -380,9 +486,11 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: dbchecker
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.initContainers[1].name
           value: init-container-test
+        template: deployment.yaml
   
   - it: should check that the db checker and additional init containers are present with postgresql
     set:
@@ -404,9 +512,11 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: dbchecker
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.initContainers[1].name
           value: init-container-test
+        template: deployment.yaml
 
   - it: should check that the db checker and additional init containers are present with mysql
     set:
@@ -428,9 +538,11 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: dbchecker
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.initContainers[1].name
           value: init-container-test
+        template: deployment.yaml
 
   - it: should check that the db checker and additional init containers are present with bitnami mysql
     set:
@@ -451,9 +563,11 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: dbchecker
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.initContainers[1].name
           value: init-container-test
+        template: deployment.yaml
 
   - it: should have a DB migration init container present if enabled with postgres
     set:
@@ -469,6 +583,7 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: mlflow-db-migration
+        template: deployment.yaml
 
   - it: should have a DB migration init container present if enabled with postgresql
     set:
@@ -484,6 +599,7 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: mlflow-db-migration
+        template: deployment.yaml
 
   - it: should have a DB migration init container present if enabled with MySQL
     set:
@@ -499,6 +615,7 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: mlflow-db-migration
+        template: deployment.yaml
 
   - it: should have a DB migration init container present if enabled with bitnami mysql
     set:
@@ -513,6 +630,7 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: mlflow-db-migration
+        template: deployment.yaml
 
   - it: should have a DB migration init container and additional init containers are present with postgres
     set:
@@ -534,9 +652,11 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: mlflow-db-migration
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.initContainers[1].name
           value: init-container-test
+        template: deployment.yaml
 
   - it: should have a DB migration init container and additional init containers are present with postgresql
     set:
@@ -558,9 +678,11 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: mlflow-db-migration
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.initContainers[1].name
           value: init-container-test
+        template: deployment.yaml
 
   - it: should have a DB migration init container and additional init containers are present with MySQL
     set:
@@ -582,9 +704,11 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: mlflow-db-migration
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.initContainers[1].name
           value: init-container-test
+        template: deployment.yaml
 
   - it: should have a DB migration init container and additional init containers are present with bitnami MySQL
     set:
@@ -605,9 +729,11 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: mlflow-db-migration
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.initContainers[1].name
           value: init-container-test
+        template: deployment.yaml
 
   - it: should have a DB checker init container, DB migration init container and additional init containers are present with postgres
     set:
@@ -630,12 +756,15 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: dbchecker
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.initContainers[1].name
           value: mlflow-db-migration
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.initContainers[2].name
           value: init-container-test
+        template: deployment.yaml
 
   - it: should have a DB checker init container, DB migration init container and additional init containers are present with postgresql
     set:
@@ -658,12 +787,15 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: dbchecker
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.initContainers[1].name
           value: mlflow-db-migration
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.initContainers[2].name
           value: init-container-test
+        template: deployment.yaml
 
   - it: should have a DB checker init container, DB migration init container and additional init containers are present with MySQL
     set:
@@ -686,12 +818,15 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: dbchecker
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.initContainers[1].name
           value: mlflow-db-migration
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.initContainers[2].name
           value: init-container-test
+        template: deployment.yaml
 
   - it: should have a DB checker init container, DB migration init container and additional init containers are present with bitnami MySQL
     set:
@@ -713,12 +848,15 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: dbchecker
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.initContainers[1].name
           value: mlflow-db-migration
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.initContainers[2].name
           value: init-container-test
+        template: deployment.yaml
 
   - it: should set liveness probe configurations when we pass it
     set:
@@ -731,15 +869,19 @@ tests:
       - equal:
           path: spec.template.spec.containers[?(@.name == "mlflow")].livenessProbe.initialDelaySeconds
           value: 0
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "mlflow")].livenessProbe.periodSeconds
           value: 10
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "mlflow")].livenessProbe.timeoutSeconds
           value: 1
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "mlflow")].livenessProbe.failureThreshold
           value: 3
+        template: deployment.yaml
 
   - it: should set readiness probe configurations when we pass it
     set:
@@ -752,15 +894,19 @@ tests:
       - equal:
           path: spec.template.spec.containers[?(@.name == "mlflow")].readinessProbe.initialDelaySeconds
           value: 0
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "mlflow")].readinessProbe.periodSeconds
           value: 10
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "mlflow")].readinessProbe.timeoutSeconds
           value: 1
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "mlflow")].readinessProbe.failureThreshold
           value: 3
+        template: deployment.yaml
 
   - it: should use different port number when we change it
     set:
@@ -769,9 +915,11 @@ tests:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --port=80
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "mlflow")].ports[0].containerPort
           value: 80
+        template: deployment.yaml
 
   - it: should use different port name when we change it
     set:
@@ -782,12 +930,15 @@ tests:
           content:
             name: differentname
           any: true
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "mlflow")].livenessProbe.httpGet.port
           value: differentname
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "mlflow")].readinessProbe.httpGet.port
           value: differentname
+        template: deployment.yaml
 
   - it: should use authentication settings when auth enabled
     set:
@@ -804,23 +955,27 @@ tests:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --app-name=my-auth
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].env
           content:
             name: MLFLOW_AUTH_CONFIG_PATH
             value: /my/special/path/basic_auth.ini
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].volumeMounts
           content:
             name: auth-config-secret
             mountPath: /my/special/path
             readOnly: true
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.volumes
           content:
             name: auth-config-secret
             secret:
               secretName: mlflow-auth-config-secret
+        template: deployment.yaml
 
   - it: should use LDAP authentication settings when ldapAuth enabled
     set:
@@ -842,23 +997,27 @@ tests:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --app-name=basic-auth
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].env
           content:
             name: MLFLOW_AUTH_CONFIG_PATH
             value: /etc/mlflow/auth/ldap_basic_auth.ini
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].volumeMounts
           content:
             mountPath: /etc/mlflow/auth
             name: auth-config-secret
             readOnly: true
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.volumes
           content: 
             name: auth-config-secret
             secret:
               secretName: mlflow-auth-config-secret
+        template: deployment.yaml
 
   - it: should set trusted CA certificate when ldapAuth enabled and encodedTrustedCACertificate is set
     set:
@@ -871,6 +1030,7 @@ tests:
           content:
             name: LDAP_CA
             value: /certs/ca.crt
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].volumeMounts
           content:
@@ -878,12 +1038,14 @@ tests:
             mountPath: /certs/ca.crt
             subPath: ca.crt
             readOnly: true
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.volumes
           content:
             name: trusted-ca-cert-secret
             secret:
               secretName: mlflow-trusted-ca-cert-secret
+        template: deployment.yaml
 
   - it: should set trusted CA certificate when ldapAuth enabled and externalSecretForTrustedCACertificate is set
     set:
@@ -896,6 +1058,7 @@ tests:
           content:
             name: LDAP_CA
             value: /certs/ca.crt
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].volumeMounts
           content:
@@ -903,12 +1066,14 @@ tests:
             mountPath: /certs/ca.crt
             subPath: ca.crt
             readOnly: true
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.volumes
           content:
             name: trusted-ca-cert-secret
             secret:
               secretName: test-secret
+        template: deployment.yaml
 
   - it: should set replicas when autoscaling is not enabled
     set:
@@ -917,6 +1082,7 @@ tests:
       - equal:
           path: spec.replicas
           value: 1
+        template: deployment.yaml
 
   - it: should not set replicas when autoscaling is enabled
     set:
@@ -925,6 +1091,7 @@ tests:
       - notEqual:
           path: spec.replicas
           value: 1
+        template: deployment.yaml
 
   - it: should use username and password from existing secret when backendStore.existingDatabaseSecret is set and postgres is enabled
     set:
@@ -935,6 +1102,8 @@ tests:
           passwordKey: customPassword
         postgres:
           enabled: true
+          host: test-host
+          database: test-database
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].env
@@ -944,6 +1113,7 @@ tests:
               secretKeyRef:
                 name: test-secret
                 key: customUsername
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].env
           content:
@@ -952,6 +1122,7 @@ tests:
               secretKeyRef:
                 name: test-secret
                 key: customPassword
+        template: deployment.yaml
 
   - it: should use username and password from existing secret when backendStore.existingDatabaseSecret is set and mysql is enabled
     set:
@@ -962,6 +1133,8 @@ tests:
           passwordKey: customPassword
         mysql:
           enabled: true
+          host: test-host
+          database: test-database
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].env
@@ -971,6 +1144,7 @@ tests:
               secretKeyRef:
                 name: test-secret
                 key: customUsername
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].env
           content:
@@ -979,6 +1153,7 @@ tests:
               secretKeyRef:
                 name: test-secret
                 key: customPassword
+        template: deployment.yaml
 
   - it: should use username and password from existing secret when backendStore.existingDatabaseSecret is set and postgres is enabled and database check connection is enabled
     set:
@@ -986,6 +1161,8 @@ tests:
         databaseConnectionCheck: true
         postgres:
           enabled: true
+          host: test-host
+          database: test-database
         existingDatabaseSecret:
           name: test-secret
           usernameKey: customUsername
@@ -999,6 +1176,7 @@ tests:
               secretKeyRef:
                 name: test-secret
                 key: customUsername
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.initContainers[?(@.name == "dbchecker")].env
           content:
@@ -1007,6 +1185,7 @@ tests:
               secretKeyRef:
                 name: test-secret
                 key: customPassword
+        template: deployment.yaml
 
   - it: should use username and password from existing secret when backendStore.existingDatabaseSecret is set and mysql is enabled and database check connection is enabled
     set:
@@ -1014,6 +1193,8 @@ tests:
         databaseConnectionCheck: true
         mysql:
           enabled: true
+          host: test-host
+          database: test-database
         existingDatabaseSecret:
           name: test-secret
           usernameKey: customUsername
@@ -1027,6 +1208,7 @@ tests:
               secretKeyRef:
                 name: test-secret
                 key: customUsername
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.initContainers[?(@.name == "dbchecker")].env
           content:
@@ -1035,6 +1217,7 @@ tests:
               secretKeyRef:
                 name: test-secret
                 key: customPassword
+        template: deployment.yaml
 
   - it: should use username and password from existing secret when backendStore.existingDatabaseSecret is set and postgres is enabled and database migration is enabled
     set:
@@ -1042,6 +1225,8 @@ tests:
         databaseMigration: true
         postgres:
           enabled: true
+          host: test-host
+          database: test-database
         existingDatabaseSecret:
           name: test-secret
           usernameKey: customUsername
@@ -1055,6 +1240,7 @@ tests:
               secretKeyRef:
                 name: test-secret
                 key: customUsername
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.initContainers[?(@.name == "mlflow-db-migration")].env
           content:
@@ -1063,6 +1249,7 @@ tests:
               secretKeyRef:
                 name: test-secret
                 key: customPassword
+        template: deployment.yaml
 
   - it: should use username and password from existing secret when backendStore.existingDatabaseSecret is set and mysql is enabled and database migration is enabled
     set:
@@ -1070,6 +1257,8 @@ tests:
         databaseMigration: true
         mysql:
           enabled: true
+          host: test-host
+          database: test-database
         existingDatabaseSecret:
           name: test-secret
           usernameKey: customUsername
@@ -1083,6 +1272,7 @@ tests:
               secretKeyRef:
                 name: test-secret
                 key: customUsername
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.initContainers[?(@.name == "mlflow-db-migration")].env
           content:
@@ -1091,6 +1281,7 @@ tests:
               secretKeyRef:
                 name: test-secret
                 key: customPassword
+        template: deployment.yaml
 
   - it: should set extra pod labels for AKS workload identity when the labels are set
     set:
@@ -1100,6 +1291,7 @@ tests:
       - equal:
           path: spec.template.metadata.labels["azure.workload.identity/use"]
           value: "true"
+        template: deployment.yaml
 
   - it: should match snapshot of default values
     release:

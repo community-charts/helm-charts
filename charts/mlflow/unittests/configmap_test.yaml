@@ -169,6 +169,19 @@ tests:
       - hasDocuments:
           count: 2
 
+  - it: should have log level configuration when log level is set
+    set:
+      log:
+        enabled: true
+        level: debug
+    asserts:
+      - equal:
+          path: data.MLFLOW_CONFIGURE_LOGGING
+          value: "true"
+      - equal:
+          path: data.MLFLOW_LOGGING_LEVEL
+          value: DEBUG
+
   - it: should match snapshot of default values
     release:
       name: mlflow

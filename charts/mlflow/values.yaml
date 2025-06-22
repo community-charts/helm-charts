@@ -84,6 +84,13 @@ service:
   # -- Additional service annotations
   annotations: {}
 
+# -- Mlflow logging settings
+log:
+  # -- Specifies if you want to enable mlflow logging.
+  enabled: true
+  # -- Mlflow logging level.
+  level: info
+
 # -- Mlflow database connection settings
 backendStore:
   # -- Specifies if you want to run database migration
@@ -361,14 +368,17 @@ extraFlags: []
 
 # -- Extra environment variables
 extraEnvVars: {}
-  # MLFLOW_S3_IGNORE_TLS: true
-  # MLFLOW_S3_UPLOAD_EXTRA_ARGS: '{"ServerSideEncryption": "aws:kms", "SSEKMSKeyId": "1234"}'
-  # AWS_DEFAULT_REGION: my_region
-  # MLFLOW_S3_ENDPOINT_URL: http://1.2.3.4:9000
-  # AWS_CA_BUNDLE: /some/ca/bundle.pem
-  # MLFLOW_GCS_DEFAULT_TIMEOUT - Sets the standard timeout for transfer operations in seconds (Default: 60). Use -1 for indefinite timeout.
-  # MLFLOW_GCS_UPLOAD_CHUNK_SIZE - Sets the standard upload chunk size for bigger files in bytes (Default: 104857600 ≙ 100MiB), must be multiple of 256 KB.
-  # MLFLOW_GCS_DOWNLOAD_CHUNK_SIZE - Sets the standard download chunk size for bigger files in bytes (Default: 104857600 ≙ 100MiB), must be multiple of 256 K
+  # MLFLOW_S3_IGNORE_TLS: true  # Skip TLS certificate verification for S3
+  # MLFLOW_S3_UPLOAD_EXTRA_ARGS: '{"ServerSideEncryption": "aws:kms", "SSEKMSKeyId": "1234"}'  # Extra S3 upload arguments
+  # AWS_DEFAULT_REGION: my_region  # AWS default region
+  # MLFLOW_S3_ENDPOINT_URL: http://1.2.3.4:9000  # Custom S3 endpoint URL
+  # AWS_CA_BUNDLE: /some/ca/bundle.pem  # Custom CA bundle for AWS
+  # MLFLOW_GCS_DEFAULT_TIMEOUT: 60  # GCS transfer timeout in seconds - Sets the standard timeout for transfer operations in seconds (Default: 60). Use -1 for indefinite timeout.
+  # MLFLOW_GCS_UPLOAD_CHUNK_SIZE: 104857600  # GCS upload chunk size (100MB) - Sets the standard upload chunk size for bigger files in bytes (Default: 104857600 ≙ 100MiB), must be multiple of 256 KB.
+  # MLFLOW_GCS_DOWNLOAD_CHUNK_SIZE: 104857600  # GCS download chunk size (100MB) - Sets the standard download chunk size for bigger files in bytes (Default: 104857600 ≙ 100MiB), must be multiple of 256 K
+  # MLFLOW_SQLALCHEMYSTORE_POOL_SIZE: 10  # SQLAlchemy connection pool size
+  # MLFLOW_SQLALCHEMYSTORE_MAX_OVERFLOW: 20  # SQLAlchemy max overflow connections
+  # MLFLOW_SQLALCHEMYSTORE_POOL_RECYCLE: 3600  # SQLAlchemy pool recycle time
 
 # -- Extra secrets for environment variables
 extraSecretNamesForEnvFrom: []

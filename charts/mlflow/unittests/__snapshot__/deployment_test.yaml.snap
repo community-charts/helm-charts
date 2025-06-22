@@ -1,5 +1,18 @@
 should match snapshot of default values:
   1: |
+    apiVersion: v1
+    data:
+      MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_LOGGING_LEVEL: INFO
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-env-configmap
+  2: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -26,6 +39,8 @@ should match snapshot of default values:
         type: RollingUpdate
       template:
         metadata:
+          annotations:
+            checksum/config: 44e4de26e99974b591018f1d2577d68d961f8c5bbdf964dd9b46a2b7131a2c71
           labels:
             app: mlflow
             app.kubernetes.io/instance: mlflow
@@ -38,6 +53,7 @@ should match snapshot of default values:
                 - --port=5000
                 - '--backend-store-uri=sqlite:///:memory:'
                 - --default-artifact-root=./mlruns
+                - --gunicorn-opts='--log-level=info'
               command:
                 - mlflow
               env:
@@ -90,6 +106,90 @@ should match snapshot of default values:
           serviceAccountName: mlflow
 should match snapshot with additional values:
   1: |
+    apiVersion: v1
+    data:
+      MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_LOGGING_LEVEL: INFO
+      PGDATABASE: test-database
+      PGHOST: test-host
+      PGPORT: "5432"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-env-configmap
+  2: |
+    apiVersion: v1
+    data:
+      migrations.py: |-
+        from mlflow.store.db import utils
+        import os
+        engine = utils.create_sqlalchemy_engine_with_retry("postgresql://")
+        utils._initialize_tables(engine)
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-migrations
+  3: |
+    apiVersion: v1
+    data:
+      dbchecker.sh: |
+        #!/bin/sh
+
+        if [[ -z "${PGHOST}" && -z "${MYSQL_HOST}" ]]; then
+          HOST="localhost"
+        elif [[ -z "${PGHOST}" ]]; then
+          HOST="${MYSQL_HOST}"
+        else
+          HOST="${PGHOST}"
+        fi
+
+        if [[ -z "${PGPORT}" && -z "${MYSQL_TCP_PORT}" ]]; then
+          PORT="5432"
+        elif [[ -z "${PGPORT}" ]]; then
+          PORT="${MYSQL_TCP_PORT}"
+        else
+          PORT="${PGPORT}"
+        fi
+
+        COUNT=0
+
+        function fib() {
+          if [ $1 -le 0 ]; then
+            echo 0
+          elif [ $1 -eq 1 ]; then
+            echo 1
+          else
+            echo $(( $(fib $(($1 - 1)) ) + $(fib $(($1 - 2)) ) ))
+          fi
+        }
+
+        echo "[INFO] Waiting for Database to become ready..."
+
+        until nc -z -w 2 $HOST $PORT; do
+          COUNT=$((COUNT + 1));
+          SLEEP_TIME=$(fib $COUNT);
+          echo "[WARNING] Unable to access database! Sleeping $SLEEP_TIME seconds. Waiting for $HOST to listen on $PORT...";
+          sleep $SLEEP_TIME;
+        done;
+
+        echo "[INFO] Database OK ✓"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-dbchecker
+  4: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -117,6 +217,7 @@ should match snapshot with additional values:
       template:
         metadata:
           annotations:
+            checksum/config: 0ce0636a4b5ced44ed82746e804d314e8b0e4ba38f6c69700530a592d95c88be
             test-key: test-value
           labels:
             app: mlflow
@@ -150,6 +251,7 @@ should match snapshot with additional values:
                 - --backend-store-uri=postgresql://
                 - --default-artifact-root=./mlruns
                 - --app-name=basic-auth
+                - --gunicorn-opts='--log-level=info'
               command:
                 - mlflow
               env:
@@ -292,6 +394,95 @@ should match snapshot with additional values:
               name: example
 should match snapshot with additional values when bitnami mysql is enabled:
   1: |
+    apiVersion: v1
+    data:
+      MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_LOGGING_LEVEL: INFO
+      MYSQL_DATABASE: test-database
+      MYSQL_HOST: mlflow-mysql
+      MYSQL_TCP_PORT: "3306"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-env-configmap
+  2: |
+    apiVersion: v1
+    data:
+      migrations.py: |-
+        from mlflow.store.db import utils
+        import os
+        username = os.getenv("MYSQL_USERNAME")
+        password = os.getenv("MYSQL_PWD")
+        host = os.getenv("MYSQL_HOST")
+        port = os.getenv("MYSQL_TCP_PORT")
+        database = os.getenv("MYSQL_DATABASE")
+        engine = utils.create_sqlalchemy_engine_with_retry(f"mysql+pymysql://{username}:{password}@{host}:{port}/{database}")
+        utils._initialize_tables(engine)
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-migrations
+  3: |
+    apiVersion: v1
+    data:
+      dbchecker.sh: |
+        #!/bin/sh
+
+        if [[ -z "${PGHOST}" && -z "${MYSQL_HOST}" ]]; then
+          HOST="localhost"
+        elif [[ -z "${PGHOST}" ]]; then
+          HOST="${MYSQL_HOST}"
+        else
+          HOST="${PGHOST}"
+        fi
+
+        if [[ -z "${PGPORT}" && -z "${MYSQL_TCP_PORT}" ]]; then
+          PORT="5432"
+        elif [[ -z "${PGPORT}" ]]; then
+          PORT="${MYSQL_TCP_PORT}"
+        else
+          PORT="${PGPORT}"
+        fi
+
+        COUNT=0
+
+        function fib() {
+          if [ $1 -le 0 ]; then
+            echo 0
+          elif [ $1 -eq 1 ]; then
+            echo 1
+          else
+            echo $(( $(fib $(($1 - 1)) ) + $(fib $(($1 - 2)) ) ))
+          fi
+        }
+
+        echo "[INFO] Waiting for Database to become ready..."
+
+        until nc -z -w 2 $HOST $PORT; do
+          COUNT=$((COUNT + 1));
+          SLEEP_TIME=$(fib $COUNT);
+          echo "[WARNING] Unable to access database! Sleeping $SLEEP_TIME seconds. Waiting for $HOST to listen on $PORT...";
+          sleep $SLEEP_TIME;
+        done;
+
+        echo "[INFO] Database OK ✓"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-dbchecker
+  4: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -319,6 +510,7 @@ should match snapshot with additional values when bitnami mysql is enabled:
       template:
         metadata:
           annotations:
+            checksum/config: 29ab142d10e2a36b62f04ddf774b145c96b4d0b076af32a5052b2cd15a5c1143
             test-key: test-value
           labels:
             app: mlflow
@@ -352,6 +544,7 @@ should match snapshot with additional values when bitnami mysql is enabled:
                 - --backend-store-uri=mysql+pymysql://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
                 - --default-artifact-root=./mlruns
                 - --app-name=basic-auth
+                - --gunicorn-opts='--log-level=info'
               command:
                 - mlflow
               env:
@@ -514,6 +707,90 @@ should match snapshot with additional values when bitnami mysql is enabled:
               name: example
 should match snapshot with additional values when bitnami postgresql is enabled:
   1: |
+    apiVersion: v1
+    data:
+      MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_LOGGING_LEVEL: INFO
+      PGDATABASE: test-database
+      PGHOST: mlflow-postgresql
+      PGPORT: "5432"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-env-configmap
+  2: |
+    apiVersion: v1
+    data:
+      migrations.py: |-
+        from mlflow.store.db import utils
+        import os
+        engine = utils.create_sqlalchemy_engine_with_retry("postgresql://")
+        utils._initialize_tables(engine)
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-migrations
+  3: |
+    apiVersion: v1
+    data:
+      dbchecker.sh: |
+        #!/bin/sh
+
+        if [[ -z "${PGHOST}" && -z "${MYSQL_HOST}" ]]; then
+          HOST="localhost"
+        elif [[ -z "${PGHOST}" ]]; then
+          HOST="${MYSQL_HOST}"
+        else
+          HOST="${PGHOST}"
+        fi
+
+        if [[ -z "${PGPORT}" && -z "${MYSQL_TCP_PORT}" ]]; then
+          PORT="5432"
+        elif [[ -z "${PGPORT}" ]]; then
+          PORT="${MYSQL_TCP_PORT}"
+        else
+          PORT="${PGPORT}"
+        fi
+
+        COUNT=0
+
+        function fib() {
+          if [ $1 -le 0 ]; then
+            echo 0
+          elif [ $1 -eq 1 ]; then
+            echo 1
+          else
+            echo $(( $(fib $(($1 - 1)) ) + $(fib $(($1 - 2)) ) ))
+          fi
+        }
+
+        echo "[INFO] Waiting for Database to become ready..."
+
+        until nc -z -w 2 $HOST $PORT; do
+          COUNT=$((COUNT + 1));
+          SLEEP_TIME=$(fib $COUNT);
+          echo "[WARNING] Unable to access database! Sleeping $SLEEP_TIME seconds. Waiting for $HOST to listen on $PORT...";
+          sleep $SLEEP_TIME;
+        done;
+
+        echo "[INFO] Database OK ✓"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-dbchecker
+  4: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -541,6 +818,7 @@ should match snapshot with additional values when bitnami postgresql is enabled:
       template:
         metadata:
           annotations:
+            checksum/config: e3aea5cf987ddd081f46229b3605f869c3c1ae5aab1e916a05d49639cf6526c2
             test-key: test-value
           labels:
             app: mlflow
@@ -574,6 +852,7 @@ should match snapshot with additional values when bitnami postgresql is enabled:
                 - --backend-store-uri=postgresql://
                 - --default-artifact-root=./mlruns
                 - --app-name=basic-auth
+                - --gunicorn-opts='--log-level=info'
               command:
                 - mlflow
               env:
@@ -736,6 +1015,95 @@ should match snapshot with additional values when bitnami postgresql is enabled:
               name: example
 should match snapshot with additional values when mysql is enabled:
   1: |
+    apiVersion: v1
+    data:
+      MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_LOGGING_LEVEL: INFO
+      MYSQL_DATABASE: test-database
+      MYSQL_HOST: test-host
+      MYSQL_TCP_PORT: "3306"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-env-configmap
+  2: |
+    apiVersion: v1
+    data:
+      migrations.py: |-
+        from mlflow.store.db import utils
+        import os
+        username = os.getenv("MYSQL_USERNAME")
+        password = os.getenv("MYSQL_PWD")
+        host = os.getenv("MYSQL_HOST")
+        port = os.getenv("MYSQL_TCP_PORT")
+        database = os.getenv("MYSQL_DATABASE")
+        engine = utils.create_sqlalchemy_engine_with_retry(f"mysql+pymysql://{username}:{password}@{host}:{port}/{database}")
+        utils._initialize_tables(engine)
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-migrations
+  3: |
+    apiVersion: v1
+    data:
+      dbchecker.sh: |
+        #!/bin/sh
+
+        if [[ -z "${PGHOST}" && -z "${MYSQL_HOST}" ]]; then
+          HOST="localhost"
+        elif [[ -z "${PGHOST}" ]]; then
+          HOST="${MYSQL_HOST}"
+        else
+          HOST="${PGHOST}"
+        fi
+
+        if [[ -z "${PGPORT}" && -z "${MYSQL_TCP_PORT}" ]]; then
+          PORT="5432"
+        elif [[ -z "${PGPORT}" ]]; then
+          PORT="${MYSQL_TCP_PORT}"
+        else
+          PORT="${PGPORT}"
+        fi
+
+        COUNT=0
+
+        function fib() {
+          if [ $1 -le 0 ]; then
+            echo 0
+          elif [ $1 -eq 1 ]; then
+            echo 1
+          else
+            echo $(( $(fib $(($1 - 1)) ) + $(fib $(($1 - 2)) ) ))
+          fi
+        }
+
+        echo "[INFO] Waiting for Database to become ready..."
+
+        until nc -z -w 2 $HOST $PORT; do
+          COUNT=$((COUNT + 1));
+          SLEEP_TIME=$(fib $COUNT);
+          echo "[WARNING] Unable to access database! Sleeping $SLEEP_TIME seconds. Waiting for $HOST to listen on $PORT...";
+          sleep $SLEEP_TIME;
+        done;
+
+        echo "[INFO] Database OK ✓"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-dbchecker
+  4: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -763,6 +1131,7 @@ should match snapshot with additional values when mysql is enabled:
       template:
         metadata:
           annotations:
+            checksum/config: 1c9552b78002ee7ccade5f9bf6bc5667a2b38393ee6ea114ada45ae42338eef0
             test-key: test-value
           labels:
             app: mlflow
@@ -796,6 +1165,7 @@ should match snapshot with additional values when mysql is enabled:
                 - --backend-store-uri=mysql+pymysql://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
                 - --default-artifact-root=./mlruns
                 - --app-name=basic-auth
+                - --gunicorn-opts='--log-level=info'
               command:
                 - mlflow
               env:
@@ -938,6 +1308,90 @@ should match snapshot with additional values when mysql is enabled:
               name: example
 should match snapshot with additional values when postgresql is enabled:
   1: |
+    apiVersion: v1
+    data:
+      MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_LOGGING_LEVEL: INFO
+      PGDATABASE: test-database
+      PGHOST: test-host
+      PGPORT: "5432"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-env-configmap
+  2: |
+    apiVersion: v1
+    data:
+      migrations.py: |-
+        from mlflow.store.db import utils
+        import os
+        engine = utils.create_sqlalchemy_engine_with_retry("postgresql://")
+        utils._initialize_tables(engine)
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-migrations
+  3: |
+    apiVersion: v1
+    data:
+      dbchecker.sh: |
+        #!/bin/sh
+
+        if [[ -z "${PGHOST}" && -z "${MYSQL_HOST}" ]]; then
+          HOST="localhost"
+        elif [[ -z "${PGHOST}" ]]; then
+          HOST="${MYSQL_HOST}"
+        else
+          HOST="${PGHOST}"
+        fi
+
+        if [[ -z "${PGPORT}" && -z "${MYSQL_TCP_PORT}" ]]; then
+          PORT="5432"
+        elif [[ -z "${PGPORT}" ]]; then
+          PORT="${MYSQL_TCP_PORT}"
+        else
+          PORT="${PGPORT}"
+        fi
+
+        COUNT=0
+
+        function fib() {
+          if [ $1 -le 0 ]; then
+            echo 0
+          elif [ $1 -eq 1 ]; then
+            echo 1
+          else
+            echo $(( $(fib $(($1 - 1)) ) + $(fib $(($1 - 2)) ) ))
+          fi
+        }
+
+        echo "[INFO] Waiting for Database to become ready..."
+
+        until nc -z -w 2 $HOST $PORT; do
+          COUNT=$((COUNT + 1));
+          SLEEP_TIME=$(fib $COUNT);
+          echo "[WARNING] Unable to access database! Sleeping $SLEEP_TIME seconds. Waiting for $HOST to listen on $PORT...";
+          sleep $SLEEP_TIME;
+        done;
+
+        echo "[INFO] Database OK ✓"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-dbchecker
+  4: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -965,6 +1419,7 @@ should match snapshot with additional values when postgresql is enabled:
       template:
         metadata:
           annotations:
+            checksum/config: 0ce0636a4b5ced44ed82746e804d314e8b0e4ba38f6c69700530a592d95c88be
             test-key: test-value
           labels:
             app: mlflow
@@ -998,6 +1453,7 @@ should match snapshot with additional values when postgresql is enabled:
                 - --backend-store-uri=postgresql://
                 - --default-artifact-root=./mlruns
                 - --app-name=basic-auth
+                - --gunicorn-opts='--log-level=info'
               command:
                 - mlflow
               env:

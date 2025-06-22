@@ -1151,6 +1151,30 @@
       "title": "service",
       "type": "object"
     },
+    "log": {
+      "additionalProperties": true,
+      "description": "Mlflow logging settings",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "description": "Specifies if you want to enable mlflow logging",
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "level": {
+          "default": "info",
+          "description": "Mlflow logging level",
+          "required": [],
+          "title": "level",
+          "enum": ["debug", "info", "warning", "error", "critical"],
+          "type": "string"
+        }
+      },
+      "required": ["enabled", "level"],
+      "title": "log",
+      "type": "object"
+    },
     "serviceAccount": {
       "additionalProperties": false,
       "properties": {
@@ -1897,6 +1921,7 @@
     "podSecurityContext",
     "securityContext",
     "service",
+    "log",
     "backendStore",
     "postgresql",
     "mysql",

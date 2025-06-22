@@ -28,6 +28,10 @@ data:
   MYSQL_TCP_PORT: {{ default "3306" .Values.mysql.primary.service.ports.mysql | quote }}
   MYSQL_DATABASE: {{ .Values.mysql.auth.database }}
 {{- end }}
+  MLFLOW_CONFIGURE_LOGGING: {{ .Values.log.enabled | quote }}
+{{- if .Values.log.enabled }}
+  MLFLOW_LOGGING_LEVEL: {{ .Values.log.level | upper | quote }}
+{{- end }}
 ---
 {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseMigration }}
 {{- $dbConnectionDriver := "" }}
