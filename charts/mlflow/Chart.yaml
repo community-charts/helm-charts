@@ -49,8 +49,8 @@ annotations:
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Add log level configuration
+    - kind: added
+      description: Log level configuration added
       links:
         - name: Github Issue
           url: https://github.com/community-charts/helm-charts/issues/137
