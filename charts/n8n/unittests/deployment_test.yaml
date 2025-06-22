@@ -1499,7 +1499,25 @@ tests:
           any: true
         template: deployment.yaml
 
-  - it: should use private npm registry when npmRegistry.enabled is true
+  - it: should use private npm registry when only npmRegistry.enabled is true
+    set:
+      npmRegistry:
+        enabled: true
+        url: "https://my-registry.com"
+        secretName: "n8n-npm-registry-secret"
+        secretKey: "npmrc"
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: npmrc
+            secret:
+              optional: true
+              secretName: n8n-npm-registry-secret
+          any: true
+        template: deployment.yaml
+
+  - it: should use private npm registry when external packages are set and npmRegistry.enabled is true
     set:
       nodes:
         external:

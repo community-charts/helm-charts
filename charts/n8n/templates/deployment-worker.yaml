@@ -345,7 +345,7 @@ spec:
       {{- with .Values.worker.extraContainers }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if or .Values.volumes .Values.worker.volumes .Values.nodes.external.packages }}
+      {{- if or .Values.volumes .Values.worker.volumes .Values.nodes.external.packages .Values.npmRegistry.enabled }}
       volumes:
       {{- end }}
       {{- if .Values.nodes.external.packages }}
