@@ -126,6 +126,13 @@ tests:
                       name: n8n
                       port:
                         number: 80
+                - path: /static/
+                  pathType: ImplementationSpecific
+                  backend:
+                    service:
+                      name: n8n
+                      port:
+                        number: 80
                 - path: /webhook-waiting/
                   pathType: ImplementationSpecific
                   backend:
@@ -178,6 +185,13 @@ tests:
                       port:
                         number: 80
                 - path: /rest/oauth2-credential/callback
+                  pathType: ImplementationSpecific
+                  backend:
+                    service:
+                      name: n8n
+                      port:
+                        number: 80
+                - path: /static/
                   pathType: ImplementationSpecific
                   backend:
                     service:
@@ -242,6 +256,13 @@ tests:
                       name: n8n
                       port:
                         number: 80
+                - path: /static/
+                  pathType: ImplementationSpecific
+                  backend:
+                    service:
+                      name: n8n
+                      port:
+                        number: 80
                 - path: /webhook-waiting/
                   pathType: ImplementationSpecific
                   backend:
@@ -294,6 +315,13 @@ tests:
                       port:
                         number: 80
                 - path: /rest/oauth2-credential/callback
+                  pathType: ImplementationSpecific
+                  backend:
+                    service:
+                      name: n8n
+                      port:
+                        number: 80
+                - path: /static/
                   pathType: ImplementationSpecific
                   backend:
                     service:

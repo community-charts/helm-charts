@@ -66,7 +66,18 @@ spec:
                 port:
                   number: {{ $.Values.service.port }}
           - path: {{ .path }}rest/oauth2-credential/callback
-            pathType: ImplementationSpecific
+            {{- with .pathType }}
+            pathType: {{ . }}
+            {{- end }}
+            backend:
+              service:
+                name: {{ include "n8n.fullname" $ }}
+                port:
+                  number: {{ $.Values.service.port }}
+          - path: {{ .path }}static/
+            {{- with .pathType }}
+            pathType: {{ . }}
+            {{- end }}
             backend:
               service:
                 name: {{ include "n8n.fullname" $ }}
