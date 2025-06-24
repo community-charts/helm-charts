@@ -1,0 +1,117 @@
+should use only ingress host in queue mode:
+  1: |
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      labels:
+        app.kubernetes.io/instance: n8n
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: n8n
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: n8n-1.0.0
+      name: n8n
+    spec:
+      rules:
+        - host: n8n.mydomain.com
+          http:
+            paths:
+              - backend:
+                  service:
+                    name: n8n
+                    port:
+                      number: 5678
+                path: /
+                pathType: Prefix
+should use webhook and host ingress different in queue mode when webhook.url is set different from ingress.hosts:
+  1: |
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      labels:
+        app.kubernetes.io/instance: n8n
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: n8n
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: n8n-1.0.0
+      name: n8n
+    spec:
+      rules:
+        - host: n8n.myinternaldomain.local
+          http:
+            paths:
+              - backend:
+                  service:
+                    name: n8n
+                    port:
+                      number: 5678
+                path: /
+                pathType: Prefix
+        - host: webhook.myexternaldomain.com
+          http:
+            paths:
+              - backend:
+                  service:
+                    name: n8n-webhook
+                    port:
+                      number: 5678
+                path: /webhook/
+                pathType: Prefix
+              - backend:
+                  service:
+                    name: n8n
+                    port:
+                      number: 5678
+                path: /webhook-test/
+                pathType: Prefix
+              - backend:
+                  service:
+                    name: n8n-webhook
+                    port:
+                      number: 5678
+                path: /webhook-waiting/
+                pathType: Prefix
+should use webhook and host ingress same in queue mode when webhook.url is set same as ingress.hosts:
+  1: |
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      labels:
+        app.kubernetes.io/instance: n8n
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: n8n
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: n8n-1.0.0
+      name: n8n
+    spec:
+      rules:
+        - host: n8n.mydomain.com
+          http:
+            paths:
+              - backend:
+                  service:
+                    name: n8n
+                    port:
+                      number: 5678
+                path: /
+                pathType: Prefix
+              - backend:
+                  service:
+                    name: n8n-webhook
+                    port:
+                      number: 5678
+                path: /webhook/
+                pathType: Prefix
+              - backend:
+                  service:
+                    name: n8n
+                    port:
+                      number: 5678
+                path: /webhook-test/
+                pathType: Prefix
+              - backend:
+                  service:
+                    name: n8n-webhook
+                    port:
+                      number: 5678
+                path: /webhook-waiting/
+                pathType: Prefix

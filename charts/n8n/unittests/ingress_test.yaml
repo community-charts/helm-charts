@@ -279,3 +279,69 @@ tests:
                       name: n8n-webhook
                       port:
                         number: 80
+
+  - it: should use only ingress host in queue mode
+    set:
+      db:
+        type: postgresdb
+      worker:
+        mode: queue
+      ingress:
+        enabled: true
+        hosts:
+          - host: n8n.mydomain.com
+            paths:
+              - path: /
+                pathType: Prefix
+      postgresql:
+        enabled: true
+      redis:
+        enabled: true
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should use webhook and host ingress same in queue mode when webhook.url is set same as ingress.hosts
+    set:
+      db:
+        type: postgresdb
+      worker:
+        mode: queue
+      webhook:
+        mode: queue
+        url: "https://n8n.mydomain.com"
+      ingress:
+        enabled: true
+        hosts:
+          - host: n8n.mydomain.com
+            paths:
+              - path: /
+                pathType: Prefix
+      postgresql:
+        enabled: true
+      redis:
+        enabled: true
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should use webhook and host ingress different in queue mode when webhook.url is set different from ingress.hosts
+    set:
+      db:
+        type: postgresdb
+      worker:
+        mode: queue
+      webhook:
+        mode: queue
+        url: "https://webhook.myexternaldomain.com"
+      ingress:
+        enabled: true
+        hosts:
+          - host: n8n.myinternaldomain.local
+            paths:
+              - path: /
+                pathType: Prefix
+      postgresql:
+        enabled: true
+      redis:
+        enabled: true
+    asserts:
+      - matchSnapshot: { }
