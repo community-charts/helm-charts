@@ -4,6 +4,79 @@ entries:
   - annotations:
       artifacthub.io/alternativeName: actual
       artifacthub.io/changes: |-
+        - kind: changed
+          description: Change pod security context to actual user and group
+          links:
+            - name: GitHub Issue
+              url: https://github.com/community-charts/helm-charts/pull/144
+      artifacthub.io/containsSecurityUpdates: "false"
+      artifacthub.io/images: |
+        - name: actualbudget
+          image: actualbudget/actual-server:25.6.1
+          platforms:
+            - linux/amd64
+            - linux/arm64
+            - linux/arm/v7
+      artifacthub.io/license: MIT
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/community-charts/helm-charts
+        - name: Chart Usage Page
+          url: https://community-charts.github.io/docs/charts/actualbudget/usage
+        - name: Upstream Project
+          url: https://github.com/actualbudget/actual
+      artifacthub.io/maintainers: |
+        - name: burakince
+          email: burak.ince@linux.org.tr
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/screenshots: |
+        - title: User Interface Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-overview-of-user-interface.png
+        - title: Account Register Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-account-register-overview.png
+        - title: Budget Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-budget-overview.png
+        - title: Payees Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-payees-overview.png
+        - title: Reports Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-reports-overview.png
+        - title: Rules Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-rules-overview.png
+        - title: Schedules Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-schedules-overview.png
+      artifacthub.io/signKey: |
+        fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
+        url: https://keybase.io/communitycharts/pgp_keys.asc
+    apiVersion: v2
+    appVersion: 25.6.1
+    created: "2025-06-24T23:20:02.876169349Z"
+    description: A local-first personal finance app
+    digest: 055da3644a3093e62d80a88f20a88cef65364e85019186b4940eeb87f2077893
+    home: https://actualbudget.org/
+    icon: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/actual.png
+    keywords:
+    - docker
+    - finance
+    - personal-finance
+    - money
+    - budgeting
+    kubeVersion: '>=1.16.0-0'
+    maintainers:
+    - email: burak.ince@linux.org.tr
+      name: burakince
+      url: https://www.burakince.com
+    name: actualbudget
+    sources:
+    - https://github.com/community-charts/helm-charts
+    - https://github.com/actualbudget/actual
+    type: application
+    urls:
+    - https://github.com/community-charts/helm-charts/releases/download/actualbudget-1.7.0/actualbudget-1.7.0.tgz
+    version: 1.7.0
+  - annotations:
+      artifacthub.io/alternativeName: actual
+      artifacthub.io/changes: |-
         - kind: added
           description: Add persistence sub path support
       artifacthub.io/containsSecurityUpdates: "false"
@@ -24081,4 +24154,4 @@ entries:
     urls:
     - https://github.com/community-charts/helm-charts/releases/download/pypiserver-0.1.0/pypiserver-0.1.0.tgz
     version: 0.1.0
-generated: "2025-06-24T21:33:28.830266537Z"
+generated: "2025-06-24T23:20:02.876679613Z"
