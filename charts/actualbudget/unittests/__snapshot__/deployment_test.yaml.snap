@@ -1,0 +1,82 @@
+should match snapshot of default values:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app.kubernetes.io/instance: actualbudget
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: actualbudget
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: actualbudget-1.0.0
+      name: actualbudget
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app.kubernetes.io/instance: actualbudget
+          app.kubernetes.io/name: actualbudget
+      strategy:
+        rollingUpdate:
+          maxSurge: 100%
+          maxUnavailable: 0
+        type: RollingUpdate
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/instance: actualbudget
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: actualbudget
+            app.kubernetes.io/version: 1.0.0
+            helm.sh/chart: actualbudget-1.0.0
+        spec:
+          containers:
+            - env:
+                - name: ACTUAL_PORT
+                  value: "5006"
+                - name: ACTUAL_DATA_DIR
+                  value: /data
+                - name: ACTUAL_SERVER_FILES
+                  value: /data/server-files
+                - name: ACTUAL_USER_FILES
+                  value: /data/user-files
+                - name: ACTUAL_UPLOAD_FILE_SYNC_SIZE_LIMIT_MB
+                  value: "20"
+                - name: ACTUAL_UPLOAD_SYNC_ENCRYPTED_FILE_SYNC_SIZE_LIMIT_MB
+                  value: "50"
+                - name: ACTUAL_UPLOAD_FILE_SIZE_LIMIT_MB
+                  value: "20"
+                - name: ACTUAL_LOGIN_METHOD
+                  value: password
+                - name: ACTUAL_ALLOWED_LOGIN_METHODS
+                  value: password,header,openid
+              image: actualbudget/actual-server:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                httpGet:
+                  path: /
+                  port: http
+              name: actualbudget
+              ports:
+                - containerPort: 5006
+                  name: http
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /
+                  port: http
+              resources: {}
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
+          securityContext:
+            fsGroup: 1001
+            fsGroupChangePolicy: OnRootMismatch
+          serviceAccountName: actualbudget

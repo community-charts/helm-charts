@@ -312,3 +312,7 @@ tests:
             key: fake-key
             operator: fake-operator
             value: fake-value
+
+  - it: should match snapshot of default values
+    asserts:
+      - matchSnapshot: { }
