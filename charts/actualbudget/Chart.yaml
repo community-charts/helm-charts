@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.6.0
+version: 1.7.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -46,8 +46,11 @@ annotations:
       url: https://github.com/actualbudget/actual
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: added
-      description: Add persistence sub path support
+    - kind: changed
+      description: Change pod security context to actual user and group
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/pull/144
   artifacthub.io/images: |
     - name: actualbudget
       image: actualbudget/actual-server:25.6.1
