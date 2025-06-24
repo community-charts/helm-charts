@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.8.7
+version: 1.9.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -50,11 +50,11 @@ annotations:
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Update n8nio/n8n image version to 1.99.1
+    - kind: added
+      description: Add ingress path for rest/oauth2-credential/callback
       links:
-        - name: Upstream Project
-          url: https://github.com/n8n-io/n8n
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/141
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:1.99.1

@@ -65,6 +65,13 @@ spec:
                 name: {{ include "n8n.fullname" $ }}
                 port:
                   number: {{ $.Values.service.port }}
+          - path: {{ .path }}rest/oauth2-credential/callback
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ include "n8n.fullname" $ }}
+                port:
+                  number: {{ $.Values.service.port }}
           - path: {{ .path }}webhook-waiting/
             {{- with .pathType }}
             pathType: {{ . }}

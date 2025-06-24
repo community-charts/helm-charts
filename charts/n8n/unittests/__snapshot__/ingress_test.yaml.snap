@@ -65,6 +65,13 @@ should use webhook and host ingress different in queue mode when webhook.url is 
                 pathType: Prefix
               - backend:
                   service:
+                    name: n8n
+                    port:
+                      number: 5678
+                path: /rest/oauth2-credential/callback
+                pathType: ImplementationSpecific
+              - backend:
+                  service:
                     name: n8n-webhook
                     port:
                       number: 5678
@@ -108,6 +115,13 @@ should use webhook and host ingress same in queue mode when webhook.url is set s
                       number: 5678
                 path: /webhook-test/
                 pathType: Prefix
+              - backend:
+                  service:
+                    name: n8n
+                    port:
+                      number: 5678
+                path: /rest/oauth2-credential/callback
+                pathType: ImplementationSpecific
               - backend:
                   service:
                     name: n8n-webhook
