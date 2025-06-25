@@ -1516,6 +1516,13 @@
           "title": "groupAttribute",
           "type": "string"
         },
+        "groupAttributeKey": {
+          "default": "",
+          "description": "Optional group attribute key for Active Directory users. e.g.: attributes",
+          "required": [],
+          "title": "groupAttributeKey",
+          "type": "string"
+        },
         "searchBaseDistinguishedName": {
           "default": "",
           "description": "LDAP base DN for the search. e.g.: ou=groups,dc=mlflow,dc=test",
@@ -1565,6 +1572,7 @@
         "tlsVerification",
         "lookupBind",
         "groupAttribute",
+        "groupAttributeKey",
         "searchBaseDistinguishedName",
         "searchFilter",
         "adminGroupDistinguishedName",

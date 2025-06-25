@@ -287,6 +287,8 @@ ldapAuth:
   lookupBind: ""
   # -- LDAP group attribute.
   groupAttribute: "dn"
+  # -- Optional group attribute key for Active Directory users. e.g.: "attributes"
+  groupAttributeKey: ""
   # -- LDAP base DN for the search. e.g.: "ou=groups,dc=mlflow,dc=test"
   searchBaseDistinguishedName: ""
   # -- LDAP query filter for search

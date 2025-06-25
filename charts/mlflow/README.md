@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 1.2.0](https://img.shields.io/badge/Version-1.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.1.0](https://img.shields.io/badge/AppVersion-3.1.0-informational?style=flat-square)
+![Version: 1.3.0](https://img.shields.io/badge/Version-1.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.1.1](https://img.shields.io/badge/AppVersion-3.1.1-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -670,12 +670,13 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` | Ingress path type |
 | ingress.tls | list | `[]` | Ingress tls configuration for https access |
 | initContainers | list | `[]` | Init Containers for Mlflow Pod |
-| ldapAuth | object | `{"adminGroupDistinguishedName":"","enabled":false,"encodedTrustedCACertificate":"","externalSecretForTrustedCACertificate":"","groupAttribute":"dn","lookupBind":"","searchBaseDistinguishedName":"","searchFilter":"(&(objectclass=groupOfUniqueNames)(uniquemember=%s))","tlsVerification":"required","uri":"","userGroupDistinguishedName":""}` | Basic Authentication with LDAP backend |
+| ldapAuth | object | `{"adminGroupDistinguishedName":"","enabled":false,"encodedTrustedCACertificate":"","externalSecretForTrustedCACertificate":"","groupAttribute":"dn","groupAttributeKey":"","lookupBind":"","searchBaseDistinguishedName":"","searchFilter":"(&(objectclass=groupOfUniqueNames)(uniquemember=%s))","tlsVerification":"required","uri":"","userGroupDistinguishedName":""}` | Basic Authentication with LDAP backend |
 | ldapAuth.adminGroupDistinguishedName | string | `""` | LDAP DN for the admin group. e.g.: "cn=test-admin,ou=groups,dc=mlflow,dc=test" |
 | ldapAuth.enabled | bool | `false` | Specifies if you want to enable mlflow LDAP authentication. auth and ldapAuth can't be enabled at same time. |
 | ldapAuth.encodedTrustedCACertificate | string | `""` | Base64 encoded trusted CA certificate for LDAP server connection. |
 | ldapAuth.externalSecretForTrustedCACertificate | string | `""` | External secret name for trusted CA certificate for LDAP server connection. |
 | ldapAuth.groupAttribute | string | `"dn"` | LDAP group attribute. |
+| ldapAuth.groupAttributeKey | string | `""` | Optional group attribute key for Active Directory users. e.g.: "attributes" |
 | ldapAuth.lookupBind | string | `""` | LDAP Loopup Bind. e.g.: "uid=%s,ou=people,dc=mlflow,dc=test" |
 | ldapAuth.searchBaseDistinguishedName | string | `""` | LDAP base DN for the search. e.g.: "ou=groups,dc=mlflow,dc=test" |
 | ldapAuth.searchFilter | string | `"(&(objectclass=groupOfUniqueNames)(uniquemember=%s))"` | LDAP query filter for search |
