@@ -61,6 +61,16 @@ annotations:
       links:
         - name: Github Issue
           url: https://github.com/burakince/mlflow/issues/221
+    - kind: changed
+      description: Update bitnami/postgresql chart version to 16.7.13
+      links:
+        - name: ArtifactHub
+          url: https://artifacthub.io/packages/helm/bitnami/postgresql/16.7.13
+    - kind: changed
+      description: Update bitnami/mysql chart version to 13.0.2
+      links:
+        - name: ArtifactHub
+          url: https://artifacthub.io/packages/helm/bitnami/mysql/13.0.2
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.1.0
@@ -96,10 +106,10 @@ annotations:
     url: https://keybase.io/communitycharts/pgp_keys.asc
 dependencies:
   - name: postgresql
-    version: 16.7.10
+    version: 16.7.13
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: mysql
-    version: 13.0.1
+    version: 13.0.2
     repository: https://charts.bitnami.com/bitnami
     condition: mysql.enabled

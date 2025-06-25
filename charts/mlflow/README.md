@@ -557,8 +557,8 @@ Kubernetes: `>=1.16.0-0`
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | mysql | 13.0.1 |
-| https://charts.bitnami.com/bitnami | postgresql | 16.7.10 |
+| https://charts.bitnami.com/bitnami | mysql | 13.0.2 |
+| https://charts.bitnami.com/bitnami | postgresql | 16.7.13 |
 
 ## Uninstall Helm Chart
 
