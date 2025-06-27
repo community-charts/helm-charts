@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.9.1
+version: 1.10.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -51,10 +51,17 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: added
-      description: Add ingress path for static files
+      description: Add Form Trigger paths to ingress
       links:
         - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/143
+          url: https://github.com/community-charts/helm-charts/pull/147
+    - kind: added
+      description: Add MCP Server Trigger paths to ingress
+      links:
+        - name: GitHub PR
+          url: https://github.com/community-charts/helm-charts/pull/148
+    - kind: added
+      description: Add flag to enable/disable the service
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:1.99.1

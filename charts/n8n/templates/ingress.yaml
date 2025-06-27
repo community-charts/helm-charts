@@ -65,6 +65,42 @@ spec:
                 name: {{ include "n8n.fullname" $ }}
                 port:
                   number: {{ $.Values.service.port }}
+          - path: {{ .path }}form/
+            {{- with .pathType }}
+            pathType: {{ . }}
+            {{- end }}
+            backend:
+              service:
+                name: {{ include "n8n.webhook.fullname" $ }}
+                port:
+                  number: {{ $.Values.service.port }}
+          - path: {{ .path }}form-test/
+            {{- with .pathType }}
+            pathType: {{ . }}
+            {{- end }}
+            backend:
+              service:
+                name: {{ include "n8n.fullname" $ }}
+                port:
+                  number: {{ $.Values.service.port }}
+          - path: {{ .path }}mcp/
+            {{- with .pathType }}
+            pathType: {{ . }}
+            {{- end }}
+            backend:
+              service:
+                name: {{ include "n8n.webhook.fullname" $ }}
+                port:
+                  number: {{ $.Values.service.port }}
+          - path: {{ .path }}mcp-test/
+            {{- with .pathType }}
+            pathType: {{ . }}
+            {{- end }}
+            backend:
+              service:
+                name: {{ include "n8n.fullname" $ }}
+                port:
+                  number: {{ $.Values.service.port }}
           - path: {{ .path }}rest/oauth2-credential/callback
             {{- with .pathType }}
             pathType: {{ . }}
@@ -84,6 +120,15 @@ spec:
                 port:
                   number: {{ $.Values.service.port }}
           - path: {{ .path }}webhook-waiting/
+            {{- with .pathType }}
+            pathType: {{ . }}
+            {{- end }}
+            backend:
+              service:
+                name: {{ include "n8n.webhook.fullname" $ }}
+                port:
+                  number: {{ $.Values.service.port }}
+          - path: {{ .path }}form-waiting/
             {{- with .pathType }}
             pathType: {{ . }}
             {{- end }}

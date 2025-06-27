@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.9.1](https://img.shields.io/badge/Version-1.9.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.99.1](https://img.shields.io/badge/AppVersion-1.99.1-informational?style=flat-square)
+![Version: 1.10.0](https://img.shields.io/badge/Version-1.10.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.99.1](https://img.shields.io/badge/AppVersion-1.99.1-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -871,8 +871,9 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | sentry.enabled | bool | `false` | Whether sentry is enabled. |
 | sentry.externalTaskRunnersDsn | string | `""` | Sentry DSN for external task runners. |
 | sentry.frontendDsn | string | `""` | Sentry DSN for frontend. |
-| service | object | `{"annotations":{},"name":"http","port":5678,"type":"ClusterIP"}` | This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/ |
+| service | object | `{"annotations":{},"enabled":true,"name":"http","port":5678,"type":"ClusterIP"}` | This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/ |
 | service.annotations | object | `{}` | Additional service annotations |
+| service.enabled | bool | `true` | Whether to enable the service |
 | service.name | string | `"http"` | Default Service name |
 | service.port | int | `5678` | This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports |
 | service.type | string | `"ClusterIP"` | This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types |

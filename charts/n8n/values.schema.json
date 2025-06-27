@@ -1637,6 +1637,13 @@
       "additionalProperties": false,
       "description": "This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/",
       "properties": {
+        "enabled": {
+          "default": true,
+          "description": "Whether to enable the service",
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
         "annotations": {
           "additionalProperties": true,
           "description": "Additional service annotations",
@@ -1666,7 +1673,7 @@
           "type": "string"
         }
       },
-      "required": ["type", "port", "name", "annotations"],
+      "required": ["enabled", "type", "port", "name", "annotations"],
       "title": "service",
       "type": "object"
     },
