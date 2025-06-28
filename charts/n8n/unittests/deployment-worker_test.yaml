@@ -983,6 +983,30 @@ tests:
                     - ssd
         template: deployment-worker.yaml
 
+  - it: should set affinity when worker.affinity is set
+    set:
+      worker:
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/instance: n8n
+                  app.kubernetes.io/name: n8n-worker
+                  app.kubernetes.io/component: worker
+              topologyKey: kubernetes.io/hostname
+    asserts:
+      - contains:
+          path: spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution
+          content:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/instance: n8n
+                app.kubernetes.io/name: n8n-worker
+                app.kubernetes.io/component: worker
+            topologyKey: kubernetes.io/hostname
+        template: deployment-worker.yaml
+
   - it: should set tolerations when tolerations are set
     set:
       tolerations:

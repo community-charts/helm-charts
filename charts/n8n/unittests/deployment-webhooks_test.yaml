@@ -987,6 +987,30 @@ tests:
                     - ssd
         template: deployment-webhook.yaml
 
+  - it: should set affinity when webhook.affinity is set
+    set:
+      webhook:
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/instance: n8n
+                  app.kubernetes.io/name: n8n-webhook
+                  app.kubernetes.io/component: webhook
+              topologyKey: kubernetes.io/hostname
+    asserts:
+      - contains:
+          path: spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution
+          content:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/instance: n8n
+                app.kubernetes.io/name: n8n-webhook
+                app.kubernetes.io/component: webhook
+            topologyKey: kubernetes.io/hostname
+        template: deployment-webhook.yaml
+
   - it: should set tolerations when tolerations are set
     set:
       tolerations:

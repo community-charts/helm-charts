@@ -927,6 +927,26 @@ tests:
                     - ssd
         template: deployment.yaml
 
+  - it: should set affinity when main.affinity is set
+    set:
+      main:
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/instance: n8n
+              topologyKey: kubernetes.io/hostname
+    asserts:
+      - contains:
+          path: spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution
+          content:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/instance: n8n
+            topologyKey: kubernetes.io/hostname
+        template: deployment.yaml
+
   - it: should set tolerations when tolerations are set
     set:
       tolerations:

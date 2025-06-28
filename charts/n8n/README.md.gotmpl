@@ -627,6 +627,16 @@ This section outlines major updates and breaking changes for each version of the
 
 ###  Version-Specific Upgrade Notes
 
+#### Upgrading to Version 1.11.x
+
+##### Deprecation Notices
+
+- The top-level field `affinity` is deprecated.
+
+##### Action Required
+
+Please consider using the corresponding fields in the `main`, `worker` and `webhook` blocks instead. The deprecated field will be removed in the next major release.
+
 #### Upgrading to Version 1.7.x
 
 ##### Deprecation Notices

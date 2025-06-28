@@ -4,7 +4,7 @@
   "properties": {
     "affinity": {
       "additionalProperties": true,
-      "description": "For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity",
+      "description": "DEPRECATED: Use main, worker, and webhook blocks affinity fields instead. This field will be removed in a future release.",
       "required": [],
       "title": "affinity",
       "type": "object"
@@ -1279,9 +1279,16 @@
           "required": [],
           "title": "extraContainers",
           "type": "array"
+        },
+        "affinity": {
+          "additionalProperties": true,
+          "description": "For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity",
+          "required": [],
+          "title": "affinity",
+          "type": "object"
         }
       },
-      "required": ["count", "resources", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers"],
+      "required": ["count", "resources", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers", "affinity"],
       "title": "main",
       "type": "object"
     },
@@ -2470,9 +2477,16 @@
           "required": [],
           "title": "extraContainers",
           "type": "array"
+        },
+        "affinity": {
+          "additionalProperties": true,
+          "description": "For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity",
+          "required": [],
+          "title": "affinity",
+          "type": "object"
         }
       },
-      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers"],
+      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity"],
       "allOf": [
         {
           "if": {
@@ -3169,9 +3183,16 @@
           "required": [],
           "title": "extraContainers",
           "type": "array"
+        },
+        "affinity": {
+          "additionalProperties": true,
+          "description": "For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity",
+          "required": [],
+          "title": "affinity",
+          "type": "object"
         }
       },
-      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers"],
+      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity"],
       "allOf": [
         {
           "if": {

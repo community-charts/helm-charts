@@ -320,6 +320,9 @@ main:
   # -- Additional containers for the main pod
   extraContainers: []
 
+  # -- Main node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+
 # -- Worker node configurations
 worker:
   # -- Use `regular` to use main node as executer, or use `queue` to have worker nodes
@@ -459,6 +462,9 @@ worker:
 
   # -- Additional containers for the worker pod
   extraContainers: []
+
+  # -- Worker node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
 
 # -- Webhook node configurations
 webhook:
@@ -611,6 +617,9 @@ webhook:
 
   # -- Additional containers for the webhook pod
   extraContainers: []
+
+  # -- Webhook node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
 
 # -- Task runners mode. Please follow the documentation for more information: https://docs.n8n.io/hosting/configuration/task-runners/
 taskRunners:
@@ -799,7 +808,7 @@ nodeSelector: {}
 # -- For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
 tolerations: []
 
-# -- For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+# -- DEPRECATED: Use main, worker, and webhook blocks volumes fields instead. This field will be removed in a future release.
 affinity: {}
 
 # -- For more information checkout: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy

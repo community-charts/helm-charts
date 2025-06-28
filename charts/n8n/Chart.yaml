@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.10.0
+version: 1.11.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -50,18 +50,16 @@ annotations:
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: added
-      description: Add Form Trigger paths to ingress
+    - kind: deprecated
+      description: Deprecated affinity field from root level. Use affinity field in main, worker, and webhook blocks instead. This field will be removed in a future release.
       links:
         - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/147
+          url: https://github.com/community-charts/helm-charts/pull/150
     - kind: added
-      description: Add MCP Server Trigger paths to ingress
+      description: Added affinity field to main, worker, and webhook blocks
       links:
         - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/148
-    - kind: added
-      description: Add flag to enable/disable the service
+          url: https://github.com/community-charts/helm-charts/pull/150
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:1.99.1
