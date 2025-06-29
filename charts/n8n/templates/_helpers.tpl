@@ -307,6 +307,56 @@ n8n main check deployment should be created (opposite of statefulset condition)
 {{- end -}}
 
 {{/*
+n8n worker persistance name
+*/}}
+{{- define "n8n-worker.persistance.name" -}}
+{{- printf "%s-persistance" (include "n8n.worker.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+
+{{/*
+n8n worker persistance full name
+*/}}
+{{- define "n8n-worker.persistance.fullname" -}}
+{{- printf "%s-persistance" (include "n8n.worker.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+n8n worker persistance labels
+*/}}
+{{- define "n8n-worker.persistance.labels" -}}
+helm.sh/chart: {{ include "n8n.chart" . }}
+{{ include "n8n-worker.persistance.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/part-of: {{ include "n8n.worker.name" . }}
+{{- end }}
+
+{{/*
+n8n worker persistance selector labels
+*/}}
+{{- define "n8n-worker.persistance.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "n8n-worker.persistance.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: persistance
+{{- end }}
+
+{{/*
+n8n worker check statefulset need to be created
+*/}}
+{{- define "n8n-worker.persistance.statefulsetNeedToBeCreated" -}}
+{{- or (.Values.worker.forceToUseStatefulset) (and .Values.worker.persistance.enabled (gt (int .Values.worker.count) 1) (not .Values.worker.persistance.existingClaim) (eq .Values.worker.persistance.accessMode "ReadWriteOnce")) (not .Values.worker.autoscaling.enabled) -}}
+{{- end -}}
+
+{{/*
+n8n worker check deployment should be created (opposite of statefulset condition)
+*/}}
+{{- define "n8n-worker.persistance.deploymentShouldBeCreated" -}}
+{{- not (include "n8n-worker.persistance.statefulsetNeedToBeCreated" .) -}}
+{{- end -}}
+
+{{/*
 n8n npm install script logic
 */}}
 {{- define "n8n.npmInstallScript" -}}
