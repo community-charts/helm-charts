@@ -295,6 +295,9 @@ main:
       path: /healthz/readiness
       port: http
 
+  # -- Force to use statefulset for the main pod. If true, the main pod will be created as a statefulset.
+  forceToUseStatefulset: false
+
   # -- Persistance configuration for the main pod
   persistance:
     # -- Whether to enable persistance
@@ -309,9 +312,8 @@ main:
     subPath: ""
     # -- Storage class for persistance
     storageClass: ""
-    # -- Access modes for persistance
-    accessModes:
-      - ReadWriteOnce
+    # -- Access mode for persistance
+    accessMode: ReadWriteOnce
     # -- Size for persistance
     size: 8Gi
     # -- Annotations for persistance

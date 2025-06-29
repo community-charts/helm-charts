@@ -260,14 +260,14 @@ Convert n8n log level to npm log level
 n8n main persistance name
 */}}
 {{- define "n8n-main.persistance.name" -}}
-{{- printf "%s-main-pvc" (include "n8n.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-main-persistance" (include "n8n.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end }}
 
 {{/*
 n8n main persistance full name
 */}}
 {{- define "n8n-main.persistance.fullname" -}}
-{{- printf "%s-main-pvc" (include "n8n.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-main-persistance" (include "n8n.fullname" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -291,3 +291,38 @@ app.kubernetes.io/name: {{ include "n8n-main.persistance.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: persistance
 {{- end }}
+
+{{/*
+n8n main check statefulset need to be created
+*/}}
+{{- define "n8n-main.persistance.statefulsetNeedToBeCreated" -}}
+{{- or (.Values.main.forceToUseStatefulset) (and .Values.main.persistance.enabled (gt (int .Values.main.count) 1) (not .Values.main.persistance.existingClaim) (eq .Values.main.persistance.accessMode "ReadWriteOnce")) -}}
+{{- end -}}
+
+{{/*
+n8n main check deployment should be created (opposite of statefulset condition)
+*/}}
+{{- define "n8n-main.persistance.deploymentShouldBeCreated" -}}
+{{- not (include "n8n-main.persistance.statefulsetNeedToBeCreated" .) -}}
+{{- end -}}
+
+{{/*
+n8n npm install script logic
+*/}}
+{{- define "n8n.npmInstallScript" -}}
+export PACKAGES="{{ join " " .Values.nodes.external.packages }}"
+export COMMUNITY_PACKAGES="{{ include "n8n.communityPackages" . }}"
+export NON_COMMUNITY_PACKAGES="{{ include "n8n.nonCommunityPackages" . }}"
+echo "$PACKAGES" | sha256sum > /npmdata/packages.hash.new
+if [ ! -f /npmdata/packages.hash ] || ! cmp /npmdata/packages.hash /npmdata/packages.hash.new; then
+  if [ -n "$NON_COMMUNITY_PACKAGES" ]; then
+    npm install --loglevel {{ include "n8n.npmLogLevel" .Values.log.level }} --no-save $NON_COMMUNITY_PACKAGES --prefix /npmdata
+  fi
+  if [ -n "$COMMUNITY_PACKAGES" ]; then
+    npm install --loglevel {{ include "n8n.npmLogLevel" .Values.log.level }} --no-save $COMMUNITY_PACKAGES --prefix /nodesdata/nodes
+  fi
+  mv /npmdata/packages.hash.new /npmdata/packages.hash
+else
+  rm /npmdata/packages.hash.new
+fi
+{{- end -}}

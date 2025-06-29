@@ -1228,6 +1228,13 @@
           "title": "readinessProbe",
           "type": "object"
         },
+        "forceToUseStatefulset": {
+          "default": false,
+          "description": "Force to use statefulset for the main pod. If true, the main pod will be created as a statefulset.",
+          "required": [],
+          "title": "forceToUseStatefulset",
+          "type": "boolean"
+        },
         "persistance": {
           "additionalProperties": false,
           "description": "Persistance configuration for the main pod",
@@ -1274,14 +1281,12 @@
               "title": "storageClass",
               "type": "string"
             },
-            "accessModes": {
-              "description": "Access modes for persistance",
-              "items": {
-                "enum": ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany"]
-              },
+            "accessMode": {
+              "description": "Access mode for persistance",
+              "enum": ["ReadWriteOnce", "ReadWriteMany"],
               "required": [],
-              "title": "accessModes",
-              "type": "array"
+              "title": "accessMode",
+              "type": "string"
             },
             "size": {
               "default": "8Gi",
@@ -1305,7 +1310,7 @@
               "type": "object"
             }
           },
-          "required": ["enabled", "volumeName", "existingClaim", "mountPath", "subPath", "storageClass", "accessModes", "size", "annotations", "labels"],
+          "required": ["enabled", "volumeName", "existingClaim", "mountPath", "subPath", "storageClass", "accessMode", "size", "annotations", "labels"],
           "title": "persistance",
           "type": "object"
         },
