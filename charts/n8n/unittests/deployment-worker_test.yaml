@@ -15,6 +15,7 @@ chart:
 
 set:
   worker:
+    count: 1
     mode: queue
   db:
     type: postgresdb
@@ -948,6 +949,72 @@ tests:
               optional: false
         template: deployment-worker.yaml
 
+  - it: should use private npm registry when only npmRegistry.enabled is true
+    set:
+      npmRegistry:
+        enabled: true
+        url: "https://my-registry.com"
+        secretName: "n8n-npm-registry-secret"
+        secretKey: "npmrc"
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: npmrc
+            secret:
+              optional: true
+              secretName: n8n-npm-registry-secret
+          any: true
+        template: deployment-worker.yaml
+
+  - it: should set node modules emptyDir when nodes.external.packages is set and worker.persistence.enabled is false
+    set:
+      nodes:
+        external:
+          packages:
+            - "moment@2.29.4"
+      worker:
+        persistence:
+          enabled: false
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: node-modules
+            emptyDir: {}
+          any: true
+        template: deployment-worker.yaml
+
+  - it: should set node modules pvc when worker.persistence.enabled is true and worker.persistence.existingClaim is not set
+    set:
+      worker:
+        persistence:
+          enabled: true
+          existingClaim: ""
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: node-modules
+            persistentVolumeClaim:
+              claimName: n8n-worker-persistence
+        template: deployment-worker.yaml
+
+  - it: should set node modules pvc when worker.persistence.enabled is true and worker.persistence.existingClaim is set
+    set:
+      worker:
+        persistence:
+          enabled: true
+          existingClaim: "test-existing-claim"
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: node-modules
+            persistentVolumeClaim:
+              claimName: test-existing-claim
+        template: deployment-worker.yaml
+
   - it: should set node selector when nodeSelector is set
     set:
       nodeSelector:
@@ -1518,24 +1585,6 @@ tests:
           any: true
         template: deployment-worker.yaml
 
-  - it: should use private npm registry when only npmRegistry.enabled is true
-    set:
-      npmRegistry:
-        enabled: true
-        url: "https://my-registry.com"
-        secretName: "n8n-npm-registry-secret"
-        secretKey: "npmrc"
-    asserts:
-      - contains:
-          path: spec.template.spec.volumes
-          content:
-            name: npmrc
-            secret:
-              optional: true
-              secretName: n8n-npm-registry-secret
-          any: true
-        template: deployment-worker.yaml
-
   - it: should use private npm registry when npmRegistry.enabled is true and external packages are set
     set:
       nodes:
@@ -1823,3 +1872,31 @@ tests:
             1.0.0.1
           any: true
         template: deployment-worker.yaml
+
+  - it: should match snapshot of default values
+    release:
+      name: n8n
+      namespace: n8n
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    set:
+      encryptionKey: "test-encryption-key"
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should match snapshot of worker persistence
+    release:
+      name: n8n
+      namespace: n8n
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    set:
+      encryptionKey: "test-encryption-key"
+      worker:
+        count: 1
+        persistence:
+          enabled: true
+    asserts:
+      - matchSnapshot: { }

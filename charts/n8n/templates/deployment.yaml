@@ -1,3 +1,4 @@
+{{- if and (not .Values.main.forceToUseStatefulset) (or (not .Values.main.persistence.enabled) (and .Values.main.persistence.enabled (or (eq (int .Values.main.count) 1) (eq .Values.main.persistence.accessMode "ReadWriteMany"))) ) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -54,21 +55,7 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - |
-              export PACKAGES="{{ join " " .Values.nodes.external.packages }}"
-              export COMMUNITY_PACKAGES="{{ include "n8n.communityPackages" . }}"
-              export NON_COMMUNITY_PACKAGES="{{ include "n8n.nonCommunityPackages" . }}"
-              echo "$PACKAGES" | sha256sum > /npmdata/packages.hash.new
-              if [ ! -f /npmdata/packages.hash ] || ! cmp /npmdata/packages.hash /npmdata/packages.hash.new; then
-                if [ -n "$NON_COMMUNITY_PACKAGES" ]; then
-                  npm install --loglevel {{ include "n8n.npmLogLevel" .Values.log.level }} --no-save $NON_COMMUNITY_PACKAGES --prefix /npmdata
-                fi
-                if [ -n "$COMMUNITY_PACKAGES" ]; then
-                  npm install --loglevel {{ include "n8n.npmLogLevel" .Values.log.level }} --no-save $COMMUNITY_PACKAGES --prefix /nodesdata/nodes
-                fi
-                mv /npmdata/packages.hash.new /npmdata/packages.hash
-              else
-                rm /npmdata/packages.hash.new
-              fi
+              {{- include "n8n.npmInstallScript" . | nindent 14 }}
           volumeMounts:
             {{- if .Values.npmRegistry.enabled }}
             - name: npmrc
@@ -250,13 +237,18 @@ spec:
             - secretRef:
                 name: {{ . }}
           {{- end }}
-          {{- if or .Values.volumeMounts .Values.main.volumeMounts .Values.nodes.external.packages .Values.npmRegistry.enabled }}
+          {{- if or .Values.volumeMounts .Values.main.volumeMounts .Values.nodes.external.packages .Values.npmRegistry.enabled .Values.main.persistence.enabled }}
           volumeMounts:
           {{- end }}
-          {{- if and .Values.nodes.external.packages (eq .Values.taskRunners.mode "internal") }}
+          {{- if and (or .Values.nodes.external.packages .Values.main.persistence.enabled) (eq .Values.taskRunners.mode "internal") }}
             - name: node-modules
-              mountPath: "/home/node/.n8n"
+              mountPath: {{ .Values.main.persistence.mountPath }}
+              {{- if .Values.main.persistence.subPath }}
+              subPath: {{ .Values.main.persistence.subPath }}
+              {{- end }}
               readOnly: false
+          {{- end }}
+          {{- if and .Values.nodes.external.packages (eq .Values.taskRunners.mode "internal") }}
             - name: community-node-modules
               mountPath: "/home/node/.n8n/nodes"
               readOnly: false
@@ -308,11 +300,16 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ template "n8n.taskRunners.fullname" . }}-configmap
-          {{- if .Values.nodes.external.packages }}
+          {{- if or .Values.nodes.external.packages .Values.main.persistence.enabled }}
           volumeMounts:
             - name: node-modules
-              mountPath: "/home/node/.n8n"
+              mountPath: {{ .Values.main.persistence.mountPath }}
+              {{- if .Values.main.persistence.subPath }}
+              subPath: {{ .Values.main.persistence.subPath }}
+              {{- end }}
               readOnly: false
+          {{- end }}
+          {{- if .Values.nodes.external.packages }}
             - name: community-node-modules
               mountPath: "/home/node/.n8n/nodes"
               readOnly: false
@@ -321,12 +318,18 @@ spec:
       {{- with .Values.main.extraContainers }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if or .Values.volumes .Values.main.volumes .Values.nodes.external.packages .Values.npmRegistry.enabled }}
+      {{- if or .Values.volumes .Values.main.volumes .Values.main.persistence.enabled .Values.nodes.external.packages .Values.npmRegistry.enabled }}
       volumes:
       {{- end }}
-      {{- if .Values.nodes.external.packages }}
+      {{- if .Values.main.persistence.enabled }}
+        - name: node-modules
+          persistentVolumeClaim:
+            claimName: {{ default (include "n8n-main.persistence.fullname" .) .Values.main.persistence.existingClaim }}
+      {{- else if .Values.nodes.external.packages }}
         - name: node-modules
           emptyDir: {}
+      {{- end }}
+      {{- if .Values.nodes.external.packages }}
         - name: community-node-modules
           emptyDir: {}
       {{- end }}
@@ -358,3 +361,4 @@ spec:
       dnsConfig:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+{{- end }}

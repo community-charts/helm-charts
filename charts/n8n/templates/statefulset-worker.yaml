@@ -1,33 +1,15 @@
-{{- if and (not .Values.worker.forceToUseStatefulset) (or (not .Values.worker.persistence.enabled) (and .Values.worker.persistence.enabled (or (and (eq (int .Values.worker.count) 1) (not .Values.worker.autoscaling.enabled) ) (eq .Values.worker.persistence.accessMode "ReadWriteMany")) )) }}
+{{- if or (.Values.worker.forceToUseStatefulset) (and .Values.worker.persistence.enabled (gt (int .Values.worker.count) 1) (not .Values.worker.persistence.existingClaim) (eq .Values.worker.persistence.accessMode "ReadWriteOnce") (not .Values.worker.autoscaling.enabled)) }}
 {{- if and (eq .Values.db.type "postgresdb") (eq .Values.worker.mode "queue") }}
 apiVersion: apps/v1
-{{- if .Values.worker.allNodes }}
-kind: DaemonSet
-{{- else }}
-kind: Deployment
-{{- end }}
+kind: StatefulSet
 metadata:
   name: {{ include "n8n.worker.fullname" . }}
   labels:
     {{- include "n8n.worker.labels" . | nindent 4 }}
 spec:
-  {{- if and .Values.worker.allNodes (eq .Values.strategy.type "RollingUpdate") }}
+  replicas: {{ .Values.worker.count }}
   updateStrategy:
     type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: {{ .Values.strategy.rollingUpdate.maxUnavailable }}
-  {{- else }}
-  {{- if not .Values.worker.autoscaling.enabled }}
-  replicas: {{ .Values.worker.count }}
-  {{- end }}
-  strategy:
-    type: {{ .Values.strategy.type }}
-    {{- if eq .Values.strategy.type "RollingUpdate" }}
-    rollingUpdate:
-      maxUnavailable: {{ .Values.strategy.rollingUpdate.maxUnavailable }}
-      maxSurge: {{ .Values.strategy.rollingUpdate.maxSurge }}
-    {{- end }}
-  {{- end }}
   selector:
     matchLabels:
       {{- include "n8n.worker.selectorLabels" . | nindent 6 }}
@@ -261,15 +243,13 @@ spec:
             - secretRef:
                 name: {{ . }}
           {{- end }}
-          {{- if or .Values.volumeMounts .Values.worker.volumeMounts .Values.nodes.external.packages .Values.npmRegistry.enabled .Values.worker.persistence.enabled }}
+          {{- if or .Values.volumeMounts .Values.worker.volumeMounts .Values.nodes.external.packages .Values.npmRegistry.enabled }}
           volumeMounts:
           {{- end }}
-          {{- if and (or .Values.nodes.external.packages .Values.worker.persistence.enabled) (eq .Values.taskRunners.mode "internal") }}
+          {{- if and .Values.nodes.external.packages (eq .Values.taskRunners.mode "internal") }}
             - name: node-modules
               mountPath: "/home/node/.n8n"
               readOnly: false
-          {{- end }}
-          {{- if and .Values.nodes.external.packages (eq .Values.taskRunners.mode "internal") }}
             - name: community-node-modules
               mountPath: "/home/node/.n8n/nodes"
               readOnly: false
@@ -321,13 +301,11 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ template "n8n.taskRunners.fullname" . }}-configmap
-          {{- if or .Values.nodes.external.packages .Values.worker.persistence.enabled }}
+          {{- if .Values.nodes.external.packages }}
           volumeMounts:
             - name: node-modules
               mountPath: "/home/node/.n8n"
               readOnly: false
-          {{- end }}
-          {{- if .Values.nodes.external.packages }}
             - name: community-node-modules
               mountPath: "/home/node/.n8n/nodes"
               readOnly: false
@@ -336,17 +314,10 @@ spec:
       {{- with .Values.worker.extraContainers }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if or .Values.volumes .Values.worker.volumes .Values.worker.persistence.enabled .Values.nodes.external.packages .Values.npmRegistry.enabled }}
       volumes:
-      {{- end }}
-      {{- if .Values.worker.persistence.enabled }}
         - name: node-modules
           persistentVolumeClaim:
-            claimName: {{ default (include "n8n-worker.persistence.fullname" .) .Values.worker.persistence.existingClaim }}
-      {{- else if .Values.nodes.external.packages }}
-        - name: node-modules
-          emptyDir: {}
-      {{- end }}
+            claimName: {{ include "n8n-worker.persistence.fullname" . }}
       {{- if .Values.nodes.external.packages }}
         - name: community-node-modules
           emptyDir: {}
@@ -379,5 +350,21 @@ spec:
       dnsConfig:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ include "n8n-worker.persistence.fullname" . }}
+      spec:
+        accessModes:
+          - {{ .Values.worker.persistence.accessMode }}
+        resources:
+          requests:
+            storage: {{ .Values.worker.persistence.size }}
+        {{- if .Values.worker.persistence.storageClass }}
+          {{- if (eq "-" .Values.worker.persistence.storageClass) }}
+        storageClassName: ""
+          {{- else }}
+        storageClassName: {{ .Values.worker.persistence.storageClass | quote }}
+          {{- end }}
+        {{- end }}
 {{- end }}
 {{- end }}

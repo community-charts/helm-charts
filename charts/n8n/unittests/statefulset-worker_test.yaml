@@ -1,9 +1,9 @@
-suite: test deployment
+suite: test statefulset-worker
 
 templates:
   - configmap.yaml
   - secret.yaml
-  - deployment.yaml
+  - statefulset-worker.yaml
 
 release:
   name: n8n
@@ -13,48 +13,43 @@ chart:
   version: 1.0.0
   appVersion: 1.0.0
 
+set:
+  worker:
+    count: 2
+    mode: queue
+    persistence:
+      enabled: true
+  db:
+    type: postgresdb
+
 tests:
-  - it: should be custom service account when we do not create it
+  - it: should not have worker deployment when dbtype is sqlite
     set:
-      serviceAccount:
-        create: false
-        name: customsa
+      db:
+        type: sqlite
     asserts:
-      - equal:
-          path: spec.template.spec.serviceAccountName
-          value: customsa
-        template: deployment.yaml
+      - hasDocuments:
+          count: 0
+        template: statefulset-worker.yaml
 
-  - it: should set strategy to Recreate when strategy.type is Recreate
+  - it: should not have worker deployment when worker mode is regular
     set:
-      strategy:
-        type: Recreate
+      worker:
+        mode: regular
     asserts:
-      - equal:
-          path: spec.strategy.type
-          value: Recreate
-        template: deployment.yaml
+      - hasDocuments:
+          count: 0
+        template: statefulset-worker.yaml
 
-  - it: should set strategy to RollingUpdate when strategy.type is RollingUpdate
+  - it: should set replica count when worker count is set
     set:
-      strategy:
-        type: RollingUpdate
-        rollingUpdate:
-          maxUnavailable: 1
-          maxSurge: 1
+      worker:
+        count: 3
     asserts:
       - equal:
-          path: spec.strategy.type
-          value: RollingUpdate
-        template: deployment.yaml
-      - equal:
-          path: spec.strategy.rollingUpdate.maxUnavailable
-          value: 1
-        template: deployment.yaml
-      - equal:
-          path: spec.strategy.rollingUpdate.maxSurge
-          value: 1
-        template: deployment.yaml
+          path: spec.replicas
+          value: 3
+        template: statefulset-worker.yaml
 
   - it: should set pod annotations when podAnnotations are set
     set:
@@ -64,7 +59,7 @@ tests:
       - equal:
           path: spec.template.metadata.annotations.test
           value: test
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set pod labels when podLabels are set
     set:
@@ -74,7 +69,7 @@ tests:
       - equal:
           path: spec.template.metadata.labels.test
           value: test
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set image pull secrets when imagePullSecrets are set
     set:
@@ -84,7 +79,18 @@ tests:
       - equal:
           path: spec.template.spec.imagePullSecrets[0].name
           value: fake-image-pull-secret
-        template: deployment.yaml
+        template: statefulset-worker.yaml
+
+  - it: should be custom service account when we do not create it
+    set:
+      serviceAccount:
+        create: false
+        name: customsa
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: customsa
+        template: statefulset-worker.yaml
 
   - it: should set pod security context when podSecurityContext is set
     set:
@@ -96,15 +102,15 @@ tests:
       - equal:
           path: spec.template.spec.securityContext.runAsUser
           value: 1000
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
           path: spec.template.spec.securityContext.runAsGroup
           value: 1000
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
           path: spec.template.spec.securityContext.runAsNonRoot
           value: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set container security context when securityContext is set
     set:
@@ -114,17 +120,17 @@ tests:
         runAsNonRoot: true
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].securityContext.runAsUser
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].securityContext.runAsUser
           value: 1000
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].securityContext.runAsGroup
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].securityContext.runAsGroup
           value: 1000
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].securityContext.runAsNonRoot
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].securityContext.runAsNonRoot
           value: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should use image repository and tag from image when they set
     set:
@@ -133,9 +139,9 @@ tests:
         tag: fake-tag
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].image
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].image
           value: fake-image-repository/fake-image:fake-tag
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should use default image and chart app version as image tag when tag is not set
     set:
@@ -149,18 +155,37 @@ tests:
       appVersion: 0.81.0
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].image
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].image
           value: n8nio/n8n:0.81.0
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set image pull policy when imagePullPolicy is set
     set:
       image.pullPolicy: Always
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].imagePullPolicy
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].imagePullPolicy
           value: Always
-        template: deployment.yaml
+        template: statefulset-worker.yaml
+
+  - it: should set command to n8n with worker arg and concurrency
+    set:
+      worker:
+        concurrency: 10
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].command
+          content:
+            n8n
+        template: statefulset-worker.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].args
+          content: worker
+        template: statefulset-worker.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].args
+          content: "--concurrency=10"
+        template: statefulset-worker.yaml
 
   - it: should set ports when service.port is set
     set:
@@ -169,17 +194,62 @@ tests:
         name: fake-port
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].ports[0].name
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].ports[0].name
           value: fake-port
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].ports[0].containerPort
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].ports[0].containerPort
           value: 8080
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].ports[0].protocol
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].ports[0].protocol
           value: TCP
-        template: deployment.yaml
+        template: statefulset-worker.yaml
+
+  - it: should set startup probe when worker.startupProbe is set
+    set:
+      worker:
+        startupProbe:
+          exec:
+            command: ["/bin/sh", "-c", "ps aux | grep '[n]8n'"]
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 30
+          timeoutSeconds: 5
+          successThreshold: 1
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.exec.command[0]
+          value: /bin/sh
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.exec.command[1]
+          value: -c
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.exec.command[2]
+          value: ps aux | grep '[n]8n'
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.initialDelaySeconds
+          value: 10
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.periodSeconds
+          value: 5
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.timeoutSeconds
+          value: 5
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.failureThreshold
+          value: 30
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.successThreshold
+          value: 1
+        template: statefulset-worker.yaml
 
   - it: should set liveness probe when livenessProbe is set
     set:
@@ -194,37 +264,37 @@ tests:
         successThreshold: 1
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.httpGet.path
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.httpGet.path
           value: /healthz
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.httpGet.port
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.httpGet.port
           value: http
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.initialDelaySeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.initialDelaySeconds
           value: 10
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.periodSeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.periodSeconds
           value: 10
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.timeoutSeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.timeoutSeconds
           value: 5
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.failureThreshold
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.failureThreshold
           value: 3
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.successThreshold
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.successThreshold
           value: 1
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should set liveness probe when main.livenessProbe is set
+  - it: should set liveness probe when worker.livenessProbe is set
     set:
-      main:
+      worker:
         livenessProbe:
           httpGet:
             path: /healthz
@@ -236,33 +306,33 @@ tests:
           successThreshold: 1
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.httpGet.path
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.httpGet.path
           value: /healthz
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.httpGet.port
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.httpGet.port
           value: http
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.initialDelaySeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.initialDelaySeconds
           value: 10
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.periodSeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.periodSeconds
           value: 10
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.timeoutSeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.timeoutSeconds
           value: 5
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.failureThreshold
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.failureThreshold
           value: 3
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.successThreshold
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.successThreshold
           value: 1
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set readiness probe when readinessProbe is set
     set:
@@ -277,37 +347,37 @@ tests:
         successThreshold: 1
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.httpGet.path
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.httpGet.path
           value: /healthz/readiness
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.httpGet.port
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.httpGet.port
           value: http
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.initialDelaySeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.initialDelaySeconds
           value: 10
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.periodSeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.periodSeconds
           value: 10
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.timeoutSeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.timeoutSeconds
           value: 5
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.failureThreshold
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.failureThreshold
           value: 3
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.successThreshold
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.successThreshold
           value: 1
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should set readiness probe when main.readinessProbe is set
+  - it: should set readiness probe when worker.readinessProbe is set
     set:
-      main:
+      worker:
         readinessProbe:
           httpGet:
             path: /healthz/readiness
@@ -319,33 +389,33 @@ tests:
           successThreshold: 1
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.httpGet.path
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.httpGet.path
           value: /healthz/readiness
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.httpGet.port
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.httpGet.port
           value: http
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.initialDelaySeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.initialDelaySeconds
           value: 10
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.periodSeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.periodSeconds
           value: 10
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.timeoutSeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.timeoutSeconds
           value: 5
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.failureThreshold
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.failureThreshold
           value: 3
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.successThreshold
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.successThreshold
           value: 1
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set resources when resources are set
     set:
@@ -358,25 +428,25 @@ tests:
           memory: 200Mi
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].resources.requests.cpu
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].resources.requests.cpu
           value: 100m
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].resources.requests.memory
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].resources.requests.memory
           value: 100Mi
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].resources.limits.cpu
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].resources.limits.cpu
           value: 200m
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].resources.limits.memory
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].resources.limits.memory
           value: 200Mi
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should set resources when main.resources are set
+  - it: should set resources when worker.resources are set
     set:
-      main:
+      worker:
         resources:
           requests:
             cpu: 100m
@@ -386,48 +456,48 @@ tests:
             memory: 200Mi
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].resources.requests.cpu
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].resources.requests.cpu
           value: 100m
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].resources.requests.memory
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].resources.requests.memory
           value: 100Mi
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].resources.limits.cpu
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].resources.limits.cpu
           value: 200m
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].resources.limits.memory
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].resources.limits.memory
           value: 200Mi
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set hiring banner disabled
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: N8N_HIRING_BANNER_ENABLED
             value: "false"
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set node environment to production
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: NODE_ENV
             value: production
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set enforce settings file permissions
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
             value: "true"
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set port environment variable when service.port is set
     set:
@@ -435,62 +505,78 @@ tests:
         port: 8080
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: N8N_PORT
             value: "8080"
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set default locale environment variable when defaultLocale is set
     set:
       defaultLocale: de
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: N8N_DEFAULT_LOCALE
             value: de
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set timezone environment variable when timezone is set
     set:
       timezone: America/New_York
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: GENERIC_TIMEZONE
             value: America/New_York
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set graceful shutdown timeout environment variable when gracefulShutdownTimeout is set
     set:
       gracefulShutdownTimeout: 10
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: N8N_GRACEFUL_SHUTDOWN_TIMEOUT
             value: "10"
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should set postgresdb user environment variable when db type is postgresdb and postgresql.enabled is true and postgresql.auth.username is set
+  - it: should disable ui for the worker
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: N8N_DISABLE_UI
+            value: "true"
+        template: statefulset-worker.yaml
+
+  - it: should set queue health check active environment variable
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: QUEUE_HEALTH_CHECK_ACTIVE
+            value: "true"
+        template: statefulset-worker.yaml
+
+  - it: should set postgresdb user environment variable when postgresql.enabled is true and postgresql.auth.username is set
     set:
-      db:
-        type: postgresdb
       postgresql:
         enabled: true
         auth:
           username: n8npostgres
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: DB_POSTGRESDB_USER
             value: n8npostgres
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should set postgresdb user environment variable when db type is postgresdb and postgresql.enabled is false and externalPostgresql.username is set
+  - it: should set postgresdb user environment variable when postgresql.enabled is false and externalPostgresql.username is set
     set:
       db:
         type: postgresdb
@@ -500,13 +586,13 @@ tests:
           username: n8npostgres
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: DB_POSTGRESDB_USER
             value: n8npostgres
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should set postgresdb password environment variable from secret with key password when db type is postgresdb and postgresql.enabled is true and postgresql.auth.password is set
+  - it: should set postgresdb password environment variable from secret with key password when postgresql.enabled is true and postgresql.auth.password is set
     set:
       db:
         type: postgresdb
@@ -517,7 +603,7 @@ tests:
           password: n8npostgrespassword
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: DB_POSTGRESDB_PASSWORD
             valueFrom:
@@ -525,9 +611,9 @@ tests:
                 name: n8n-postgresql
                 key: password
                 optional: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should set postgresdb password environment variable from secret with key postgres-password when db type is postgresdb and postgresql.auth.username is not set
+  - it: should set postgresdb password environment variable from secret with key postgres-password when postgresql.auth.username is not set
     set:
       db:
         type: postgresdb
@@ -537,7 +623,7 @@ tests:
           username: ""
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: DB_POSTGRESDB_PASSWORD
             valueFrom:
@@ -545,9 +631,9 @@ tests:
                 name: n8n-postgresql
                 key: postgres-password
                 optional: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should set postgresdb password environment variable from secret with key postgres-password and with externalPostgresql.existingSecret when db type is postgresdb and externalPostgresql.existingSecret is set
+  - it: should set postgresdb password environment variable from secret with key postgres-password and with externalPostgresql.existingSecret when externalPostgresql.existingSecret is set
     set:
       db:
         type: postgresdb
@@ -555,7 +641,7 @@ tests:
         existingSecret: custom-secret
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: DB_POSTGRESDB_PASSWORD
             valueFrom:
@@ -563,17 +649,12 @@ tests:
                 name: custom-secret
                 key: postgres-password
                 optional: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should set redis username environment variable when worker mode is queue and db type is postgresdb
-    set:
-      worker:
-        mode: queue
-      db:
-        type: postgresdb
+  - it: should set redis username environment variable from secret
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: QUEUE_BULL_REDIS_USERNAME
             valueFrom:
@@ -581,19 +662,15 @@ tests:
                 name: n8n-redis
                 key: redis-username
                 optional: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should set redis username environment variable when worker mode is queue and db type is postgresdb and externalRedis.existingSecret is set
+  - it: should set redis username environment variable from external secret when externalRedis.existingSecret is set
     set:
-      worker:
-        mode: queue
-      db:
-        type: postgresdb
       externalRedis:
         existingSecret: custom-secret
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: QUEUE_BULL_REDIS_USERNAME
             valueFrom:
@@ -601,17 +678,12 @@ tests:
                 name: custom-secret
                 key: redis-username
                 optional: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should set redis password environment variable when worker mode is queue and db type is postgresdb
-    set:
-      worker:
-        mode: queue
-      db:
-        type: postgresdb
+  - it: should set redis password environment variable from secret
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: QUEUE_BULL_REDIS_PASSWORD
             valueFrom:
@@ -619,19 +691,15 @@ tests:
                 name: n8n-redis
                 key: redis-password
                 optional: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should set redis password environment variable when worker mode is queue and db type is postgresdb and externalRedis.existingSecret is set
+  - it: should set redis password environment variable from external secret when externalRedis.existingSecret is set
     set:
-      worker:
-        mode: queue
-      db:
-        type: postgresdb
       externalRedis:
         existingSecret: custom-secret
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: QUEUE_BULL_REDIS_PASSWORD
             valueFrom:
@@ -639,19 +707,7 @@ tests:
                 name: custom-secret
                 key: redis-password
                 optional: true
-        template: deployment.yaml
-
-  - it: should set webhook url environment variable when webhook.url is set
-    set:
-      webhook:
-        url: https://example.com
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
-          content:
-            name: WEBHOOK_URL
-            value: https://example.com
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set extra environment variables when extraEnvVars is set
     set:
@@ -659,133 +715,105 @@ tests:
         N8N_EXTRA_ENV_VAR: n8nextraenvvar
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: N8N_EXTRA_ENV_VAR
             value: n8nextraenvvar
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should set extra environment variables when main.extraEnvVars is set
+  - it: should set extra environment variables when worker.extraEnvVars is set
     set:
-      main:
+      worker:
         extraEnvVars:
           N8N_EXTRA_ENV_VAR: n8nextraenvvar
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: N8N_EXTRA_ENV_VAR
             value: n8nextraenvvar
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set database configurations from database configmap
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].envFrom
           content:
             configMapRef:
               name: n8n-database-configmap
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set logging configurations from logging configmap
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].envFrom
           content:
             configMapRef:
               name: n8n-logging-configmap
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set diagnostics configurations from diagnostics configmap
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].envFrom
           content:
             configMapRef:
               name: n8n-diagnostics-configmap
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set version notifications configurations from version notifications configmap
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].envFrom
           content:
             configMapRef:
               name: n8n-version-notifications-configmap
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set public api configurations from public api configmap
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].envFrom
           content:
             configMapRef:
               name: n8n-public-api-configmap
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should set workflow history configurations from workflow history configmap
+  - it: should set queue configurations from queue configmap
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].envFrom
           content:
             configMapRef:
-              name: n8n-workflow-history-configmap
-        template: deployment.yaml
+              name: n8n-queue-configmap
+        template: statefulset-worker.yaml
 
   - it: should set task broker configurations from task broker configmap
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].envFrom
           content:
             configMapRef:
               name: n8n-task-broker-configmap
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set metrics configurations from metrics configmap
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].envFrom
           content:
             configMapRef:
               name: n8n-metrics-configmap
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set encryption key from encryption key secret
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].envFrom
           content:
             secretRef:
               name: n8n-encryption-key-secret-v2
-        template: deployment.yaml
-
-  - it: should set queue configurations from queue configmap when db type is postgresdb and worker mode is queue
-    set:
-      db:
-        type: postgresdb
-      worker:
-        mode: queue
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
-          content:
-            configMapRef:
-              name: n8n-queue-configmap
-        template: deployment.yaml
-
-  - it: should set queue configurations from queue configmap when db type is postgresdb and webhook mode is queue
-    set:
-      db:
-        type: postgresdb
-      webhook:
-        mode: queue
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
-          content:
-            configMapRef:
-              name: n8n-queue-configmap
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set extra secret names for envFrom when extraSecretNamesForEnvFrom is set
     set:
@@ -794,37 +822,37 @@ tests:
         - secret2
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].envFrom
           content:
             secretRef:
               name: secret1
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].envFrom
           content:
             secretRef:
               name: secret2
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should set extra secret names for envFrom when main.extraSecretNamesForEnvFrom is set
+  - it: should set extra secret names for envFrom when worker.extraSecretNamesForEnvFrom is set
     set:
-      main:
+      worker:
         extraSecretNamesForEnvFrom:
           - secret1
           - secret2
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].envFrom
           content:
             secretRef:
               name: secret1
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].envFrom
           content:
             secretRef:
               name: secret2
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set extra volume mounts when volumeMounts is set
     set:
@@ -834,28 +862,28 @@ tests:
           readOnly: true
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].volumeMounts
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].volumeMounts
           content:
             name: fake-volume
             mountPath: /fake-path
             readOnly: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should set extra volume mounts when main.volumeMounts is set
+  - it: should set extra volume mounts when worker.volumeMounts is set
     set:
-      main:
+      worker:
         volumeMounts:
           - name: fake-volume
             mountPath: /fake-path
             readOnly: true
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].volumeMounts
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].volumeMounts
           content:
             name: fake-volume
             mountPath: /fake-path
             readOnly: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set extra volumes when volumes is set
     set:
@@ -872,11 +900,11 @@ tests:
             secret:
               secretName: mysecret
               optional: false
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should set extra volumes when main.volumes is set
+  - it: should set extra volumes when worker.volumes is set
     set:
-      main:
+      worker:
         volumes:
           - name: foo
             secret:
@@ -890,7 +918,7 @@ tests:
             secret:
               secretName: mysecret
               optional: false
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should use private npm registry when only npmRegistry.enabled is true
     set:
@@ -908,29 +936,11 @@ tests:
               optional: true
               secretName: n8n-npm-registry-secret
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should set node modules emptyDir when nodes.external.packages is set and main.persistence.enabled is false
+  - it: should set node modules pvc when worker.persistence.enabled is true and worker.persistence.existingClaim is not set
     set:
-      nodes:
-        external:
-          packages:
-            - "moment@2.29.4"
-      main:
-        persistence:
-          enabled: false
-    asserts:
-      - contains:
-          path: spec.template.spec.volumes
-          content:
-            name: node-modules
-            emptyDir: {}
-          any: true
-        template: deployment.yaml
-
-  - it: should set node modules pvc when main.persistence.enabled is true and main.persistence.existingClaim is not set
-    set:
-      main:
+      worker:
         persistence:
           enabled: true
           existingClaim: ""
@@ -940,23 +950,8 @@ tests:
           content:
             name: node-modules
             persistentVolumeClaim:
-              claimName: n8n-main-persistence
-        template: deployment.yaml
-
-  - it: should set node modules pvc when main.persistence.enabled is true and main.persistence.existingClaim is set
-    set:
-      main:
-        persistence:
-          enabled: true
-          existingClaim: "test-existing-claim"
-    asserts:
-      - contains:
-          path: spec.template.spec.volumes
-          content:
-            name: node-modules
-            persistentVolumeClaim:
-              claimName: test-existing-claim
-        template: deployment.yaml
+              claimName: n8n-worker-persistence
+        template: statefulset-worker.yaml
 
   - it: should set node selector when nodeSelector is set
     set:
@@ -966,7 +961,7 @@ tests:
       - equal:
           path: spec.template.spec.nodeSelector.disktype
           value: ssd
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set affinity when affinity is set
     set:
@@ -991,17 +986,19 @@ tests:
                   operator: In
                   values:
                     - ssd
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should set affinity when main.affinity is set
+  - it: should set affinity when worker.affinity is set
     set:
-      main:
+      worker:
         affinity:
           podAntiAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchLabels:
                   app.kubernetes.io/instance: n8n
+                  app.kubernetes.io/name: n8n-worker
+                  app.kubernetes.io/component: worker
               topologyKey: kubernetes.io/hostname
     asserts:
       - contains:
@@ -1010,8 +1007,10 @@ tests:
             labelSelector:
               matchLabels:
                 app.kubernetes.io/instance: n8n
+                app.kubernetes.io/name: n8n-worker
+                app.kubernetes.io/component: worker
             topologyKey: kubernetes.io/hostname
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set tolerations when tolerations are set
     set:
@@ -1026,7 +1025,7 @@ tests:
             key: fake-key
             operator: fake-operator
             value: fake-value
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set task runner container when taskRunners.mode is external
     set:
@@ -1045,43 +1044,43 @@ tests:
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].image
           value: n8nio/n8n:1.0.0
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].imagePullPolicy
           value: IfNotPresent
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].command
           value: ["/usr/local/bin/task-runner-launcher"]
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].args
           value: ["javascript"]
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].ports[0].containerPort
           value: 1234
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].ports[0].protocol
           value: TCP
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].livenessProbe.httpGet.path
           value: /healthz
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].livenessProbe.httpGet.port
           value: http
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].readinessProbe.httpGet.path
           value: /healthz
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].readinessProbe.httpGet.port
           value: http
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].resources
           value:
@@ -1091,7 +1090,7 @@ tests:
             limits:
               cpu: 200m
               memory: 256Mi
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].env
           content:
@@ -1099,75 +1098,14 @@ tests:
             valueFrom:
               secretKeyRef:
                 name: n8n-task-runners-secret
-                key: auth-token
-        template: deployment.yaml
+                key: worker-auth-token
+        template: statefulset-worker.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].envFrom
           content:
             configMapRef:
               name: n8n-task-runners-configmap
-        template: deployment.yaml
-
-  - it: should add license info command when license.enabled is true and license.activationKey is set
-    set:
-      license:
-        enabled: true
-        activationKey: fake-activation-key
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].command
-          content:
-            "/bin/sh"
-        template: deployment.yaml
-      - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].args
-          content:
-            "-c"
-          any: true
-        template: deployment.yaml
-      - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].args
-          content:
-            "n8n license:info && n8n"
-          any: true
-        template: deployment.yaml
-
-  - it: should add license info command when license.enabled is true and license.existingActivationKeySecret is set
-    set:
-      license:
-        enabled: true
-        existingActivationKeySecret: fake-existing-activation-key-secret
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].command
-          content:
-            "/bin/sh"
-        template: deployment.yaml
-      - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].args
-          content:
-            "-c"
-          any: true
-        template: deployment.yaml
-      - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].args
-          content:
-            "n8n license:info && n8n"
-          any: true
-        template: deployment.yaml
-
-  - it: should have multi main setup enabled when main.count is greater than 1
-    set:
-      main:
-        count: 2
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
-          content:
-            name: N8N_MULTI_MAIN_SETUP_ENABLED
-            value: "true"
-          any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should use license configmap and secret when license.enabled is true
     set:
@@ -1175,17 +1113,17 @@ tests:
         enabled: true
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].envFrom
           content:
             configMapRef:
               name: n8n-license-configmap
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].envFrom
           content:
             secretRef:
               name: n8n-license-activation-key
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set aws access key id from s3 object when binaryData.mode is s3 and minio is not enabled
     set:
@@ -1200,14 +1138,14 @@ tests:
           accessKey: fake-access-key-id
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: N8N_EXTERNAL_STORAGE_S3_ACCESS_KEY
             valueFrom:
               secretKeyRef:
                 key: access-key-id
                 name: n8n-s3-secret
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set aws access key from rootUser key when binaryData.mode is s3 and minio is enabled and users are not set
     set:
@@ -1221,14 +1159,14 @@ tests:
         users: []
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: N8N_EXTERNAL_STORAGE_S3_ACCESS_KEY
             valueFrom:
               secretKeyRef:
                 key: rootUser
                 name: n8n-minio
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set aws access key from existing secret when binaryData.mode is s3 and minio is not enabled
     set:
@@ -1243,14 +1181,14 @@ tests:
         enabled: false
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: N8N_EXTERNAL_STORAGE_S3_ACCESS_KEY
             valueFrom:
               secretKeyRef:
                 key: access-key-id
                 name: fake-existing-secret
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set aws secret access key from s3 object when binaryData.mode is s3 and minio is not enabled
     set:
@@ -1265,14 +1203,14 @@ tests:
           accessSecret: fake-secret-access-key
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: N8N_EXTERNAL_STORAGE_S3_ACCESS_SECRET
             valueFrom:
               secretKeyRef:
                 key: secret-access-key
                 name: n8n-s3-secret
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set aws secret access key from rootPassword key when binaryData.mode is s3 and minio is enabled and users are not set
     set:
@@ -1286,14 +1224,14 @@ tests:
         users: []
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: N8N_EXTERNAL_STORAGE_S3_ACCESS_SECRET
             valueFrom:
               secretKeyRef:
                 key: rootPassword
                 name: n8n-minio
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set aws secret access key from existing secret when binaryData.mode is s3 and minio is not enabled
     set:
@@ -1308,14 +1246,14 @@ tests:
         enabled: false
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: N8N_EXTERNAL_STORAGE_S3_ACCESS_SECRET
             valueFrom:
               secretKeyRef:
                 key: secret-access-key
                 name: fake-existing-secret
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set npm install init container with mount to internal task runner when nodes.external.packages is set and taskRunners.mode is internal
     set:
@@ -1333,7 +1271,7 @@ tests:
             mountPath: "/npmdata"
             readOnly: false
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - contains:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
           content:
@@ -1341,22 +1279,30 @@ tests:
             mountPath: "/nodesdata/nodes"
             readOnly: false
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].volumeMounts
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].volumeMounts
           content:
             name: node-modules
             mountPath: "/home/node/.n8n"
             readOnly: false
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.volumes
+          content:
+            name: node-modules
+            persistentVolumeClaim:
+              claimName: n8n-worker-persistence
+          any: true
+        template: statefulset-worker.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: NODE_FUNCTION_ALLOW_EXTERNAL
             value: "moment"
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should allow builtin node functions in internal task runner when nodes.builtin.modules is set and taskRunners.mode is internal
     set:
@@ -1370,12 +1316,12 @@ tests:
             - "crypto"
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: NODE_FUNCTION_ALLOW_BUILTIN
             value: "fs,crypto"
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should allow all builtin node functions in internal task runner when nodes.builtin.modules is enabled and taskRunners.mode is internal
     set:
@@ -1386,12 +1332,12 @@ tests:
           enabled: true
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: NODE_FUNCTION_ALLOW_BUILTIN
             value: "*"
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set npm install init container with mount to external task runner when nodes.external.packages is set and taskRunners.mode is external
     set:
@@ -1409,7 +1355,7 @@ tests:
             mountPath: "/npmdata"
             readOnly: false
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - contains:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
           content:
@@ -1417,7 +1363,7 @@ tests:
             mountPath: "/nodesdata/nodes"
             readOnly: false
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].volumeMounts
           content:
@@ -1425,14 +1371,22 @@ tests:
             mountPath: "/home/node/.n8n"
             readOnly: false
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: node-modules
+            persistentVolumeClaim:
+              claimName: n8n-worker-persistence
+          any: true
+        template: statefulset-worker.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].env
           content:
             name: NODE_FUNCTION_ALLOW_EXTERNAL
             value: "moment"
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should allow all external npm packages when nodes.external.allowAll is true and taskRunners.mode is internal
     set:
@@ -1443,12 +1397,12 @@ tests:
           allowAll: true
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: NODE_FUNCTION_ALLOW_EXTERNAL
             value: "*"
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should allow all external npm packages for external task runner when nodes.external.allowAll is true and taskRunners.mode is external
     set:
@@ -1464,7 +1418,7 @@ tests:
             name: NODE_FUNCTION_ALLOW_EXTERNAL
             value: "*"
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should allow builtin node functions in internal task runner when nodes.builtin.modules is set and taskRunners.mode is external
     set:
@@ -1483,7 +1437,7 @@ tests:
             name: NODE_FUNCTION_ALLOW_BUILTIN
             value: "fs,crypto"
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should only keep npm packages and not community packages when nodes.external.packages is set and taskRunners.mode is internal
     set:
@@ -1514,14 +1468,14 @@ tests:
             else
               rm /npmdata/packages.hash.new
             fi
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: NODE_FUNCTION_ALLOW_EXTERNAL
             value: "moment"
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should allow all builtin node functions in external task runner when nodes.builtin.modules is enabled and taskRunners.mode is external
     set:
@@ -1537,7 +1491,7 @@ tests:
             name: NODE_FUNCTION_ALLOW_BUILTIN
             value: "*"
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should reinstall missing packages when nodes.external.reinstallMissingPackages is true and taskRunners.mode is internal
     set:
@@ -1548,12 +1502,12 @@ tests:
           reinstallMissingPackages: true
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: N8N_REINSTALL_MISSING_PACKAGES
             value: "true"
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should reinstall missing packages when nodes.external.reinstallMissingPackages is true and taskRunners.mode is external
     set:
@@ -1569,9 +1523,9 @@ tests:
             name: N8N_REINSTALL_MISSING_PACKAGES
             value: "true"
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should use private npm registry when external packages are set and npmRegistry.enabled is true
+  - it: should use private npm registry when npmRegistry.enabled is true and external packages are set
     set:
       nodes:
         external:
@@ -1591,7 +1545,7 @@ tests:
             subPath: "npmrc"
             readOnly: true
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - contains:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
           content:
@@ -1599,7 +1553,7 @@ tests:
             mountPath: "/npmdata"
             readOnly: false
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - contains:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
           content:
@@ -1607,7 +1561,7 @@ tests:
             mountPath: "/nodesdata/nodes"
             readOnly: false
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - contains:
           path: spec.template.spec.volumes
           content:
@@ -1616,11 +1570,145 @@ tests:
               optional: true
               secretName: n8n-npm-registry-secret
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should add init container to main pod when main.initContainers is defined
+  - it: should use init container to wait main node ready when worker.waitMainNodeReady.enabled is true
+    set:
+      worker:
+        waitMainNodeReady:
+          enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers
+          content:
+            name: wait-for-main
+            image: busybox:1.36
+          any: true
+        template: statefulset-worker.yaml
+
+  - it: should use init container to wait main node ready with http schema when overwriteSchema is not set
+    set:
+      worker:
+        waitMainNodeReady:
+          enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].args[0]
+          value: |
+            until wget -q --spider http://n8n.n8n.svc.cluster.local:5678/healthz; do
+              echo "Waiting for main node to be ready..."
+              sleep 2
+            done
+        template: statefulset-worker.yaml
+
+  - it: should use init container to wait main node ready from main N8N_PROTOCOL environment variable when overwriteSchema is not set
     set:
       main:
+        extraEnvVars:
+          N8N_PROTOCOL: https
+      worker:
+        waitMainNodeReady:
+          enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].args[0]
+          value: |
+            until wget -q --spider https://n8n.n8n.svc.cluster.local:5678/healthz; do
+              echo "Waiting for main node to be ready..."
+              sleep 2
+            done
+        template: statefulset-worker.yaml
+
+  - it: should use init container to wait main node ready with https schema when overwriteSchema is set https
+    set:
+      worker:
+        waitMainNodeReady:
+          enabled: true
+          overwriteSchema: https
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].args[0]
+          value: |
+            until wget -q --spider https://n8n.n8n.svc.cluster.local:5678/healthz; do
+              echo "Waiting for main node to be ready..."
+              sleep 2
+            done
+        template: statefulset-worker.yaml
+
+  - it: should use init container to wait main node ready with different service name when overwriteUrl is set
+    set:
+      worker:
+        waitMainNodeReady:
+          enabled: true
+          overwriteUrl: "n8n-different-name.n8n.svc.cluster.local:1234"
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].args[0]
+          value: |
+            until wget -q --spider http://n8n-different-name.n8n.svc.cluster.local:1234/healthz; do
+              echo "Waiting for main node to be ready..."
+              sleep 2
+            done
+        template: statefulset-worker.yaml
+
+  - it: should use init container to wait main node ready with different health check path when healthCheckPath is set different
+    set:
+      worker:
+        waitMainNodeReady:
+          enabled: true
+          healthCheckPath: "/healthz-different"
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].args[0]
+          value: |
+            until wget -q --spider http://n8n.n8n.svc.cluster.local:5678/healthz-different; do
+              echo "Waiting for main node to be ready..."
+              sleep 2
+            done
+        template: statefulset-worker.yaml
+
+  - it: should use init container to wait main node ready with parameters when additionalParameters is set
+    set:
+      main:
+        extraEnvVars:
+          N8N_PROTOCOL: https
+      worker:
+        waitMainNodeReady:
+          enabled: true
+          additionalParameters:
+            - "--no-check-certificate"
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].args[0]
+          value: |
+            until wget -q --spider --no-check-certificate https://n8n.n8n.svc.cluster.local:5678/healthz; do
+              echo "Waiting for main node to be ready..."
+              sleep 2
+            done
+        template: statefulset-worker.yaml
+
+  - it: should use startupProbe to wait n8n process ready
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.exec.command
+          value: ["/bin/sh", "-c", "ps aux | grep '[n]8n'"]
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.initialDelaySeconds
+          value: 10
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.periodSeconds
+          value: 5
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].startupProbe.failureThreshold
+          value: 30
+        template: statefulset-worker.yaml
+
+  - it: should add init container to worker pod when worker.initContainers is defined
+    set:
+      worker:
         initContainers:
           - name: my-init-container
             image: "my-image:1.0.0"
@@ -1630,27 +1718,27 @@ tests:
               - infinity
     asserts:
       - equal:
-          path: spec.template.spec.initContainers[0].name
+          path: spec.template.spec.initContainers[?(@.name == "my-init-container")].name
           value: my-init-container
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.initContainers[0].image
+          path: spec.template.spec.initContainers[?(@.name == "my-init-container")].image
           value: "my-image:1.0.0"
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.initContainers[0].imagePullPolicy
+          path: spec.template.spec.initContainers[?(@.name == "my-init-container")].imagePullPolicy
           value: IfNotPresent
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - equal:
-          path: spec.template.spec.initContainers[0].command
+          path: spec.template.spec.initContainers[?(@.name == "my-init-container")].command
           value:
             - sleep
             - infinity
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
-  - it: should add extra containers to main pod when main.extraContainers is defined
+  - it: should add extra containers to worker pod when worker.extraContainers is defined
     set:
-      main:
+      worker:
         extraContainers:
           - name: my-extra-container
             image: "my-image:1.0.0"
@@ -1669,7 +1757,7 @@ tests:
               - sleep
               - infinity
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set dnsPolicy when dnsPolicy is set
     set:
@@ -1678,7 +1766,7 @@ tests:
       - equal:
           path: spec.template.spec.dnsPolicy
           value: ClusterFirst
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set dnsConfig when dnsConfig is set
     set:
@@ -1692,13 +1780,13 @@ tests:
           content:
             1.1.1.1
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - contains:
           path: spec.template.spec.dnsConfig.nameservers
           content:
             1.0.0.1
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should set dnsPolicy and dnsConfig when dnsPolicy and dnsConfig are set
     set:
@@ -1711,19 +1799,19 @@ tests:
       - equal:
           path: spec.template.spec.dnsPolicy
           value: None
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - contains:
           path: spec.template.spec.dnsConfig.nameservers
           content:
             1.1.1.1
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
       - contains:
           path: spec.template.spec.dnsConfig.nameservers
           content:
             1.0.0.1
           any: true
-        template: deployment.yaml
+        template: statefulset-worker.yaml
 
   - it: should match snapshot of default values
     release:
@@ -1737,7 +1825,7 @@ tests:
     asserts:
       - matchSnapshot: { }
 
-  - it: should match snapshot of main persistence
+  - it: should match snapshot of worker persistence
     release:
       name: n8n
       namespace: n8n
@@ -1746,7 +1834,7 @@ tests:
       appVersion: 1.0.0
     set:
       encryptionKey: "test-encryption-key"
-      main:
+      worker:
         count: 1
         persistence:
           enabled: true

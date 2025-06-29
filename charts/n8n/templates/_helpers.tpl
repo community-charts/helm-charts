@@ -255,3 +255,96 @@ Convert n8n log level to npm log level
 {{- else }}{{ $level }}
 {{- end -}}
 {{- end -}}
+
+{{/*
+n8n main persistence name
+*/}}
+{{- define "n8n-main.persistence.name" -}}
+{{- printf "%s-main-persistence" (include "n8n.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+
+{{/*
+n8n main persistence full name
+*/}}
+{{- define "n8n-main.persistence.fullname" -}}
+{{- printf "%s-main-persistence" (include "n8n.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+n8n main persistence labels
+*/}}
+{{- define "n8n-main.persistence.labels" -}}
+helm.sh/chart: {{ include "n8n.chart" . }}
+{{ include "n8n-main.persistence.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/part-of: {{ include "n8n.name" . }}
+{{- end }}
+
+{{/*
+n8n main persistence selector labels
+*/}}
+{{- define "n8n-main.persistence.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "n8n-main.persistence.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: persistence
+{{- end }}
+
+{{/*
+n8n worker persistence name
+*/}}
+{{- define "n8n-worker.persistence.name" -}}
+{{- printf "%s-persistence" (include "n8n.worker.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+
+{{/*
+n8n worker persistence full name
+*/}}
+{{- define "n8n-worker.persistence.fullname" -}}
+{{- printf "%s-persistence" (include "n8n.worker.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+n8n worker persistence labels
+*/}}
+{{- define "n8n-worker.persistence.labels" -}}
+helm.sh/chart: {{ include "n8n.chart" . }}
+{{ include "n8n-worker.persistence.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/part-of: {{ include "n8n.worker.name" . }}
+{{- end }}
+
+{{/*
+n8n worker persistence selector labels
+*/}}
+{{- define "n8n-worker.persistence.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "n8n-worker.persistence.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: persistence
+{{- end }}
+
+{{/*
+n8n npm install script logic
+*/}}
+{{- define "n8n.npmInstallScript" -}}
+export PACKAGES="{{ join " " .Values.nodes.external.packages }}"
+export COMMUNITY_PACKAGES="{{ include "n8n.communityPackages" . }}"
+export NON_COMMUNITY_PACKAGES="{{ include "n8n.nonCommunityPackages" . }}"
+echo "$PACKAGES" | sha256sum > /npmdata/packages.hash.new
+if [ ! -f /npmdata/packages.hash ] || ! cmp /npmdata/packages.hash /npmdata/packages.hash.new; then
+  if [ -n "$NON_COMMUNITY_PACKAGES" ]; then
+    npm install --loglevel {{ include "n8n.npmLogLevel" .Values.log.level }} --no-save $NON_COMMUNITY_PACKAGES --prefix /npmdata
+  fi
+  if [ -n "$COMMUNITY_PACKAGES" ]; then
+    npm install --loglevel {{ include "n8n.npmLogLevel" .Values.log.level }} --no-save $COMMUNITY_PACKAGES --prefix /nodesdata/nodes
+  fi
+  mv /npmdata/packages.hash.new /npmdata/packages.hash
+else
+  rm /npmdata/packages.hash.new
+fi
+{{- end -}}
