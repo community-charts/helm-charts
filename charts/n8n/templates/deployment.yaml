@@ -1,4 +1,4 @@
-{{- if not (or (.Values.main.forceToUseStatefulset) (and .Values.main.persistence.enabled (gt (int .Values.main.count) 1) (not .Values.main.persistence.existingClaim) (eq .Values.main.persistence.accessMode "ReadWriteOnce"))) }}
+{{- if and (not .Values.main.forceToUseStatefulset) (or (not .Values.main.persistence.enabled) (and .Values.main.persistence.enabled (or (eq (int .Values.main.count) 1) (eq .Values.main.persistence.accessMode "ReadWriteMany"))) ) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

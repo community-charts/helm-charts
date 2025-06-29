@@ -1,4 +1,4 @@
-{{- if not (or .Values.worker.forceToUseStatefulset (and .Values.worker.persistence.enabled (gt (int .Values.worker.count) 1) (not .Values.worker.persistence.existingClaim) (eq .Values.worker.persistence.accessMode "ReadWriteOnce"))) }}
+{{- if and (not .Values.worker.forceToUseStatefulset) (or (not .Values.worker.persistence.enabled) (and .Values.worker.persistence.enabled (or (and (eq (int .Values.worker.count) 1) (not .Values.worker.autoscaling.enabled) ) (eq .Values.worker.persistence.accessMode "ReadWriteMany")) )) }}
 {{- if and (eq .Values.db.type "postgresdb") (eq .Values.worker.mode "queue") }}
 apiVersion: apps/v1
 {{- if .Values.worker.allNodes }}
