@@ -1,0 +1,29 @@
+{{- if and .Values.main.persistance.enabled (not .Values.main.persistance.existingClaim) (eq (int .Values.main.count) 1) }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "n8n-main.persistance.fullname" . }}
+  labels:
+    {{- include "n8n-main.persistance.labels" . | nindent 4 }}
+  {{- with .Values.main.persistance.labels }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.main.persistance.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    {{- .Values.main.persistance.accessModes | toYaml | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.main.persistance.size }}
+  {{- if .Values.main.persistance.storageClass }}
+    {{- if (eq "-" .Values.main.persistance.storageClass) }}
+  storageClassName: ""
+    {{- else }}
+  storageClassName: {{ .Values.main.persistance.storageClass | quote }}
+    {{- end }}
+  {{- end }}
+{{- end }}

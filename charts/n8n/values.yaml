@@ -295,6 +295,31 @@ main:
       path: /healthz/readiness
       port: http
 
+  # -- Persistance configuration for the main pod
+  persistance:
+    # -- Whether to enable persistance
+    enabled: false
+    # -- Name of the volume to use for persistance
+    volumeName: "n8n-data"
+    # -- Existing claim to use for persistance
+    existingClaim: ""
+    # -- Mount path for persistance
+    mountPath: "/home/node/.n8n"
+    # -- Sub path for persistance
+    subPath: ""
+    # -- Storage class for persistance
+    storageClass: ""
+    # -- Access modes for persistance
+    accessModes:
+      - ReadWriteOnce
+    # -- Size for persistance
+    size: 8Gi
+    # -- Annotations for persistance
+    annotations:
+      helm.sh/resource-policy: keep
+    # -- Labels for persistance
+    labels: {}
+
   # -- Extra environment variables
   extraEnvVars: {}
 

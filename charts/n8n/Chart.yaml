@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.11.0
+version: 1.12.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -50,16 +50,11 @@ annotations:
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: deprecated
-      description: Deprecated affinity field from root level. Use affinity field in main, worker, and webhook blocks instead. This field will be removed in a future release.
-      links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/150
     - kind: added
-      description: Added affinity field to main, worker, and webhook blocks
+      description: Added persistance support
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/150
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/94
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:1.99.1

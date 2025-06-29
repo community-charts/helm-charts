@@ -1228,6 +1228,87 @@
           "title": "readinessProbe",
           "type": "object"
         },
+        "persistance": {
+          "additionalProperties": false,
+          "description": "Persistance configuration for the main pod",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "description": "Whether to enable persistance",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "volumeName": {
+              "default": "",
+              "description": "Name of the volume to use for persistance",
+              "required": [],
+              "title": "volumeName",
+              "type": "string"
+            },
+            "existingClaim": {
+              "default": "",
+              "description": "Existing claim to use for persistance",
+              "required": [],
+              "title": "existingClaim",
+              "type": "string"
+            },
+            "mountPath": {
+              "default": "",
+              "description": "Mount path for persistance",
+              "required": [],
+              "title": "mountPath",
+              "type": "string"
+            },
+            "subPath": {
+              "default": "",
+              "description": "Sub path for persistance",
+              "required": [],
+              "title": "subPath",
+              "type": "string"
+            },
+            "storageClass": {
+              "default": "",
+              "description": "Storage class for persistance",
+              "required": [],
+              "title": "storageClass",
+              "type": "string"
+            },
+            "accessModes": {
+              "description": "Access modes for persistance",
+              "items": {
+                "enum": ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany"]
+              },
+              "required": [],
+              "title": "accessModes",
+              "type": "array"
+            },
+            "size": {
+              "default": "8Gi",
+              "description": "Size for persistance",
+              "required": [],
+              "title": "size",
+              "type": "string"
+            },
+            "annotations": {
+              "additionalProperties": true,
+              "description": "Annotations for persistance",
+              "required": [],
+              "title": "annotations",
+              "type": "object"
+            },
+            "labels": {
+              "additionalProperties": true,
+              "description": "Labels for persistance",
+              "required": [],
+              "title": "labels",
+              "type": "object"
+            }
+          },
+          "required": ["enabled", "volumeName", "existingClaim", "mountPath", "subPath", "storageClass", "accessModes", "size", "annotations", "labels"],
+          "title": "persistance",
+          "type": "object"
+        },
         "extraEnvVars": {
           "additionalProperties": true,
           "description": "Extra environment variables",

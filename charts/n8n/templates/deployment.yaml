@@ -321,12 +321,18 @@ spec:
       {{- with .Values.main.extraContainers }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if or .Values.volumes .Values.main.volumes .Values.nodes.external.packages .Values.npmRegistry.enabled }}
+      {{- if or .Values.volumes .Values.main.volumes .Values.main.persistance.enabled .Values.nodes.external.packages .Values.npmRegistry.enabled }}
       volumes:
       {{- end }}
-      {{- if .Values.nodes.external.packages }}
+      {{- if .Values.main.persistance.enabled }}
+        - name: node-modules
+          persistentVolumeClaim:
+            claimName: {{ default (include "n8n-main.persistance.fullname" .) .Values.main.persistance.existingClaim }}
+      {{- else if .Values.nodes.external.packages }}
         - name: node-modules
           emptyDir: {}
+      {{- end }}
+      {{- if .Values.nodes.external.packages }}
         - name: community-node-modules
           emptyDir: {}
       {{- end }}

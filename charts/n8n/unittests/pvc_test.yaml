@@ -1,0 +1,78 @@
+suite: test pvc
+
+templates:
+  - pvc.yaml
+
+release:
+  name: n8n
+  namespace: n8n
+
+chart:
+  version: 1.0.0
+  appVersion: 1.0.0
+
+set:
+  main:
+    persistance:
+      enabled: true
+
+tests:
+  - it: should not create pvc resource for main node when main.count is 1 and existingClaim is set
+    set:
+      main:
+        count: 1
+        persistance:
+          existingClaim: "test-existing-claim"
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should not create pvc resource for main node when main.count is bigger than 1 and existingClaim is not set
+    set:
+      main:
+        count: 2
+        persistance:
+          existingClaim: ""
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create pvc resource for main node when main.count is 1 and existingClaim is not set
+    set:
+      main:
+        count: 1
+        persistance:
+          volumeName: "test-volume"
+          existingClaim: ""
+          mountPath: "/home/node/.n8n"
+          subPath: ""
+          storageClass: "test-storage-class"
+          accessModes:
+            - ReadWriteOnce
+          size: 1Gi
+          annotations:
+            key-annotation: value-annotation
+          labels:
+            key-label: value-label
+    documentSelector:
+      path: metadata.name
+      value: n8n-main-pvc
+    asserts:
+      - equal:
+          path: metadata.labels.key-label
+          value: value-label
+      - equal:
+          path: metadata.annotations.key-annotation
+          value: value-annotation
+      - lengthEqual:
+          path: spec.accessModes
+          count: 1
+      - equal:
+          path: spec.accessModes[0]
+          value: ReadWriteOnce
+      - equal:
+          path: spec.resources.requests.storage
+          value: 1Gi
+      - equal:
+          path: spec.storageClassName
+          value: test-storage-class

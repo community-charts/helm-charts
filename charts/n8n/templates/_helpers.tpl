@@ -255,3 +255,39 @@ Convert n8n log level to npm log level
 {{- else }}{{ $level }}
 {{- end -}}
 {{- end -}}
+
+{{/*
+n8n main persistance name
+*/}}
+{{- define "n8n-main.persistance.name" -}}
+{{- printf "%s-main-pvc" (include "n8n.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+
+{{/*
+n8n main persistance full name
+*/}}
+{{- define "n8n-main.persistance.fullname" -}}
+{{- printf "%s-main-pvc" (include "n8n.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+n8n main persistance labels
+*/}}
+{{- define "n8n-main.persistance.labels" -}}
+helm.sh/chart: {{ include "n8n.chart" . }}
+{{ include "n8n-main.persistance.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/part-of: {{ include "n8n.name" . }}
+{{- end }}
+
+{{/*
+n8n main persistance selector labels
+*/}}
+{{- define "n8n-main.persistance.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "n8n-main.persistance.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: persistance
+{{- end }}
