@@ -15,6 +15,7 @@ chart:
 
 set:
   worker:
+    count: 1
     mode: queue
   db:
     type: postgresdb

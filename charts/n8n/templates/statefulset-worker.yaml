@@ -1,4 +1,4 @@
-{{- if or (.Values.worker.forceToUseStatefulset) (and .Values.worker.persistence.enabled (gt (int .Values.worker.count) 1) (not .Values.worker.persistence.existingClaim) (eq .Values.worker.persistence.accessMode "ReadWriteOnce")) (not .Values.worker.autoscaling.enabled) }}
+{{- if or (.Values.worker.forceToUseStatefulset) (and .Values.worker.persistence.enabled (gt (int .Values.worker.count) 1) (not .Values.worker.persistence.existingClaim) (eq .Values.worker.persistence.accessMode "ReadWriteOnce")) }}
 {{- if and (eq .Values.db.type "postgresdb") (eq .Values.worker.mode "queue") }}
 apiVersion: apps/v1
 kind: StatefulSet

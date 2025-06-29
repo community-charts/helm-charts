@@ -13,6 +13,12 @@ chart:
   version: 1.0.0
   appVersion: 1.0.0
 
+set:
+  main:
+    count: 2
+    persistence:
+      enabled: true
+
 tests:
   - it: should be custom service account when we do not create it
     set:

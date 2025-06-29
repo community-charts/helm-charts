@@ -27,3 +27,32 @@ spec:
     {{- end }}
   {{- end }}
 {{- end }}
+{{- if and .Values.worker.persistence.enabled (not .Values.worker.persistence.existingClaim) (eq (int .Values.worker.count) 1) }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "n8n-worker.persistence.fullname" . }}
+  labels:
+    {{- include "n8n-worker.persistence.labels" . | nindent 4 }}
+  {{- with .Values.worker.persistence.labels }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.worker.persistence.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    - {{ .Values.worker.persistence.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.worker.persistence.size }}
+  {{- if .Values.worker.persistence.storageClass }}
+    {{- if (eq "-" .Values.worker.persistence.storageClass) }}
+  storageClassName: ""
+    {{- else }}
+  storageClassName: {{ .Values.worker.persistence.storageClass | quote }}
+    {{- end }}
+  {{- end }}
+{{- end }}
