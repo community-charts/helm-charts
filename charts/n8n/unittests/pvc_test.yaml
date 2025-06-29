@@ -125,3 +125,27 @@ tests:
       - equal:
           path: spec.storageClassName
           value: test-storage-class
+
+  - it: should match snapshot of main persistence
+    set:
+      main:
+        count: 1
+        persistence:
+          enabled: true
+      worker:
+        persistence:
+          enabled: false
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should match snapshot of worker persistence
+    set:
+      main:
+        persistence:
+          enabled: false
+      worker:
+        count: 1
+        persistence:
+          enabled: true
+    asserts:
+      - matchSnapshot: { }

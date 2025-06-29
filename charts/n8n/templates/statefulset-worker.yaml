@@ -314,12 +314,11 @@ spec:
       {{- with .Values.worker.extraContainers }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if or .Values.volumes .Values.worker.volumes .Values.nodes.external.packages .Values.npmRegistry.enabled }}
       volumes:
-      {{- end }}
-      {{- if .Values.nodes.external.packages }}
         - name: node-modules
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: {{ include "n8n-worker.persistence.fullname" . }}
+      {{- if .Values.nodes.external.packages }}
         - name: community-node-modules
           emptyDir: {}
       {{- end }}
@@ -351,5 +350,21 @@ spec:
       dnsConfig:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ include "n8n-worker.persistence.fullname" . }}
+      spec:
+        accessModes:
+          - {{ .Values.worker.persistence.accessMode }}
+        resources:
+          requests:
+            storage: {{ .Values.worker.persistence.size }}
+        {{- if .Values.worker.persistence.storageClass }}
+          {{- if (eq "-" .Values.worker.persistence.storageClass) }}
+        storageClassName: ""
+          {{- else }}
+        storageClassName: {{ .Values.worker.persistence.storageClass | quote }}
+          {{- end }}
+        {{- end }}
 {{- end }}
 {{- end }}

@@ -1651,3 +1651,15 @@ tests:
             1.0.0.1
           any: true
         template: statefulset.yaml
+
+  - it: should match snapshot of default values
+    release:
+      name: n8n
+      namespace: n8n
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    set:
+      encryptionKey: "test-encryption-key"
+    asserts:
+      - matchSnapshot: { }

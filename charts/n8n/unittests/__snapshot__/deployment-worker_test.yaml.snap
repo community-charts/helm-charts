@@ -1,0 +1,688 @@
+should match snapshot of default values:
+  1: |
+    apiVersion: v1
+    data:
+      DB_POSTGRESDB_DATABASE: n8n
+      DB_POSTGRESDB_HOST: ""
+      DB_POSTGRESDB_PORT: "5432"
+      DB_TYPE: postgresdb
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-database-configmap
+  2: |
+    apiVersion: v1
+    data:
+      N8N_LOG_LEVEL: info
+      N8N_LOG_OUTPUT: console
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-logging-configmap
+  3: |
+    apiVersion: v1
+    data:
+      N8N_DIAGNOSTICS_CONFIG_BACKEND: ""
+      N8N_DIAGNOSTICS_CONFIG_FRONTEND: ""
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_DIAGNOSTICS_POSTHOG_API_HOST: ""
+      N8N_DIAGNOSTICS_POSTHOG_API_KEY: ""
+      N8N_FRONTEND_SENTRY_DSN: ""
+      N8N_SENTRY_DSN: ""
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-diagnostics-configmap
+  4: |
+    apiVersion: v1
+    data:
+      N8N_VERSION_NOTIFICATIONS_ENABLED: "false"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-version-notifications-configmap
+  5: |
+    apiVersion: v1
+    data:
+      N8N_PUBLIC_API_DISABLED: "false"
+      N8N_PUBLIC_API_ENDPOINT: api
+      N8N_PUBLIC_API_SWAGGERUI_DISABLED: "false"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-public-api-configmap
+  6: |
+    apiVersion: v1
+    data:
+      EXECUTIONS_MODE: queue
+      OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS: "true"
+      QUEUE_BULL_REDIS_HOST: ""
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-queue-configmap
+  7: |
+    apiVersion: v1
+    data:
+      N8N_WORKFLOW_HISTORY_ENABLED: "true"
+      N8N_WORKFLOW_HISTORY_PRUNE_TIME: "336"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-workflow-history-configmap
+  8: |
+    apiVersion: v1
+    data:
+      N8N_RUNNERS_ENABLED: "true"
+      N8N_RUNNERS_HEARTBEAT_INTERVAL: "30"
+      N8N_RUNNERS_MAX_CONCURRENCY: "5"
+      N8N_RUNNERS_MODE: internal
+      N8N_RUNNERS_TASK_TIMEOUT: "60"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-task-broker-configmap
+  9: |
+    apiVersion: v1
+    data:
+      N8N_METRICS: "false"
+      N8N_METRICS_INCLUDE_API_ENDPOINTS: "false"
+      N8N_METRICS_INCLUDE_API_METHOD_LABEL: "false"
+      N8N_METRICS_INCLUDE_API_PATH_LABEL: "false"
+      N8N_METRICS_INCLUDE_API_STATUS_CODE_LABEL: "false"
+      N8N_METRICS_INCLUDE_CACHE_METRICS: "false"
+      N8N_METRICS_INCLUDE_CREDENTIAL_TYPE_LABEL: "false"
+      N8N_METRICS_INCLUDE_DEFAULT_METRICS: "true"
+      N8N_METRICS_INCLUDE_MESSAGE_EVENT_BUS_METRICS: "false"
+      N8N_METRICS_INCLUDE_NODE_TYPE_LABEL: "false"
+      N8N_METRICS_INCLUDE_QUEUE_METRICS: "false"
+      N8N_METRICS_INCLUDE_WORKFLOW_ID_LABEL: "false"
+      N8N_METRICS_PREFIX: n8n_
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-metrics-configmap
+  10: |
+    apiVersion: v1
+    data:
+      N8N_DEFAULT_BINARY_DATA_MODE: default
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-binary-data-configmap
+  11: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app.kubernetes.io/component: worker
+        app.kubernetes.io/instance: n8n
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: n8n-worker
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: n8n-1.0.0
+      name: n8n-worker
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app.kubernetes.io/component: worker
+          app.kubernetes.io/instance: n8n
+          app.kubernetes.io/name: n8n-worker
+      strategy:
+        rollingUpdate:
+          maxSurge: 25%
+          maxUnavailable: 25%
+        type: RollingUpdate
+      template:
+        metadata:
+          annotations:
+            checksum/config: 8391c025e9f54ccd7f6f9ac529b627ac11ee82a53e72db3fee35c24e152f4852
+          labels:
+            app.kubernetes.io/component: worker
+            app.kubernetes.io/instance: n8n
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: n8n-worker
+            app.kubernetes.io/version: 1.0.0
+            helm.sh/chart: n8n-1.0.0
+        spec:
+          containers:
+            - args:
+                - worker
+                - --concurrency=10
+              command:
+                - n8n
+              env:
+                - name: N8N_HIRING_BANNER_ENABLED
+                  value: "false"
+                - name: NODE_ENV
+                  value: production
+                - name: N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
+                  value: "true"
+                - name: N8N_PORT
+                  value: "5678"
+                - name: N8N_DEFAULT_LOCALE
+                  value: en
+                - name: GENERIC_TIMEZONE
+                  value: Europe/Berlin
+                - name: N8N_GRACEFUL_SHUTDOWN_TIMEOUT
+                  value: "30"
+                - name: N8N_DISABLE_UI
+                  value: "true"
+                - name: QUEUE_HEALTH_CHECK_ACTIVE
+                  value: "true"
+                - name: N8N_CONCURRENCY_PRODUCTION_LIMIT
+                  value: "10"
+                - name: DB_POSTGRESDB_USER
+                  value: postgres
+                - name: DB_POSTGRESDB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: postgres-password
+                      name: n8n-postgresql
+                      optional: true
+                - name: QUEUE_BULL_REDIS_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      key: redis-username
+                      name: n8n-redis
+                      optional: true
+                - name: QUEUE_BULL_REDIS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: redis-password
+                      name: n8n-redis
+                      optional: true
+              envFrom:
+                - configMapRef:
+                    name: n8n-database-configmap
+                - configMapRef:
+                    name: n8n-logging-configmap
+                - configMapRef:
+                    name: n8n-diagnostics-configmap
+                - configMapRef:
+                    name: n8n-version-notifications-configmap
+                - configMapRef:
+                    name: n8n-public-api-configmap
+                - configMapRef:
+                    name: n8n-queue-configmap
+                - configMapRef:
+                    name: n8n-task-broker-configmap
+                - configMapRef:
+                    name: n8n-metrics-configmap
+                - configMapRef:
+                    name: n8n-binary-data-configmap
+                - secretRef:
+                    name: n8n-encryption-key-secret-v2
+              image: n8nio/n8n:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                httpGet:
+                  path: /healthz
+                  port: http
+              name: n8n-worker
+              ports:
+                - containerPort: 5678
+                  name: http
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /healthz/readiness
+                  port: http
+              resources: {}
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1000
+                runAsNonRoot: true
+                runAsUser: 1000
+              startupProbe:
+                exec:
+                  command:
+                    - /bin/sh
+                    - -c
+                    - ps aux | grep '[n]8n'
+                failureThreshold: 30
+                initialDelaySeconds: 10
+                periodSeconds: 5
+          securityContext:
+            fsGroup: 1000
+            fsGroupChangePolicy: OnRootMismatch
+          serviceAccountName: n8n
+  12: |
+    apiVersion: v1
+    data:
+      postgres-password: ""
+    kind: Secret
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-postgresql
+    type: Opaque
+  13: |
+    apiVersion: v1
+    data:
+      N8N_ENCRYPTION_KEY: dGVzdC1lbmNyeXB0aW9uLWtleQ==
+    kind: Secret
+    metadata:
+      annotations:
+        meta.helm.sh/release-name: n8n
+        meta.helm.sh/release-namespace: n8n
+      labels:
+        app: n8n
+        app.kubernetes.io/managed-by: Helm
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-encryption-key-secret-v2
+      namespace: n8n
+    type: Opaque
+  14: |
+    apiVersion: v1
+    data:
+      redis-password: ""
+      redis-username: ZGVmYXVsdA==
+    kind: Secret
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-redis
+    type: Opaque
+should match snapshot of worker persistence:
+  1: |
+    apiVersion: v1
+    data:
+      DB_POSTGRESDB_DATABASE: n8n
+      DB_POSTGRESDB_HOST: ""
+      DB_POSTGRESDB_PORT: "5432"
+      DB_TYPE: postgresdb
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-database-configmap
+  2: |
+    apiVersion: v1
+    data:
+      N8N_LOG_LEVEL: info
+      N8N_LOG_OUTPUT: console
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-logging-configmap
+  3: |
+    apiVersion: v1
+    data:
+      N8N_DIAGNOSTICS_CONFIG_BACKEND: ""
+      N8N_DIAGNOSTICS_CONFIG_FRONTEND: ""
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_DIAGNOSTICS_POSTHOG_API_HOST: ""
+      N8N_DIAGNOSTICS_POSTHOG_API_KEY: ""
+      N8N_FRONTEND_SENTRY_DSN: ""
+      N8N_SENTRY_DSN: ""
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-diagnostics-configmap
+  4: |
+    apiVersion: v1
+    data:
+      N8N_VERSION_NOTIFICATIONS_ENABLED: "false"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-version-notifications-configmap
+  5: |
+    apiVersion: v1
+    data:
+      N8N_PUBLIC_API_DISABLED: "false"
+      N8N_PUBLIC_API_ENDPOINT: api
+      N8N_PUBLIC_API_SWAGGERUI_DISABLED: "false"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-public-api-configmap
+  6: |
+    apiVersion: v1
+    data:
+      EXECUTIONS_MODE: queue
+      OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS: "true"
+      QUEUE_BULL_REDIS_HOST: ""
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-queue-configmap
+  7: |
+    apiVersion: v1
+    data:
+      N8N_WORKFLOW_HISTORY_ENABLED: "true"
+      N8N_WORKFLOW_HISTORY_PRUNE_TIME: "336"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-workflow-history-configmap
+  8: |
+    apiVersion: v1
+    data:
+      N8N_RUNNERS_ENABLED: "true"
+      N8N_RUNNERS_HEARTBEAT_INTERVAL: "30"
+      N8N_RUNNERS_MAX_CONCURRENCY: "5"
+      N8N_RUNNERS_MODE: internal
+      N8N_RUNNERS_TASK_TIMEOUT: "60"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-task-broker-configmap
+  9: |
+    apiVersion: v1
+    data:
+      N8N_METRICS: "false"
+      N8N_METRICS_INCLUDE_API_ENDPOINTS: "false"
+      N8N_METRICS_INCLUDE_API_METHOD_LABEL: "false"
+      N8N_METRICS_INCLUDE_API_PATH_LABEL: "false"
+      N8N_METRICS_INCLUDE_API_STATUS_CODE_LABEL: "false"
+      N8N_METRICS_INCLUDE_CACHE_METRICS: "false"
+      N8N_METRICS_INCLUDE_CREDENTIAL_TYPE_LABEL: "false"
+      N8N_METRICS_INCLUDE_DEFAULT_METRICS: "true"
+      N8N_METRICS_INCLUDE_MESSAGE_EVENT_BUS_METRICS: "false"
+      N8N_METRICS_INCLUDE_NODE_TYPE_LABEL: "false"
+      N8N_METRICS_INCLUDE_QUEUE_METRICS: "false"
+      N8N_METRICS_INCLUDE_WORKFLOW_ID_LABEL: "false"
+      N8N_METRICS_PREFIX: n8n_
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-metrics-configmap
+  10: |
+    apiVersion: v1
+    data:
+      N8N_DEFAULT_BINARY_DATA_MODE: default
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-binary-data-configmap
+  11: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app.kubernetes.io/component: worker
+        app.kubernetes.io/instance: n8n
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: n8n-worker
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: n8n-1.0.0
+      name: n8n-worker
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app.kubernetes.io/component: worker
+          app.kubernetes.io/instance: n8n
+          app.kubernetes.io/name: n8n-worker
+      strategy:
+        rollingUpdate:
+          maxSurge: 25%
+          maxUnavailable: 25%
+        type: RollingUpdate
+      template:
+        metadata:
+          annotations:
+            checksum/config: 8391c025e9f54ccd7f6f9ac529b627ac11ee82a53e72db3fee35c24e152f4852
+          labels:
+            app.kubernetes.io/component: worker
+            app.kubernetes.io/instance: n8n
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: n8n-worker
+            app.kubernetes.io/version: 1.0.0
+            helm.sh/chart: n8n-1.0.0
+        spec:
+          containers:
+            - args:
+                - worker
+                - --concurrency=10
+              command:
+                - n8n
+              env:
+                - name: N8N_HIRING_BANNER_ENABLED
+                  value: "false"
+                - name: NODE_ENV
+                  value: production
+                - name: N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
+                  value: "true"
+                - name: N8N_PORT
+                  value: "5678"
+                - name: N8N_DEFAULT_LOCALE
+                  value: en
+                - name: GENERIC_TIMEZONE
+                  value: Europe/Berlin
+                - name: N8N_GRACEFUL_SHUTDOWN_TIMEOUT
+                  value: "30"
+                - name: N8N_DISABLE_UI
+                  value: "true"
+                - name: QUEUE_HEALTH_CHECK_ACTIVE
+                  value: "true"
+                - name: N8N_CONCURRENCY_PRODUCTION_LIMIT
+                  value: "10"
+                - name: DB_POSTGRESDB_USER
+                  value: postgres
+                - name: DB_POSTGRESDB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: postgres-password
+                      name: n8n-postgresql
+                      optional: true
+                - name: QUEUE_BULL_REDIS_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      key: redis-username
+                      name: n8n-redis
+                      optional: true
+                - name: QUEUE_BULL_REDIS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: redis-password
+                      name: n8n-redis
+                      optional: true
+              envFrom:
+                - configMapRef:
+                    name: n8n-database-configmap
+                - configMapRef:
+                    name: n8n-logging-configmap
+                - configMapRef:
+                    name: n8n-diagnostics-configmap
+                - configMapRef:
+                    name: n8n-version-notifications-configmap
+                - configMapRef:
+                    name: n8n-public-api-configmap
+                - configMapRef:
+                    name: n8n-queue-configmap
+                - configMapRef:
+                    name: n8n-task-broker-configmap
+                - configMapRef:
+                    name: n8n-metrics-configmap
+                - configMapRef:
+                    name: n8n-binary-data-configmap
+                - secretRef:
+                    name: n8n-encryption-key-secret-v2
+              image: n8nio/n8n:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                httpGet:
+                  path: /healthz
+                  port: http
+              name: n8n-worker
+              ports:
+                - containerPort: 5678
+                  name: http
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /healthz/readiness
+                  port: http
+              resources: {}
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1000
+                runAsNonRoot: true
+                runAsUser: 1000
+              startupProbe:
+                exec:
+                  command:
+                    - /bin/sh
+                    - -c
+                    - ps aux | grep '[n]8n'
+                failureThreshold: 30
+                initialDelaySeconds: 10
+                periodSeconds: 5
+              volumeMounts:
+                - mountPath: /home/node/.n8n
+                  name: node-modules
+                  readOnly: false
+          securityContext:
+            fsGroup: 1000
+            fsGroupChangePolicy: OnRootMismatch
+          serviceAccountName: n8n
+          volumes:
+            - name: node-modules
+              persistentVolumeClaim:
+                claimName: n8n-worker-persistence
+  12: |
+    apiVersion: v1
+    data:
+      postgres-password: ""
+    kind: Secret
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-postgresql
+    type: Opaque
+  13: |
+    apiVersion: v1
+    data:
+      N8N_ENCRYPTION_KEY: dGVzdC1lbmNyeXB0aW9uLWtleQ==
+    kind: Secret
+    metadata:
+      annotations:
+        meta.helm.sh/release-name: n8n
+        meta.helm.sh/release-namespace: n8n
+      labels:
+        app: n8n
+        app.kubernetes.io/managed-by: Helm
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-encryption-key-secret-v2
+      namespace: n8n
+    type: Opaque
+  14: |
+    apiVersion: v1
+    data:
+      redis-password: ""
+      redis-username: ZGVmYXVsdA==
+    kind: Secret
+    metadata:
+      labels:
+        app: n8n
+        chart: n8n-1.0.0
+        heritage: Helm
+        release: n8n
+      name: n8n-redis
+    type: Opaque
