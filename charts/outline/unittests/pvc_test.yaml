@@ -12,7 +12,7 @@ tests:
       - hasDocuments:
           count: 0
 
-  - it: should not create pvc when persistance is not enabled
+  - it: should not create pvc when persistence is not enabled
     set:
       fileStorage:
         mode: local
@@ -33,7 +33,7 @@ tests:
       - hasDocuments:
           count: 0
 
-  - it: should set annotations when file storage mode is local and persistance is enabled and existing claim is not set and annotations are set
+  - it: should set annotations when file storage mode is local and persistence is enabled and existing claim is not set and annotations are set
     set:
       fileStorage:
         mode: local
@@ -48,7 +48,7 @@ tests:
           path: metadata.annotations.key
           value: value
 
-  - it: should set access modes when file storage mode is local and persistance is enabled and existing claim is not set and access modes are set
+  - it: should set access modes when file storage mode is local and persistence is enabled and existing claim is not set and access modes are set
     set:
       fileStorage:
         mode: local
@@ -64,7 +64,7 @@ tests:
           content:
             ReadWriteOnce
 
-  - it: should set storage class when file storage mode is local and persistance is enabled and existing claim is not set and storage class is set
+  - it: should set storage class when file storage mode is local and persistence is enabled and existing claim is not set and storage class is set
     set:
       fileStorage:
         mode: local
@@ -78,7 +78,7 @@ tests:
           path: spec.storageClassName
           value: fake-storage-class
 
-  - it: should set volume mode when file storage mode is local and persistance is enabled and existing claim is not set and volume mode is set
+  - it: should set volume mode when file storage mode is local and persistence is enabled and existing claim is not set and volume mode is set
     set:
       fileStorage:
         mode: local
@@ -92,7 +92,7 @@ tests:
           path: spec.volumeMode
           value: Block
 
-  - it: should set size when file storage mode is local and persistance is enabled and existing claim is not set and size is set
+  - it: should set size when file storage mode is local and persistence is enabled and existing claim is not set and size is set
     set:
       fileStorage:
         mode: local

@@ -13,7 +13,7 @@ chart:
 
 set:
   main:
-    persistance:
+    persistence:
       enabled: true
 
 tests:
@@ -21,7 +21,7 @@ tests:
     set:
       main:
         count: 1
-        persistance:
+        persistence:
           existingClaim: "test-existing-claim"
     asserts:
       - hasDocuments:
@@ -31,7 +31,7 @@ tests:
     set:
       main:
         count: 2
-        persistance:
+        persistence:
           existingClaim: ""
     asserts:
       - hasDocuments:
@@ -41,7 +41,7 @@ tests:
     set:
       main:
         count: 1
-        persistance:
+        persistence:
           volumeName: "test-volume"
           existingClaim: ""
           mountPath: "/home/node/.n8n"
@@ -55,7 +55,7 @@ tests:
             key-label: value-label
     documentSelector:
       path: metadata.name
-      value: n8n-main-persistance
+      value: n8n-main-persistence
     asserts:
       - equal:
           path: metadata.labels.key-label

@@ -51,7 +51,7 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: added
-      description: Added persistance support
+      description: Added persistence support
       links:
         - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/94

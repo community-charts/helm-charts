@@ -1235,54 +1235,54 @@
           "title": "forceToUseStatefulset",
           "type": "boolean"
         },
-        "persistance": {
+        "persistence": {
           "additionalProperties": false,
-          "description": "Persistance configuration for the main pod",
+          "description": "Persistence configuration for the main pod",
           "properties": {
             "enabled": {
               "default": false,
-              "description": "Whether to enable persistance",
+              "description": "Whether to enable persistence",
               "required": [],
               "title": "enabled",
               "type": "boolean"
             },
             "volumeName": {
               "default": "",
-              "description": "Name of the volume to use for persistance",
+              "description": "Name of the volume to use for persistence",
               "required": [],
               "title": "volumeName",
               "type": "string"
             },
             "existingClaim": {
               "default": "",
-              "description": "Existing claim to use for persistance",
+              "description": "Existing claim to use for persistence",
               "required": [],
               "title": "existingClaim",
               "type": "string"
             },
             "mountPath": {
               "default": "",
-              "description": "Mount path for persistance",
+              "description": "Mount path for persistence",
               "required": [],
               "title": "mountPath",
               "type": "string"
             },
             "subPath": {
               "default": "",
-              "description": "Sub path for persistance",
+              "description": "Sub path for persistence",
               "required": [],
               "title": "subPath",
               "type": "string"
             },
             "storageClass": {
               "default": "",
-              "description": "Storage class for persistance",
+              "description": "Storage class for persistence",
               "required": [],
               "title": "storageClass",
               "type": "string"
             },
             "accessMode": {
-              "description": "Access mode for persistance",
+              "description": "Access mode for persistence",
               "enum": ["ReadWriteOnce", "ReadWriteMany"],
               "required": [],
               "title": "accessMode",
@@ -1290,28 +1290,28 @@
             },
             "size": {
               "default": "8Gi",
-              "description": "Size for persistance",
+              "description": "Size for persistence",
               "required": [],
               "title": "size",
               "type": "string"
             },
             "annotations": {
               "additionalProperties": true,
-              "description": "Annotations for persistance",
+              "description": "Annotations for persistence",
               "required": [],
               "title": "annotations",
               "type": "object"
             },
             "labels": {
               "additionalProperties": true,
-              "description": "Labels for persistance",
+              "description": "Labels for persistence",
               "required": [],
               "title": "labels",
               "type": "object"
             }
           },
           "required": ["enabled", "volumeName", "existingClaim", "mountPath", "subPath", "storageClass", "accessMode", "size", "annotations", "labels"],
-          "title": "persistance",
+          "title": "persistence",
           "type": "object"
         },
         "extraEnvVars": {
@@ -1374,7 +1374,7 @@
           "type": "object"
         }
       },
-      "required": ["count", "resources", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers", "affinity"],
+      "required": ["count", "resources", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers", "affinity"],
       "title": "main",
       "type": "object"
     },
@@ -3225,54 +3225,54 @@
           "title": "forceToUseStatefulset",
           "type": "boolean"
         },
-        "persistance": {
+        "persistence": {
           "additionalProperties": false,
-          "description": "Persistance configuration for the worker pod",
+          "description": "Persistence configuration for the worker pod",
           "properties": {
             "enabled": {
               "default": false,
-              "description": "Whether to enable persistance",
+              "description": "Whether to enable persistence",
               "required": [],
               "title": "enabled",
               "type": "boolean"
             },
             "volumeName": {
               "default": "",
-              "description": "Name of the volume to use for persistance",
+              "description": "Name of the volume to use for persistence",
               "required": [],
               "title": "volumeName",
               "type": "string"
             },
             "existingClaim": {
               "default": "",
-              "description": "Existing claim to use for persistance",
+              "description": "Existing claim to use for persistence",
               "required": [],
               "title": "existingClaim",
               "type": "string"
             },
             "mountPath": {
               "default": "",
-              "description": "Mount path for persistance",
+              "description": "Mount path for persistence",
               "required": [],
               "title": "mountPath",
               "type": "string"
             },
             "subPath": {
               "default": "",
-              "description": "Sub path for persistance",
+              "description": "Sub path for persistence",
               "required": [],
               "title": "subPath",
               "type": "string"
             },
             "storageClass": {
               "default": "",
-              "description": "Storage class for persistance",
+              "description": "Storage class for persistence",
               "required": [],
               "title": "storageClass",
               "type": "string"
             },
             "accessMode": {
-              "description": "Access mode for persistance",
+              "description": "Access mode for persistence",
               "enum": ["ReadWriteOnce", "ReadWriteMany"],
               "required": [],
               "title": "accessMode",
@@ -3280,28 +3280,28 @@
             },
             "size": {
               "default": "8Gi",
-              "description": "Size for persistance",
+              "description": "Size for persistence",
               "required": [],
               "title": "size",
               "type": "string"
             },
             "annotations": {
               "additionalProperties": true,
-              "description": "Annotations for persistance",
+              "description": "Annotations for persistence",
               "required": [],
               "title": "annotations",
               "type": "object"
             },
             "labels": {
               "additionalProperties": true,
-              "description": "Labels for persistance",
+              "description": "Labels for persistence",
               "required": [],
               "title": "labels",
               "type": "object"
             }
           },
           "required": ["enabled", "volumeName", "existingClaim", "mountPath", "subPath", "storageClass", "accessMode", "size", "annotations", "labels"],
-          "title": "persistance",
+          "title": "persistence",
           "type": "object"
         },
         "extraEnvVars": {
@@ -3364,7 +3364,7 @@
           "type": "object"
         }
       },
-      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity"],
+      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity"],
       "allOf": [
         {
           "if": {

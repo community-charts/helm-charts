@@ -910,14 +910,14 @@ tests:
           any: true
         template: deployment.yaml
 
-  - it: should set node modules emptyDir when nodes.external.packages is set and main.persistance.enabled is false
+  - it: should set node modules emptyDir when nodes.external.packages is set and main.persistence.enabled is false
     set:
       nodes:
         external:
           packages:
             - "moment@2.29.4"
       main:
-        persistance:
+        persistence:
           enabled: false
     asserts:
       - contains:
@@ -928,10 +928,10 @@ tests:
           any: true
         template: deployment.yaml
 
-  - it: should set node modules pvc when main.persistance.enabled is true and main.persistance.existingClaim is not set
+  - it: should set node modules pvc when main.persistence.enabled is true and main.persistence.existingClaim is not set
     set:
       main:
-        persistance:
+        persistence:
           enabled: true
           existingClaim: ""
     asserts:
@@ -940,13 +940,13 @@ tests:
           content:
             name: node-modules
             persistentVolumeClaim:
-              claimName: n8n-main-persistance
+              claimName: n8n-main-persistence
         template: deployment.yaml
 
-  - it: should set node modules pvc when main.persistance.enabled is true and main.persistance.existingClaim is set
+  - it: should set node modules pvc when main.persistence.enabled is true and main.persistence.existingClaim is set
     set:
       main:
-        persistance:
+        persistence:
           enabled: true
           existingClaim: "test-existing-claim"
     asserts:

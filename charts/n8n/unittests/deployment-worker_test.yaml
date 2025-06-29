@@ -966,14 +966,14 @@ tests:
           any: true
         template: deployment-worker.yaml
 
-  - it: should set node modules emptyDir when nodes.external.packages is set and worker.persistance.enabled is false
+  - it: should set node modules emptyDir when nodes.external.packages is set and worker.persistence.enabled is false
     set:
       nodes:
         external:
           packages:
             - "moment@2.29.4"
       worker:
-        persistance:
+        persistence:
           enabled: false
     asserts:
       - contains:
@@ -984,10 +984,10 @@ tests:
           any: true
         template: deployment-worker.yaml
 
-  - it: should set node modules pvc when worker.persistance.enabled is true and worker.persistance.existingClaim is not set
+  - it: should set node modules pvc when worker.persistence.enabled is true and worker.persistence.existingClaim is not set
     set:
       worker:
-        persistance:
+        persistence:
           enabled: true
           existingClaim: ""
     asserts:
@@ -996,13 +996,13 @@ tests:
           content:
             name: node-modules
             persistentVolumeClaim:
-              claimName: n8n-worker-persistance
+              claimName: n8n-worker-persistence
         template: deployment-worker.yaml
 
-  - it: should set node modules pvc when worker.persistance.enabled is true and worker.persistance.existingClaim is set
+  - it: should set node modules pvc when worker.persistence.enabled is true and worker.persistence.existingClaim is set
     set:
       worker:
-        persistance:
+        persistence:
           enabled: true
           existingClaim: "test-existing-claim"
     asserts:

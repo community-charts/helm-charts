@@ -1,4 +1,4 @@
-{{- if (include "n8n-worker.persistance.deploymentShouldBeCreated" .) }}
+{{- if not (or (.Values.worker.forceToUseStatefulset) (and .Values.worker.persistence.enabled (gt (int .Values.worker.count) 1) (not .Values.worker.persistence.existingClaim) (eq .Values.worker.persistence.accessMode "ReadWriteOnce")) (not .Values.worker.autoscaling.enabled)) }}
 {{- if and (eq .Values.db.type "postgresdb") (eq .Values.worker.mode "queue") }}
 apiVersion: apps/v1
 {{- if .Values.worker.allNodes }}
@@ -261,10 +261,10 @@ spec:
             - secretRef:
                 name: {{ . }}
           {{- end }}
-          {{- if or .Values.volumeMounts .Values.worker.volumeMounts .Values.nodes.external.packages .Values.npmRegistry.enabled .Values.worker.persistance.enabled }}
+          {{- if or .Values.volumeMounts .Values.worker.volumeMounts .Values.nodes.external.packages .Values.npmRegistry.enabled .Values.worker.persistence.enabled }}
           volumeMounts:
           {{- end }}
-          {{- if and (or .Values.nodes.external.packages .Values.worker.persistance.enabled) (eq .Values.taskRunners.mode "internal") }}
+          {{- if and (or .Values.nodes.external.packages .Values.worker.persistence.enabled) (eq .Values.taskRunners.mode "internal") }}
             - name: node-modules
               mountPath: "/home/node/.n8n"
               readOnly: false
@@ -321,7 +321,7 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ template "n8n.taskRunners.fullname" . }}-configmap
-          {{- if or .Values.nodes.external.packages .Values.worker.persistance.enabled }}
+          {{- if or .Values.nodes.external.packages .Values.worker.persistence.enabled }}
           volumeMounts:
             - name: node-modules
               mountPath: "/home/node/.n8n"
@@ -336,13 +336,13 @@ spec:
       {{- with .Values.worker.extraContainers }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if or .Values.volumes .Values.worker.volumes .Values.worker.persistance.enabled .Values.nodes.external.packages .Values.npmRegistry.enabled }}
+      {{- if or .Values.volumes .Values.worker.volumes .Values.worker.persistence.enabled .Values.nodes.external.packages .Values.npmRegistry.enabled }}
       volumes:
       {{- end }}
-      {{- if .Values.worker.persistance.enabled }}
+      {{- if .Values.worker.persistence.enabled }}
         - name: node-modules
           persistentVolumeClaim:
-            claimName: {{ default (include "n8n-worker.persistance.fullname" .) .Values.worker.persistance.existingClaim }}
+            claimName: {{ default (include "n8n-worker.persistence.fullname" .) .Values.worker.persistence.existingClaim }}
       {{- else if .Values.nodes.external.packages }}
         - name: node-modules
           emptyDir: {}

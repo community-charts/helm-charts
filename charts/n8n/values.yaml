@@ -298,28 +298,28 @@ main:
   # -- Force to use statefulset for the main pod. If true, the main pod will be created as a statefulset.
   forceToUseStatefulset: false
 
-  # -- Persistance configuration for the main pod
-  persistance:
-    # -- Whether to enable persistance
+  # -- Persistence configuration for the main pod
+  persistence:
+    # -- Whether to enable persistence
     enabled: false
-    # -- Name of the volume to use for persistance
+    # -- Name of the volume to use for persistence
     volumeName: "n8n-data"
-    # -- Existing claim to use for persistance
+    # -- Existing claim to use for persistence
     existingClaim: ""
-    # -- Mount path for persistance
+    # -- Mount path for persistence
     mountPath: "/home/node/.n8n"
-    # -- Sub path for persistance
+    # -- Sub path for persistence
     subPath: ""
-    # -- Storage class for persistance
+    # -- Storage class for persistence
     storageClass: ""
-    # -- Access mode for persistance
+    # -- Access mode for persistence
     accessMode: ReadWriteOnce
-    # -- Size for persistance
+    # -- Size for persistence
     size: 8Gi
-    # -- Annotations for persistance
+    # -- Annotations for persistence
     annotations:
       helm.sh/resource-policy: keep
-    # -- Labels for persistance
+    # -- Labels for persistence
     labels: {}
 
   # -- Extra environment variables
@@ -468,28 +468,28 @@ worker:
   # -- Force to use statefulset for the worker pod. If true, the worker pod will be created as a statefulset.
   forceToUseStatefulset: false
 
-  # -- Persistance configuration for the worker pod
-  persistance:
-    # -- Whether to enable persistance
+  # -- Persistence configuration for the worker pod
+  persistence:
+    # -- Whether to enable persistence
     enabled: false
-    # -- Name of the volume to use for persistance
+    # -- Name of the volume to use for persistence
     volumeName: "n8n-data"
-    # -- Existing claim to use for persistance
+    # -- Existing claim to use for persistence
     existingClaim: ""
-    # -- Mount path for persistance
+    # -- Mount path for persistence
     mountPath: "/home/node/.n8n"
-    # -- Sub path for persistance
+    # -- Sub path for persistence
     subPath: ""
-    # -- Storage class for persistance
+    # -- Storage class for persistence
     storageClass: ""
-    # -- Access mode for persistance
+    # -- Access mode for persistence
     accessMode: ReadWriteOnce
-    # -- Size for persistance
+    # -- Size for persistence
     size: 8Gi
-    # -- Annotations for persistance
+    # -- Annotations for persistence
     annotations:
       helm.sh/resource-policy: keep
-    # -- Labels for persistance
+    # -- Labels for persistence
     labels: {}
 
   # -- Extra environment variables
