@@ -55,6 +55,11 @@ annotations:
       links:
         - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/94
+    - kind: added
+      description: Added hostAliases support
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/125
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:1.99.1

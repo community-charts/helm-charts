@@ -1338,3 +1338,20 @@ tests:
             1.0.0.1
           any: true
         template: deployment-webhook.yaml
+
+  - it: should add hostAliases to webhook pod when webhook.hostAliases is defined
+    set:
+      webhook:
+        hostAliases:
+          - ip: 1.1.1.1
+            hostnames:
+              - "my-host.com"
+    asserts:
+      - contains:
+          path: spec.template.spec.hostAliases
+          content:
+            ip: 1.1.1.1
+            hostnames:
+              - "my-host.com"
+          any: true
+        template: deployment-webhook.yaml

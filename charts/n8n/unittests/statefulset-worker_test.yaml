@@ -1782,6 +1782,23 @@ tests:
           any: true
         template: statefulset-worker.yaml
 
+  - it: should add hostAliases to worker pod when worker.hostAliases is defined
+    set:
+      worker:
+        hostAliases:
+          - ip: 1.1.1.1
+            hostnames:
+              - "my-host.com"
+    asserts:
+      - contains:
+          path: spec.template.spec.hostAliases
+          content:
+            ip: 1.1.1.1
+            hostnames:
+              - "my-host.com"
+          any: true
+        template: statefulset-worker.yaml
+
   - it: should match snapshot of default values
     release:
       name: n8n

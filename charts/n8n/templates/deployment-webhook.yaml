@@ -50,6 +50,10 @@ spec:
       serviceAccountName: {{ include "n8n.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.webhook.hostAliases }}
+      hostAliases:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- if or .Values.webhook.waitMainNodeReady.enabled .Values.webhook.initContainers  }}
       initContainers:
       {{- end }}

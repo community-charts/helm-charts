@@ -1725,6 +1725,23 @@ tests:
           any: true
         template: deployment.yaml
 
+  - it: should add hostAliases to main pod when main.hostAliases is defined
+    set:
+      main:
+        hostAliases:
+          - ip: 1.1.1.1
+            hostnames:
+              - "my-host.com"
+    asserts:
+      - contains:
+          path: spec.template.spec.hostAliases
+          content:
+            ip: 1.1.1.1
+            hostnames:
+              - "my-host.com"
+          any: true
+        template: deployment.yaml
+
   - it: should match snapshot of default values
     release:
       name: n8n
