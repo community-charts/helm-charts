@@ -314,6 +314,179 @@ webhook:
 
 Ensure that you configure either `allNodes` or `autoscaling` based on your deployment requirements.
 
+## StatefulSet and Deployment Selection (Persistence & Scaling)
+
+> **Note:** You do **not** need to set `forceToUseStatefulset` in most cases. The chart will automatically select StatefulSet or Deployment based on your persistence and replica settings.
+
+- **StatefulSet** is used automatically if:
+  - `persistence.enabled: true`
+  - More than one replica (`count > 1` and `autoscaling.enabled: false`)
+  - `persistence.accessMode: ReadWriteOnce`
+  - No `existingClaim` is set
+
+- **Deployment** is used if:
+  - `persistence.enabled: false`
+  - Only one replica (`count: 1` and no autoscaling)
+  - `persistence.accessMode: ReadWriteMany`
+  - `existingClaim` is set
+
+- You can **force** StatefulSet with `forceToUseStatefulset: true` (default is `false`).
+
+**Examples:**
+
+### Main Node Examples
+
+```yaml
+# Automatic StatefulSet (multiple replicas, ReadWriteOnce)
+main:
+  count: 3  # Multiple replicas
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    volumeName: "n8n-main-data"
+    mountPath: "/home/node/.n8n"
+    size: 10Gi
+# Result: StatefulSet with 3 replicas
+```
+
+```yaml
+# Automatic Deployment (multiple replicas, ReadWriteMany)
+main:
+  count: 3  # Multiple replicas
+  persistence:
+    enabled: true
+    accessMode: ReadWriteMany
+    volumeName: "n8n-main-data"
+    mountPath: "/home/node/.n8n"
+    size: 10Gi
+# Result: Deployment with 3 replicas
+```
+
+```yaml
+# Automatic Deployment (single replica)
+main:
+  count: 1  # Single replica
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    volumeName: "n8n-main-data"
+    mountPath: "/home/node/.n8n"
+    size: 10Gi
+# Result: Deployment with 1 replica
+```
+
+```yaml
+# Manual override (force StatefulSet)
+main:
+  forceToUseStatefulset: true
+  persistence:
+    enabled: true
+    volumeName: "n8n-main-data"
+    mountPath: "/home/node/.n8n"
+    size: 10Gi
+# Result: StatefulSet regardless of other settings
+```
+
+### Worker Node Examples
+
+```yaml
+# Automatic StatefulSet (multiple replicas, ReadWriteOnce)
+worker:
+  mode: queue
+  count: 3  # Multiple replicas
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    volumeName: "n8n-worker-data"
+    mountPath: "/home/node/.n8n"
+    size: 5Gi
+# Result: StatefulSet with 3 replicas
+```
+
+```yaml
+# Autoscaling with Deployment (ReadWriteMany)
+worker:
+  mode: queue
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+  persistence:
+    enabled: true
+    accessMode: ReadWriteMany  # Required for autoscaling
+    volumeName: "n8n-worker-data"
+    mountPath: "/home/node/.n8n"
+    size: 5Gi
+# Result: Deployment with autoscaling enabled
+```
+
+```yaml
+# Manual scaling with StatefulSet
+worker:
+  mode: queue
+  forceToUseStatefulset: true
+  count: 3  # Fixed number of replicas
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    volumeName: "n8n-worker-data"
+    mountPath: "/home/node/.n8n"
+    size: 5Gi
+  # Note: autoscaling.enabled should be false or omitted
+# Result: StatefulSet with 3 replicas, no autoscaling
+```
+
+### Persistence Use Cases
+
+**When to use persistence:**
+- **Main node**: Store n8n data, workflows, and configuration persistently
+- **Worker nodes**: Store npm packages and node modules for faster startup
+- **Development**: Keep workflows and data across pod restarts
+- **Production**: Ensure data persistence and faster npm package loading
+
+**Storage considerations:**
+- **ReadWriteOnce**: Use for single-node deployments or when you need StatefulSets
+- **ReadWriteMany**: Use for multi-node deployments with autoscaling
+- **Storage classes**: Choose based on your cluster's available storage options
+- **Size**: Consider your data growth and npm package requirements
+
+> **⚠️ Warning**: Using `ReadWriteMany` access mode with multiple nodes can create a volume bottleneck and significantly decrease performance. Consider using `ReadWriteOnce` with StatefulSets for better performance in high-traffic scenarios, or use external storage solutions (S3, NFS) for shared data.
+
+> **Webhook pods only support Deployments and can always use autoscaling.**
+
+## Host Aliases Configuration
+
+The chart supports Kubernetes hostAliases for all node types (main, worker, and webhook). This allows you to add custom hostname-to-IP mappings to the pods' `/etc/hosts` file.
+
+### Host Aliases Configuration
+
+```yaml
+main:
+  hostAliases:
+    - ip: "127.0.0.1"
+      hostnames:
+        - "foo.local"
+        - "bar.local"
+    - ip: "10.1.2.3"
+      hostnames:
+        - "foo.remote"
+        - "bar.remote"
+
+worker:
+  hostAliases:
+    - ip: "192.168.1.100"
+      hostnames:
+        - "internal-api.local"
+
+webhook:
+  hostAliases:
+    - ip: "10.0.0.50"
+      hostnames:
+        - "webhook-service.local"
+```
+
+For more information about hostAliases, see the [Kubernetes documentation](https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases).
+
 ## Main Node Ready status Waiter
 
 Running `main` nodes, `worker` nodes, and `webhooks` nodes at sametime sometimes creates migration error because multiple containers trying to apply same migration to the database. If we enable `wait-for-main` init container, only main node will apply database migrations and after nodes will start after starting to get ready status from the main node.
@@ -652,7 +825,7 @@ The Worker and Webhook nodes no longer include a default init container to wait 
 
 ##### Deprecation Notices
 
-* **Secret Name Change**: The secret `RELEASE_NAME-encryption-key-secret` is deprecated. Starting with this release, the chart now uses `RELEASE_NAME-encryption-key-secret-v2` to manage the `N8N_ENCRYPTION_KEY`. This change ensures compatibility with Helm’s resource ownership model and resolves previous upgrade issues.
+* **Secret Name Change**: The secret `RELEASE_NAME-encryption-key-secret` is deprecated. Starting with this release, the chart now uses `RELEASE_NAME-encryption-key-secret-v2` to manage the `N8N_ENCRYPTION_KEY`. This change ensures compatibility with Helm's resource ownership model and resolves previous upgrade issues.
 
 ##### Actions Required
 
