@@ -329,19 +329,19 @@ should match snapshot of default values:
                 failureThreshold: 30
                 initialDelaySeconds: 10
                 periodSeconds: 5
+              volumeMounts:
+                - mountPath: /home/node/.n8n
+                  name: node-modules
+                  readOnly: false
           securityContext:
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
           serviceAccountName: n8n
-          volumes:
-            - name: node-modules
-              persistentVolumeClaim:
-                claimName: n8n-worker-persistence
       updateStrategy:
         type: RollingUpdate
       volumeClaimTemplates:
         - metadata:
-            name: n8n-worker-persistence
+            name: node-modules
           spec:
             accessModes:
               - ReadWriteOnce

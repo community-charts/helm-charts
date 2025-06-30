@@ -243,13 +243,18 @@ spec:
             - secretRef:
                 name: {{ . }}
           {{- end }}
-          {{- if or .Values.volumeMounts .Values.worker.volumeMounts .Values.nodes.external.packages .Values.npmRegistry.enabled }}
+          {{- if or .Values.volumeMounts .Values.worker.volumeMounts .Values.nodes.external.packages .Values.npmRegistry.enabled (eq .Values.taskRunners.mode "internal") }}
           volumeMounts:
           {{- end }}
-          {{- if and .Values.nodes.external.packages (eq .Values.taskRunners.mode "internal") }}
+          {{- if eq .Values.taskRunners.mode "internal" }}
             - name: node-modules
-              mountPath: "/home/node/.n8n"
+              mountPath: {{ .Values.worker.persistence.mountPath }}
+              {{- if .Values.worker.persistence.subPath }}
+              subPath: {{ .Values.worker.persistence.subPath }}
+              {{- end }}
               readOnly: false
+          {{- end }}
+          {{- if and .Values.nodes.external.packages (eq .Values.taskRunners.mode "internal") }}
             - name: community-node-modules
               mountPath: "/home/node/.n8n/nodes"
               readOnly: false
@@ -301,11 +306,14 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ template "n8n.taskRunners.fullname" . }}-configmap
-          {{- if .Values.nodes.external.packages }}
           volumeMounts:
             - name: node-modules
-              mountPath: "/home/node/.n8n"
+              mountPath: {{ .Values.worker.persistence.mountPath }}
+              {{- if .Values.worker.persistence.subPath }}
+              subPath: {{ .Values.worker.persistence.subPath }}
+              {{- end }}
               readOnly: false
+          {{- if .Values.nodes.external.packages }}
             - name: community-node-modules
               mountPath: "/home/node/.n8n/nodes"
               readOnly: false
@@ -314,10 +322,9 @@ spec:
       {{- with .Values.worker.extraContainers }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if or .Values.volumes .Values.worker.volumes .Values.nodes.external.packages .Values.npmRegistry.enabled }}
       volumes:
-        - name: node-modules
-          persistentVolumeClaim:
-            claimName: {{ include "n8n-worker.persistence.fullname" . }}
+      {{- end }}
       {{- if .Values.nodes.external.packages }}
         - name: community-node-modules
           emptyDir: {}
@@ -352,7 +359,7 @@ spec:
       {{- end }}
   volumeClaimTemplates:
     - metadata:
-        name: {{ include "n8n-worker.persistence.fullname" . }}
+        name: node-modules
       spec:
         accessModes:
           - {{ .Values.worker.persistence.accessMode }}

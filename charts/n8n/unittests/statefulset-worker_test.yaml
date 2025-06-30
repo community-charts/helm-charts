@@ -938,21 +938,6 @@ tests:
           any: true
         template: statefulset-worker.yaml
 
-  - it: should set node modules pvc when worker.persistence.enabled is true and worker.persistence.existingClaim is not set
-    set:
-      worker:
-        persistence:
-          enabled: true
-          existingClaim: ""
-    asserts:
-      - contains:
-          path: spec.template.spec.volumes
-          content:
-            name: node-modules
-            persistentVolumeClaim:
-              claimName: n8n-worker-persistence
-        template: statefulset-worker.yaml
-
   - it: should set node selector when nodeSelector is set
     set:
       nodeSelector:
@@ -1289,14 +1274,6 @@ tests:
           any: true
         template: statefulset-worker.yaml
       - contains:
-          path: spec.template.spec.volumes
-          content:
-            name: node-modules
-            persistentVolumeClaim:
-              claimName: n8n-worker-persistence
-          any: true
-        template: statefulset-worker.yaml
-      - contains:
           path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
           content:
             name: NODE_FUNCTION_ALLOW_EXTERNAL
@@ -1370,14 +1347,6 @@ tests:
             name: node-modules
             mountPath: "/home/node/.n8n"
             readOnly: false
-          any: true
-        template: statefulset-worker.yaml
-      - contains:
-          path: spec.template.spec.volumes
-          content:
-            name: node-modules
-            persistentVolumeClaim:
-              claimName: n8n-worker-persistence
           any: true
         template: statefulset-worker.yaml
       - contains:

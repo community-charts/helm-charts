@@ -266,7 +266,10 @@ spec:
           {{- end }}
           {{- if and (or .Values.nodes.external.packages .Values.worker.persistence.enabled) (eq .Values.taskRunners.mode "internal") }}
             - name: node-modules
-              mountPath: "/home/node/.n8n"
+              mountPath: {{ .Values.worker.persistence.mountPath }}
+              {{- if .Values.worker.persistence.subPath }}
+              subPath: {{ .Values.worker.persistence.subPath }}
+              {{- end }}
               readOnly: false
           {{- end }}
           {{- if and .Values.nodes.external.packages (eq .Values.taskRunners.mode "internal") }}
@@ -324,7 +327,10 @@ spec:
           {{- if or .Values.nodes.external.packages .Values.worker.persistence.enabled }}
           volumeMounts:
             - name: node-modules
-              mountPath: "/home/node/.n8n"
+              mountPath: {{ .Values.worker.persistence.mountPath }}
+              {{- if .Values.worker.persistence.subPath }}
+              subPath: {{ .Values.worker.persistence.subPath }}
+              {{- end }}
               readOnly: false
           {{- end }}
           {{- if .Values.nodes.external.packages }}

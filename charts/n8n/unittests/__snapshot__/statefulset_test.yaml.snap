@@ -245,19 +245,19 @@ should match snapshot of default values:
                 runAsGroup: 1000
                 runAsNonRoot: true
                 runAsUser: 1000
+              volumeMounts:
+                - mountPath: /home/node/.n8n
+                  name: node-modules
+                  readOnly: false
           securityContext:
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
           serviceAccountName: n8n
-          volumes:
-            - name: node-modules
-              persistentVolumeClaim:
-                claimName: n8n-main-persistence
       updateStrategy:
         type: RollingUpdate
       volumeClaimTemplates:
         - metadata:
-            name: n8n-main-persistence
+            name: node-modules
           spec:
             accessModes:
               - ReadWriteOnce
