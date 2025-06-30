@@ -436,6 +436,18 @@ worker:
 # Result: StatefulSet with 3 replicas, no autoscaling
 ```
 
+```yaml
+# ❌ INVALID CONFIGURATION - Will fail schema validation
+worker:
+  mode: queue
+  autoscaling:
+    enabled: true  # ❌ Cannot enable autoscaling
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce  # ❌ With ReadWriteOnce persistence
+# Result: Schema validation error
+```
+
 ### Persistence Use Cases
 
 **When to use persistence:**
@@ -452,7 +464,10 @@ worker:
 
 > **⚠️ Warning**: Using `ReadWriteMany` access mode with multiple nodes can create a volume bottleneck and significantly decrease performance. Consider using `ReadWriteOnce` with StatefulSets for better performance in high-traffic scenarios, or use external storage solutions (S3, NFS) for shared data.
 
-> **Webhook pods only support Deployments and can always use autoscaling.**
+> **⚠️ Autoscaling Limitations**: 
+> - **StatefulSets and Autoscaling**: StatefulSets do not work with Horizontal Pod Autoscaler (HPA). If you enable `worker.forceToUseStatefulset: true`, autoscaling will be disabled automatically.
+> - **Persistence and Autoscaling**: When using `worker.persistence.enabled: true` with `worker.persistence.accessMode: ReadWriteOnce`, autoscaling cannot be enabled. This is because ReadWriteOnce volumes can only be mounted by one pod at a time, which conflicts with HPA's ability to scale pods dynamically.
+> - **Webhook pods only support Deployments and can always use autoscaling.**
 
 ## Host Aliases Configuration
 

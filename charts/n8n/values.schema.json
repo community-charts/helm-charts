@@ -3451,6 +3451,40 @@
             "not": { "type": "object" },
             "description": "allNodes and autoscaling.enabled cannot both be true"
           }
+        },
+        {
+          "if": {
+            "properties": {
+              "autoscaling": {
+                "properties": { "enabled": { "const": true } }
+              },
+              "forceToUseStatefulset": { "const": true }
+            }
+          },
+          "then": {
+            "not": { "type": "object" },
+            "description": "worker.autoscaling.enabled and worker.forceToUseStatefulset cannot both be true"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "autoscaling": {
+                "properties": { "enabled": { "const": true } }
+              },
+              "persistence": {
+                "properties": {
+                  "enabled": { "const": true },
+                  "accessMode": { "const": "ReadWriteOnce" }
+                },
+                "required": ["enabled", "accessMode"]
+              }
+            }
+          },
+          "then": {
+            "not": { "type": "object" },
+            "description": "worker.autoscaling.enabled cannot be true when worker.persistence.enabled=true and worker.persistence.accessMode=ReadWriteOnce"
+          }
         }
       ],
       "title": "worker",
