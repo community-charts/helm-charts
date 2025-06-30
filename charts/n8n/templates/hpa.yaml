@@ -1,4 +1,4 @@
-{{- if and .Values.worker.autoscaling.enabled (eq .Values.db.type "postgresdb") (eq .Values.worker.mode "queue") (not .Values.worker.allNodes) }}
+{{- if and .Values.worker.autoscaling.enabled (not .Values.worker.forceToUseStatefulset) (or (not .Values.worker.persistence.enabled) (and .Values.worker.persistence.enabled (eq .Values.worker.persistence.accessMode "ReadWriteMany") )) (eq .Values.db.type "postgresdb") (eq .Values.worker.mode "queue") (not .Values.worker.allNodes) }}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
