@@ -61,10 +61,84 @@ tests:
           path: spec.ports[0].targetPort
           value: n8n-webhook
 
+  - it: should create headless service when main.forceToUseStatefulset is true
+    set:
+      main:
+        forceToUseStatefulset: true
+    documentSelector:
+      path: metadata.name
+      value: n8n-headless
+    asserts:
+      - equal:
+          path: spec.clusterIP
+          value: None
+      - equal:
+          path: spec.selector["app.kubernetes.io/instance"]
+          value: n8n
+      - equal:
+          path: spec.selector["app.kubernetes.io/name"]
+          value: n8n
+      - equal:
+          path: spec.ports[0].port
+          value: 5678
+      - equal:
+          path: spec.ports[0].targetPort
+          value: http
+      - equal:
+          path: spec.ports[0].protocol
+          value: TCP
+
+  - it: should create headless service when worker.forceToUseStatefulset is true and db type is postgresdb and webhook.mode is queue
+    set:
+      worker:
+        forceToUseStatefulset: true
+      db:
+        type: postgresdb
+      webhook:
+        mode: queue
+    documentSelector:
+      path: metadata.name
+      value: n8n-worker-headless
+    asserts:
+      - equal:
+          path: spec.clusterIP
+          value: None
+      - equal:
+          path: spec.selector["app.kubernetes.io/instance"]
+          value: n8n
+      - equal:
+          path: spec.selector["app.kubernetes.io/name"]
+          value: n8n-worker
+      - equal:
+          path: spec.selector["app.kubernetes.io/component"]
+          value: worker
+      - equal:
+          path: spec.ports[0].port
+          value: 5678
+      - equal:
+          path: spec.ports[0].targetPort
+          value: http
+      - equal:
+          path: spec.ports[0].protocol
+          value: TCP
+
   - it: should match snapshot of default values
     set:
       service:
         annotations:
           test-key: test-value
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should match snapshot of headless services
+    set:
+      main:
+        forceToUseStatefulset: true
+      worker:
+        forceToUseStatefulset: true
+      db:
+        type: postgresdb
+      webhook:
+        mode: queue
     asserts:
       - matchSnapshot: { }

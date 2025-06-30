@@ -1,5 +1,4 @@
-{{- if or (.Values.worker.forceToUseStatefulset) (and .Values.worker.persistence.enabled (gt (int .Values.worker.count) 1) (not .Values.worker.persistence.existingClaim) (eq .Values.worker.persistence.accessMode "ReadWriteOnce") (not .Values.worker.autoscaling.enabled)) }}
-{{- if and (eq .Values.db.type "postgresdb") (eq .Values.worker.mode "queue") }}
+{{- if and (eq .Values.db.type "postgresdb") (eq .Values.worker.mode "queue") (or (.Values.worker.forceToUseStatefulset) (and .Values.worker.persistence.enabled (gt (int .Values.worker.count) 1) (not .Values.worker.persistence.existingClaim) (eq .Values.worker.persistence.accessMode "ReadWriteOnce") (not .Values.worker.autoscaling.enabled))) }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -7,6 +6,9 @@ metadata:
   labels:
     {{- include "n8n.worker.labels" . | nindent 4 }}
 spec:
+  {{- if .Values.service.enabled }}
+  serviceName: {{ include "n8n.worker.fullname" . }}-headless
+  {{- end }}
   replicas: {{ .Values.worker.count }}
   updateStrategy:
     type: RollingUpdate
@@ -377,5 +379,4 @@ spec:
         storageClassName: {{ .Values.worker.persistence.storageClass | quote }}
           {{- end }}
         {{- end }}
-{{- end }}
 {{- end }}

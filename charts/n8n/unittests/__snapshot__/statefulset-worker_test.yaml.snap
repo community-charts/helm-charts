@@ -214,6 +214,7 @@ should match snapshot of default values:
           app.kubernetes.io/component: worker
           app.kubernetes.io/instance: n8n
           app.kubernetes.io/name: n8n-worker
+      serviceName: n8n-worker-headless
       template:
         metadata:
           annotations:

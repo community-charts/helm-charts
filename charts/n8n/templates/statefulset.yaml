@@ -6,6 +6,9 @@ metadata:
   labels:
     {{- include "n8n.labels" . | nindent 4 }}
 spec:
+  {{- if .Values.service.enabled }}
+  serviceName: {{ include "n8n.fullname" . }}-headless
+  {{- end }}
   replicas: {{ .Values.main.count }}
   updateStrategy:
     type: RollingUpdate
