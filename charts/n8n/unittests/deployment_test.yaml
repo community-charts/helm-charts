@@ -1351,6 +1351,13 @@ tests:
           any: true
         template: deployment.yaml
       - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: node-modules
+            emptyDir: {}
+          any: true
+        template: deployment.yaml
+      - contains:
           path: spec.template.spec.containers[?(@.name == "n8n")].env
           content:
             name: NODE_FUNCTION_ALLOW_EXTERNAL
@@ -1424,6 +1431,13 @@ tests:
             name: node-modules
             mountPath: "/home/node/.n8n"
             readOnly: false
+          any: true
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: node-modules
+            emptyDir: {}
           any: true
         template: deployment.yaml
       - contains:
@@ -1568,6 +1582,24 @@ tests:
           content:
             name: N8N_REINSTALL_MISSING_PACKAGES
             value: "true"
+          any: true
+        template: deployment.yaml
+
+  - it: should use private npm registry when only npmRegistry.enabled is true
+    set:
+      npmRegistry:
+        enabled: true
+        url: "https://my-registry.com"
+        secretName: "n8n-npm-registry-secret"
+        secretKey: "npmrc"
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: npmrc
+            secret:
+              optional: true
+              secretName: n8n-npm-registry-secret
           any: true
         template: deployment.yaml
 
