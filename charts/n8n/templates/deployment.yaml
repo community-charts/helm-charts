@@ -67,7 +67,7 @@ spec:
               subPath: {{ (default "npmrc" .Values.npmRegistry.secretKey) | quote }}
               readOnly: true
             {{- end }}
-            - name: node-modules
+            - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
               mountPath: "/npmdata"
               readOnly: false
             - name: community-node-modules
@@ -245,7 +245,7 @@ spec:
           volumeMounts:
           {{- end }}
           {{- if and (or .Values.nodes.external.packages .Values.main.persistence.enabled) (eq .Values.taskRunners.mode "internal") }}
-            - name: node-modules
+            - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
               mountPath: {{ .Values.main.persistence.mountPath }}
               {{- if .Values.main.persistence.subPath }}
               subPath: {{ .Values.main.persistence.subPath }}
@@ -306,7 +306,7 @@ spec:
                 name: {{ template "n8n.taskRunners.fullname" . }}-configmap
           {{- if or .Values.nodes.external.packages .Values.main.persistence.enabled }}
           volumeMounts:
-            - name: node-modules
+            - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
               mountPath: {{ .Values.main.persistence.mountPath }}
               {{- if .Values.main.persistence.subPath }}
               subPath: {{ .Values.main.persistence.subPath }}
@@ -326,11 +326,11 @@ spec:
       volumes:
       {{- end }}
       {{- if .Values.main.persistence.enabled }}
-        - name: node-modules
+        - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
           persistentVolumeClaim:
             claimName: {{ default (include "n8n-main.persistence.fullname" .) .Values.main.persistence.existingClaim }}
       {{- else if .Values.nodes.external.packages }}
-        - name: node-modules
+        - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
           emptyDir: {}
       {{- end }}
       {{- if .Values.nodes.external.packages }}

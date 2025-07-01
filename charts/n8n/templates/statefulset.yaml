@@ -65,7 +65,7 @@ spec:
               subPath: {{ (default "npmrc" .Values.npmRegistry.secretKey) | quote }}
               readOnly: true
             {{- end }}
-            - name: node-modules
+            - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
               mountPath: "/npmdata"
               readOnly: false
             - name: community-node-modules
@@ -243,7 +243,7 @@ spec:
           volumeMounts:
           {{- end }}
           {{- if eq .Values.taskRunners.mode "internal" }}
-            - name: node-modules
+            - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
               mountPath: {{ .Values.main.persistence.mountPath }}
               {{- if .Values.main.persistence.subPath }}
               subPath: {{ .Values.main.persistence.subPath }}
@@ -303,7 +303,7 @@ spec:
             - configMapRef:
                 name: {{ template "n8n.taskRunners.fullname" . }}-configmap
           volumeMounts:
-            - name: node-modules
+            - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
               mountPath: {{ .Values.main.persistence.mountPath }}
               {{- if .Values.main.persistence.subPath }}
               subPath: {{ .Values.main.persistence.subPath }}
@@ -355,7 +355,7 @@ spec:
       {{- end }}
   volumeClaimTemplates:
     - metadata:
-        name: node-modules
+        name: {{ default "node-modules" .Values.main.persistence.volumeName }}
       spec:
         accessModes:
           - {{ .Values.main.persistence.accessMode }}

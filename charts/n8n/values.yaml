@@ -303,7 +303,7 @@ main:
     # -- Whether to enable persistence
     enabled: false
     # -- Name of the volume to use for persistence
-    volumeName: "n8n-data"
+    volumeName: ""
     # -- Existing claim to use for persistence
     existingClaim: ""
     # -- Mount path for persistence
@@ -476,7 +476,7 @@ worker:
     # -- Whether to enable persistence
     enabled: false
     # -- Name of the volume to use for persistence
-    volumeName: "n8n-data"
+    volumeName: ""
     # -- Existing claim to use for persistence
     existingClaim: ""
     # -- Mount path for persistence

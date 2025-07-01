@@ -103,7 +103,7 @@ spec:
               subPath: {{ (default "npmrc" .Values.npmRegistry.secretKey) | quote }}
               readOnly: true
             {{- end }}
-            - name: node-modules
+            - name: {{ default "node-modules" .Values.worker.persistence.volumeName }}
               mountPath: "/npmdata"
               readOnly: false
             - name: community-node-modules
@@ -269,7 +269,7 @@ spec:
           volumeMounts:
           {{- end }}
           {{- if and (or .Values.nodes.external.packages .Values.worker.persistence.enabled) (eq .Values.taskRunners.mode "internal") }}
-            - name: node-modules
+            - name: {{ default "node-modules" .Values.worker.persistence.volumeName }}
               mountPath: {{ .Values.worker.persistence.mountPath }}
               {{- if .Values.worker.persistence.subPath }}
               subPath: {{ .Values.worker.persistence.subPath }}
@@ -330,7 +330,7 @@ spec:
                 name: {{ template "n8n.taskRunners.fullname" . }}-configmap
           {{- if or .Values.nodes.external.packages .Values.worker.persistence.enabled }}
           volumeMounts:
-            - name: node-modules
+            - name: {{ default "node-modules" .Values.worker.persistence.volumeName }}
               mountPath: {{ .Values.worker.persistence.mountPath }}
               {{- if .Values.worker.persistence.subPath }}
               subPath: {{ .Values.worker.persistence.subPath }}
@@ -350,11 +350,11 @@ spec:
       volumes:
       {{- end }}
       {{- if .Values.worker.persistence.enabled }}
-        - name: node-modules
+        - name: {{ default "node-modules" .Values.worker.persistence.volumeName }}
           persistentVolumeClaim:
             claimName: {{ default (include "n8n-worker.persistence.fullname" .) .Values.worker.persistence.existingClaim }}
       {{- else if .Values.nodes.external.packages }}
-        - name: node-modules
+        - name: {{ default "node-modules" .Values.worker.persistence.volumeName }}
           emptyDir: {}
       {{- end }}
       {{- if .Values.nodes.external.packages }}

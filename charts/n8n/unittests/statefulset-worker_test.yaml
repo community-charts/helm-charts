@@ -1799,6 +1799,74 @@ tests:
           any: true
         template: statefulset-worker.yaml
 
+  - it: should use volume name when volumeName is set and taskRunners.mode is internal
+    set:
+      nodes:
+        external:
+          packages:
+            - fake-package
+      worker:
+        persistence:
+          enabled: true
+          volumeName: fake-volume-name
+      taskRunners:
+        mode: internal
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
+          content:
+            name: fake-volume-name
+            mountPath: /npmdata
+            readOnly: false
+          any: true
+        template: statefulset-worker.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].volumeMounts
+          content:
+            name: fake-volume-name
+            mountPath: /home/node/.n8n
+            readOnly: false
+          any: true
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.volumeClaimTemplates[?(@.metadata.name == "fake-volume-name")].metadata.name
+          value: fake-volume-name
+        template: statefulset-worker.yaml
+
+  - it: should use volume name when volumeName is set and taskRunners.mode is external
+    set:
+      nodes:
+        external:
+          packages:
+            - fake-package
+      worker:
+        persistence:
+          enabled: true
+          volumeName: fake-volume-name
+      taskRunners:
+        mode: external
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
+          content:
+            name: fake-volume-name
+            mountPath: /npmdata
+            readOnly: false
+          any: true
+        template: statefulset-worker.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].volumeMounts
+          content:
+            name: fake-volume-name
+            mountPath: /home/node/.n8n
+            readOnly: false
+          any: true
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.volumeClaimTemplates[?(@.metadata.name == "fake-volume-name")].metadata.name
+          value: fake-volume-name
+        template: statefulset-worker.yaml
+
   - it: should match snapshot of default values
     release:
       name: n8n
