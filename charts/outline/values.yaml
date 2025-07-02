@@ -73,6 +73,8 @@ securityContext:
 
 # -- This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
 service:
+  # -- This sets the service enabled.
+  enabled: true
   # -- This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
   type: ClusterIP
   # -- This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
@@ -172,6 +174,10 @@ fileStorage:
   s3:
     # -- This is for setting up the s3 file storage existing secret. Must contain access-key-id and secret-access-key keys.
     existingSecret: ""
+    # -- This is for setting up the s3 file storage access key id secret key.
+    accessKeyIdSecretKey: "access-key-id"
+    # -- This is for setting up the s3 file storage secret access key secret key.
+    secretAccessKeySecretKey: "secret-access-key"
     # -- This is for setting up the s3 file storage bucket.
     bucket: outline
     # -- This is for setting up the s3 file storage access key id.
@@ -200,6 +206,12 @@ auth:
     clientId: ""
     # -- This is for setting up the slack client secret.
     clientSecret: ""
+    # -- This is for setting up the slack existing secret. If it's set, clientSecret will be ignored.
+    existingSecret:
+      # -- This is for setting up the slack existing secret name.
+      name: ""
+      # -- This is for setting up the slack secret key.
+      clientSecretKey: "client-secret"
 
   # -- This is for setting up the google. More information about google can be found here: https://docs.getoutline.com/s/hosting/doc/google-hOuvtCmTqQ
   google:
@@ -209,6 +221,12 @@ auth:
     clientId: ""
     # -- This is for setting up the google client secret.
     clientSecret: ""
+    # -- This is for setting up the google existing secret. If it's set, clientSecret will be ignored.
+    existingSecret:
+      # -- This is for setting up the google existing secret name.
+      name: ""
+      # -- This is for setting up the google secret key.
+      clientSecretKey: "client-secret"
 
   # -- This is for setting up the azure. More information about azure can be found here: https://docs.getoutline.com/s/hosting/doc/microsoft-entra-UVz6jsIOcv
   azure:
@@ -222,6 +240,12 @@ auth:
     resourceAppId: ""
     # -- This is for setting up the azure tenant id. This is optional.
     tenantId: ""
+    # -- This is for setting up the azure existing secret. If it's set, clientSecret will be ignored.
+    existingSecret:
+      # -- This is for setting up the azure existing secret name.
+      name: ""
+      # -- This is for setting up the azure secret key.
+      clientSecretKey: "client-secret"
 
   # -- This is for setting up the oidc. More information about oidc can be found here: https://docs.getoutline.com/s/hosting/doc/oidc-8CPBm6uC0I
   oidc:
@@ -248,6 +272,12 @@ auth:
       - openid
       - profile
       - email
+    # -- This is for setting up the oidc existing secret. If it's set, clientSecret will be ignored.
+    existingSecret:
+      # -- This is for setting up the oidc existing secret name.
+      name: ""
+      # -- This is for setting up the oidc secret key.
+      clientSecretKey: "client-secret"
 
   # -- This is for setting up the github. More information about github can be found here: https://docs.getoutline.com/s/hosting/doc/github-GchT3NNxI9
   github:
@@ -263,6 +293,14 @@ auth:
     appId: ""
     # -- This is for setting up the github app private key.
     appPrivateKey: ""
+    # -- This is for setting up the github existing secret. If it's set, clientSecret and appPrivateKey will be ignored.
+    existingSecret:
+      # -- This is for setting up the github existing secret name.
+      name: ""
+      # -- This is for setting up the github secret key.
+      clientSecretKey: "client-secret"
+      # -- This is for setting up the github app private key key.
+      appPrivateKeyKey: "app-private-key"
 
   # -- This is for setting up the gitea. More information about gitea can be found here: https://docs.gitea.com/development/oauth2-provider#endpoints
   gitea:
@@ -283,6 +321,12 @@ auth:
       - openid
       - profile
       - email
+    # -- This is for setting up the gitea existing secret. If it's set, clientSecret will be ignored.
+    existingSecret:
+      # -- This is for setting up the gitea existing secret name.
+      name: ""
+      # -- This is for setting up the gitea secret key.
+      clientSecretKey: "client-secret"
 
   # -- This is for setting up the gitlab. More information about gitlab can be found here: https://docs.gitlab.com/ee/integration/oauth_provider.html
   gitlab:
@@ -303,6 +347,12 @@ auth:
       - openid
       - profile
       - email
+    # -- This is for setting up the gitlab existing secret. If it's set, clientSecret will be ignored.
+    existingSecret:
+      # -- This is for setting up the gitlab existing secret name.
+      name: ""
+      # -- This is for setting up the gitlab secret key.
+      clientSecretKey: "client-secret"
 
   # -- This is for setting up the discord. More information about discord can be found here: https://docs.getoutline.com/s/hosting/doc/discord-g4JdWFFub6
   discord:
@@ -316,6 +366,12 @@ auth:
     serverId: ""
     # -- This is for setting up the discord server roles.
     serverRoles: []
+    # -- This is for setting up the discord existing secret. If it's set, clientSecret will be ignored.
+    existingSecret:
+      # -- This is for setting up the discord existing secret name.
+      name: ""
+      # -- This is for setting up the discord secret key.
+      clientSecretKey: "client-secret"
 
   # -- This is for setting up the auth0. More information about auth0 can be found here: https://auth0.com/docs/get-started/applications/configure-applications-with-oidc-discovery
   auth0:
@@ -336,6 +392,12 @@ auth:
       - openid
       - profile
       - email
+    # -- This is for setting up the auth0 existing secret. If it's set, clientSecret will be ignored.
+    existingSecret:
+      # -- This is for setting up the auth0 existing secret name.
+      name: ""
+      # -- This is for setting up the auth0 secret key.
+      clientSecretKey: "client-secret"
 
   # -- This is for setting up the keycloak. More details about the Keycloak OIDC implementation can be found here: https://www.keycloak.org/securing-apps/oidc-layers
   keycloak:
@@ -358,6 +420,12 @@ auth:
       - openid
       - profile
       - email
+    # -- This is for setting up the keycloak existing secret. If it's set, clientSecret will be ignored.
+    existingSecret:
+      # -- This is for setting up the keycloak existing secret name.
+      name: ""
+      # -- This is for setting up the keycloak secret key.
+      clientSecretKey: "client-secret"
 
   # -- This is for setting up the saml. More information about saml can be found here: https://docs.getoutline.com/s/hosting/doc/saml-hCmJIfmAjt
   saml:
@@ -367,6 +435,12 @@ auth:
     ssoEndpoint: ""
     # -- This is for setting up the saml cert.
     cert: ""
+    # -- This is for setting up the saml existing secret. If it's set, cert will be ignored.
+    existingSecret:
+      # -- This is for setting up the saml existing secret name.
+      name: ""
+      # -- This is for setting up the saml secret key.
+      certKey: "cert"
 
 # -- This is for setting up the integrations. More information about integrations can be found here: https://docs.getoutline.com/s/hosting/doc/integrations-Oav5MXNDJk
 integrations:
@@ -379,6 +453,12 @@ integrations:
     url: ""
     # -- This is for setting up the iframely api key.
     apiKey: ""
+    # -- This is for setting up the iframely existing secret. If it's set, apiKey will be ignored.
+    existingSecret:
+      # -- This is for setting up the iframely existing secret name.
+      name: ""
+      # -- This is for setting up the iframely secret key.
+      apiKeyKey: "api-key"
 
   # -- This is for setting up the openai. More information about openai can be found here: https://docs.getoutline.com/s/hosting/doc/openai-iiTYCN9Nct
   openAI:
@@ -390,6 +470,12 @@ integrations:
     apiKey: ""
     # -- This is for setting up the openai vector database url.
     vectorDatabaseUrl: ""
+    # -- This is for setting up the openai existing secret. If it's set, apiKey will be ignored.
+    existingSecret:
+      # -- This is for setting up the openai existing secret name.
+      name: ""
+      # -- This is for setting up the openai secret key.
+      apiKeyKey: "api-key"
 
   # -- This is for setting up the pdf export. More information about pdf export can be found here: https://docs.getoutline.com/s/hosting/doc/pdf-export-7Dn1hCyUo5
   pdfExport:
@@ -417,6 +503,12 @@ integrations:
     appId: ""
     # -- This is for setting up the slack message actions.
     messageActions: true
+    # -- This is for setting up the slack existing secret. If it's set, verificationToken will be ignored.
+    existingSecret:
+      # -- This is for setting up the slack existing secret name.
+      name: ""
+      # -- This is for setting up the slack secret key.
+      verificationTokenKey: "verification-token"
 
   # -- This is for setting up the dropbox.
   dropbox:
@@ -424,6 +516,12 @@ integrations:
     enabled: false
     # -- This is for setting up the dropbox app key.
     appKey: ""
+    # -- This is for setting up the dropbox existing secret. If it's set, appKey will be ignored.
+    existingSecret:
+      # -- This is for setting up the dropbox existing secret name.
+      name: ""
+      # -- This is for setting up the dropbox secret key.
+      appKeyKey: "app-key"
 
 # -- This is for setting up the smtp. More information about smtp can be found here: https://docs.getoutline.com/s/hosting/doc/smtp-cqCJyZGMIB
 smtp:
@@ -443,6 +541,14 @@ smtp:
   tlsCiphers: ""
   # -- This is for setting up the smtp secure.
   secure: true
+  # -- This is for setting up the smtp existing secret. If it's set, password will be ignored.
+  existingSecret:
+    # -- This is for setting up the smtp existing secret name.
+    name: ""
+    # -- This is for setting up the smtp username key.
+    usernameKey: "username"
+    # -- This is for setting up the smtp secret key.
+    passwordKey: "password"
 
 # -- This is for setting up the extra environment variables.
 extraEnvVars: {}
@@ -579,6 +685,8 @@ externalRedis:
   # -- The name of an existing secret with Redis (must contain key `redis-password`) and Sentinel credentials.
   # When it's set, the `externalRedis.password` parameter is ignored
   existingSecret: ""
+  # -- This is for setting up the external redis secret key.
+  secretKey: "redis-password"
 
 # -- Database configuration
 database:
@@ -633,9 +741,10 @@ externalPostgresql:
   port: 5432
   # -- The name of the external PostgreSQL database. For more information: https://docs.getoutline.com/s/hosting/doc/docker-7pfeLP5a8t
   database: outline
-  # -- The name of an existing secret with PostgreSQL (must contain key `postgres-password`) and credentials.
-  # When it's set, the `externalPostgresql.password` parameter is ignored
+  # -- The name of an existing secret with PostgreSQL (must contain key `postgres-password`) and credentials. When it's set, the `externalPostgresql.password` parameter is ignored
   existingSecret: ""
+  # -- This is for setting up the external postgresql secret key.
+  secretKey: "postgres-password"
 
 # -- Minio configuration
 minio:

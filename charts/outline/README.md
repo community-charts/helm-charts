@@ -463,82 +463,116 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
-| auth | object | `{"auth0":{"baseUrl":"","clientId":"","clientSecret":"","displayName":"Auth0 Connect","enabled":false,"scopes":["openid","profile","email"],"usernameClaim":"name"},"azure":{"clientId":"","clientSecret":"","enabled":false,"resourceAppId":"","tenantId":""},"discord":{"clientId":"","clientSecret":"","enabled":false,"serverId":"","serverRoles":[]},"gitea":{"baseUrl":"","clientId":"","clientSecret":"","displayName":"Gitea Connect","enabled":false,"scopes":["openid","profile","email"],"usernameClaim":"preferred_username"},"github":{"appId":"","appName":"","appPrivateKey":"","clientId":"","clientSecret":"","enabled":false},"gitlab":{"baseUrl":"","clientId":"","clientSecret":"","displayName":"GitLab Connect","enabled":false,"scopes":["openid","profile","email"],"usernameClaim":"preferred_username"},"google":{"clientId":"","clientSecret":"","enabled":false},"keycloak":{"baseUrl":"","clientId":"","clientSecret":"","displayName":"Keycloak Connect","enabled":false,"realmName":"","scopes":["openid","profile","email"],"usernameClaim":"preferred_username"},"oidc":{"authUri":"","clientId":"","clientSecret":"","displayName":"OpenID Connect","enabled":false,"logoutUri":"","scopes":["openid","profile","email"],"tokenUri":"","userInfoUri":"","usernameClaim":"preferred_username"},"saml":{"cert":"","enabled":false,"ssoEndpoint":""},"slack":{"clientId":"","clientSecret":"","enabled":false}}` | This is for setting up the auth. |
-| auth.auth0 | object | `{"baseUrl":"","clientId":"","clientSecret":"","displayName":"Auth0 Connect","enabled":false,"scopes":["openid","profile","email"],"usernameClaim":"name"}` | This is for setting up the auth0. More information about auth0 can be found here: https://auth0.com/docs/get-started/applications/configure-applications-with-oidc-discovery |
+| auth | object | `{"auth0":{"baseUrl":"","clientId":"","clientSecret":"","displayName":"Auth0 Connect","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""},"scopes":["openid","profile","email"],"usernameClaim":"name"},"azure":{"clientId":"","clientSecret":"","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""},"resourceAppId":"","tenantId":""},"discord":{"clientId":"","clientSecret":"","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""},"serverId":"","serverRoles":[]},"gitea":{"baseUrl":"","clientId":"","clientSecret":"","displayName":"Gitea Connect","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""},"scopes":["openid","profile","email"],"usernameClaim":"preferred_username"},"github":{"appId":"","appName":"","appPrivateKey":"","clientId":"","clientSecret":"","enabled":false,"existingSecret":{"appPrivateKeyKey":"app-private-key","clientSecretKey":"client-secret","name":""}},"gitlab":{"baseUrl":"","clientId":"","clientSecret":"","displayName":"GitLab Connect","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""},"scopes":["openid","profile","email"],"usernameClaim":"preferred_username"},"google":{"clientId":"","clientSecret":"","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""}},"keycloak":{"baseUrl":"","clientId":"","clientSecret":"","displayName":"Keycloak Connect","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""},"realmName":"","scopes":["openid","profile","email"],"usernameClaim":"preferred_username"},"oidc":{"authUri":"","clientId":"","clientSecret":"","displayName":"OpenID Connect","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""},"logoutUri":"","scopes":["openid","profile","email"],"tokenUri":"","userInfoUri":"","usernameClaim":"preferred_username"},"saml":{"cert":"","enabled":false,"existingSecret":{"certKey":"cert","name":""},"ssoEndpoint":""},"slack":{"clientId":"","clientSecret":"","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""}}}` | This is for setting up the auth. |
+| auth.auth0 | object | `{"baseUrl":"","clientId":"","clientSecret":"","displayName":"Auth0 Connect","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""},"scopes":["openid","profile","email"],"usernameClaim":"name"}` | This is for setting up the auth0. More information about auth0 can be found here: https://auth0.com/docs/get-started/applications/configure-applications-with-oidc-discovery |
 | auth.auth0.baseUrl | string | `""` | This is for setting up the auth0 base url. |
 | auth.auth0.clientId | string | `""` | This is for setting up the auth0 client id. |
 | auth.auth0.clientSecret | string | `""` | This is for setting up the auth0 client secret. |
 | auth.auth0.displayName | string | `"Auth0 Connect"` | This is for setting up the auth0 display name. |
 | auth.auth0.enabled | bool | `false` | This is for setting up the auth0 enabled. |
+| auth.auth0.existingSecret | object | `{"clientSecretKey":"client-secret","name":""}` | This is for setting up the auth0 existing secret. If it's set, clientSecret will be ignored. |
+| auth.auth0.existingSecret.clientSecretKey | string | `"client-secret"` | This is for setting up the auth0 secret key. |
+| auth.auth0.existingSecret.name | string | `""` | This is for setting up the auth0 existing secret name. |
 | auth.auth0.scopes | list | `["openid","profile","email"]` | This is for setting up the auth0 scopes. |
 | auth.auth0.usernameClaim | string | `"name"` | This is for setting up the auth0 username claim. |
-| auth.azure | object | `{"clientId":"","clientSecret":"","enabled":false,"resourceAppId":"","tenantId":""}` | This is for setting up the azure. More information about azure can be found here: https://docs.getoutline.com/s/hosting/doc/microsoft-entra-UVz6jsIOcv |
+| auth.azure | object | `{"clientId":"","clientSecret":"","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""},"resourceAppId":"","tenantId":""}` | This is for setting up the azure. More information about azure can be found here: https://docs.getoutline.com/s/hosting/doc/microsoft-entra-UVz6jsIOcv |
 | auth.azure.clientId | string | `""` | This is for setting up the azure client id. |
 | auth.azure.clientSecret | string | `""` | This is for setting up the azure client secret. |
 | auth.azure.enabled | bool | `false` | This is for setting up the azure enabled. |
+| auth.azure.existingSecret | object | `{"clientSecretKey":"client-secret","name":""}` | This is for setting up the azure existing secret. If it's set, clientSecret will be ignored. |
+| auth.azure.existingSecret.clientSecretKey | string | `"client-secret"` | This is for setting up the azure secret key. |
+| auth.azure.existingSecret.name | string | `""` | This is for setting up the azure existing secret name. |
 | auth.azure.resourceAppId | string | `""` | This is for setting up the azure resource app id. This is optional. |
 | auth.azure.tenantId | string | `""` | This is for setting up the azure tenant id. This is optional. |
-| auth.discord | object | `{"clientId":"","clientSecret":"","enabled":false,"serverId":"","serverRoles":[]}` | This is for setting up the discord. More information about discord can be found here: https://docs.getoutline.com/s/hosting/doc/discord-g4JdWFFub6 |
+| auth.discord | object | `{"clientId":"","clientSecret":"","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""},"serverId":"","serverRoles":[]}` | This is for setting up the discord. More information about discord can be found here: https://docs.getoutline.com/s/hosting/doc/discord-g4JdWFFub6 |
 | auth.discord.clientId | string | `""` | This is for setting up the discord client id. |
 | auth.discord.clientSecret | string | `""` | This is for setting up the discord client secret. |
 | auth.discord.enabled | bool | `false` | This is for setting up the discord enabled. |
+| auth.discord.existingSecret | object | `{"clientSecretKey":"client-secret","name":""}` | This is for setting up the discord existing secret. If it's set, clientSecret will be ignored. |
+| auth.discord.existingSecret.clientSecretKey | string | `"client-secret"` | This is for setting up the discord secret key. |
+| auth.discord.existingSecret.name | string | `""` | This is for setting up the discord existing secret name. |
 | auth.discord.serverId | string | `""` | This is for setting up the discord server id. |
 | auth.discord.serverRoles | list | `[]` | This is for setting up the discord server roles. |
-| auth.gitea | object | `{"baseUrl":"","clientId":"","clientSecret":"","displayName":"Gitea Connect","enabled":false,"scopes":["openid","profile","email"],"usernameClaim":"preferred_username"}` | This is for setting up the gitea. More information about gitea can be found here: https://docs.gitea.com/development/oauth2-provider#endpoints |
+| auth.gitea | object | `{"baseUrl":"","clientId":"","clientSecret":"","displayName":"Gitea Connect","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""},"scopes":["openid","profile","email"],"usernameClaim":"preferred_username"}` | This is for setting up the gitea. More information about gitea can be found here: https://docs.gitea.com/development/oauth2-provider#endpoints |
 | auth.gitea.baseUrl | string | `""` | This is for setting up the gitea base url. |
 | auth.gitea.clientId | string | `""` | This is for setting up the gitea client id. |
 | auth.gitea.clientSecret | string | `""` | This is for setting up the gitea client secret. |
 | auth.gitea.displayName | string | `"Gitea Connect"` | This is for setting up the gitea display name. |
 | auth.gitea.enabled | bool | `false` | This is for setting up the gitea enabled. |
+| auth.gitea.existingSecret | object | `{"clientSecretKey":"client-secret","name":""}` | This is for setting up the gitea existing secret. If it's set, clientSecret will be ignored. |
+| auth.gitea.existingSecret.clientSecretKey | string | `"client-secret"` | This is for setting up the gitea secret key. |
+| auth.gitea.existingSecret.name | string | `""` | This is for setting up the gitea existing secret name. |
 | auth.gitea.scopes | list | `["openid","profile","email"]` | This is for setting up the gitea scopes. |
 | auth.gitea.usernameClaim | string | `"preferred_username"` | This is for setting up the gitea username claim. |
-| auth.github | object | `{"appId":"","appName":"","appPrivateKey":"","clientId":"","clientSecret":"","enabled":false}` | This is for setting up the github. More information about github can be found here: https://docs.getoutline.com/s/hosting/doc/github-GchT3NNxI9 |
+| auth.github | object | `{"appId":"","appName":"","appPrivateKey":"","clientId":"","clientSecret":"","enabled":false,"existingSecret":{"appPrivateKeyKey":"app-private-key","clientSecretKey":"client-secret","name":""}}` | This is for setting up the github. More information about github can be found here: https://docs.getoutline.com/s/hosting/doc/github-GchT3NNxI9 |
 | auth.github.appId | string | `""` | This is for setting up the github app id. |
 | auth.github.appName | string | `""` | This is for setting up the github app name. |
 | auth.github.appPrivateKey | string | `""` | This is for setting up the github app private key. |
 | auth.github.clientId | string | `""` | This is for setting up the github client id. |
 | auth.github.clientSecret | string | `""` | This is for setting up the github client secret. |
 | auth.github.enabled | bool | `false` | This is for setting up the github enabled. |
-| auth.gitlab | object | `{"baseUrl":"","clientId":"","clientSecret":"","displayName":"GitLab Connect","enabled":false,"scopes":["openid","profile","email"],"usernameClaim":"preferred_username"}` | This is for setting up the gitlab. More information about gitlab can be found here: https://docs.gitlab.com/ee/integration/oauth_provider.html |
+| auth.github.existingSecret | object | `{"appPrivateKeyKey":"app-private-key","clientSecretKey":"client-secret","name":""}` | This is for setting up the github existing secret. If it's set, clientSecret and appPrivateKey will be ignored. |
+| auth.github.existingSecret.appPrivateKeyKey | string | `"app-private-key"` | This is for setting up the github app private key key. |
+| auth.github.existingSecret.clientSecretKey | string | `"client-secret"` | This is for setting up the github secret key. |
+| auth.github.existingSecret.name | string | `""` | This is for setting up the github existing secret name. |
+| auth.gitlab | object | `{"baseUrl":"","clientId":"","clientSecret":"","displayName":"GitLab Connect","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""},"scopes":["openid","profile","email"],"usernameClaim":"preferred_username"}` | This is for setting up the gitlab. More information about gitlab can be found here: https://docs.gitlab.com/ee/integration/oauth_provider.html |
 | auth.gitlab.baseUrl | string | `""` | This is for setting up the gitlab base url. |
 | auth.gitlab.clientId | string | `""` | This is for setting up the gitlab client id. |
 | auth.gitlab.clientSecret | string | `""` | This is for setting up the gitlab client secret. |
 | auth.gitlab.displayName | string | `"GitLab Connect"` | This is for setting up the gitlab display name. |
 | auth.gitlab.enabled | bool | `false` | This is for setting up the gitlab enabled. |
+| auth.gitlab.existingSecret | object | `{"clientSecretKey":"client-secret","name":""}` | This is for setting up the gitlab existing secret. If it's set, clientSecret will be ignored. |
+| auth.gitlab.existingSecret.clientSecretKey | string | `"client-secret"` | This is for setting up the gitlab secret key. |
+| auth.gitlab.existingSecret.name | string | `""` | This is for setting up the gitlab existing secret name. |
 | auth.gitlab.scopes | list | `["openid","profile","email"]` | This is for setting up the gitlab scopes. |
 | auth.gitlab.usernameClaim | string | `"preferred_username"` | This is for setting up the gitlab username claim. |
-| auth.google | object | `{"clientId":"","clientSecret":"","enabled":false}` | This is for setting up the google. More information about google can be found here: https://docs.getoutline.com/s/hosting/doc/google-hOuvtCmTqQ |
+| auth.google | object | `{"clientId":"","clientSecret":"","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""}}` | This is for setting up the google. More information about google can be found here: https://docs.getoutline.com/s/hosting/doc/google-hOuvtCmTqQ |
 | auth.google.clientId | string | `""` | This is for setting up the google client id. |
 | auth.google.clientSecret | string | `""` | This is for setting up the google client secret. |
 | auth.google.enabled | bool | `false` | This is for setting up the google enabled. |
-| auth.keycloak | object | `{"baseUrl":"","clientId":"","clientSecret":"","displayName":"Keycloak Connect","enabled":false,"realmName":"","scopes":["openid","profile","email"],"usernameClaim":"preferred_username"}` | This is for setting up the keycloak. More details about the Keycloak OIDC implementation can be found here: https://www.keycloak.org/securing-apps/oidc-layers |
+| auth.google.existingSecret | object | `{"clientSecretKey":"client-secret","name":""}` | This is for setting up the google existing secret. If it's set, clientSecret will be ignored. |
+| auth.google.existingSecret.clientSecretKey | string | `"client-secret"` | This is for setting up the google secret key. |
+| auth.google.existingSecret.name | string | `""` | This is for setting up the google existing secret name. |
+| auth.keycloak | object | `{"baseUrl":"","clientId":"","clientSecret":"","displayName":"Keycloak Connect","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""},"realmName":"","scopes":["openid","profile","email"],"usernameClaim":"preferred_username"}` | This is for setting up the keycloak. More details about the Keycloak OIDC implementation can be found here: https://www.keycloak.org/securing-apps/oidc-layers |
 | auth.keycloak.baseUrl | string | `""` | This is for setting up the keycloak base url. |
 | auth.keycloak.clientId | string | `""` | This is for setting up the keycloak client id. |
 | auth.keycloak.clientSecret | string | `""` | This is for setting up the keycloak client secret. |
 | auth.keycloak.displayName | string | `"Keycloak Connect"` | This is for setting up the keycloak display name. |
 | auth.keycloak.enabled | bool | `false` | This is for setting up the keycloak enabled. |
+| auth.keycloak.existingSecret | object | `{"clientSecretKey":"client-secret","name":""}` | This is for setting up the keycloak existing secret. If it's set, clientSecret will be ignored. |
+| auth.keycloak.existingSecret.clientSecretKey | string | `"client-secret"` | This is for setting up the keycloak secret key. |
+| auth.keycloak.existingSecret.name | string | `""` | This is for setting up the keycloak existing secret name. |
 | auth.keycloak.realmName | string | `""` | This is for setting up the keycloak realm name. |
 | auth.keycloak.scopes | list | `["openid","profile","email"]` | This is for setting up the keycloak scopes. |
 | auth.keycloak.usernameClaim | string | `"preferred_username"` | This is for setting up the keycloak username claim. |
-| auth.oidc | object | `{"authUri":"","clientId":"","clientSecret":"","displayName":"OpenID Connect","enabled":false,"logoutUri":"","scopes":["openid","profile","email"],"tokenUri":"","userInfoUri":"","usernameClaim":"preferred_username"}` | This is for setting up the oidc. More information about oidc can be found here: https://docs.getoutline.com/s/hosting/doc/oidc-8CPBm6uC0I |
+| auth.oidc | object | `{"authUri":"","clientId":"","clientSecret":"","displayName":"OpenID Connect","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""},"logoutUri":"","scopes":["openid","profile","email"],"tokenUri":"","userInfoUri":"","usernameClaim":"preferred_username"}` | This is for setting up the oidc. More information about oidc can be found here: https://docs.getoutline.com/s/hosting/doc/oidc-8CPBm6uC0I |
 | auth.oidc.authUri | string | `""` | This is for setting up the oidc auth uri. |
 | auth.oidc.clientId | string | `""` | This is for setting up the oidc client id. |
 | auth.oidc.clientSecret | string | `""` | This is for setting up the oidc client secret. |
 | auth.oidc.displayName | string | `"OpenID Connect"` | This is for setting up the oidc display name. |
 | auth.oidc.enabled | bool | `false` | This is for setting up the oidc enabled. |
+| auth.oidc.existingSecret | object | `{"clientSecretKey":"client-secret","name":""}` | This is for setting up the oidc existing secret. If it's set, clientSecret will be ignored. |
+| auth.oidc.existingSecret.clientSecretKey | string | `"client-secret"` | This is for setting up the oidc secret key. |
+| auth.oidc.existingSecret.name | string | `""` | This is for setting up the oidc existing secret name. |
 | auth.oidc.logoutUri | string | `""` | This is for setting up the oidc logout uri. This is optional. |
 | auth.oidc.scopes | list | `["openid","profile","email"]` | This is for setting up the oidc scopes. |
 | auth.oidc.tokenUri | string | `""` | This is for setting up the oidc token uri. |
 | auth.oidc.userInfoUri | string | `""` | This is for setting up the oidc user info uri. |
 | auth.oidc.usernameClaim | string | `"preferred_username"` | This is for setting up the oidc username claim. |
-| auth.saml | object | `{"cert":"","enabled":false,"ssoEndpoint":""}` | This is for setting up the saml. More information about saml can be found here: https://docs.getoutline.com/s/hosting/doc/saml-hCmJIfmAjt |
+| auth.saml | object | `{"cert":"","enabled":false,"existingSecret":{"certKey":"cert","name":""},"ssoEndpoint":""}` | This is for setting up the saml. More information about saml can be found here: https://docs.getoutline.com/s/hosting/doc/saml-hCmJIfmAjt |
 | auth.saml.cert | string | `""` | This is for setting up the saml cert. |
 | auth.saml.enabled | bool | `false` | This is for setting up the saml enabled. |
+| auth.saml.existingSecret | object | `{"certKey":"cert","name":""}` | This is for setting up the saml existing secret. If it's set, cert will be ignored. |
+| auth.saml.existingSecret.certKey | string | `"cert"` | This is for setting up the saml secret key. |
+| auth.saml.existingSecret.name | string | `""` | This is for setting up the saml existing secret name. |
 | auth.saml.ssoEndpoint | string | `""` | This is for setting up the saml sso endpoint. |
-| auth.slack | object | `{"clientId":"","clientSecret":"","enabled":false}` | This is for setting up the slack. More information about slack can be found here: https://docs.getoutline.com/s/hosting/doc/slack-sgMujR8J9J |
+| auth.slack | object | `{"clientId":"","clientSecret":"","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""}}` | This is for setting up the slack. More information about slack can be found here: https://docs.getoutline.com/s/hosting/doc/slack-sgMujR8J9J |
 | auth.slack.clientId | string | `""` | This is for setting up the slack client id. |
 | auth.slack.clientSecret | string | `""` | This is for setting up the slack client secret. |
 | auth.slack.enabled | bool | `false` | This is for setting up the slack enabled. |
+| auth.slack.existingSecret | object | `{"clientSecretKey":"client-secret","name":""}` | This is for setting up the slack existing secret. If it's set, clientSecret will be ignored. |
+| auth.slack.existingSecret.clientSecretKey | string | `"client-secret"` | This is for setting up the slack secret key. |
+| auth.slack.existingSecret.name | string | `""` | This is for setting up the slack existing secret name. |
 | autoUpdate | object | `{"enabled":false,"telemetry":false}` | This is for setting up the auto update. |
 | autoUpdate.enabled | bool | `false` | This is for setting up the auto update enabled. |
 | autoUpdate.telemetry | bool | `false` | This is for setting up the enable telemetry. |
@@ -547,23 +581,25 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | database.connectionPoolMin | string | `""` | The minimum number of connections in the connection pool. |
 | database.sslMode | string | `"disable"` | The SSL mode to use for the database connection. possible values are: "disable", "allow", "require", "prefer", "verify-ca", "verify-full" |
 | defaultLanguage | string | `"en_US"` | This is for setting up the default language. See translate.getoutline.com for a list of available language codes and their rough percentage translated |
-| externalPostgresql | object | `{"database":"outline","existingSecret":"","host":"","password":"","port":5432,"username":"postgres"}` | External PostgreSQL parameters |
+| externalPostgresql | object | `{"database":"outline","existingSecret":"","host":"","password":"","port":5432,"secretKey":"postgres-password","username":"postgres"}` | External PostgreSQL parameters |
 | externalPostgresql.database | string | `"outline"` | The name of the external PostgreSQL database. For more information: https://docs.getoutline.com/s/hosting/doc/docker-7pfeLP5a8t |
 | externalPostgresql.existingSecret | string | `""` | The name of an existing secret with PostgreSQL (must contain key `postgres-password`) and credentials. When it's set, the `externalPostgresql.password` parameter is ignored |
 | externalPostgresql.host | string | `""` | External PostgreSQL server host |
 | externalPostgresql.password | string | `""` | External PostgreSQL password |
 | externalPostgresql.port | int | `5432` | External PostgreSQL server port |
+| externalPostgresql.secretKey | string | `"postgres-password"` | This is for setting up the external postgresql secret key. |
 | externalPostgresql.username | string | `"postgres"` | External PostgreSQL username |
-| externalRedis | object | `{"existingSecret":"","host":"","password":"","port":6379,"username":""}` | External Redis parameters |
+| externalRedis | object | `{"existingSecret":"","host":"","password":"","port":6379,"secretKey":"redis-password","username":""}` | External Redis parameters |
 | externalRedis.existingSecret | string | `""` | The name of an existing secret with Redis (must contain key `redis-password`) and Sentinel credentials. When it's set, the `externalRedis.password` parameter is ignored |
 | externalRedis.host | string | `""` | External Redis server host |
 | externalRedis.password | string | `""` | External Redis password |
 | externalRedis.port | int | `6379` | External Redis server port |
+| externalRedis.secretKey | string | `"redis-password"` | This is for setting up the external redis secret key. |
 | externalRedis.username | string | `""` | External Redis username |
 | extraContainers | list | `[]` | Additional containers (sidecars) on the output Deployment definition. |
 | extraEnvVars | object | `{}` | This is for setting up the extra environment variables. |
 | extraSecretNamesForEnvFrom | list | `[]` | This is for setting up the extra secrets for environment variables. |
-| fileStorage | object | `{"importMaxSize":"","local":{"persistence":{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"existingClaim":"","size":"8Gi","storageClass":"","volumeMode":""},"rootDir":"/var/lib/outline/data"},"mode":"local","s3":{"accelerateUrl":"","accessKeyId":"","acl":"private","bucket":"outline","bucketUrl":"","existingSecret":"","forcePathStyle":true,"region":"us-east-1","secretAccessKey":""},"uploadMaxSize":"262144000","workspaceImportMaxSize":""}` | This is for setting up the file storage. More information about file storage can be found here: https://docs.getoutline.com/s/hosting/doc/file-storage-N4M0T6Ypu7 |
+| fileStorage | object | `{"importMaxSize":"","local":{"persistence":{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"existingClaim":"","size":"8Gi","storageClass":"","volumeMode":""},"rootDir":"/var/lib/outline/data"},"mode":"local","s3":{"accelerateUrl":"","accessKeyId":"","accessKeyIdSecretKey":"access-key-id","acl":"private","bucket":"outline","bucketUrl":"","existingSecret":"","forcePathStyle":true,"region":"us-east-1","secretAccessKey":"","secretAccessKeySecretKey":"secret-access-key"},"uploadMaxSize":"262144000","workspaceImportMaxSize":""}` | This is for setting up the file storage. More information about file storage can be found here: https://docs.getoutline.com/s/hosting/doc/file-storage-N4M0T6Ypu7 |
 | fileStorage.importMaxSize | string | `""` | This is for setting up the file storage import max size. |
 | fileStorage.local | object | `{"persistence":{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"existingClaim":"","size":"8Gi","storageClass":"","volumeMode":""},"rootDir":"/var/lib/outline/data"}` | This is for setting up the local file storage. |
 | fileStorage.local.persistence | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"existingClaim":"","size":"8Gi","storageClass":"","volumeMode":""}` | This is for setting up the local file storage persistence. |
@@ -576,9 +612,10 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | fileStorage.local.persistence.volumeMode | string | `""` | This is for setting up the local file storage persistence volume mode. |
 | fileStorage.local.rootDir | string | `"/var/lib/outline/data"` | This is for setting up the local file storage root directory. |
 | fileStorage.mode | string | `"local"` | This is for setting up the file storage mode. Possible values are: local or s3 |
-| fileStorage.s3 | object | `{"accelerateUrl":"","accessKeyId":"","acl":"private","bucket":"outline","bucketUrl":"","existingSecret":"","forcePathStyle":true,"region":"us-east-1","secretAccessKey":""}` | This is for setting up the s3 file storage. |
+| fileStorage.s3 | object | `{"accelerateUrl":"","accessKeyId":"","accessKeyIdSecretKey":"access-key-id","acl":"private","bucket":"outline","bucketUrl":"","existingSecret":"","forcePathStyle":true,"region":"us-east-1","secretAccessKey":"","secretAccessKeySecretKey":"secret-access-key"}` | This is for setting up the s3 file storage. |
 | fileStorage.s3.accelerateUrl | string | `""` | This is for setting up the s3 file storage accelerate url. |
 | fileStorage.s3.accessKeyId | string | `""` | This is for setting up the s3 file storage access key id. |
+| fileStorage.s3.accessKeyIdSecretKey | string | `"access-key-id"` | This is for setting up the s3 file storage access key id secret key. |
 | fileStorage.s3.acl | string | `"private"` | This is for setting up the s3 file storage acl. |
 | fileStorage.s3.bucket | string | `"outline"` | This is for setting up the s3 file storage bucket. |
 | fileStorage.s3.bucketUrl | string | `""` | This is for setting up the s3 file storage bucket url. |
@@ -586,6 +623,7 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | fileStorage.s3.forcePathStyle | bool | `true` | This is for setting up the s3 file storage force path style. |
 | fileStorage.s3.region | string | `"us-east-1"` | This is for setting up the s3 file storage region. |
 | fileStorage.s3.secretAccessKey | string | `""` | This is for setting up the s3 file storage secret access key. |
+| fileStorage.s3.secretAccessKeySecretKey | string | `"secret-access-key"` | This is for setting up the s3 file storage secret access key secret key. |
 | fileStorage.uploadMaxSize | string | `"262144000"` | This is for setting up the file storage upload max size. |
 | fileStorage.workspaceImportMaxSize | string | `""` | This is for setting up the file storage workspace import max size. |
 | fullnameOverride | string | `""` | This is to override the full name of the chart. |
@@ -600,17 +638,26 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | ingress.hosts | list | `[{"host":"outline.mydomain.com","paths":[{"path":"/","pathType":"ImplementationSpecific"}]}]` | This is for setting up the ingress hosts. |
 | ingress.tls | list | `[]` | This is for setting up the ingress tls. |
 | initContainers | list | `[]` | Additional init containers on the output Deployment definition. |
-| integrations | object | `{"dropbox":{"appKey":"","enabled":false},"iframely":{"apiKey":"","enabled":false,"url":""},"openAI":{"apiKey":"","enabled":false,"url":"","vectorDatabaseUrl":""},"pdfExport":{"enabled":false,"gotenbergUrl":""},"sentry":{"dsn":"","enabled":false,"tunnel":""},"slack":{"appId":"","enabled":false,"messageActions":true,"verificationToken":""}}` | This is for setting up the integrations. More information about integrations can be found here: https://docs.getoutline.com/s/hosting/doc/integrations-Oav5MXNDJk |
-| integrations.dropbox | object | `{"appKey":"","enabled":false}` | This is for setting up the dropbox. |
+| integrations | object | `{"dropbox":{"appKey":"","enabled":false,"existingSecret":{"appKeyKey":"app-key","name":""}},"iframely":{"apiKey":"","enabled":false,"existingSecret":{"apiKeyKey":"api-key","name":""},"url":""},"openAI":{"apiKey":"","enabled":false,"existingSecret":{"apiKeyKey":"api-key","name":""},"url":"","vectorDatabaseUrl":""},"pdfExport":{"enabled":false,"gotenbergUrl":""},"sentry":{"dsn":"","enabled":false,"tunnel":""},"slack":{"appId":"","enabled":false,"existingSecret":{"name":"","verificationTokenKey":"verification-token"},"messageActions":true,"verificationToken":""}}` | This is for setting up the integrations. More information about integrations can be found here: https://docs.getoutline.com/s/hosting/doc/integrations-Oav5MXNDJk |
+| integrations.dropbox | object | `{"appKey":"","enabled":false,"existingSecret":{"appKeyKey":"app-key","name":""}}` | This is for setting up the dropbox. |
 | integrations.dropbox.appKey | string | `""` | This is for setting up the dropbox app key. |
 | integrations.dropbox.enabled | bool | `false` | This is for setting up the dropbox enabled. |
-| integrations.iframely | object | `{"apiKey":"","enabled":false,"url":""}` | This is for setting up the iframely. More information about iframely can be found here: https://docs.getoutline.com/s/hosting/doc/iframely-HwLF1EZ9mo |
+| integrations.dropbox.existingSecret | object | `{"appKeyKey":"app-key","name":""}` | This is for setting up the dropbox existing secret. If it's set, appKey will be ignored. |
+| integrations.dropbox.existingSecret.appKeyKey | string | `"app-key"` | This is for setting up the dropbox secret key. |
+| integrations.dropbox.existingSecret.name | string | `""` | This is for setting up the dropbox existing secret name. |
+| integrations.iframely | object | `{"apiKey":"","enabled":false,"existingSecret":{"apiKeyKey":"api-key","name":""},"url":""}` | This is for setting up the iframely. More information about iframely can be found here: https://docs.getoutline.com/s/hosting/doc/iframely-HwLF1EZ9mo |
 | integrations.iframely.apiKey | string | `""` | This is for setting up the iframely api key. |
 | integrations.iframely.enabled | bool | `false` | This is for setting up the iframely enabled. |
+| integrations.iframely.existingSecret | object | `{"apiKeyKey":"api-key","name":""}` | This is for setting up the iframely existing secret. If it's set, apiKey will be ignored. |
+| integrations.iframely.existingSecret.apiKeyKey | string | `"api-key"` | This is for setting up the iframely secret key. |
+| integrations.iframely.existingSecret.name | string | `""` | This is for setting up the iframely existing secret name. |
 | integrations.iframely.url | string | `""` | This is for setting up the iframely url. |
-| integrations.openAI | object | `{"apiKey":"","enabled":false,"url":"","vectorDatabaseUrl":""}` | This is for setting up the openai. More information about openai can be found here: https://docs.getoutline.com/s/hosting/doc/openai-iiTYCN9Nct |
+| integrations.openAI | object | `{"apiKey":"","enabled":false,"existingSecret":{"apiKeyKey":"api-key","name":""},"url":"","vectorDatabaseUrl":""}` | This is for setting up the openai. More information about openai can be found here: https://docs.getoutline.com/s/hosting/doc/openai-iiTYCN9Nct |
 | integrations.openAI.apiKey | string | `""` | This is for setting up the openai api key. |
 | integrations.openAI.enabled | bool | `false` | This is for setting up the openai enabled. |
+| integrations.openAI.existingSecret | object | `{"apiKeyKey":"api-key","name":""}` | This is for setting up the openai existing secret. If it's set, apiKey will be ignored. |
+| integrations.openAI.existingSecret.apiKeyKey | string | `"api-key"` | This is for setting up the openai secret key. |
+| integrations.openAI.existingSecret.name | string | `""` | This is for setting up the openai existing secret name. |
 | integrations.openAI.url | string | `""` | This is for setting up the openai url. |
 | integrations.openAI.vectorDatabaseUrl | string | `""` | This is for setting up the openai vector database url. |
 | integrations.pdfExport | object | `{"enabled":false,"gotenbergUrl":""}` | This is for setting up the pdf export. More information about pdf export can be found here: https://docs.getoutline.com/s/hosting/doc/pdf-export-7Dn1hCyUo5 |
@@ -620,9 +667,12 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | integrations.sentry.dsn | string | `""` | This is for setting up the sentry dsn. |
 | integrations.sentry.enabled | bool | `false` | This is for setting up the sentry enabled. |
 | integrations.sentry.tunnel | string | `""` | This is for setting up the sentry tunnel. |
-| integrations.slack | object | `{"appId":"","enabled":false,"messageActions":true,"verificationToken":""}` | This is for setting up the slack. More information about slack can be found here: https://docs.getoutline.com/s/hosting/doc/slack-G2mc8DOJHk |
+| integrations.slack | object | `{"appId":"","enabled":false,"existingSecret":{"name":"","verificationTokenKey":"verification-token"},"messageActions":true,"verificationToken":""}` | This is for setting up the slack. More information about slack can be found here: https://docs.getoutline.com/s/hosting/doc/slack-G2mc8DOJHk |
 | integrations.slack.appId | string | `""` | This is for setting up the slack app id. |
 | integrations.slack.enabled | bool | `false` | This is for setting up the slack enabled. |
+| integrations.slack.existingSecret | object | `{"name":"","verificationTokenKey":"verification-token"}` | This is for setting up the slack existing secret. If it's set, verificationToken will be ignored. |
+| integrations.slack.existingSecret.name | string | `""` | This is for setting up the slack existing secret name. |
+| integrations.slack.existingSecret.verificationTokenKey | string | `"verification-token"` | This is for setting up the slack secret key. |
 | integrations.slack.messageActions | bool | `true` | This is for setting up the slack message actions. |
 | integrations.slack.verificationToken | string | `""` | This is for setting up the slack verification token. |
 | livenessProbe | object | `{"failureThreshold":5,"httpGet":{"path":"/_health","port":"http"},"initialDelaySeconds":10,"periodSeconds":30,"timeoutSeconds":3}` | This is to setup the liveness probe more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
@@ -713,8 +763,9 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | resources | object | `{}` | This is to setup the resources more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
 | secretKey | string | `""` | This is for setting up the secret key. It will be auto generated if not set. |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":false,"runAsGroup":1001,"runAsNonRoot":true,"runAsUser":1001}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
-| service | object | `{"annotations":{},"name":"http","port":3000,"type":"ClusterIP"}` | This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/ |
+| service | object | `{"annotations":{},"enabled":true,"name":"http","port":3000,"type":"ClusterIP"}` | This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/ |
 | service.annotations | object | `{}` | Additional service annotations |
+| service.enabled | bool | `true` | This sets the service enabled. |
 | service.name | string | `"http"` | Default Service name |
 | service.port | int | `3000` | This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports |
 | service.type | string | `"ClusterIP"` | This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types |
@@ -723,7 +774,11 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | serviceAccount.automount | bool | `true` | Automatically mount a ServiceAccount's API credentials? |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
 | serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
-| smtp | object | `{"fromEmail":"","host":"","password":"","port":587,"replyEmail":"","secure":true,"tlsCiphers":"","username":""}` | This is for setting up the smtp. More information about smtp can be found here: https://docs.getoutline.com/s/hosting/doc/smtp-cqCJyZGMIB |
+| smtp | object | `{"existingSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"fromEmail":"","host":"","password":"","port":587,"replyEmail":"","secure":true,"tlsCiphers":"","username":""}` | This is for setting up the smtp. More information about smtp can be found here: https://docs.getoutline.com/s/hosting/doc/smtp-cqCJyZGMIB |
+| smtp.existingSecret | object | `{"name":"","passwordKey":"password","usernameKey":"username"}` | This is for setting up the smtp existing secret. If it's set, password will be ignored. |
+| smtp.existingSecret.name | string | `""` | This is for setting up the smtp existing secret name. |
+| smtp.existingSecret.passwordKey | string | `"password"` | This is for setting up the smtp secret key. |
+| smtp.existingSecret.usernameKey | string | `"username"` | This is for setting up the smtp username key. |
 | smtp.fromEmail | string | `""` | This is for setting up the smtp from email. |
 | smtp.host | string | `""` | This is for setting up the smtp host. |
 | smtp.password | string | `""` | This is for setting up the smtp password. |

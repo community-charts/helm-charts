@@ -177,6 +177,13 @@
       "additionalProperties": false,
       "description": "This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/",
       "properties": {
+        "enabled": {
+          "default": true,
+          "description": "This is for setting up the service enabled.",
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
         "annotations": {
           "additionalProperties": true,
           "default": {},
@@ -211,6 +218,7 @@
         }
       },
       "required": [
+        "enabled",
         "type",
         "port",
         "name",
@@ -555,6 +563,20 @@
               "title": "existingSecret",
               "type": "string"
             },
+            "accessKeyIdSecretKey": {
+              "default": "access-key-id",
+              "description": "This is for setting up the s3 file storage access key id secret key.",
+              "required": [],
+              "title": "accessKeyIdSecretKey",
+              "type": "string"
+            },
+            "secretAccessKeySecretKey": {
+              "default": "secret-access-key",
+              "description": "This is for setting up the s3 file storage secret access key secret key.",
+              "required": [],
+              "title": "secretAccessKeySecretKey",
+              "type": "string"
+            },
             "forcePathStyle": {
               "default": true,
               "description": "This is for setting up the s3 file storage force path style.",
@@ -580,6 +602,8 @@
           },
           "required": [
             "existingSecret",
+            "accessKeyIdSecretKey",
+            "secretAccessKeySecretKey",
             "bucket",
             "accessKeyId",
             "secretAccessKey",
@@ -663,6 +687,31 @@
               "required": [],
               "title": "usernameClaim",
               "type": "string"
+            },
+            "existingSecret": {
+              "additionalProperties": false,
+              "type": "object",
+              "description": "This is for setting up the auth0 existing secret. If it's set, clientSecret will be ignored.",
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "This is for setting up the auth0 existing secret name.",
+                  "required": [],
+                  "title": "name",
+                  "type": "string"
+                },
+                "clientSecretKey": {
+                  "default": "client-secret",
+                  "description": "This is for setting up the auth0 client secret key.",
+                  "required": [],
+                  "title": "clientSecretKey",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "clientSecretKey"
+              ]
             }
           },
           "required": [
@@ -672,7 +721,8 @@
             "baseUrl",
             "usernameClaim",
             "displayName",
-            "scopes"
+            "scopes",
+            "existingSecret"
           ],
           "title": "auth0",
           "type": "object"
@@ -715,6 +765,31 @@
               "required": [],
               "title": "tenantId",
               "type": "string"
+            },
+            "existingSecret": {
+              "additionalProperties": false,
+              "type": "object",
+              "description": "This is for setting up the azure existing secret. If it's set, clientSecret will be ignored.",
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "This is for setting up the azure existing secret name.",
+                  "required": [],
+                  "title": "name",
+                  "type": "string"
+                },
+                "clientSecretKey": {
+                  "default": "client-secret",
+                  "description": "This is for setting up the azure client secret key.",
+                  "required": [],
+                  "title": "clientSecretKey",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "clientSecretKey"
+              ]
             }
           },
           "required": [
@@ -722,7 +797,8 @@
             "clientId",
             "clientSecret",
             "resourceAppId",
-            "tenantId"
+            "tenantId",
+            "existingSecret"
           ],
           "title": "azure",
           "type": "object"
@@ -768,6 +844,31 @@
               "required": [],
               "title": "serverRoles",
               "type": "array"
+            },
+            "existingSecret": {
+              "additionalProperties": false,
+              "type": "object",
+              "description": "This is for setting up the discord existing secret. If it's set, clientSecret will be ignored.",
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "This is for setting up the discord existing secret name.",
+                  "required": [],
+                  "title": "name",
+                  "type": "string"
+                },
+                "clientSecretKey": {
+                  "default": "client-secret",
+                  "description": "This is for setting up the discord client secret key.",
+                  "required": [],
+                  "title": "clientSecretKey",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "clientSecretKey"
+              ]
             }
           },
           "required": [
@@ -775,7 +876,8 @@
             "clientId",
             "clientSecret",
             "serverId",
-            "serverRoles"
+            "serverRoles",
+            "existingSecret"
           ],
           "title": "discord",
           "type": "object"
@@ -835,6 +937,31 @@
               "required": [],
               "title": "usernameClaim",
               "type": "string"
+            },
+            "existingSecret": {
+              "additionalProperties": false,
+              "type": "object",
+              "description": "This is for setting up the gitea existing secret. If it's set, clientSecret will be ignored.",
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "This is for setting up the gitea existing secret name.",
+                  "required": [],
+                  "title": "name",
+                  "type": "string"
+                },
+                "clientSecretKey": {
+                  "default": "client-secret",
+                  "description": "This is for setting up the gitea client secret key.",
+                  "required": [],
+                  "title": "clientSecretKey",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "clientSecretKey"
+              ]
             }
           },
           "required": [
@@ -844,7 +971,8 @@
             "baseUrl",
             "usernameClaim",
             "displayName",
-            "scopes"
+            "scopes",
+            "existingSecret"
           ],
           "title": "gitea",
           "type": "object"
@@ -894,6 +1022,39 @@
               "required": [],
               "title": "enabled",
               "type": "boolean"
+            },
+            "existingSecret": {
+              "additionalProperties": false,
+              "type": "object",
+              "description": "This is for setting up the github existing secret. If it's set, clientSecret and appPrivateKey will be ignored.",
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "This is for setting up the github existing secret name.",
+                  "required": [],
+                  "title": "name",
+                  "type": "string"
+                },
+                "clientSecretKey": {
+                  "default": "client-secret",
+                  "description": "This is for setting up the github client secret key.",
+                  "required": [],
+                  "title": "clientSecretKey",
+                  "type": "string"
+                },
+                "appPrivateKeyKey": {
+                  "default": "app-private-key",
+                  "description": "This is for setting up the github app private key key.",
+                  "required": [],
+                  "title": "appPrivateKeyKey",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "clientSecretKey",
+                "appPrivateKeyKey"
+              ]
             }
           },
           "required": [
@@ -902,7 +1063,8 @@
             "clientSecret",
             "appName",
             "appId",
-            "appPrivateKey"
+            "appPrivateKey",
+            "existingSecret"
           ],
           "title": "github",
           "type": "object"
@@ -962,6 +1124,31 @@
               "required": [],
               "title": "usernameClaim",
               "type": "string"
+            },
+            "existingSecret": {
+              "additionalProperties": false,
+              "type": "object",
+              "description": "This is for setting up the gitlab existing secret. If it's set, clientSecret will be ignored.",
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "This is for setting up the gitlab existing secret name.",
+                  "required": [],
+                  "title": "name",
+                  "type": "string"
+                },
+                "clientSecretKey": {
+                  "default": "client-secret",
+                  "description": "This is for setting up the gitlab client secret key.",
+                  "required": [],
+                  "title": "clientSecretKey",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "clientSecretKey"
+              ]
             }
           },
           "required": [
@@ -971,7 +1158,8 @@
             "baseUrl",
             "usernameClaim",
             "displayName",
-            "scopes"
+            "scopes",
+            "existingSecret"
           ],
           "title": "gitlab",
           "type": "object"
@@ -1000,12 +1188,38 @@
               "required": [],
               "title": "enabled",
               "type": "boolean"
+            },
+            "existingSecret": {
+              "additionalProperties": false,
+              "type": "object",
+              "description": "This is for setting up the google existing secret. If it's set, clientSecret will be ignored.",
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "This is for setting up the google existing secret name.",
+                  "required": [],
+                  "title": "name",
+                  "type": "string"
+                },
+                "clientSecretKey": {
+                  "default": "client-secret",
+                  "description": "This is for setting up the google client secret key.",
+                  "required": [],
+                  "title": "clientSecretKey",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "clientSecretKey"
+              ]
             }
           },
           "required": [
             "enabled",
             "clientId",
-            "clientSecret"
+            "clientSecret",
+            "existingSecret"
           ],
           "title": "google",
           "type": "object"
@@ -1072,6 +1286,31 @@
               "required": [],
               "title": "usernameClaim",
               "type": "string"
+            },
+            "existingSecret": {
+              "additionalProperties": false,
+              "type": "object",
+              "description": "This is for setting up the keycloak existing secret. If it's set, clientSecret will be ignored.",
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "This is for setting up the keycloak existing secret name.",
+                  "required": [],
+                  "title": "name",
+                  "type": "string"
+                },
+                "clientSecretKey": {
+                  "default": "client-secret",
+                  "description": "This is for setting up the keycloak client secret key.",
+                  "required": [],
+                  "title": "clientSecretKey",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "clientSecretKey"
+              ]
             }
           },
           "required": [
@@ -1082,7 +1321,8 @@
             "realmName",
             "usernameClaim",
             "displayName",
-            "scopes"
+            "scopes",
+            "existingSecret"
           ],
           "title": "keycloak",
           "type": "object"
@@ -1163,6 +1403,31 @@
               "required": [],
               "title": "usernameClaim",
               "type": "string"
+            },
+            "existingSecret": {
+              "additionalProperties": false,
+              "type": "object",
+              "description": "This is for setting up the oidc existing secret. If it's set, clientSecret will be ignored.",
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "This is for setting up the oidc existing secret name.",
+                  "required": [],
+                  "title": "name",
+                  "type": "string"
+                },
+                "clientSecretKey": {
+                  "default": "client-secret",
+                  "description": "This is for setting up the oidc client secret key.",
+                  "required": [],
+                  "title": "clientSecretKey",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "clientSecretKey"
+              ]
             }
           },
           "required": [
@@ -1175,7 +1440,8 @@
             "logoutUri",
             "usernameClaim",
             "displayName",
-            "scopes"
+            "scopes",
+            "existingSecret"
           ],
           "title": "oidc",
           "type": "object"
@@ -1204,12 +1470,38 @@
               "required": [],
               "title": "ssoEndpoint",
               "type": "string"
+            },
+            "existingSecret": {
+              "additionalProperties": false,
+              "type": "object",
+              "description": "This is for setting up the saml existing secret. If it's set, cert will be ignored.",
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "This is for setting up the saml existing secret name.",
+                  "required": [],
+                  "title": "name",
+                  "type": "string"
+                },
+                "certKey": {
+                  "default": "cert",
+                  "description": "This is for setting up the saml cert key.",
+                  "required": [],
+                  "title": "certKey",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "certKey"
+              ]
             }
           },
           "required": [
             "enabled",
             "ssoEndpoint",
-            "cert"
+            "cert",
+            "existingSecret"
           ],
           "title": "saml",
           "type": "object"
@@ -1238,12 +1530,38 @@
               "required": [],
               "title": "enabled",
               "type": "boolean"
+            },
+            "existingSecret": {
+              "additionalProperties": false,
+              "type": "object",
+              "description": "This is for setting up the slack existing secret. If it's set, clientSecret will be ignored.",
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "This is for setting up the slack existing secret name.",
+                  "required": [],
+                  "title": "name",
+                  "type": "string"
+                },
+                "clientSecretKey": {
+                  "default": "client-secret",
+                  "description": "This is for setting up the slack client secret key.",
+                  "required": [],
+                  "title": "clientSecretKey",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "clientSecretKey"
+              ]
             }
           },
           "required": [
             "enabled",
             "clientId",
-            "clientSecret"
+            "clientSecret",
+            "existingSecret"
           ],
           "title": "slack",
           "type": "object"
@@ -1324,6 +1642,39 @@
           "required": [],
           "title": "username",
           "type": "string"
+        },
+        "existingSecret": {
+          "additionalProperties": false,
+          "type": "object",
+          "description": "This is for setting up the smtp existing secret. If it's set, password will be ignored.",
+          "properties": {
+            "name": {
+              "default": "",
+              "description": "This is for setting up the smtp existing secret name.",
+              "required": [],
+              "title": "name",
+              "type": "string"
+            },
+            "passwordKey": {
+              "default": "password",
+              "description": "This is for setting up the smtp password key.",
+              "required": [],
+              "title": "passwordKey",
+              "type": "string"
+            },
+            "usernameKey": {
+              "default": "username",
+              "description": "This is for setting up the smtp username key.",
+              "required": [],
+              "title": "usernameKey",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "passwordKey",
+            "usernameKey"
+          ]
         }
       },
       "required": [
@@ -1334,7 +1685,8 @@
         "fromEmail",
         "replyEmail",
         "tlsCiphers",
-        "secure"
+        "secure",
+        "existingSecret"
       ],
       "title": "smtp",
       "type": "object"
@@ -1761,6 +2113,13 @@
           "title": "existingSecret",
           "type": "string"
         },
+        "secretKey": {
+          "default": "redis-password",
+          "description": "This is for setting up the external redis secret key.",
+          "required": [],
+          "title": "secretKey",
+          "type": "string"
+        },
         "host": {
           "default": "",
           "description": "External Redis server host",
@@ -1797,7 +2156,8 @@
         "username",
         "password",
         "port",
-        "existingSecret"
+        "existingSecret",
+        "secretKey"
       ],
       "title": "externalRedis",
       "type": "object"
@@ -1985,6 +2345,13 @@
           "title": "existingSecret",
           "type": "string"
         },
+        "secretKey": {
+          "default": "postgres-password",
+          "description": "This is for setting up the external postgresql secret key.",
+          "required": [],
+          "title": "secretKey",
+          "type": "string"
+        },
         "host": {
           "default": "",
           "description": "External PostgreSQL server host",
@@ -2022,7 +2389,8 @@
         "password",
         "port",
         "database",
-        "existingSecret"
+        "existingSecret",
+        "secretKey"
       ],
       "title": "externalPostgresql",
       "type": "object"
@@ -2497,11 +2865,37 @@
               "required": [],
               "title": "enabled",
               "type": "boolean"
+            },
+            "existingSecret": {
+              "additionalProperties": false,
+              "type": "object",
+              "description": "This is for setting up the dropbox existing secret. If it's set, appKey will be ignored.",
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "This is for setting up the dropbox existing secret name.",
+                  "required": [],
+                  "title": "name",
+                  "type": "string"
+                },
+                "appKeyKey": {
+                  "default": "app-key",
+                  "description": "This is for setting up the dropbox app key key.",
+                  "required": [],
+                  "title": "appKeyKey",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "appKeyKey"
+              ]
             }
           },
           "required": [
             "enabled",
-            "appKey"
+            "appKey",
+            "existingSecret"
           ],
           "title": "dropbox",
           "type": "object"
@@ -2530,12 +2924,38 @@
               "required": [],
               "title": "url",
               "type": "string"
+            },
+            "existingSecret": {
+              "additionalProperties": false,
+              "type": "object",
+              "description": "This is for setting up the iframely existing secret. If it's set, apiKey will be ignored.",
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "This is for setting up the iframely existing secret name.",
+                  "required": [],
+                  "title": "name",
+                  "type": "string"
+                },
+                "apiKeyKey": {
+                  "default": "api-key",
+                  "description": "This is for setting up the iframely api key key.",
+                  "required": [],
+                  "title": "apiKeyKey",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "apiKeyKey"
+              ]
             }
           },
           "required": [
             "enabled",
             "url",
-            "apiKey"
+            "apiKey",
+            "existingSecret"
           ],
           "title": "iframely",
           "type": "object"
@@ -2571,13 +2991,39 @@
               "required": [],
               "title": "vectorDatabaseUrl",
               "type": "string"
+            },
+            "existingSecret": {
+              "additionalProperties": false,
+              "type": "object",
+              "description": "This is for setting up the openai existing secret. If it's set, apiKey will be ignored.",
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "This is for setting up the openai existing secret name.",
+                  "required": [],
+                  "title": "name",
+                  "type": "string"
+                },
+                "apiKeyKey": {
+                  "default": "api-key",
+                  "description": "This is for setting up the openai api key key.",
+                  "required": [],
+                  "title": "apiKeyKey",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "apiKeyKey"
+              ]
             }
           },
           "required": [
             "enabled",
             "url",
             "apiKey",
-            "vectorDatabaseUrl"
+            "vectorDatabaseUrl",
+            "existingSecret"
           ],
           "title": "openAI",
           "type": "object"
@@ -2673,13 +3119,39 @@
               "required": [],
               "title": "verificationToken",
               "type": "string"
+            },
+            "existingSecret": {
+              "additionalProperties": false,
+              "type": "object",
+              "description": "This is for setting up the slack existing secret. If it's set, verificationToken will be ignored.",
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "This is for setting up the slack existing secret name.",
+                  "required": [],
+                  "title": "name",
+                  "type": "string"
+                },
+                "verificationTokenKey": {
+                  "default": "verification-token",
+                  "description": "This is for setting up the slack verification token key.",
+                  "required": [],
+                  "title": "verificationTokenKey",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "verificationTokenKey"
+              ]
             }
           },
           "required": [
             "enabled",
             "verificationToken",
             "appId",
-            "messageActions"
+            "messageActions",
+            "existingSecret"
           ],
           "title": "slack",
           "type": "object"
