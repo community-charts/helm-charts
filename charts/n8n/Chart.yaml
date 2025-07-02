@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.12.2
+version: 1.12.3
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -50,11 +50,11 @@ annotations:
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: fixed
-      description: Fix volume name when volumeName is set for main and worker pods
+    - kind: removed
+      description: Remove binary data bucket region format constraint
       links:
-        - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/154
+        - name: GitHub PR
+          url: https://github.com/community-charts/helm-charts/pull/159
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:1.100.1

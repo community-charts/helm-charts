@@ -842,6 +842,30 @@ tests:
           path: data.N8N_BINARY_DATA_STORAGE_PATH
           value: /home/node/.n8n/binaryData
 
+  - it: should set s3 configurations from binaryData.s3 with any region format when binaryData.availableModes includes s3
+    set:
+      binaryData:
+        mode: s3
+        availableModes:
+          - s3
+        s3:
+          host: s3.mydomain.com
+          bucketName: mybucket
+          bucketRegion: anyregion
+    documentSelector:
+      path: metadata.name
+      value: n8n-binary-data-configmap
+    asserts:
+      - equal:
+          path: data.N8N_EXTERNAL_STORAGE_S3_HOST
+          value: s3.mydomain.com
+      - equal:
+          path: data.N8N_EXTERNAL_STORAGE_S3_BUCKET_NAME
+          value: mybucket
+      - equal:
+          path: data.N8N_EXTERNAL_STORAGE_S3_BUCKET_REGION
+          value: anyregion
+
   - it: should set s3 configurations from binaryData.s3 when binaryData.availableModes includes s3
     set:
       binaryData:
