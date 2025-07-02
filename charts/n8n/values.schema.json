@@ -96,7 +96,6 @@
             },
             "bucketRegion": {
               "default": "us-east-1",
-              "pattern": "^[a-z]{2}-[a-z]+-\\d+$",
               "description": "Region of the S3-compatible external storage bucket. For example, us-east-1",
               "required": [],
               "title": "bucketRegion",
