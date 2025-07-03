@@ -1465,3 +1465,73 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: "password"
+
+  - it: should set dnsPolicy when dnsPolicy is set
+    set:
+      dnsPolicy: ClusterFirst
+    asserts:
+      - equal:
+          path: spec.template.spec.dnsPolicy
+          value: ClusterFirst
+        template: deployment.yaml
+
+  - it: should set dnsConfig when dnsConfig is set
+    set:
+      dnsConfig:
+        nameservers:
+          - 1.1.1.1
+          - 1.0.0.1
+    asserts:
+      - contains:
+          path: spec.template.spec.dnsConfig.nameservers
+          content:
+            1.1.1.1
+          any: true
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.dnsConfig.nameservers
+          content:
+            1.0.0.1
+          any: true
+        template: deployment.yaml
+
+  - it: should set dnsPolicy and dnsConfig when dnsPolicy and dnsConfig are set
+    set:
+      dnsPolicy: None
+      dnsConfig:
+        nameservers:
+          - 1.1.1.1
+          - 1.0.0.1
+    asserts:
+      - equal:
+          path: spec.template.spec.dnsPolicy
+          value: None
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.dnsConfig.nameservers
+          content:
+            1.1.1.1
+          any: true
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.dnsConfig.nameservers
+          content:
+            1.0.0.1
+          any: true
+        template: deployment.yaml
+
+  - it: should add hostAliases when hostAliases is defined
+    set:
+      hostAliases:
+        - ip: 1.1.1.1
+          hostnames:
+            - "my-host.com"
+    asserts:
+      - contains:
+          path: spec.template.spec.hostAliases
+          content:
+            ip: 1.1.1.1
+            hostnames:
+              - "my-host.com"
+          any: true
+        template: deployment.yaml

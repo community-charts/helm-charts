@@ -68,6 +68,13 @@ annotations:
           url: https://github.com/community-charts/helm-charts/issues/156
     - kind: fixed
       description: Fix missing dropbox app key secret implementation
+    - kind: added
+      description: Add support for dnsPolicy, dnsConfig, and hostAliases. See the values.yaml for more details.
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/157
+    - kind: added
+      description: Add enabled flag to service.
   artifacthub.io/images: |
     - name: outline
       image: outlinewiki/outline:0.84.0

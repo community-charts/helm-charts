@@ -581,6 +581,8 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | database.connectionPoolMin | string | `""` | The minimum number of connections in the connection pool. |
 | database.sslMode | string | `"disable"` | The SSL mode to use for the database connection. possible values are: "disable", "allow", "require", "prefer", "verify-ca", "verify-full" |
 | defaultLanguage | string | `"en_US"` | This is for setting up the default language. See translate.getoutline.com for a list of available language codes and their rough percentage translated |
+| dnsConfig | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config |
+| dnsPolicy | string | `""` | For more information checkout: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy |
 | externalPostgresql | object | `{"database":"outline","existingSecret":"","host":"","password":"","port":5432,"secretKey":"postgres-password","username":"postgres"}` | External PostgreSQL parameters |
 | externalPostgresql.database | string | `"outline"` | The name of the external PostgreSQL database. For more information: https://docs.getoutline.com/s/hosting/doc/docker-7pfeLP5a8t |
 | externalPostgresql.existingSecret | string | `""` | The name of an existing secret with PostgreSQL (must contain key `postgres-password`) and credentials. When it's set, the `externalPostgresql.password` parameter is ignored |
@@ -628,6 +630,7 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | fileStorage.uploadMaxSize | string | `"262144000"` | This is for setting up the file storage upload max size. |
 | fileStorage.workspaceImportMaxSize | string | `""` | This is for setting up the file storage workspace import max size. |
 | fullnameOverride | string | `""` | This is to override the full name of the chart. |
+| hostAliases | list | `[]` | Host aliases for the pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases |
 | image | object | `{"pullPolicy":"IfNotPresent","repository":"outlinewiki/outline","tag":""}` | This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/ |
 | image.pullPolicy | string | `"IfNotPresent"` | This sets the pull policy for images. |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
