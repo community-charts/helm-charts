@@ -685,8 +685,10 @@ externalRedis:
   # -- The name of an existing secret with Redis (must contain key `redis-password`) and Sentinel credentials.
   # When it's set, the `externalRedis.password` parameter is ignored
   existingSecret: ""
-  # -- This is for setting up the external redis secret key.
-  secretKey: "redis-password"
+  # -- This is for setting up the external redis username secret key.
+  usernameSecretKey: "redis-username"
+  # -- This is for setting up the external redis password secret key.
+  passwordSecretKey: "redis-password"
 
 # -- Database configuration
 database:

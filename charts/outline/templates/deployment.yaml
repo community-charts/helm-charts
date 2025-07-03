@@ -161,14 +161,14 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ default (include "outline.redis.fullname" .) .Values.externalRedis.existingSecret }}
-                  key: redis-username
+                  key: {{ .Values.externalRedis.usernameSecretKey }}
                   optional: true
             {{- end }}
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ default (include "outline.redis.fullname" .) .Values.externalRedis.existingSecret }}
-                  key: redis-password
+                  key: {{ .Values.externalRedis.passwordSecretKey }}
                   optional: true
             - name: REDIS_HOST
               value: {{ include "outline.redis.host" . }}
@@ -203,7 +203,7 @@ spec:
                   key: rootUser
                 {{- else }}
                   name: {{ default (printf "%s-s3-secret" (include "outline.fullname" .)) .Values.fileStorage.s3.existingSecret }}
-                  key: access-key-id
+                  key: {{ .Values.fileStorage.s3.accessKeyIdSecretKey }}
                 {{- end }}
             - name: AWS_SECRET_ACCESS_KEY
               valueFrom:
@@ -213,7 +213,7 @@ spec:
                   key: rootPassword
                 {{- else }}
                   name: {{ default (printf "%s-s3-secret" (include "outline.fullname" .)) .Values.fileStorage.s3.existingSecret }}
-                  key: secret-access-key
+                  key: {{ .Values.fileStorage.s3.secretAccessKeySecretKey }}
                 {{- end }}
 
           {{- if and .Values.minio.enabled (gt (len .Values.minio.buckets) 0) }}
@@ -248,6 +248,128 @@ spec:
             - name: AWS_S3_ACL
               value: {{ .Values.fileStorage.s3.acl | quote }}
         {{- end }}
+          {{- if and .Values.auth.slack.enabled .Values.auth.slack.existingSecret.name }}
+            - name: SLACK_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.slack.existingSecret.name }}
+                  key: {{ .Values.auth.slack.existingSecret.clientSecretKey }}
+          {{- end }}
+          {{- if and .Values.auth.google.enabled .Values.auth.google.existingSecret.name }}
+            - name: GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.google.existingSecret.name }}
+                  key: {{ .Values.auth.google.existingSecret.clientSecretKey }}
+          {{- end }}
+          {{- if and .Values.auth.azure.enabled .Values.auth.azure.existingSecret.name }}
+            - name: AZURE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.azure.existingSecret.name }}
+                  key: {{ .Values.auth.azure.existingSecret.clientSecretKey }}
+          {{- end }}
+          {{- if and .Values.auth.oidc.enabled .Values.auth.oidc.existingSecret.name }}
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.oidc.existingSecret.name }}
+                  key: {{ .Values.auth.oidc.existingSecret.clientSecretKey }}
+          {{- end }}
+          {{- if and .Values.auth.github.enabled .Values.auth.github.existingSecret.name }}
+            - name: GITHUB_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.github.existingSecret.name }}
+                  key: {{ .Values.auth.github.existingSecret.clientSecretKey }}
+            - name: GITHUB_APP_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.github.existingSecret.name }}
+                  key: {{ .Values.auth.github.existingSecret.appPrivateKeyKey }}
+          {{- end }}
+          {{- if and .Values.auth.gitea.enabled .Values.auth.gitea.existingSecret.name }}
+            - name: GITEA_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.gitea.existingSecret.name }}
+                  key: {{ .Values.auth.gitea.existingSecret.clientSecretKey }}
+          {{- end }}
+          {{- if and .Values.auth.gitlab.enabled .Values.auth.gitlab.existingSecret.name }}
+            - name: GITLAB_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.gitlab.existingSecret.name }}
+                  key: {{ .Values.auth.gitlab.existingSecret.clientSecretKey }}
+          {{- end }}
+          {{- if and .Values.auth.discord.enabled .Values.auth.discord.existingSecret.name }}
+            - name: DISCORD_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.discord.existingSecret.name }}
+                  key: {{ .Values.auth.discord.existingSecret.clientSecretKey }}
+          {{- end }}
+          {{- if and .Values.auth.auth0.enabled .Values.auth.auth0.existingSecret.name }}
+            - name: AUTH0_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.auth0.existingSecret.name }}
+                  key: {{ .Values.auth.auth0.existingSecret.clientSecretKey }}
+          {{- end }}
+          {{- if and .Values.auth.keycloak.enabled .Values.auth.keycloak.existingSecret.name }}
+            - name: KEYCLOAK_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.keycloak.existingSecret.name }}
+                  key: {{ .Values.auth.keycloak.existingSecret.clientSecretKey }}
+          {{- end }}
+          {{- if and .Values.auth.saml.enabled .Values.auth.saml.existingSecret.name }}
+            - name: SAML_CERT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.saml.existingSecret.name }}
+                  key: {{ .Values.auth.saml.existingSecret.certKey }}
+          {{- end }}
+          {{- if and .Values.integrations.iframely.enabled .Values.integrations.iframely.existingSecret.name }}
+            - name: IFRAMELY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.integrations.iframely.existingSecret.name }}
+                  key: {{ .Values.integrations.iframely.existingSecret.apiKeyKey }}
+          {{- end }}
+          {{- if and .Values.integrations.openAI.enabled .Values.integrations.openAI.existingSecret.name }}
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.integrations.openAI.existingSecret.name }}
+                  key: {{ .Values.integrations.openAI.existingSecret.apiKeyKey }}
+          {{- end }}
+          {{- if and .Values.integrations.slack.enabled .Values.integrations.slack.existingSecret.name }}
+            - name: SLACK_VERIFICATION_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.integrations.slack.existingSecret.name }}
+                  key: {{ .Values.integrations.slack.existingSecret.verificationTokenKey }}
+          {{- end }}
+          {{- if and .Values.integrations.dropbox.enabled .Values.integrations.dropbox.existingSecret.name }}
+            - name: DROPBOX_APP_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.integrations.dropbox.existingSecret.name }}
+                  key: {{ .Values.integrations.dropbox.existingSecret.appKeyKey }}
+          {{- end }}
+          {{- if and .Values.smtp.host .Values.smtp.existingSecret.name }}
+            - name: SMTP_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.smtp.existingSecret.name }}
+                  key: {{ .Values.smtp.existingSecret.usernameKey }}
+            - name: SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.smtp.existingSecret.name }}
+                  key: {{ .Values.smtp.existingSecret.passwordKey }}
+          {{- end }}
           {{- range $key, $value := .Values.extraEnvVars }}
             - name: {{ upper $key }}
               value: {{ $value | quote }}

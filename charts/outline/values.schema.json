@@ -2113,11 +2113,18 @@
           "title": "existingSecret",
           "type": "string"
         },
-        "secretKey": {
-          "default": "redis-password",
-          "description": "This is for setting up the external redis secret key.",
+        "usernameSecretKey": {
+          "default": "redis-username",
+          "description": "This is for setting up the external redis username secret key.",
           "required": [],
-          "title": "secretKey",
+          "title": "usernameSecretKey",
+          "type": "string"
+        },
+        "passwordSecretKey": {
+          "default": "redis-password",
+          "description": "This is for setting up the external redis password secret key.",
+          "required": [],
+          "title": "passwordSecretKey",
           "type": "string"
         },
         "host": {
@@ -2157,7 +2164,8 @@
         "password",
         "port",
         "existingSecret",
-        "secretKey"
+        "usernameSecretKey",
+        "passwordSecretKey"
       ],
       "title": "externalRedis",
       "type": "object"

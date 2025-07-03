@@ -4,7 +4,7 @@
 
 A Helm chart for the fastest knowledge base for growing teams. Beautiful, realtime collaborative, feature packed, and markdown compatible.
 
-![Version: 0.3.5](https://img.shields.io/badge/Version-0.3.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.84.0](https://img.shields.io/badge/AppVersion-0.84.0-informational?style=flat-square)
+![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.84.0](https://img.shields.io/badge/AppVersion-0.84.0-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -589,13 +589,14 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | externalPostgresql.port | int | `5432` | External PostgreSQL server port |
 | externalPostgresql.secretKey | string | `"postgres-password"` | This is for setting up the external postgresql secret key. |
 | externalPostgresql.username | string | `"postgres"` | External PostgreSQL username |
-| externalRedis | object | `{"existingSecret":"","host":"","password":"","port":6379,"secretKey":"redis-password","username":""}` | External Redis parameters |
+| externalRedis | object | `{"existingSecret":"","host":"","password":"","passwordSecretKey":"redis-password","port":6379,"username":"","usernameSecretKey":"redis-username"}` | External Redis parameters |
 | externalRedis.existingSecret | string | `""` | The name of an existing secret with Redis (must contain key `redis-password`) and Sentinel credentials. When it's set, the `externalRedis.password` parameter is ignored |
 | externalRedis.host | string | `""` | External Redis server host |
 | externalRedis.password | string | `""` | External Redis password |
+| externalRedis.passwordSecretKey | string | `"redis-password"` | This is for setting up the external redis password secret key. |
 | externalRedis.port | int | `6379` | External Redis server port |
-| externalRedis.secretKey | string | `"redis-password"` | This is for setting up the external redis secret key. |
 | externalRedis.username | string | `""` | External Redis username |
+| externalRedis.usernameSecretKey | string | `"redis-username"` | This is for setting up the external redis username secret key. |
 | extraContainers | list | `[]` | Additional containers (sidecars) on the output Deployment definition. |
 | extraEnvVars | object | `{}` | This is for setting up the extra environment variables. |
 | extraSecretNamesForEnvFrom | list | `[]` | This is for setting up the extra secrets for environment variables. |

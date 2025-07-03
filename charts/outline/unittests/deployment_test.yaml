@@ -1098,3 +1098,370 @@ tests:
           content:
             /entrypoint.sh
           any: true
+
+  - it: should set slack client secret from existing secret when auth.slack.enabled is true and auth.slack.existingSecret.name is set
+    set:
+      auth:
+        slack:
+          enabled: true
+          clientId: fake-client-id
+          existingSecret:
+            name: fake-existing-secret
+            clientSecretKey: client-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: SLACK_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: "client-secret"
+
+  - it: should set google client secret from existing secret when auth.google.enabled is true and auth.google.existingSecret.name is set
+    set:
+      auth:
+        google:
+          enabled: true
+          clientId: fake-client-id
+          existingSecret:
+            name: fake-existing-secret
+            clientSecretKey: client-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: GOOGLE_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: "client-secret"
+
+  - it: should set azure client secret from existing secret when auth.azure.enabled is true and auth.azure.existingSecret.name is set
+    set:
+      auth:
+        azure:
+          enabled: true
+          clientId: fake-client-id
+          resourceAppId: fake-resource-app-id
+          tenantId: fake-tenant-id
+          existingSecret:
+            name: fake-existing-secret
+            clientSecretKey: client-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: AZURE_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: "client-secret"
+
+  - it: should set oidc client secret from existing secret when auth.oidc.enabled is true and auth.oidc.existingSecret.name is set
+    set:
+      auth:
+        oidc:
+          enabled: true
+          clientId: fake-client-id
+          authUri: fake-auth-uri
+          tokenUri: fake-token-uri
+          userInfoUri: fake-user-info-uri
+          logoutUri: fake-logout-uri
+          usernameClaim: fake-username-claim
+          displayName: fake-display-name
+          scopes:
+            - fake-scope-1
+            - fake-scope-2
+          existingSecret:
+            name: fake-existing-secret
+            clientSecretKey: client-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: OIDC_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: "client-secret"
+
+  - it: should set github client secret from existing secret when auth.github.enabled is true and auth.github.existingSecret.name is set
+    set:
+      auth:
+        github:
+          enabled: true
+          clientId: fake-client-id
+          appName: fake-app-name
+          appId: fake-app-id
+          existingSecret:
+            name: fake-existing-secret
+            clientSecretKey: client-secret
+            appPrivateKeyKey: app-private-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: GITHUB_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: "client-secret"
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: GITHUB_APP_PRIVATE_KEY
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: "app-private-key"
+
+  - it: should set gitea client secret from existing secret when auth.gitea.enabled is true and auth.gitea.existingSecret.name is set
+    set:
+      auth:
+        gitea:
+          enabled: true
+          clientId: fake-client-id
+          baseUrl: fake-base-url
+          usernameClaim: fake-username-claim
+          displayName: fake-display-name
+          scopes:
+            - fake-scope-1
+            - fake-scope-2
+          existingSecret:
+            name: fake-existing-secret
+            clientSecretKey: client-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: GITEA_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: "client-secret"
+
+  - it: should set gitlab client secret from existing secret when auth.gitlab.enabled is true and auth.gitlab.existingSecret.name is set
+    set:
+      auth:
+        gitlab:
+          enabled: true
+          clientId: fake-client-id
+          clientSecret: fake-client-secret
+          baseUrl: fake-base-url
+          usernameClaim: fake-username-claim
+          displayName: fake-display-name
+          scopes:
+            - fake-scope-1
+            - fake-scope-2
+          existingSecret:
+            name: fake-existing-secret
+            clientSecretKey: client-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: GITLAB_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: "client-secret"
+
+  - it: should set discord client secret from existing secret when auth.discord.enabled is true and auth.discord.existingSecret.name is set
+    set:
+      auth:
+        discord:
+          enabled: true
+          clientId: fake-client-id
+          serverId: fake-server-id
+          serverRoles:
+            - fake-role-1
+            - fake-role-2
+          existingSecret:
+            name: fake-existing-secret
+            clientSecretKey: client-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: DISCORD_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: "client-secret"
+
+  - it: should set auth0 client secret from existing secret when auth.auth0.enabled is true and auth.auth0.existingSecret.name is set
+    set:
+      auth:
+        auth0:
+          enabled: true
+          clientId: fake-client-id
+          baseUrl: fake-base-url
+          usernameClaim: fake-username-claim
+          displayName: fake-display-name
+          scopes:
+            - fake-scope-1
+            - fake-scope-2
+          existingSecret:
+            name: fake-existing-secret
+            clientSecretKey: client-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: AUTH0_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: "client-secret"
+
+  - it: should set keycloak client secret from existing secret when auth.keycloak.enabled is true and auth.keycloak.existingSecret.name is set
+    set:
+      auth:
+        keycloak:
+          enabled: true
+          clientId: fake-client-id
+          baseUrl: fake-base-url
+          usernameClaim: fake-username-claim
+          displayName: fake-display-name
+          scopes:
+            - fake-scope-1
+            - fake-scope-2
+          existingSecret:
+            name: fake-existing-secret
+            clientSecretKey: client-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: KEYCLOAK_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: "client-secret"
+
+  - it: should set saml cert from existing secret when auth.saml.enabled is true and auth.saml.existingSecret.name is set
+    set:
+      auth:
+        saml:
+          enabled: true
+          ssoEndpoint: "fake-sso-endpoint"
+          existingSecret:
+            name: fake-existing-secret
+            certKey: cert
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: SAML_CERT
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: cert
+
+  - it: should set iframely api key from existing secret when integrations.iframely.enabled is true and integrations.iframely.existingSecret.name is set
+    set:
+      integrations:
+        iframely:
+          enabled: true
+          url: "fake-url"
+          existingSecret:
+            name: fake-existing-secret
+            apiKeyKey: api-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: IFRAMELY_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: "api-key"
+
+  - it: should set openai api key from existing secret when integrations.openAI.enabled is true and integrations.openAI.existingSecret.name is set
+    set:
+      integrations:
+        openAI:
+          enabled: true
+          url: "fake-url"
+          vectorDatabaseUrl: "fake-vector-database-url"
+          existingSecret:
+            name: fake-existing-secret
+            apiKeyKey: api-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: OPENAI_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: "api-key"
+
+  - it: should set slack verification token from existing secret when integrations.slack.enabled is true and integrations.slack.existingSecret.name is set
+    set:
+      integrations:
+        slack:
+          enabled: true
+          appId: "fake-app-id"
+          messageActions: true
+          existingSecret:
+            name: fake-existing-secret
+            verificationTokenKey: verification-token
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: SLACK_VERIFICATION_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: "verification-token"
+
+  - it: should set dropbox app key from existing secret when integrations.dropbox.enabled is true and integrations.dropbox.existingSecret.name is set
+    set:
+      integrations:
+        dropbox:
+          enabled: true
+          existingSecret:
+            name: fake-existing-secret
+            appKeyKey: app-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: DROPBOX_APP_KEY
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: "app-key"
+
+  - it: should set smtp username from existing secret when smtp.enabled is true and smtp.existingSecret.name is set
+    set:
+      smtp:
+        host: "fake-host"
+        port: 587
+        fromEmail: "fake-from-email"
+        replyEmail: "fake-reply-email"
+        tlsCiphers: "fake-tls-ciphers"
+        existingSecret:
+          name: fake-existing-secret
+          usernameKey: username
+          passwordKey: password
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: SMTP_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: "username"
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: SMTP_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: "password"
