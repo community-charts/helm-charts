@@ -64,100 +64,100 @@ annotations:
     - kind: added
       description: Add support for external redis credentials
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/160
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/156
     - kind: added
       description: Add support for external postgresql credentials
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/160
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/156
     - kind: added
       description: Add support for external s3 credentials
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/160
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/156
     - kind: added
       description: Add support for external smtp credentials
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/160
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/156
     - kind: added
       description: Add support for external slack authentication credentials
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/160
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/156
     - kind: added
       description: Add support for external slack integration credentials
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/160
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/156
     - kind: added
       description: Add support for external dropbox credentials
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/160
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/156
     - kind: fixed
       description: Fix missing dropbox app key secret implementation
     - kind: added
       description: Add support for external google authentication credentials
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/160
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/156
     - kind: added
       description: Add support for external azure authentication credentials
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/160
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/156
     - kind: added
       description: Add support for external oidc authentication credentials
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/160
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/156
     - kind: added
       description: Add support for external github authentication credentials
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/160
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/156
     - kind: added
       description: Add support for external discord authentication credentials
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/160
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/156
     - kind: added
       description: Add support for external gitea authentication credentials
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/160
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/156
     - kind: added
       description: Add support for external gitlab authentication credentials
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/160
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/156
     - kind: added
       description: Add support for external auth0 authentication credentials
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/160
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/156
     - kind: added
       description: Add support for external keycloak authentication credentials
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/160
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/156
     - kind: added
       description: Add support for external saml authentication credentials
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/160
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/156
     - kind: added
       description: Add support for external iframely integration credentials
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/160
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/156
     - kind: added
       description: Add support for external openai integration credentials
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/160
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/156
   artifacthub.io/images: |
     - name: outline
       image: outlinewiki/outline:0.84.0
