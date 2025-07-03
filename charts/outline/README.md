@@ -642,7 +642,7 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | ingress.hosts | list | `[{"host":"outline.mydomain.com","paths":[{"path":"/","pathType":"ImplementationSpecific"}]}]` | This is for setting up the ingress hosts. |
 | ingress.tls | list | `[]` | This is for setting up the ingress tls. |
 | initContainers | list | `[]` | Additional init containers on the output Deployment definition. |
-| integrations | object | `{"dropbox":{"appKey":"","enabled":false,"existingSecret":{"appKeyKey":"app-key","name":""}},"iframely":{"apiKey":"","enabled":false,"existingSecret":{"apiKeyKey":"api-key","name":""},"url":""},"openAI":{"apiKey":"","enabled":false,"existingSecret":{"apiKeyKey":"api-key","name":""},"url":"","vectorDatabaseUrl":""},"pdfExport":{"enabled":false,"gotenbergUrl":""},"sentry":{"dsn":"","enabled":false,"tunnel":""},"slack":{"appId":"","enabled":false,"existingSecret":{"name":"","verificationTokenKey":"verification-token"},"messageActions":true,"verificationToken":""}}` | This is for setting up the integrations. More information about integrations can be found here: https://docs.getoutline.com/s/hosting/doc/integrations-Oav5MXNDJk |
+| integrations | object | `{"dropbox":{"appKey":"","enabled":false,"existingSecret":{"appKeyKey":"app-key","name":""}},"iframely":{"apiKey":"","enabled":false,"existingSecret":{"apiKeyKey":"api-key","name":""},"url":""},"linear":{"clientId":"","clientSecret":"","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""}},"notion":{"clientId":"","clientSecret":"","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""}},"openAI":{"apiKey":"","enabled":false,"existingSecret":{"apiKeyKey":"api-key","name":""},"url":"","vectorDatabaseUrl":""},"pdfExport":{"enabled":false,"gotenbergUrl":""},"sentry":{"dsn":"","enabled":false,"tunnel":""},"slack":{"appId":"","enabled":false,"existingSecret":{"name":"","verificationTokenKey":"verification-token"},"messageActions":true,"verificationToken":""}}` | This is for setting up the integrations. More information about integrations can be found here: https://docs.getoutline.com/s/hosting/doc/integrations-Oav5MXNDJk |
 | integrations.dropbox | object | `{"appKey":"","enabled":false,"existingSecret":{"appKeyKey":"app-key","name":""}}` | This is for setting up the dropbox. |
 | integrations.dropbox.appKey | string | `""` | This is for setting up the dropbox app key. |
 | integrations.dropbox.enabled | bool | `false` | This is for setting up the dropbox enabled. |
@@ -656,6 +656,20 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | integrations.iframely.existingSecret.apiKeyKey | string | `"api-key"` | This is for setting up the iframely secret key. |
 | integrations.iframely.existingSecret.name | string | `""` | This is for setting up the iframely existing secret name. |
 | integrations.iframely.url | string | `""` | This is for setting up the iframely url. |
+| integrations.linear | object | `{"clientId":"","clientSecret":"","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""}}` | This is for setting up the linear. More information about linear can be found here: https://docs.getoutline.com/s/hosting/doc/linear-g8N2riMweL |
+| integrations.linear.clientId | string | `""` | This is for setting up the linear client id. |
+| integrations.linear.clientSecret | string | `""` | This is for setting up the linear client secret. |
+| integrations.linear.enabled | bool | `false` | This is for setting up the linear enabled. |
+| integrations.linear.existingSecret | object | `{"clientSecretKey":"client-secret","name":""}` | This is for setting up the linear existing secret. If it's set, clientSecret will be ignored. |
+| integrations.linear.existingSecret.clientSecretKey | string | `"client-secret"` | This is for setting up the linear secret key. |
+| integrations.linear.existingSecret.name | string | `""` | This is for setting up the linear existing secret name. |
+| integrations.notion | object | `{"clientId":"","clientSecret":"","enabled":false,"existingSecret":{"clientSecretKey":"client-secret","name":""}}` | This is for setting up the notion. More information about notion can be found here: https://docs.getoutline.com/s/hosting/doc/notion-2v6g7WY3l3 |
+| integrations.notion.clientId | string | `""` | This is for setting up the notion client id. |
+| integrations.notion.clientSecret | string | `""` | This is for setting up the notion client secret. |
+| integrations.notion.enabled | bool | `false` | This is for setting up the notion enabled. |
+| integrations.notion.existingSecret | object | `{"clientSecretKey":"client-secret","name":""}` | This is for setting up the notion existing secret. If it's set, clientSecret will be ignored. |
+| integrations.notion.existingSecret.clientSecretKey | string | `"client-secret"` | This is for setting up the notion secret key. |
+| integrations.notion.existingSecret.name | string | `""` | This is for setting up the notion existing secret name. |
 | integrations.openAI | object | `{"apiKey":"","enabled":false,"existingSecret":{"apiKeyKey":"api-key","name":""},"url":"","vectorDatabaseUrl":""}` | This is for setting up the openai. More information about openai can be found here: https://docs.getoutline.com/s/hosting/doc/openai-iiTYCN9Nct |
 | integrations.openAI.apiKey | string | `""` | This is for setting up the openai api key. |
 | integrations.openAI.enabled | bool | `false` | This is for setting up the openai enabled. |

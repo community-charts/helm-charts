@@ -362,6 +362,20 @@ spec:
                   name: {{ .Values.integrations.dropbox.existingSecret.name }}
                   key: {{ .Values.integrations.dropbox.existingSecret.appKeyKey }}
           {{- end }}
+          {{- if and .Values.integrations.linear.enabled .Values.integrations.linear.existingSecret.name }}
+            - name: LINEAR_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.integrations.linear.existingSecret.name }}
+                  key: {{ .Values.integrations.linear.existingSecret.clientSecretKey }}
+          {{- end }}
+          {{- if and .Values.integrations.notion.enabled .Values.integrations.notion.existingSecret.name }}
+            - name: NOTION_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.integrations.notion.existingSecret.name }}
+                  key: {{ .Values.integrations.notion.existingSecret.clientSecretKey }}
+          {{- end }}
           {{- if and .Values.smtp.host .Values.smtp.existingSecret.name }}
             - name: SMTP_USERNAME
               valueFrom:

@@ -1436,6 +1436,42 @@ tests:
                 name: fake-existing-secret
                 key: "app-key"
 
+  - it: should set linear client id and secret from existing secret when integrations.linear.enabled is true and integrations.linear.existingSecret.name is set
+    set:
+      integrations:
+        linear:
+          enabled: true
+          existingSecret:
+            name: fake-existing-secret
+            clientSecretKey: client-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: LINEAR_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: "client-secret"
+
+  - it: should set notion client id and secret from existing secret when integrations.notion.enabled is true and integrations.notion.existingSecret.name is set
+    set:
+      integrations:
+        notion:
+          enabled: true
+          existingSecret:
+            name: fake-existing-secret
+            clientSecretKey: client-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: NOTION_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: "client-secret"
+
   - it: should set smtp username from existing secret when smtp.enabled is true and smtp.existingSecret.name is set
     set:
       smtp:

@@ -3243,6 +3243,126 @@
           ],
           "title": "slack",
           "type": "object"
+        },
+        "linear": {
+          "additionalProperties": false,
+          "description": "This is for setting up the linear. More information about linear can be found here: https://docs.getoutline.com/s/hosting/doc/linear-g8N2riMweL",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "description": "This is for setting up the linear enabled.",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "clientId": {
+              "default": "",
+              "description": "This is for setting up the linear client id.",
+              "required": [],
+              "title": "clientId",
+              "type": "string"
+            },
+            "clientSecret": {
+              "default": "",
+              "description": "This is for setting up the linear client secret.",
+              "required": [],
+              "title": "clientSecret",
+              "type": "string"
+            },
+            "existingSecret": {
+              "additionalProperties": false,
+              "type": "object",
+              "description": "This is for setting up the linear existing secret. If it's set, clientSecret will be ignored.",
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "This is for setting up the linear existing secret name.",
+                  "required": [],
+                  "title": "name",
+                  "type": "string"
+                },
+                "clientSecretKey": {
+                  "default": "client-secret",
+                  "description": "This is for setting up the linear client secret key.",
+                  "required": [],
+                  "title": "clientSecretKey",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "clientSecretKey"
+              ]
+            }
+          },
+          "required": [
+            "enabled",
+            "clientId",
+            "clientSecret",
+            "existingSecret"
+          ],
+          "title": "linear",
+          "type": "object"
+        },
+        "notion": {
+          "additionalProperties": false,
+          "description": "This is for setting up the notion. More information about notion can be found here: https://docs.getoutline.com/s/hosting/doc/notion-2v6g7WY3l3",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "description": "This is for setting up the notion enabled.",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "clientId": {
+              "default": "",
+              "description": "This is for setting up the notion client id.",
+              "required": [],
+              "title": "clientId",
+              "type": "string"
+            },
+            "clientSecret": {
+              "default": "",
+              "description": "This is for setting up the notion client secret.",
+              "required": [],
+              "title": "clientSecret",
+              "type": "string"
+            },
+            "existingSecret": {
+              "additionalProperties": false,
+              "type": "object",
+              "description": "This is for setting up the notion existing secret. If it's set, clientSecret will be ignored.",
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "This is for setting up the notion existing secret name.",
+                  "required": [],
+                  "title": "name",
+                  "type": "string"
+                },
+                "clientSecretKey": {
+                  "default": "client-secret",
+                  "description": "This is for setting up the notion client secret key.",
+                  "required": [],
+                  "title": "clientSecretKey",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "clientSecretKey"
+              ]
+            }
+          },
+          "required": [
+            "enabled",
+            "clientId",
+            "clientSecret",
+            "existingSecret"
+          ],
+          "title": "notion",
+          "type": "object"
         }
       },
       "required": [
@@ -3251,7 +3371,9 @@
         "pdfExport",
         "sentry",
         "slack",
-        "dropbox"
+        "dropbox",
+        "linear",
+        "notion"
       ],
       "title": "integrations",
       "type": "object"
