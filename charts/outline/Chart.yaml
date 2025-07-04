@@ -2,7 +2,6 @@ apiVersion: v2
 name: outline
 description: A Helm chart for the fastest knowledge base for growing teams. Beautiful, realtime collaborative, feature packed, and markdown compatible.
 icon: https://avatars.githubusercontent.com/u/1765001?s=200&v=4
-
 # A chart can be either an 'application' or a 'library' chart.
 #
 # Application charts are a collection of templates that can be packaged into versioned archives
@@ -12,31 +11,24 @@ icon: https://avatars.githubusercontent.com/u/1765001?s=200&v=4
 # a dependency of application charts to inject those utilities and functions into the rendering
 # pipeline. Library charts do not define any templates and therefore cannot be deployed.
 type: application
-
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.4.0
-
+version: 0.4.1
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "0.84.0"
-
+appVersion: "0.85.0"
 kubeVersion: ">=1.23.0-0"
-
 home: https://www.getoutline.com/
-
 maintainers:
   - name: burakince
     email: burak.ince@linux.org.tr
     url: https://www.burakince.com
-
 sources:
   - https://github.com/community-charts/helm-charts
   - https://github.com/outline/outline/
-
 keywords:
   - outline
   - knowledge base
@@ -46,7 +38,6 @@ keywords:
   - collaboration
   - markdown
   - wiki
-
 annotations:
   artifacthub.io/links: |
     - name: Chart Source
@@ -60,29 +51,25 @@ annotations:
     - name: Official Hosting Documentation
       url: https://docs.getoutline.com/s/hosting/
   artifacthub.io/containsSecurityUpdates: "false"
-  artifacthub.io/changes: |
-    - kind: added
-      description: Add support for external secrets to redis, postgresql, s3, smtp, slack, dropbox, google, azure, oidc, github, discord, gitea, gitlab, auth0, keycloak, saml, iframely, and openai authentication & integrations. See the values.yaml for more details.
+  artifacthub.io/changes: |-
+    - kind: changed
+      description: Update outlinewiki/outline image version to 0.85.0
       links:
-        - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/156
-    - kind: fixed
-      description: Fix missing dropbox app key secret implementation
-    - kind: added
-      description: Add support for dnsPolicy, dnsConfig, and hostAliases.
+        - name: Upstream Project
+          url: https://hub.docker.com/r/outlinewiki/outline
+    - kind: changed
+      description: Update dependency redis from 21.0.2 to 21.2.6
       links:
-        - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/157
-    - kind: added
-      description: Add enabled flag to service.
-    - kind: added
-      description: Add support for linear and notion integrations.
+        - name: ArtifactHub
+          url: https://artifacthub.io/packages/helm/bitnami/redis
+    - kind: changed
+      description: Update dependency postgresql from 16.7.2 to 16.7.15
       links:
-        - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/161
+        - name: ArtifactHub
+          url: https://artifacthub.io/packages/helm/bitnami/postgresql
   artifacthub.io/images: |
     - name: outline
-      image: outlinewiki/outline:0.84.0
+      image: outlinewiki/outline:0.85.0
       platforms:
         - linux/amd64
         - linux/arm64
@@ -99,18 +86,15 @@ annotations:
   artifacthub.io/signKey: |
     fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
     url: https://keybase.io/communitycharts/pgp_keys.asc
-
 dependencies:
   - name: redis
-    version: 21.0.2
+    version: 21.2.6
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
-
   - name: postgresql
-    version: 16.7.2
+    version: 16.7.15
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
-
   - name: minio
     version: 5.4.0
     repository: https://charts.min.io/
