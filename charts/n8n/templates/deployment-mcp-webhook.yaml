@@ -1,0 +1,212 @@
+{{- if and .Values.webhook.mcp.enabled (eq .Values.db.type "postgresdb") (eq .Values.webhook.mode "queue") (or (gt (int .Values.webhook.count) 1) (.Values.webhook.autoscaling.enabled) (.Values.webhook.allNodes)) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "n8n.mcp-webhook.fullname" . }}
+  labels:
+    {{- include "n8n.mcp-webhook.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: {{ .Values.strategy.type }}
+    {{- if eq .Values.strategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxUnavailable: {{ .Values.strategy.rollingUpdate.maxUnavailable }}
+      maxSurge: {{ .Values.strategy.rollingUpdate.maxSurge }}
+    {{- end }}
+  selector:
+    matchLabels:
+      {{- include "n8n.mcp-webhook.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "n8n.mcp-webhook.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "n8n.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.webhook.mcp.hostAliases }}
+      hostAliases:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.webhook.waitMainNodeReady.enabled .Values.webhook.mcp.initContainers  }}
+      initContainers:
+      {{- end }}
+        {{- if .Values.webhook.waitMainNodeReady.enabled }}
+        - name: wait-for-main
+          image: busybox:1.36
+          command: ["/bin/sh", "-c"]
+          args:
+          {{- $overwriteSchema := default (default "http" (get .Values.main.extraEnvVars "N8N_PROTOCOL")) .Values.webhook.waitMainNodeReady.overwriteSchema }}
+          {{- $overwriteUrl := default (printf "%s.%s.svc.cluster.local:%d" (include "n8n.fullname" .) .Release.Namespace (.Values.service.port | int)) .Values.webhook.waitMainNodeReady.overwriteUrl }}
+          {{- $healthCheckPath := default "/healthz" .Values.webhook.waitMainNodeReady.healthCheckPath }}
+          {{- $additionalParameters := printf "--spider %s" (join " " .Values.webhook.waitMainNodeReady.additionalParameters) | trimSuffix " " }}
+          - |
+            until wget -q {{ $additionalParameters }} {{ $overwriteSchema }}://{{ $overwriteUrl }}{{ $healthCheckPath }}; do
+              echo "Waiting for main node to be ready..."
+              sleep 2
+            done
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "16Mi"
+            limits:
+              cpu: "100m"
+              memory: "64Mi"
+        {{- end }}
+      {{- with .Values.webhook.mcp.initContainers }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ include "n8n.mcp-webhook.name" . }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["n8n"]
+          args: ["webhook"]
+          ports:
+            - name: {{ .Values.service.name }}
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          startupProbe:
+            {{- toYaml .Values.webhook.mcp.startupProbe | nindent 12 }}
+          livenessProbe:
+            {{- $rootLiveness := .Values.livenessProbe | default dict }}
+            {{- $webhookLiveness := .Values.webhook.mcp.livenessProbe | default dict }}
+            {{- toYaml (merge $webhookLiveness $rootLiveness) | nindent 12 }}
+          readinessProbe:
+            {{- $rootReadiness := .Values.readinessProbe | default dict }}
+            {{- $webhookReadiness := .Values.webhook.mcp.readinessProbe | default dict }}
+            {{- toYaml (merge $webhookReadiness $rootReadiness) | nindent 12 }}
+          resources:
+            {{- toYaml (default .Values.resources .Values.webhook.mcp.resources) | nindent 12 }}
+          env:
+            - name: N8N_HIRING_BANNER_ENABLED
+              value: "false"
+            - name: NODE_ENV
+              value: production
+            - name: N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
+              value: "true"
+            - name: N8N_PORT
+              value: {{ .Values.service.port | quote }}
+            - name: N8N_DEFAULT_LOCALE
+              value: {{ .Values.defaultLocale | quote }}
+            - name: GENERIC_TIMEZONE
+              value: {{ .Values.timezone | quote }}
+            - name: N8N_GRACEFUL_SHUTDOWN_TIMEOUT
+              value: {{ .Values.gracefulShutdownTimeout | quote }}
+            - name: N8N_DISABLE_UI
+              value: "true"
+          {{- if .Values.webhook.url }}
+            - name: WEBHOOK_URL
+              value: {{ .Values.webhook.url | quote }}
+          {{- end }}
+            - name: DB_POSTGRESDB_USER
+              value: {{ include "n8n.postgresql.username" . }}
+            - name: DB_POSTGRESDB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (include "n8n.postgresql.fullname" .) .Values.externalPostgresql.existingSecret }}
+              {{- if .Values.postgresql.auth.username }}
+                  key: password
+              {{- else }}
+                  key: postgres-password
+              {{- end }}
+                  optional: true
+            - name: QUEUE_HEALTH_CHECK_ACTIVE
+              value: "true"
+            - name: QUEUE_BULL_REDIS_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (include "n8n.redis.fullname" .) .Values.externalRedis.existingSecret }}
+                  key: redis-username
+                  optional: true
+            - name: QUEUE_BULL_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (include "n8n.redis.fullname" .) .Values.externalRedis.existingSecret }}
+                  key: redis-password
+                  optional: true
+            - name: N8N_RUNNERS_ENABLED
+              value: "true"
+            - name: N8N_RUNNERS_MODE
+              value: internal
+            - name: N8N_RUNNERS_TASK_TIMEOUT
+              value: {{ .Values.taskRunners.taskTimeout | quote }}
+            - name: N8N_RUNNERS_HEARTBEAT_INTERVAL
+              value: {{ .Values.taskRunners.taskHeartbeatInterval | quote }}
+            - name: N8N_RUNNERS_MAX_CONCURRENCY
+              value: {{ .Values.taskRunners.maxConcurrency | quote }}
+          {{- range $key, $value := (default .Values.extraEnvVars .Values.webhook.mcp.extraEnvVars) }}
+            - name: {{ upper $key }}
+              value: {{ $value | quote }}
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ template "n8n.fullname" . }}-database-configmap
+            - configMapRef:
+                name: {{ template "n8n.fullname" . }}-logging-configmap
+            - configMapRef:
+                name: {{ template "n8n.fullname" . }}-diagnostics-configmap
+            - configMapRef:
+                name: {{ template "n8n.fullname" . }}-version-notifications-configmap
+            - configMapRef:
+                name: {{ template "n8n.fullname" . }}-public-api-configmap
+            - configMapRef:
+                name: {{ template "n8n.fullname" . }}-queue-configmap
+          {{- if .Values.license.enabled }}
+            - configMapRef:
+                name: {{ template "n8n.fullname" . }}-license-configmap
+            - secretRef:
+                name: {{ default (printf "%s-license-activation-key" (include "n8n.fullname" .)) .Values.license.existingActivationKeySecret }}
+          {{- end }}
+            - secretRef:
+                name: {{ default (printf "%s-encryption-key-secret-v2" (include "n8n.fullname" .)) .Values.existingEncryptionKeySecret }}
+          {{- range (default .Values.extraSecretNamesForEnvFrom .Values.webhook.mcp.extraSecretNamesForEnvFrom) }}
+            - secretRef:
+                name: {{ . }}
+          {{- end }}
+          {{- with (default .Values.volumeMounts .Values.webhook.mcp.volumeMounts) }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.webhook.mcp.extraContainers }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (default .Values.volumes .Values.webhook.mcp.volumes) }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (default .Values.affinity .Values.webhook.mcp.affinity) }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+      {{- end }}
+      {{- with .Values.dnsConfig }}
+      dnsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

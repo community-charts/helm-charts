@@ -69,6 +69,8 @@ service:
   name: http
   # -- Additional service annotations
   annotations: {}
+  # -- Additional service labels
+  labels: {}
 
 # -- n8n log configurations
 log:
@@ -539,6 +541,65 @@ webhook:
 
   # -- If true, all k8s nodes will deploy exatly one webhook pod
   allNodes: false
+
+  # -- MCP webhook configuration
+  mcp:
+    # -- Whether to enable MCP webhook
+    enabled: true
+
+    # -- This block is for setting up the resource management for the mcp webhook pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    resources: {}
+
+    # -- This is to setup the startup probe for the mcp webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+    startupProbe:
+      exec:
+        command: ["/bin/sh", "-c", "ps aux | grep '[n]8n'"]
+      initialDelaySeconds: 10
+      periodSeconds: 5
+      failureThreshold: 30
+
+    # -- This is to setup the liveness probe for the mcp webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: http
+
+    # -- This is to setup the readiness probe for the mcp webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+    readinessProbe:
+      httpGet:
+        path: /healthz/readiness
+        port: http
+
+    # -- Extra environment variables for the mcp webhook pod
+    extraEnvVars: {}
+
+    # -- Extra secrets for environment variables for the mcp webhook pod
+    extraSecretNamesForEnvFrom: []
+
+    # -- Additional volumes on the output Deployment definition for the mcp webhook pod
+    volumes: []
+    # - name: foo
+    #   secret:
+    #     secretName: mysecret
+    #     optional: false
+
+    # -- Additional volumeMounts on the output Deployment definition for the mcp webhook pod
+    volumeMounts: []
+    # - name: foo
+    #   mountPath: "/etc/foo"
+    #   readOnly: true
+
+    # -- Additional init containers for the mcp webhook pod
+    initContainers: []
+
+    # -- Additional containers for the mcp webhook pod
+    extraContainers: []
+
+    # -- Webhook node affinity for the mcp webhook pod. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+    affinity: {}
+
+    # -- Host aliases for the mcp webhook pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases
+    hostAliases: []
 
   # -- If true, the number of webhooks will be automatically scaled based on default metrics. On default, it will scale based on CPU. Scale by requests can be done by setting a custom metric. For more information can be found here: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
   autoscaling:

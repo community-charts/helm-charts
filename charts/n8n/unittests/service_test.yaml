@@ -38,11 +38,12 @@ tests:
           path: spec.ports[0].name
           value: differentname
 
-  - it: should create webhook service when db type is postgresdb and webhook.mode is queue
+  - it: should create webhook service when db type is postgresdb and webhook.mode is queue and webhook.count is 1
     set:
       db:
         type: postgresdb
       webhook:
+        count: 1
         mode: queue
       service:
         name: n8n-webhook
@@ -60,6 +61,27 @@ tests:
       - equal:
           path: spec.ports[0].targetPort
           value: n8n-webhook
+
+  - it: should create webhook service when db type is postgresdb and webhook.mode is queue and webhook.count is bigger than 1
+    set:
+      db:
+        type: postgresdb
+      webhook:
+        count: 2
+        mode: queue
+    documentSelector:
+      path: metadata.name
+      value: n8n-mcp-webhook
+    asserts:
+      - equal:
+          path: spec.ports[0].name
+          value: http
+      - equal:
+          path: spec.ports[0].port
+          value: 5678
+      - equal:
+          path: spec.ports[0].targetPort
+          value: http
 
   - it: should create headless service when main.forceToUseStatefulset is true
     set:
@@ -127,6 +149,18 @@ tests:
       service:
         annotations:
           test-key: test-value
+        labels:
+          test-label-key: test-label-value
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should match snapshot of webhook mcp service
+    set:
+      db:
+        type: postgresdb
+      webhook:
+        count: 2
+        mode: queue
     asserts:
       - matchSnapshot: { }
 

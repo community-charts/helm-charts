@@ -79,7 +79,7 @@ should use webhook and host ingress different in queue mode when webhook.url is 
                 pathType: Prefix
               - backend:
                   service:
-                    name: n8n-webhook
+                    name: n8n-mcp-webhook
                     port:
                       number: 5678
                 path: /mcp/
@@ -173,7 +173,7 @@ should use webhook and host ingress same in queue mode when webhook.url is set s
                 pathType: Prefix
               - backend:
                   service:
-                    name: n8n-webhook
+                    name: n8n-mcp-webhook
                     port:
                       number: 5678
                 path: /mcp/

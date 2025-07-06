@@ -134,7 +134,7 @@ Create n8n webhook full name
 */}}
 {{- define "n8n.webhook.fullname" -}}
 {{- printf "%s-webhook" (include "n8n.fullname" .) | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
+{{- end }}
 
 {{/*
 n8n webhook labels
@@ -155,6 +155,41 @@ Webhook selector labels
 app.kubernetes.io/name: {{ include "n8n.webhook.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: webhook
+{{- end }}
+
+{{/*
+MCP webhook name
+*/}}
+{{- define "n8n.mcp-webhook.name" -}}
+{{- printf "%s-mcp-webhook" (include "n8n.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+
+{{/*
+Create n8n MCP webhook full name
+*/}}
+{{- define "n8n.mcp-webhook.fullname" -}}
+{{- printf "%s-mcp-webhook" (include "n8n.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+
+{{/*
+n8n MCP webhook labels
+*/}}
+{{- define "n8n.mcp-webhook.labels" -}}
+helm.sh/chart: {{ include "n8n.chart" . }}
+{{ include "n8n.mcp-webhook.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+n8n MCP webhook selector labels
+*/}}
+{{- define "n8n.mcp-webhook.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "n8n.mcp-webhook.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: mcp-webhook
 {{- end }}
 
 {{/*

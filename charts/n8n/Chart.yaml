@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.12.3
+version: 1.13.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -50,11 +50,15 @@ annotations:
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: removed
-      description: Remove binary data bucket region format constraint
+    - kind: fixed
+      description: Fixed MCP connection issue when there are multiple webhooks
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/159
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/165
+    - kind: added
+      description: Added service labels field
+    - kind: added
+      description: Added MCP Webhook enable/disable flag
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:1.100.1

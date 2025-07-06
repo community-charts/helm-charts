@@ -1767,6 +1767,13 @@
           "title": "annotations",
           "type": "object"
         },
+        "labels": {
+          "additionalProperties": true,
+          "description": "Additional service labels",
+          "required": [],
+          "title": "labels",
+          "type": "object"
+        },
         "name": {
           "default": "http",
           "description": "Default Service name",
@@ -1789,7 +1796,7 @@
           "type": "string"
         }
       },
-      "required": ["enabled", "type", "port", "name", "annotations"],
+      "required": ["enabled", "type", "port", "name", "annotations", "labels"],
       "title": "service",
       "type": "object"
     },
@@ -1935,6 +1942,252 @@
           "required": [],
           "title": "allNodes",
           "type": "boolean"
+        },
+        "mcp": {
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "default": true,
+              "description": "Whether to enable MCP webhook",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "resources": {
+              "additionalProperties": true,
+              "description": "This block is for setting up the resource management for the mcp webhook pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
+              "properties": {
+                "limits": {
+                  "additionalProperties": true,
+                  "properties": {
+                    "cpu": {
+                      "default": "2000m",
+                      "required": [],
+                      "title": "cpu",
+                      "type": "string"
+                    },
+                    "memory": {
+                      "default": "2Gi",
+                      "required": [],
+                      "title": "memory",
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "title": "limits",
+                  "type": "object"
+                },
+                "requests": {
+                  "additionalProperties": true,
+                  "properties": {
+                    "cpu": {
+                      "default": "100m",
+                      "required": [],
+                      "title": "cpu",
+                      "type": "string"
+                    },
+                    "memory": {
+                      "default": "128Mi",
+                      "required": [],
+                      "title": "memory",
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "title": "requests",
+                  "type": "object"
+                }
+              },
+              "required": [],
+              "title": "resources",
+              "type": "object"
+            },
+            "startupProbe": {
+              "additionalProperties": true,
+              "description": "This is to setup the startup probe for the mcp webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
+              "properties": {
+                "exec": {
+                  "additionalProperties": true,
+                  "properties": {
+                    "command": {
+                      "default": ["/bin/sh", "-c", "ps aux | grep '[n]8n'"],
+                      "required": [],
+                      "title": "command",
+                      "type": "array"
+                    }
+                  },
+                  "required": ["command"],
+                  "title": "exec",
+                  "type": "object"
+                },
+                "initialDelaySeconds": {
+                  "default": 10,
+                  "required": [],
+                  "title": "initialDelaySeconds",
+                  "type": "integer"
+                },
+                "periodSeconds": {
+                  "default": 5,
+                  "required": [],
+                  "title": "periodSeconds",
+                  "type": "integer"
+                },
+                "failureThreshold": {
+                  "default": 30,
+                  "required": [],
+                  "title": "failureThreshold",
+                  "type": "integer"
+                }
+              },
+              "required": [],
+              "title": "startupProbe",
+              "type": "object"
+            },
+            "livenessProbe": {
+              "additionalProperties": true,
+              "description": "This is to setup the liveness probe for the mcp webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
+              "properties": {
+                "httpGet": {
+                  "additionalProperties": true,
+                  "properties": {
+                    "path": {
+                      "default": "/healthz",
+                      "required": [],
+                      "title": "path",
+                      "type": "string"
+                    },
+                    "port": {
+                      "default": "http",
+                      "required": [],
+                      "title": "port",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["path", "port"],
+                  "title": "httpGet",
+                  "type": "object"
+                }
+              },
+              "required": ["httpGet"],
+              "title": "livenessProbe",
+              "type": "object"
+            },
+            "readinessProbe": {
+              "additionalProperties": true,
+              "description": "This is to setup the readiness probe for the mcp webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
+              "properties": {
+                "httpGet": {
+                  "additionalProperties": true,
+                  "properties": {
+                    "path": {
+                      "default": "/healthz/readiness",
+                      "required": [],
+                      "title": "path",
+                      "type": "string"
+                    },
+                    "port": {
+                      "default": "http",
+                      "required": [],
+                      "title": "port",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["path", "port"],
+                  "title": "httpGet",
+                  "type": "object"
+                }
+              },
+              "required": ["httpGet"],
+              "title": "readinessProbe",
+              "type": "object"
+            },
+            "extraEnvVars": {
+              "additionalProperties": true,
+              "description": "Extra environment variables for the mcp webhook pod",
+              "required": [],
+              "title": "extraEnvVars",
+              "type": "object"
+            },
+            "extraSecretNamesForEnvFrom": {
+              "description": "Extra secrets for environment variables for the mcp webhook pod",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "extraSecretNamesForEnvFrom",
+              "type": "array"
+            },
+            "volumes": {
+              "description": "Additional volumes on the output Deployment definition for the mcp webhook pod.",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "volumes",
+              "type": "array"
+            },
+            "volumeMounts": {
+              "description": "Additional volumeMounts on the output Deployment definition for the mcp webhook pod.",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "volumeMounts",
+              "type": "array"
+            },
+            "initContainers": {
+              "description": "Additional init containers for the mcp webhook pod",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "initContainers",
+              "type": "array"
+            },
+            "extraContainers": {
+              "description": "Additional containers for the mcp webhook pod",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "extraContainers",
+              "type": "array"
+            },
+            "affinity": {
+              "additionalProperties": true,
+              "description": "Webhook node affinity for the mcp webhook pod. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity",
+              "required": [],
+              "title": "affinity",
+              "type": "object"
+            },
+            "hostAliases": {
+              "description": "Host aliases for the mcp webhook pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases",
+              "items": {
+                "type": "object",
+                "required": ["ip", "hostnames"],
+                "properties": {
+                  "ip": {
+                    "type": "string",
+                    "description": "IP address for the host alias"
+                  },
+                  "hostnames": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "List of hostnames to associate with the IP address"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "required": [],
+              "title": "hostAliases",
+              "type": "array"
+            }
+          },
+          "required": ["enabled", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "initContainers", "extraContainers", "affinity", "hostAliases"],
+          "title": "mcp",
+          "type": "object"
         },
         "autoscaling": {
           "additionalProperties": false,
@@ -2619,7 +2872,7 @@
           "type": "array"
         }
       },
-      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases"],
+      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases", "mcp"],
       "allOf": [
         {
           "if": {

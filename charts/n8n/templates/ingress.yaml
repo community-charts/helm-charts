@@ -83,13 +83,18 @@ spec:
                 name: {{ include "n8n.fullname" $ }}
                 port:
                   number: {{ $.Values.service.port }}
+          {{- if $.Values.webhook.mcp.enabled }}
           - path: {{ .path }}mcp/
             {{- with .pathType }}
             pathType: {{ . }}
             {{- end }}
             backend:
               service:
+              {{- if and (eq $.Values.db.type "postgresdb") (eq $.Values.webhook.mode "queue") (or (gt (int $.Values.webhook.count) 1) ($.Values.webhook.autoscaling.enabled) ($.Values.webhook.allNodes)) }}
+                name: {{ include "n8n.mcp-webhook.fullname" $ }}
+              {{- else }}
                 name: {{ include "n8n.webhook.fullname" $ }}
+              {{- end }}
                 port:
                   number: {{ $.Values.service.port }}
           - path: {{ .path }}mcp-test/
@@ -101,6 +106,7 @@ spec:
                 name: {{ include "n8n.fullname" $ }}
                 port:
                   number: {{ $.Values.service.port }}
+          {{- end }}
           - path: {{ .path }}rest/oauth2-credential/callback
             {{- with .pathType }}
             pathType: {{ . }}
