@@ -1867,6 +1867,16 @@ tests:
           value: fake-volume-name
         template: statefulset-worker.yaml
 
+  - it: should set runtimeClassName when worker.runtimeClassName is defined
+    set:
+      worker:
+        runtimeClassName: "my-runtime-class"
+    asserts:
+      - equal:
+          path: spec.template.spec.runtimeClassName
+          value: my-runtime-class
+        template: statefulset-worker.yaml
+
   - it: should match snapshot of default values
     release:
       name: n8n

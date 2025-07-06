@@ -1355,3 +1355,13 @@ tests:
               - "my-host.com"
           any: true
         template: deployment-webhook.yaml
+
+  - it: should set runtimeClassName when webhook.runtimeClassName is defined
+    set:
+      webhook:
+        runtimeClassName: "my-runtime-class"
+    asserts:
+      - equal:
+          path: spec.template.spec.runtimeClassName
+          value: my-runtime-class
+        template: deployment-webhook.yaml

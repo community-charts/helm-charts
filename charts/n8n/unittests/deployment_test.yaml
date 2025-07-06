@@ -1848,6 +1848,16 @@ tests:
           any: true
         template: deployment.yaml
 
+  - it: should set runtimeClassName when main.runtimeClassName is defined
+    set:
+      main:
+        runtimeClassName: "my-runtime-class"
+    asserts:
+      - equal:
+          path: spec.template.spec.runtimeClassName
+          value: my-runtime-class
+        template: deployment.yaml
+
   - it: should match snapshot of default values
     release:
       name: n8n

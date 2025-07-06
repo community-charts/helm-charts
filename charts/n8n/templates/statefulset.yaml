@@ -45,6 +45,9 @@ spec:
       hostAliases:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.main.runtimeClassName }}
+      runtimeClassName: {{ .Values.main.runtimeClassName }}
+      {{- end }}
       {{- if or .Values.main.initContainers .Values.nodes.external.packages }}
       initContainers:
       {{- end }}

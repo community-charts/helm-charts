@@ -1982,6 +1982,16 @@ tests:
           any: true
         template: deployment-worker.yaml
 
+  - it: should set runtimeClassName when worker.runtimeClassName is defined
+    set:
+      worker:
+        runtimeClassName: "my-runtime-class"
+    asserts:
+      - equal:
+          path: spec.template.spec.runtimeClassName
+          value: my-runtime-class
+        template: deployment-worker.yaml
+
   - it: should match snapshot of default values
     release:
       name: n8n

@@ -61,6 +61,8 @@ annotations:
       description: Added MCP Webhook enable/disable flag
     - kind: changed
       description: Changed main pod labels to use main.name and main.fullname
+    - kind: added
+      description: Added runtimeClassName field for main, worker, and webhook pods
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:1.100.1

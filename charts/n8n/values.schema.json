@@ -1395,9 +1395,15 @@
           "required": [],
           "title": "hostAliases",
           "type": "array"
+        },
+        "runtimeClassName": {
+          "description": "Runtime class name for the main pod. For more information checkout: https://kubernetes.io/docs/concepts/containers/runtime-class/",
+          "required": [],
+          "title": "runtimeClassName",
+          "type": "string"
         }
       },
-      "required": ["count", "resources", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers", "affinity", "hostAliases"],
+      "required": ["count", "resources", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers", "affinity", "hostAliases", "runtimeClassName"],
       "title": "main",
       "type": "object"
     },
@@ -2871,9 +2877,15 @@
           "required": [],
           "title": "hostAliases",
           "type": "array"
+        },
+        "runtimeClassName": {
+          "description": "Runtime class name for the webhook pod. For more information checkout: https://kubernetes.io/docs/concepts/containers/runtime-class/",
+          "required": [],
+          "title": "runtimeClassName",
+          "type": "string"
         }
       },
-      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases", "mcp"],
+      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases", "mcp", "runtimeClassName"],
       "allOf": [
         {
           "if": {
@@ -3687,9 +3699,15 @@
           "required": [],
           "title": "hostAliases",
           "type": "array"
+        },
+        "runtimeClassName": {
+          "description": "Runtime class name for the worker pod. For more information checkout: https://kubernetes.io/docs/concepts/containers/runtime-class/",
+          "required": [],
+          "title": "runtimeClassName",
+          "type": "string"
         }
       },
-      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases"],
+      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases", "runtimeClassName"],
       "allOf": [
         {
           "if": {

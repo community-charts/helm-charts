@@ -355,6 +355,9 @@ main:
   # -- Host aliases for the main pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases
   hostAliases: []
 
+  # -- Runtime class name for the main pod. For more information checkout: https://kubernetes.io/docs/concepts/containers/runtime-class/
+  runtimeClassName: ""
+
 # -- Worker node configurations
 worker:
   # -- Use `regular` to use main node as executer, or use `queue` to have worker nodes
@@ -527,6 +530,9 @@ worker:
 
   # -- Host aliases for the worker pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases
   hostAliases: []
+
+  # -- Runtime class name for the worker pod. For more information checkout: https://kubernetes.io/docs/concepts/containers/runtime-class/
+  runtimeClassName: ""
 
 # -- Webhook node configurations
 webhook:
@@ -744,6 +750,9 @@ webhook:
 
   # -- Host aliases for the webhook pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases
   hostAliases: []
+
+  # -- Runtime class name for the webhook pod. For more information checkout: https://kubernetes.io/docs/concepts/containers/runtime-class/
+  runtimeClassName: ""
 
 # -- Task runners mode. Please follow the documentation for more information: https://docs.n8n.io/hosting/configuration/task-runners/
 taskRunners:
