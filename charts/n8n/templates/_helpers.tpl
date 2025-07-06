@@ -32,11 +32,25 @@ Create chart name and version as used by the chart label.
 {{- end }}
 
 {{/*
-Common labels
+Main name
 */}}
-{{- define "n8n.labels" -}}
+{{- define "n8n.main.name" -}}
+{{- printf "%s-main" (include "n8n.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+
+{{/*
+Create n8n main full name
+*/}}
+{{- define "n8n.main.fullname" -}}
+{{- printf "%s-main" (include "n8n.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Main labels
+*/}}
+{{- define "n8n.main.labels" -}}
 helm.sh/chart: {{ include "n8n.chart" . }}
-{{ include "n8n.selectorLabels" . }}
+{{ include "n8n.main.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -44,11 +58,13 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
-Selector labels
+Main selector labels
 */}}
-{{- define "n8n.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "n8n.name" . }}
+{{- define "n8n.main.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "n8n.main.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: main
+app.kubernetes.io/part-of: n8n
 {{- end }}
 
 {{/*
@@ -120,6 +136,7 @@ Worker selector labels
 app.kubernetes.io/name: {{ include "n8n.worker.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: worker
+app.kubernetes.io/part-of: n8n
 {{- end }}
 
 {{/*
@@ -155,6 +172,7 @@ Webhook selector labels
 app.kubernetes.io/name: {{ include "n8n.webhook.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: webhook
+app.kubernetes.io/part-of: n8n
 {{- end }}
 
 {{/*
@@ -189,7 +207,8 @@ n8n MCP webhook selector labels
 {{- define "n8n.mcp-webhook.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "n8n.mcp-webhook.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/component: mcp-webhook
+app.kubernetes.io/component: mcp
+app.kubernetes.io/part-of: n8n
 {{- end }}
 
 {{/*
@@ -239,6 +258,7 @@ Task runners selector labels
 app.kubernetes.io/name: {{ include "n8n.taskRunners.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: task-runners
+app.kubernetes.io/part-of: n8n
 {{- end }}
 
 {{/*
@@ -295,14 +315,14 @@ Convert n8n log level to npm log level
 n8n main persistence name
 */}}
 {{- define "n8n-main.persistence.name" -}}
-{{- printf "%s-main-persistence" (include "n8n.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-persistence" (include "n8n.main.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end }}
 
 {{/*
 n8n main persistence full name
 */}}
 {{- define "n8n-main.persistence.fullname" -}}
-{{- printf "%s-main-persistence" (include "n8n.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-persistence" (include "n8n.main.fullname" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -315,7 +335,6 @@ helm.sh/chart: {{ include "n8n.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-app.kubernetes.io/part-of: {{ include "n8n.name" . }}
 {{- end }}
 
 {{/*
@@ -325,6 +344,7 @@ n8n main persistence selector labels
 app.kubernetes.io/name: {{ include "n8n-main.persistence.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: persistence
+app.kubernetes.io/part-of: n8n
 {{- end }}
 
 {{/*
@@ -351,7 +371,6 @@ helm.sh/chart: {{ include "n8n.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-app.kubernetes.io/part-of: {{ include "n8n.worker.name" . }}
 {{- end }}
 
 {{/*
@@ -361,6 +380,7 @@ n8n worker persistence selector labels
 app.kubernetes.io/name: {{ include "n8n-worker.persistence.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: persistence
+app.kubernetes.io/part-of: n8n
 {{- end }}
 
 {{/*

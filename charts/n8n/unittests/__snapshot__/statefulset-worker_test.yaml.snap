@@ -204,6 +204,7 @@ should match snapshot of default values:
         app.kubernetes.io/instance: n8n
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: n8n-worker
+        app.kubernetes.io/part-of: n8n
         app.kubernetes.io/version: 1.0.0
         helm.sh/chart: n8n-1.0.0
       name: n8n-worker
@@ -214,6 +215,7 @@ should match snapshot of default values:
           app.kubernetes.io/component: worker
           app.kubernetes.io/instance: n8n
           app.kubernetes.io/name: n8n-worker
+          app.kubernetes.io/part-of: n8n
       serviceName: n8n-worker-headless
       template:
         metadata:
@@ -224,6 +226,7 @@ should match snapshot of default values:
             app.kubernetes.io/instance: n8n
             app.kubernetes.io/managed-by: Helm
             app.kubernetes.io/name: n8n-worker
+            app.kubernetes.io/part-of: n8n
             app.kubernetes.io/version: 1.0.0
             helm.sh/chart: n8n-1.0.0
         spec:

@@ -114,15 +114,15 @@ tests:
         runAsNonRoot: true
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].securityContext.runAsUser
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].securityContext.runAsUser
           value: 1000
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].securityContext.runAsGroup
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].securityContext.runAsGroup
           value: 1000
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].securityContext.runAsNonRoot
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].securityContext.runAsNonRoot
           value: true
         template: deployment.yaml
 
@@ -133,7 +133,7 @@ tests:
         tag: fake-tag
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].image
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].image
           value: fake-image-repository/fake-image:fake-tag
         template: deployment.yaml
 
@@ -149,7 +149,7 @@ tests:
       appVersion: 0.81.0
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].image
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].image
           value: n8nio/n8n:0.81.0
         template: deployment.yaml
 
@@ -158,7 +158,7 @@ tests:
       image.pullPolicy: Always
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].imagePullPolicy
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].imagePullPolicy
           value: Always
         template: deployment.yaml
 
@@ -169,15 +169,15 @@ tests:
         name: fake-port
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].ports[0].name
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].ports[0].name
           value: fake-port
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].ports[0].containerPort
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].ports[0].containerPort
           value: 8080
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].ports[0].protocol
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].ports[0].protocol
           value: TCP
         template: deployment.yaml
 
@@ -194,31 +194,31 @@ tests:
         successThreshold: 1
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.httpGet.path
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.httpGet.path
           value: /healthz
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.httpGet.port
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.httpGet.port
           value: http
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.initialDelaySeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.initialDelaySeconds
           value: 10
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.periodSeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.periodSeconds
           value: 10
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.timeoutSeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.timeoutSeconds
           value: 5
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.failureThreshold
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.failureThreshold
           value: 3
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.successThreshold
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.successThreshold
           value: 1
         template: deployment.yaml
 
@@ -236,31 +236,31 @@ tests:
           successThreshold: 1
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.httpGet.path
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.httpGet.path
           value: /healthz
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.httpGet.port
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.httpGet.port
           value: http
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.initialDelaySeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.initialDelaySeconds
           value: 10
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.periodSeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.periodSeconds
           value: 10
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.timeoutSeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.timeoutSeconds
           value: 5
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.failureThreshold
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.failureThreshold
           value: 3
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].livenessProbe.successThreshold
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.successThreshold
           value: 1
         template: deployment.yaml
 
@@ -277,31 +277,31 @@ tests:
         successThreshold: 1
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.httpGet.path
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].readinessProbe.httpGet.path
           value: /healthz/readiness
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.httpGet.port
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].readinessProbe.httpGet.port
           value: http
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.initialDelaySeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].readinessProbe.initialDelaySeconds
           value: 10
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.periodSeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].readinessProbe.periodSeconds
           value: 10
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.timeoutSeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].readinessProbe.timeoutSeconds
           value: 5
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.failureThreshold
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].readinessProbe.failureThreshold
           value: 3
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.successThreshold
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].readinessProbe.successThreshold
           value: 1
         template: deployment.yaml
 
@@ -319,31 +319,31 @@ tests:
           successThreshold: 1
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.httpGet.path
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].readinessProbe.httpGet.path
           value: /healthz/readiness
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.httpGet.port
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].readinessProbe.httpGet.port
           value: http
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.initialDelaySeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].readinessProbe.initialDelaySeconds
           value: 10
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.periodSeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].readinessProbe.periodSeconds
           value: 10
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.timeoutSeconds
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].readinessProbe.timeoutSeconds
           value: 5
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.failureThreshold
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].readinessProbe.failureThreshold
           value: 3
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].readinessProbe.successThreshold
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].readinessProbe.successThreshold
           value: 1
         template: deployment.yaml
 
@@ -358,19 +358,19 @@ tests:
           memory: 200Mi
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].resources.requests.cpu
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].resources.requests.cpu
           value: 100m
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].resources.requests.memory
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].resources.requests.memory
           value: 100Mi
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].resources.limits.cpu
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].resources.limits.cpu
           value: 200m
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].resources.limits.memory
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].resources.limits.memory
           value: 200Mi
         template: deployment.yaml
 
@@ -386,26 +386,26 @@ tests:
             memory: 200Mi
     asserts:
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].resources.requests.cpu
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].resources.requests.cpu
           value: 100m
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].resources.requests.memory
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].resources.requests.memory
           value: 100Mi
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].resources.limits.cpu
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].resources.limits.cpu
           value: 200m
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.containers[?(@.name == "n8n")].resources.limits.memory
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].resources.limits.memory
           value: 200Mi
         template: deployment.yaml
 
   - it: should set hiring banner disabled
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: N8N_HIRING_BANNER_ENABLED
             value: "false"
@@ -414,7 +414,7 @@ tests:
   - it: should set node environment to production
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: NODE_ENV
             value: production
@@ -423,7 +423,7 @@ tests:
   - it: should set enforce settings file permissions
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
             value: "true"
@@ -435,7 +435,7 @@ tests:
         port: 8080
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: N8N_PORT
             value: "8080"
@@ -446,7 +446,7 @@ tests:
       defaultLocale: de
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: N8N_DEFAULT_LOCALE
             value: de
@@ -457,7 +457,7 @@ tests:
       timezone: America/New_York
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: GENERIC_TIMEZONE
             value: America/New_York
@@ -468,7 +468,7 @@ tests:
       gracefulShutdownTimeout: 10
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: N8N_GRACEFUL_SHUTDOWN_TIMEOUT
             value: "10"
@@ -484,7 +484,7 @@ tests:
           username: n8npostgres
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: DB_POSTGRESDB_USER
             value: n8npostgres
@@ -500,7 +500,7 @@ tests:
           username: n8npostgres
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: DB_POSTGRESDB_USER
             value: n8npostgres
@@ -517,7 +517,7 @@ tests:
           password: n8npostgrespassword
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: DB_POSTGRESDB_PASSWORD
             valueFrom:
@@ -537,7 +537,7 @@ tests:
           username: ""
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: DB_POSTGRESDB_PASSWORD
             valueFrom:
@@ -555,7 +555,7 @@ tests:
         existingSecret: custom-secret
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: DB_POSTGRESDB_PASSWORD
             valueFrom:
@@ -573,7 +573,7 @@ tests:
         type: postgresdb
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: QUEUE_BULL_REDIS_USERNAME
             valueFrom:
@@ -593,7 +593,7 @@ tests:
         existingSecret: custom-secret
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: QUEUE_BULL_REDIS_USERNAME
             valueFrom:
@@ -611,7 +611,7 @@ tests:
         type: postgresdb
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: QUEUE_BULL_REDIS_PASSWORD
             valueFrom:
@@ -631,7 +631,7 @@ tests:
         existingSecret: custom-secret
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: QUEUE_BULL_REDIS_PASSWORD
             valueFrom:
@@ -647,7 +647,7 @@ tests:
         url: https://example.com
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: WEBHOOK_URL
             value: https://example.com
@@ -659,7 +659,7 @@ tests:
         N8N_EXTRA_ENV_VAR: n8nextraenvvar
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: N8N_EXTRA_ENV_VAR
             value: n8nextraenvvar
@@ -672,7 +672,7 @@ tests:
           N8N_EXTRA_ENV_VAR: n8nextraenvvar
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: N8N_EXTRA_ENV_VAR
             value: n8nextraenvvar
@@ -681,7 +681,7 @@ tests:
   - it: should set database configurations from database configmap
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].envFrom
           content:
             configMapRef:
               name: n8n-database-configmap
@@ -690,7 +690,7 @@ tests:
   - it: should set logging configurations from logging configmap
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].envFrom
           content:
             configMapRef:
               name: n8n-logging-configmap
@@ -699,7 +699,7 @@ tests:
   - it: should set diagnostics configurations from diagnostics configmap
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].envFrom
           content:
             configMapRef:
               name: n8n-diagnostics-configmap
@@ -708,7 +708,7 @@ tests:
   - it: should set version notifications configurations from version notifications configmap
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].envFrom
           content:
             configMapRef:
               name: n8n-version-notifications-configmap
@@ -717,7 +717,7 @@ tests:
   - it: should set public api configurations from public api configmap
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].envFrom
           content:
             configMapRef:
               name: n8n-public-api-configmap
@@ -726,7 +726,7 @@ tests:
   - it: should set workflow history configurations from workflow history configmap
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].envFrom
           content:
             configMapRef:
               name: n8n-workflow-history-configmap
@@ -735,7 +735,7 @@ tests:
   - it: should set task broker configurations from task broker configmap
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].envFrom
           content:
             configMapRef:
               name: n8n-task-broker-configmap
@@ -744,7 +744,7 @@ tests:
   - it: should set metrics configurations from metrics configmap
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].envFrom
           content:
             configMapRef:
               name: n8n-metrics-configmap
@@ -753,7 +753,7 @@ tests:
   - it: should set encryption key from encryption key secret
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].envFrom
           content:
             secretRef:
               name: n8n-encryption-key-secret-v2
@@ -767,7 +767,7 @@ tests:
         mode: queue
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].envFrom
           content:
             configMapRef:
               name: n8n-queue-configmap
@@ -781,7 +781,7 @@ tests:
         mode: queue
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].envFrom
           content:
             configMapRef:
               name: n8n-queue-configmap
@@ -794,13 +794,13 @@ tests:
         - secret2
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].envFrom
           content:
             secretRef:
               name: secret1
         template: deployment.yaml
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].envFrom
           content:
             secretRef:
               name: secret2
@@ -814,13 +814,13 @@ tests:
           - secret2
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].envFrom
           content:
             secretRef:
               name: secret1
         template: deployment.yaml
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].envFrom
           content:
             secretRef:
               name: secret2
@@ -834,7 +834,7 @@ tests:
           readOnly: true
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].volumeMounts
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
           content:
             name: fake-volume
             mountPath: /fake-path
@@ -850,7 +850,7 @@ tests:
             readOnly: true
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].volumeMounts
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
           content:
             name: fake-volume
             mountPath: /fake-path
@@ -1115,18 +1115,18 @@ tests:
         activationKey: fake-activation-key
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].command
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].command
           content:
             "/bin/sh"
         template: deployment.yaml
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].args
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].args
           content:
             "-c"
           any: true
         template: deployment.yaml
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].args
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].args
           content:
             "n8n license:info && n8n"
           any: true
@@ -1139,18 +1139,18 @@ tests:
         existingActivationKeySecret: fake-existing-activation-key-secret
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].command
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].command
           content:
             "/bin/sh"
         template: deployment.yaml
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].args
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].args
           content:
             "-c"
           any: true
         template: deployment.yaml
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].args
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].args
           content:
             "n8n license:info && n8n"
           any: true
@@ -1162,7 +1162,7 @@ tests:
         count: 2
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: N8N_MULTI_MAIN_SETUP_ENABLED
             value: "true"
@@ -1175,13 +1175,13 @@ tests:
         enabled: true
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].envFrom
           content:
             configMapRef:
               name: n8n-license-configmap
         template: deployment.yaml
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].envFrom
           content:
             secretRef:
               name: n8n-license-activation-key
@@ -1200,7 +1200,7 @@ tests:
           accessKey: fake-access-key-id
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: N8N_EXTERNAL_STORAGE_S3_ACCESS_KEY
             valueFrom:
@@ -1221,7 +1221,7 @@ tests:
         users: []
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: N8N_EXTERNAL_STORAGE_S3_ACCESS_KEY
             valueFrom:
@@ -1243,7 +1243,7 @@ tests:
         enabled: false
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: N8N_EXTERNAL_STORAGE_S3_ACCESS_KEY
             valueFrom:
@@ -1265,7 +1265,7 @@ tests:
           accessSecret: fake-secret-access-key
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: N8N_EXTERNAL_STORAGE_S3_ACCESS_SECRET
             valueFrom:
@@ -1286,7 +1286,7 @@ tests:
         users: []
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: N8N_EXTERNAL_STORAGE_S3_ACCESS_SECRET
             valueFrom:
@@ -1308,7 +1308,7 @@ tests:
         enabled: false
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: N8N_EXTERNAL_STORAGE_S3_ACCESS_SECRET
             valueFrom:
@@ -1343,7 +1343,7 @@ tests:
           any: true
         template: deployment.yaml
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].volumeMounts
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
           content:
             name: node-modules
             mountPath: "/home/node/.n8n"
@@ -1358,7 +1358,7 @@ tests:
           any: true
         template: deployment.yaml
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: NODE_FUNCTION_ALLOW_EXTERNAL
             value: "moment"
@@ -1377,7 +1377,7 @@ tests:
             - "crypto"
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: NODE_FUNCTION_ALLOW_BUILTIN
             value: "fs,crypto"
@@ -1393,7 +1393,7 @@ tests:
           enabled: true
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: NODE_FUNCTION_ALLOW_BUILTIN
             value: "*"
@@ -1457,7 +1457,7 @@ tests:
           allowAll: true
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: NODE_FUNCTION_ALLOW_EXTERNAL
             value: "*"
@@ -1530,7 +1530,7 @@ tests:
             fi
         template: deployment.yaml
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: NODE_FUNCTION_ALLOW_EXTERNAL
             value: "moment"
@@ -1562,7 +1562,7 @@ tests:
           reinstallMissingPackages: true
     asserts:
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
           content:
             name: N8N_REINSTALL_MISSING_PACKAGES
             value: "true"
@@ -1795,7 +1795,7 @@ tests:
           any: true
         template: deployment.yaml
       - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n")].volumeMounts
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
           content:
             name: fake-volume-name
             mountPath: /home/node/.n8n

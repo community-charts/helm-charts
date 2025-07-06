@@ -4,7 +4,7 @@ kind: StatefulSet
 metadata:
   name: {{ include "n8n.fullname" . }}
   labels:
-    {{- include "n8n.labels" . | nindent 4 }}
+    {{- include "n8n.main.labels" . | nindent 4 }}
 spec:
   {{- if .Values.service.enabled }}
   serviceName: {{ include "n8n.fullname" . }}-headless
@@ -14,7 +14,7 @@ spec:
     type: RollingUpdate
   selector:
     matchLabels:
-      {{- include "n8n.selectorLabels" . | nindent 6 }}
+      {{- include "n8n.main.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       annotations:
@@ -29,7 +29,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "n8n.labels" . | nindent 8 }}
+        {{- include "n8n.main.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -80,7 +80,7 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
       containers:
-        - name: {{ .Chart.Name }}
+        - name: {{ include "n8n.main.name" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"

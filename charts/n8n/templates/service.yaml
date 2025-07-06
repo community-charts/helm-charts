@@ -4,7 +4,7 @@ kind: Service
 metadata:
   name: {{ include "n8n.fullname" . }}
   labels:
-    {{- include "n8n.labels" . | nindent 4 }}
+    {{- include "n8n.main.labels" . | nindent 4 }}
     {{- with .Values.service.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
@@ -20,7 +20,7 @@ spec:
       protocol: TCP
       name: {{ .Values.service.name }}
   selector:
-    {{- include "n8n.selectorLabels" . | nindent 4 }}
+    {{- include "n8n.main.selectorLabels" . | nindent 4 }}
   {{- if or (.Values.main.forceToUseStatefulset) (and .Values.main.persistence.enabled (gt (int .Values.main.count) 1) (not .Values.main.persistence.existingClaim) (eq .Values.main.persistence.accessMode "ReadWriteOnce")) }}
 ---
 apiVersion: v1
@@ -28,7 +28,7 @@ kind: Service
 metadata:
   name: {{ include "n8n.fullname" . }}-headless
   labels:
-    {{- include "n8n.labels" . | nindent 4 }}
+    {{- include "n8n.main.labels" . | nindent 4 }}
     {{- with .Values.service.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
@@ -39,7 +39,7 @@ metadata:
 spec:
   clusterIP: None
   selector:
-    {{- include "n8n.selectorLabels" . | nindent 4 }}
+    {{- include "n8n.main.selectorLabels" . | nindent 4 }}
   ports:
     - protocol: TCP
       port: {{ .Values.service.port }}
@@ -77,7 +77,7 @@ kind: Service
 metadata:
   name: {{ include "n8n.worker.fullname" . }}-headless
   labels:
-    {{- include "n8n.labels" . | nindent 4 }}
+    {{- include "n8n.main.labels" . | nindent 4 }}
     {{- with .Values.service.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}

@@ -39,7 +39,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "n8n.selectorLabels" . | nindent 6 }}
+      {{- include "n8n.main.selectorLabels" . | nindent 6 }}
 {{- if .Values.serviceMonitor.targetLabels }}
   targetLabels:
   {{- range .Values.serviceMonitor.targetLabels }}

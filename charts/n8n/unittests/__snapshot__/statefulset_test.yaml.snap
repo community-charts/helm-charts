@@ -157,9 +157,11 @@ should match snapshot of default values:
     kind: StatefulSet
     metadata:
       labels:
+        app.kubernetes.io/component: main
         app.kubernetes.io/instance: n8n
         app.kubernetes.io/managed-by: Helm
-        app.kubernetes.io/name: n8n
+        app.kubernetes.io/name: n8n-main
+        app.kubernetes.io/part-of: n8n
         app.kubernetes.io/version: 1.0.0
         helm.sh/chart: n8n-1.0.0
       name: n8n
@@ -167,17 +169,21 @@ should match snapshot of default values:
       replicas: 2
       selector:
         matchLabels:
+          app.kubernetes.io/component: main
           app.kubernetes.io/instance: n8n
-          app.kubernetes.io/name: n8n
+          app.kubernetes.io/name: n8n-main
+          app.kubernetes.io/part-of: n8n
       serviceName: n8n-headless
       template:
         metadata:
           annotations:
             checksum/config: ebb640e853e11410aa426741a83e301290fcfa10987f5e8a3e7d2cb8a84eb4c8
           labels:
+            app.kubernetes.io/component: main
             app.kubernetes.io/instance: n8n
             app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: n8n
+            app.kubernetes.io/name: n8n-main
+            app.kubernetes.io/part-of: n8n
             app.kubernetes.io/version: 1.0.0
             helm.sh/chart: n8n-1.0.0
         spec:
@@ -226,7 +232,7 @@ should match snapshot of default values:
                 httpGet:
                   path: /healthz
                   port: http
-              name: n8n
+              name: n8n-main
               ports:
                 - containerPort: 5678
                   name: http

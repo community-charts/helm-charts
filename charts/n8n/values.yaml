@@ -542,7 +542,7 @@ webhook:
   # -- If true, all k8s nodes will deploy exatly one webhook pod
   allNodes: false
 
-  # -- MCP webhook configuration
+  # -- MCP webhook configuration. This is only used when the webhook mode is set to `queue` and the database type is set to `postgresdb`.
   mcp:
     # -- Whether to enable MCP webhook
     enabled: true

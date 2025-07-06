@@ -25,8 +25,10 @@ should match snapshot of default values:
           - n8n
       selector:
         matchLabels:
+          app.kubernetes.io/component: main
           app.kubernetes.io/instance: n8n
-          app.kubernetes.io/name: n8n
+          app.kubernetes.io/name: n8n-main
+          app.kubernetes.io/part-of: n8n
 should match snapshot with worker mode queue:
   1: |
     apiVersion: monitoring.coreos.com/v1
@@ -54,8 +56,10 @@ should match snapshot with worker mode queue:
           - n8n
       selector:
         matchLabels:
+          app.kubernetes.io/component: main
           app.kubernetes.io/instance: n8n
-          app.kubernetes.io/name: n8n
+          app.kubernetes.io/name: n8n-main
+          app.kubernetes.io/part-of: n8n
   2: |
     apiVersion: monitoring.coreos.com/v1
     kind: PodMonitor
@@ -85,3 +89,4 @@ should match snapshot with worker mode queue:
           app.kubernetes.io/component: worker
           app.kubernetes.io/instance: n8n
           app.kubernetes.io/name: n8n-worker
+          app.kubernetes.io/part-of: n8n

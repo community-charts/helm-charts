@@ -1945,6 +1945,7 @@
         },
         "mcp": {
           "additionalProperties": false,
+          "description": "MCP webhook configuration. This is only used when the webhook mode is set to `queue` and the database type is set to `postgresdb`.",
           "properties": {
             "enabled": {
               "default": true,

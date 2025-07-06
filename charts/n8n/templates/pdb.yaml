@@ -5,7 +5,7 @@ kind: PodDisruptionBudget
 metadata:
   name: {{ include "n8n.fullname" . }}
   labels:
-    {{- include "n8n.labels" . | nindent 4 }}
+    {{- include "n8n.main.labels" . | nindent 4 }}
 spec:
   {{- if .Values.main.pdb.minAvailable }}
   minAvailable: {{ .Values.main.pdb.minAvailable }}
@@ -15,7 +15,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "n8n.selectorLabels" . | nindent 6 }}
+      {{- include "n8n.main.selectorLabels" . | nindent 6 }}
 {{- end }}
 {{- if and .Values.webhook.pdb.enabled (eq .Values.db.type "postgresdb") (eq .Values.webhook.mode "queue") (not .Values.webhook.allNodes) (or .Values.webhook.autoscaling.enabled (gt (int .Values.webhook.count) 1)) }}
 ---
