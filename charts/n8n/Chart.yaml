@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.13.0
+version: 1.13.1
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -51,18 +51,7 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: fixed
-      description: Fixed MCP connection issue when there are multiple webhooks
-      links:
-        - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/165
-    - kind: added
-      description: Added service labels field
-    - kind: added
-      description: Added MCP Webhook enable/disable flag
-    - kind: changed
-      description: Changed main pod labels to use main.name and main.fullname
-    - kind: added
-      description: Added runtimeClassName field for main, worker, and webhook pods
+      description: Selector fields are immutable after kubernetes resource creation. Selector label changes revert to original values.
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:1.100.1

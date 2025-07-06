@@ -58,7 +58,7 @@ tests:
           value: n8n
       - equal:
           path: spec.selector.matchLabels["app.kubernetes.io/name"]
-          value: n8n-main
+          value: n8n
 
   - it: should create pdb resource for main node when deployment strategy is not Recreate and main.count is 1
     set:
@@ -75,7 +75,7 @@ tests:
           value: n8n
       - equal:
           path: spec.selector.matchLabels["app.kubernetes.io/name"]
-          value: n8n-main
+          value: n8n
 
   - it: should create pdb resource for webhook node when webhook queue mode enabled and webhook.count is bigger than 1
     set:

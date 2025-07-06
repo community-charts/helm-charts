@@ -55,16 +55,17 @@ helm.sh/chart: {{ include "n8n.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/component: main
+app.kubernetes.io/part-of: n8n
 {{- end }}
 
 {{/*
 Main selector labels
+Selector fields are immutable after kubernetes resource creation. Do not edit this function.
 */}}
 {{- define "n8n.main.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "n8n.main.name" . }}
+app.kubernetes.io/name: {{ include "n8n.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/component: main
-app.kubernetes.io/part-of: n8n
 {{- end }}
 
 {{/*
@@ -127,16 +128,17 @@ helm.sh/chart: {{ include "n8n.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/part-of: n8n
 {{- end }}
 
 {{/*
 Worker selector labels
+Selector fields are immutable after kubernetes resource creation. Do not edit this function.
 */}}
 {{- define "n8n.worker.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "n8n.worker.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: worker
-app.kubernetes.io/part-of: n8n
 {{- end }}
 
 {{/*
@@ -163,16 +165,17 @@ helm.sh/chart: {{ include "n8n.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/part-of: n8n
 {{- end }}
 
 {{/*
 Webhook selector labels
+Selector fields are immutable after kubernetes resource creation. Do not edit this function.
 */}}
 {{- define "n8n.webhook.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "n8n.webhook.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: webhook
-app.kubernetes.io/part-of: n8n
 {{- end }}
 
 {{/*
@@ -199,16 +202,17 @@ helm.sh/chart: {{ include "n8n.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/part-of: n8n
 {{- end }}
 
 {{/*
 n8n MCP webhook selector labels
+Selector fields are immutable after kubernetes resource creation. Do not edit this function.
 */}}
 {{- define "n8n.mcp-webhook.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "n8n.mcp-webhook.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: mcp
-app.kubernetes.io/part-of: n8n
 {{- end }}
 
 {{/*
@@ -249,16 +253,17 @@ helm.sh/chart: {{ include "n8n.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/part-of: n8n
 {{- end }}
 
 {{/*
 Task runners selector labels
+Selector fields are immutable after kubernetes resource creation. Do not edit this function.
 */}}
 {{- define "n8n.taskRunners.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "n8n.taskRunners.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: task-runners
-app.kubernetes.io/part-of: n8n
 {{- end }}
 
 {{/*
@@ -335,16 +340,17 @@ helm.sh/chart: {{ include "n8n.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/part-of: n8n
 {{- end }}
 
 {{/*
 n8n main persistence selector labels
+Selector fields are immutable after kubernetes resource creation. Do not edit this function.
 */}}
 {{- define "n8n-main.persistence.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "n8n-main.persistence.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: persistence
-app.kubernetes.io/part-of: n8n
 {{- end }}
 
 {{/*
@@ -371,16 +377,17 @@ helm.sh/chart: {{ include "n8n.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/part-of: n8n
 {{- end }}
 
 {{/*
 n8n worker persistence selector labels
+Selector fields are immutable after kubernetes resource creation. Do not edit this function.
 */}}
 {{- define "n8n-worker.persistence.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "n8n-worker.persistence.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: persistence
-app.kubernetes.io/part-of: n8n
 {{- end }}
 
 {{/*

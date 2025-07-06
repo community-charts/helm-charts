@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.13.0](https://img.shields.io/badge/Version-1.13.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.100.1](https://img.shields.io/badge/AppVersion-1.100.1-informational?style=flat-square)
+![Version: 1.13.1](https://img.shields.io/badge/Version-1.13.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.100.1](https://img.shields.io/badge/AppVersion-1.100.1-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -814,6 +814,12 @@ This section outlines major updates and breaking changes for each version of the
 ---
 
 ###  Version-Specific Upgrade Notes
+
+#### Upgrading to Version 1.13.1
+
+##### Action Required
+
+Pleae do not use 1.13.0 chart. It contains selector labels breaking changes. Please consider to upgrade 1.13.1 or higher hotfix version directly.
 
 #### Upgrading to Version 1.11.x
 

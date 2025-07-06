@@ -160,7 +160,7 @@ should match snapshot of default values:
         app.kubernetes.io/component: main
         app.kubernetes.io/instance: n8n
         app.kubernetes.io/managed-by: Helm
-        app.kubernetes.io/name: n8n-main
+        app.kubernetes.io/name: n8n
         app.kubernetes.io/part-of: n8n
         app.kubernetes.io/version: 1.0.0
         helm.sh/chart: n8n-1.0.0
@@ -169,10 +169,8 @@ should match snapshot of default values:
       replicas: 2
       selector:
         matchLabels:
-          app.kubernetes.io/component: main
           app.kubernetes.io/instance: n8n
-          app.kubernetes.io/name: n8n-main
-          app.kubernetes.io/part-of: n8n
+          app.kubernetes.io/name: n8n
       serviceName: n8n-headless
       template:
         metadata:
@@ -182,7 +180,7 @@ should match snapshot of default values:
             app.kubernetes.io/component: main
             app.kubernetes.io/instance: n8n
             app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: n8n-main
+            app.kubernetes.io/name: n8n
             app.kubernetes.io/part-of: n8n
             app.kubernetes.io/version: 1.0.0
             helm.sh/chart: n8n-1.0.0

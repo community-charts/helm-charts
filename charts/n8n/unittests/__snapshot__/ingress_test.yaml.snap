@@ -7,7 +7,7 @@ should use only ingress host in queue mode:
         app.kubernetes.io/component: main
         app.kubernetes.io/instance: n8n
         app.kubernetes.io/managed-by: Helm
-        app.kubernetes.io/name: n8n-main
+        app.kubernetes.io/name: n8n
         app.kubernetes.io/part-of: n8n
         app.kubernetes.io/version: 1.0.0
         helm.sh/chart: n8n-1.0.0
@@ -33,7 +33,7 @@ should use webhook and host ingress different in queue mode when webhook.url is 
         app.kubernetes.io/component: main
         app.kubernetes.io/instance: n8n
         app.kubernetes.io/managed-by: Helm
-        app.kubernetes.io/name: n8n-main
+        app.kubernetes.io/name: n8n
         app.kubernetes.io/part-of: n8n
         app.kubernetes.io/version: 1.0.0
         helm.sh/chart: n8n-1.0.0
@@ -132,7 +132,7 @@ should use webhook and host ingress same in queue mode when webhook.url is set s
         app.kubernetes.io/component: main
         app.kubernetes.io/instance: n8n
         app.kubernetes.io/managed-by: Helm
-        app.kubernetes.io/name: n8n-main
+        app.kubernetes.io/name: n8n
         app.kubernetes.io/part-of: n8n
         app.kubernetes.io/version: 1.0.0
         helm.sh/chart: n8n-1.0.0

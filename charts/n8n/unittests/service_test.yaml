@@ -99,7 +99,7 @@ tests:
           value: n8n
       - equal:
           path: spec.selector["app.kubernetes.io/name"]
-          value: n8n-main
+          value: n8n
       - equal:
           path: spec.ports[0].port
           value: 5678
