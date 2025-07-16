@@ -86,18 +86,163 @@
           },
           "originRequest": {
             "additionalProperties": true,
+            "description": "Please find more details from: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/cloudflared-parameters/origin-parameters/",
             "properties": {
               "connectTimeout": {
                 "default": "10s",
+                "description": "Timeout for establishing a new TCP connection to your origin server. This excludes the time taken to establish TLS, which is controlled by tlsTimeout.",
                 "required": [],
                 "title": "connectTimeout",
                 "type": "string"
               },
+              "tlsTimeout": {
+                "default": "10s",
+                "description": "Timeout for completing a TLS handshake to your origin server, if you have chosen to connect Tunnel to an HTTPS server.",
+                "required": [],
+                "title": "connectTimeout",
+                "type": "string"
+              },
+              "tcpKeepAlive": {
+                "default": "30s",
+                "description": "The timeout after which a TCP keepalive packet is sent on a connection between Cloudflare and the origin server.",
+                "required": [],
+                "title": "tcpKeepAlive",
+                "type": "string"
+              },
+              "noHappyEyeballs": {
+                "default": false,
+                "description": "When false, cloudflared uses the Happy Eyeballs algorithm for IPv4/IPv6 fallback if your local network has misconfigured one of the protocols. When true, Happy Eyeballs is disabled.",
+                "required": [],
+                "title": "noHappyEyeballs",
+                "type": "boolean"
+              },
+              "keepAliveConnections": {
+                "default": 100,
+                "description": "Maximum number of idle keepalive connections between Cloudflare and your origin. This does not restrict the total number of concurrent connections.",
+                "required": [],
+                "title": "keepAliveConnections",
+                "type": "integer"
+              },
+              "keepAliveTimeout": {
+                "default": "1m30s",
+                "description": "Timeout after which an idle keepalive connection can be discarded.",
+                "required": [],
+                "title": "keepAliveTimeout",
+                "type": "string"
+              },
+              "httpHostHeader": {
+                "default": "",
+                "description": "Sets the HTTP Host header on requests sent to the local service.",
+                "required": [],
+                "title": "httpHostHeader",
+                "type": "string"
+              },
+              "originServerName": {
+                "default": "",
+                "description": "Hostname that cloudflared should expect from your origin server certificate. If null, the expected hostname is the service URL, for example localhost if the service is https://localhost:443.",
+                "required": [],
+                "title": "originServerName",
+                "type": "string"
+              },
+              "matchSNItoHost": {
+                "default": false,
+                "description": "Auto configure the Hostname on the origin server certificate.",
+                "required": [],
+                "title": "matchSNItoHost",
+                "type": "boolean"
+              },
+              "caPool": {
+                "default": "",
+                "description": "Local file path to the certificate authority (CA) for your origin server certificate (for example, /root/certs/ca.pem). The path should point to a certificate store file or a bundle file in .pem or .crt format that contains one or more trusted root CA certificates. You should only configure this setting if your certificate is not signed by Cloudflare.",
+                "required": [],
+                "title": "caPool",
+                "type": "string"
+              },
+              "noTLSVerify": {
+                "default": false,
+                "description": "When false, TLS verification is performed on the certificate presented by your origin. When true, TLS verification is disabled. This will allow any certificate from the origin to be accepted.",
+                "required": [],
+                "title": "noTLSVerify",
+                "type": "boolean"
+              },
               "disableChunkedEncoding": {
                 "default": true,
+                "description": "When false, cloudflared performs chunked transfer encoding when transferring data over HTTP/1.1. When true, chunked transfer encoding is disabled. This is useful if you are running a Web Server Gateway Interface (WSGI) server.",
                 "required": [],
                 "title": "disableChunkedEncoding",
                 "type": "boolean"
+              },
+              "bastionMode": {
+                "default": false,
+                "description": "Runs as jump host",
+                "required": [],
+                "title": "bastionMode",
+                "type": "boolean"
+              },
+              "proxyAddress": {
+                "default": "127.0.0.1",
+                "description": "cloudflared starts a proxy server to translate HTTP traffic into TCP when proxying, for example, SSH or RDP. This configures the listen address for that proxy.",
+                "required": [],
+                "title": "proxyAddress",
+                "type": "string"
+              },
+              "proxyPort": {
+                "default": 0,
+                "description": "cloudflared starts a proxy server to translate HTTP traffic into TCP when proxying, for example, SSH or RDP. This configures the listen port for that proxy. If set to zero, an unused port will randomly be chosen.",
+                "required": [],
+                "title": "proxyPort",
+                "type": "integer"
+              },
+              "proxyType": {
+                "default": "",
+                "description": "cloudflared starts a proxy server to translate HTTP traffic into TCP when proxying, for example, SSH or RDP. This configures what type of proxy will be started. Valid options are: '' for the regular proxy, 'socks' for a SOCKS5 proxy. Refer to the tutorial on connecting through Cloudflare Access using kubectl for more information. https://developers.cloudflare.com/cloudflare-one/tutorials/kubectl/",
+                "required": [],
+                "title": "proxyType",
+                "type": "string"
+              },
+              "ipRules": {
+                "additionalProperties": true,
+                "description": "IP rules for the proxy service",
+                "default": [],
+                "title": "ipRules",
+                "type": "array"
+              },
+              "http2Origin": {
+                "default": false,
+                "description": "When false, cloudflared will connect to your origin with HTTP/1.1. When true, cloudflared will attempt to connect to your origin server using HTTP/2.0 instead of HTTP/1.1. HTTP/2.0 is a faster protocol for high traffic origins but requires you to deploy an SSL certificate on the origin. We recommend using this setting in conjunction with noTLSVerify so that you can use a self-signed certificate.",
+                "required": [],
+                "title": "http2Origin",
+                "type": "boolean"
+              },
+              "access": {
+                "additionalProperties": true,
+                "description": "Access holds all access related configs",
+                "required": [],
+                "title": "access",
+                "properties": {
+                  "required": {
+                    "default": false,
+                    "description": "Required when set to true will fail every request that does not arrive through an access authenticated endpoint.",
+                    "required": [],
+                    "title": "required",
+                    "type": "boolean"
+                  },
+                  "teamName": {
+                    "default": "",
+                    "description": "TeamName is the organization team name to get the public key certificates for.",
+                    "required": [],
+                    "title": "teamName",
+                    "type": "string"
+                  },
+                  "audTag": {
+                    "default": [],
+                    "description": "AudTag is the AudTag to verify access JWT against.",
+                    "required": [],
+                    "title": "audTag",
+                    "type": "array"
+                  }
+                },
+                "type": "object"
               }
             },
             "required": [],
