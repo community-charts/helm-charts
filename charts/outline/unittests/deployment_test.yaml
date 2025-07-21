@@ -574,6 +574,19 @@ tests:
                 name: fake-existing-secret
                 optional: true
 
+  - it: should set postgresql port from external configuration when postgresql.enabled is false and externalPostgresql.port is set
+    set:
+      postgresql:
+        enabled: false
+      externalPostgresql:
+        port: 20185
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: PGPORT
+            value: "20185"
+
   - it: should set postgresql host by release name when postgresql.enabled is true
     set:
       postgresql:

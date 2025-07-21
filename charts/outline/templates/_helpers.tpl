@@ -46,7 +46,7 @@ Create redis port
 */}}
 {{- define "outline.redis.port" -}}
 {{- if .Values.redis.enabled }}
-{{- printf "%d" (default .Values.redis.master.service.ports.redis 6379 | int) }}
+{{- printf "%d" (default 6379 .Values.redis.master.service.ports.redis | int) }}
 {{- else }}
 {{- printf "%d" (required "externalRedis.port is required" .Values.externalRedis.port | int) }}
 {{- end }}
@@ -86,9 +86,9 @@ Create PostgreSQL port
 */}}
 {{- define "outline.postgresql.port" -}}
 {{- if .Values.postgresql.enabled }}
-{{- printf "%d" (default .Values.postgresql.primary.service.ports.postgresql 5432 | int) }}
+{{- printf "%d" (default 5432 .Values.postgresql.primary.service.ports.postgresql | int) }}
 {{- else }}
-{{- printf "%d" (default .Values.externalPostgresql.port 5432 | int) }}
+{{- printf "%d" (default 5432 .Values.externalPostgresql.port | int) }}
 {{- end }}
 {{- end }}
 
