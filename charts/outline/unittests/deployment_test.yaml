@@ -598,6 +598,21 @@ tests:
             name: PGHOST
             value: outline-postgresql
 
+  - it: should set postgresql port from bitnami's configuration when postgresql.enabled is true and postgresql.primary.service.ports.postgresql is set
+    set:
+      postgresql:
+        enabled: true
+        primary:
+          service:
+            ports:
+              postgresql: 20185
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: PGPORT
+            value: "20185"
+
   - it: should set postgresql database by postgresql.auth.database when postgresql.enabled is true
     set:
       postgresql:
@@ -638,6 +653,21 @@ tests:
           content:
             name: REDIS_USERNAME
             value: "default"
+
+  - it: should set redis port from bitnami's config when redis.enabled is true and redis.master.service.ports.redis is set
+    set:
+      redis:
+        enabled: true
+        master:
+          service:
+            ports:
+              redis: 22000
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: REDIS_PORT
+            value: "22000"
 
   - it: should set file storage directory and volume for it when fileStorage.mode is local and persistence is enabled
     set:
