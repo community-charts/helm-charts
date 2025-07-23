@@ -57,6 +57,8 @@ annotations:
       links:
         - name: Upstream Project
           url: https://hub.docker.com/r/outlinewiki/outline
+    - kind: fixed
+      description: Fix documentation to use `fileStorage.s3.bucketUrl` rather than `fileStorage.s3.baseUrl`
   artifacthub.io/images: |
     - name: outline
       image: outlinewiki/outline:0.85.1
