@@ -492,6 +492,24 @@ readinessProbe:
   failureThreshold: 5
 ```
 
+## Upgrading
+
+This section outlines major updates and breaking changes for each version of the Helm Chart to help you transition smoothly between releases.
+
+---
+
+###  Version-Specific Upgrade Notes
+
+#### Upgrading to Version 0.5.2
+
+##### Deprecation Notices
+
+- The field `externalPostgresql.secretKey` is deprecated.
+
+##### Action Required
+
+Please consider using `externalPostgresql.passwordSecretKey` field instead. The deprecated field will be removed in the next major release.
+
 {{ template "chart.requirementsSection" . }}
 
 ## Uninstall Helm Chart
