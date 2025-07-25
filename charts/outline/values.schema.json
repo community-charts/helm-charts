@@ -2486,9 +2486,16 @@
         },
         "secretKey": {
           "default": "postgres-password",
-          "description": "This is for setting up the external postgresql secret key.",
+          "description": "DEPRECATED: Use passwordSecretKey field instead. This field will be removed in a future release.",
           "required": [],
           "title": "secretKey",
+          "type": "string"
+        },
+        "passwordSecretKey": {
+          "default": "postgres-password",
+          "description": "This is for setting up the external postgresql secret key.",
+          "required": [],
+          "title": "passwordSecretKey",
           "type": "string"
         },
         "host": {
@@ -2529,7 +2536,7 @@
         "port",
         "database",
         "existingSecret",
-        "secretKey"
+        "passwordSecretKey"
       ],
       "title": "externalPostgresql",
       "type": "object"

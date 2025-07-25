@@ -798,8 +798,10 @@ externalPostgresql:
   database: outline
   # -- The name of an existing secret with PostgreSQL (must contain key `postgres-password`) and credentials. When it's set, the `externalPostgresql.password` parameter is ignored
   existingSecret: ""
-  # -- This is for setting up the external postgresql secret key.
+  # -- DEPRECATED: Use passwordSecretKey field instead. This field will be removed in a future release.
   secretKey: "postgres-password"
+  # -- This is for setting up the external postgresql secret key.
+  passwordSecretKey: "postgres-password"
 
 # -- Minio configuration
 minio:

@@ -4,7 +4,7 @@
 
 A Helm chart for the fastest knowledge base for growing teams. Beautiful, realtime collaborative, feature packed, and markdown compatible.
 
-![Version: 0.5.1](https://img.shields.io/badge/Version-0.5.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.85.1](https://img.shields.io/badge/AppVersion-0.85.1-informational?style=flat-square)
+![Version: 0.5.2](https://img.shields.io/badge/Version-0.5.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.85.1](https://img.shields.io/badge/AppVersion-0.85.1-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -103,7 +103,7 @@ externalPostgresql:
   host: "postgresql.example.com"
   database: "outline"
   existingSecret: "external-postgresql-secret"
-  secretKey: "postgres-password"
+  passwordSecretKey: "postgres-password"
 
 fileStorage:
   mode: "local"
@@ -643,13 +643,14 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | defaultLanguage | string | `"en_US"` | This is for setting up the default language. See translate.getoutline.com for a list of available language codes and their rough percentage translated |
 | dnsConfig | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config |
 | dnsPolicy | string | `""` | For more information checkout: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy |
-| externalPostgresql | object | `{"database":"outline","existingSecret":"","host":"","password":"","port":5432,"secretKey":"postgres-password","username":"postgres"}` | External PostgreSQL parameters |
+| externalPostgresql | object | `{"database":"outline","existingSecret":"","host":"","password":"","passwordSecretKey":"postgres-password","port":5432,"secretKey":"postgres-password","username":"postgres"}` | External PostgreSQL parameters |
 | externalPostgresql.database | string | `"outline"` | The name of the external PostgreSQL database. For more information: https://docs.getoutline.com/s/hosting/doc/docker-7pfeLP5a8t |
 | externalPostgresql.existingSecret | string | `""` | The name of an existing secret with PostgreSQL (must contain key `postgres-password`) and credentials. When it's set, the `externalPostgresql.password` parameter is ignored |
 | externalPostgresql.host | string | `""` | External PostgreSQL server host |
 | externalPostgresql.password | string | `""` | External PostgreSQL password |
+| externalPostgresql.passwordSecretKey | string | `"postgres-password"` | This is for setting up the external postgresql secret key. |
 | externalPostgresql.port | int | `5432` | External PostgreSQL server port |
-| externalPostgresql.secretKey | string | `"postgres-password"` | This is for setting up the external postgresql secret key. |
+| externalPostgresql.secretKey | string | `"postgres-password"` | DEPRECATED: Use passwordSecretKey field instead. This field will be removed in a future release. |
 | externalPostgresql.username | string | `"postgres"` | External PostgreSQL username |
 | externalRedis | object | `{"existingSecret":"","host":"","password":"","passwordSecretKey":"redis-password","port":6379,"username":"","usernameSecretKey":"redis-username"}` | External Redis parameters |
 | externalRedis.existingSecret | string | `""` | The name of an existing secret with Redis (must contain key `redis-password`) and Sentinel credentials. When it's set, the `externalRedis.password` parameter is ignored |

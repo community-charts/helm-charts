@@ -587,12 +587,13 @@ tests:
                 name: outline-postgresql
                 optional: true
 
-  - it: should set postgresql password from existing secret when postgresql.enabled is false and externalPostgresql.existingSecret is set
+  - it: should set postgresql password from existing secret when postgresql.enabled is false and externalPostgresql.existingSecret is set and externalPostgresql.passwordSecretKey is set
     set:
       postgresql:
         enabled: false
       externalPostgresql:
         existingSecret: fake-existing-secret
+        passwordSecretKey: fale-password-key
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
@@ -600,7 +601,7 @@ tests:
             name: PGPASSWORD
             valueFrom:
               secretKeyRef:
-                key: postgres-password
+                key: fale-password-key
                 name: fake-existing-secret
                 optional: true
 
