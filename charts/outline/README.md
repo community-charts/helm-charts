@@ -4,7 +4,7 @@
 
 A Helm chart for the fastest knowledge base for growing teams. Beautiful, realtime collaborative, feature packed, and markdown compatible.
 
-![Version: 0.4.3](https://img.shields.io/badge/Version-0.4.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.85.1](https://img.shields.io/badge/AppVersion-0.85.1-informational?style=flat-square)
+![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.85.1](https://img.shields.io/badge/AppVersion-0.85.1-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -779,7 +779,10 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | redis.enabled | bool | `false` | Enable redis |
 | replicaCount | int | `1` |  |
 | resources | object | `{}` | This is to setup the resources more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
-| secretKey | string | `""` | This is for setting up the secret key. It will be auto generated if not set. |
+| secretKey | string | `""` | This is for setting up the secret key. It will be auto generated if not set and external secret is not set. |
+| secretKeyExternalSecret | object | `{"key":"secret-key","name":""}` | This is for setting up the secret key external secret. |
+| secretKeyExternalSecret.key | string | `"secret-key"` | This is for setting up the secret key external secret key. |
+| secretKeyExternalSecret.name | string | `""` | This is for setting up the secret key external secret name. |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":false,"runAsGroup":1001,"runAsNonRoot":true,"runAsUser":1001}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
 | service | object | `{"annotations":{},"enabled":true,"name":"http","port":3000,"type":"ClusterIP"}` | This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/ |
 | service.annotations | object | `{}` | Additional service annotations |
@@ -808,7 +811,10 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | strategy | object | `{"rollingUpdate":{"maxSurge":"25%","maxUnavailable":"25%"},"type":"RollingUpdate"}` | This will set the deployment strategy more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy |
 | tolerations | list | `[]` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/ |
 | url | string | `""` | This is for setting up the url manually. It will be auto generated if not set. Depending to your ingress configuration, it can be automatically generated from ingress domain or service definition. |
-| utilsSecret | string | `""` | This is for setting up the utils secret. It will be auto generated if not set. |
+| utilsSecret | string | `""` | This is for setting up the utils secret. It will be auto generated if not set and external secret is not set. |
+| utilsSecretExternalSecret | object | `{"key":"utils-secret","name":""}` | This is for setting up the utils secret external secret. |
+| utilsSecretExternalSecret.key | string | `"utils-secret"` | This is for setting up the utils secret external secret key. |
+| utilsSecretExternalSecret.name | string | `""` | This is for setting up the utils secret external secret name. |
 | volumeMounts | list | `[]` |  |
 | volumes | list | `[]` | Additional volumes on the output Deployment definition. |
 | web | object | `{"concurrency":1,"forceHttps":true,"skipSSLVerification":false}` | This is for setting up the web. |

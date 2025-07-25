@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.4.3
+version: 0.5.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -52,13 +52,16 @@ annotations:
       url: https://docs.getoutline.com/s/hosting/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: fixed
-      description: Use of non-default postgresql port for external postgresql database.
+    - kind: removed
+      description: S3 region pattern is removed from the chart.
       links:
-        - name: Upstream Project
-          url: https://hub.docker.com/r/outlinewiki/outline
-    - kind: fixed
-      description: Fix documentation to use `fileStorage.s3.bucketUrl` rather than `fileStorage.s3.baseUrl`
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/179
+    - kind: added
+      description: Add support for Secret Key and Utils Secret External Secrets.
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/177
   artifacthub.io/images: |
     - name: outline
       image: outlinewiki/outline:0.85.1

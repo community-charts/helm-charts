@@ -84,11 +84,25 @@ service:
   # -- Additional service annotations
   annotations: {}
 
-# -- This is for setting up the secret key. It will be auto generated if not set.
+# -- This is for setting up the secret key. It will be auto generated if not set and external secret is not set.
 secretKey: ""
 
-# -- This is for setting up the utils secret. It will be auto generated if not set.
+# -- This is for setting up the secret key external secret.
+secretKeyExternalSecret:
+  # -- This is for setting up the secret key external secret name.
+  name: ""
+  # -- This is for setting up the secret key external secret key.
+  key: "secret-key"
+
+# -- This is for setting up the utils secret. It will be auto generated if not set and external secret is not set.
 utilsSecret: ""
+
+# -- This is for setting up the utils secret external secret.
+utilsSecretExternalSecret:
+  # -- This is for setting up the utils secret external secret name.
+  name: ""
+  # -- This is for setting up the utils secret external secret key.
+  key: "utils-secret"
 
 # -- This is for setting up the url manually. It will be auto generated if not set. Depending to your ingress configuration, it can be automatically generated from ingress domain or service definition.
 url: ""

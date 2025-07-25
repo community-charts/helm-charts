@@ -245,17 +245,69 @@
     },
     "secretKey": {
       "default": "",
-      "description": "This is for setting up the secret key. It will be auto generated if not set.",
+      "description": "This is for setting up the secret key. It will be auto generated if not set and external secret is not set.",
       "required": [],
       "title": "secretKey",
       "type": "string"
     },
+    "secretKeyExternalSecret": {
+      "additionalProperties": false,
+      "description": "This is for setting up the secret key external secret. It will be auto generated if not set and secret key is not set.",
+      "properties": {
+        "name": {
+          "default": "",
+          "description": "This is for setting up the secret key external secret name.",
+          "required": [],
+          "title": "name",
+          "type": "string"
+        },
+        "key": {
+          "default": "secret-key",
+          "description": "This is for setting up the secret key external secret key.",
+          "required": [],
+          "title": "key",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "key"
+      ],
+      "title": "secretKeyExternalSecret",
+      "type": "object"
+    },
     "utilsSecret": {
       "default": "",
-      "description": "This is for setting up the utils secret. It will be auto generated if not set.",
+      "description": "This is for setting up the utils secret. It will be auto generated if not set and external secret is not set.",
       "required": [],
       "title": "utilsSecret",
       "type": "string"
+    },
+    "utilsSecretExternalSecret": {
+      "additionalProperties": false,
+      "description": "This is for setting up the utils secret external secret. It will be auto generated if not set and utils secret is not set.",
+      "properties": {
+        "name": {
+          "default": "",
+          "description": "This is for setting up the utils secret external secret name.",
+          "required": [],
+          "title": "name",
+          "type": "string"
+        },
+        "key": {
+          "default": "utils-secret",
+          "description": "This is for setting up the utils secret external secret key.",
+          "required": [],
+          "title": "key",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "key"
+      ],
+      "title": "utilsSecretExternalSecret",
+      "type": "object"
     },
     "defaultLanguage": {
       "default": "en_US",
@@ -586,7 +638,6 @@
             },
             "region": {
               "default": "us-east-1",
-              "pattern": "^[a-z]{2}-[a-z]+-\\d+$",
               "description": "This is for setting up the s3 file storage region.",
               "required": [],
               "title": "region",
@@ -3394,7 +3445,9 @@
     "service",
     "url",
     "secretKey",
+    "secretKeyExternalSecret",
     "utilsSecret",
+    "utilsSecretExternalSecret",
     "defaultLanguage",
     "rateLimiter",
     "autoUpdate",

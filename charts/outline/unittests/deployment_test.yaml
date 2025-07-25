@@ -430,6 +430,36 @@ tests:
             name: FILE_STORAGE_LOCAL_ROOT_DIR
             value: "/var/lib/outline/data"
 
+  - it: should set secret key from external secret when secretKeyExternalSecret is set
+    set:
+      secretKeyExternalSecret:
+        name: fake-secret-key-external-secret
+        key: fake-secret-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: fake-secret-key
+                name: fake-secret-key-external-secret
+
+  - it: should set utils secret from external secret when utilsSecretExternalSecret is set
+    set:
+      utilsSecretExternalSecret:
+        name: fake-utils-secret-external-secret
+        key: fake-utils-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].env
+          content:
+            name: UTILS_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: fake-utils-secret
+                name: fake-utils-secret-external-secret
+
   - it: should set http ingress url when ingress is enabled and tls is not set
     set:
       ingress:
