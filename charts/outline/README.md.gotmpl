@@ -60,6 +60,14 @@ Now you can use the following values.yaml file to install the chart. Please don'
 strategy:
   type: Recreate
 
+secretKeyExternalSecret:
+  name: "my-secret-key-secret-name"
+  key: "secret-key"
+
+utilsSecretExternalSecret:
+  name: "my-utils-secret-secret-name"
+  key: "utils-secret"
+
 auth:
   gitea:
     enabled: true
@@ -109,6 +117,55 @@ resources:
   limits:
     cpu: "2000m"
     memory: "2Gi"
+```
+
+## Data Encryption Configuration
+
+### Secret Key
+
+The **Secret Key** is essential for encrypting your data, ensuring it remains secure. You can configure it in one of two ways:
+
+1. **Direct Configuration**: Set the key directly using the `secretKey` field.
+2. **External Secret Reference**: Reference an existing secret using the `secretKeyExternalSecret.name` and `secretKeyExternalSecret.key` fields.
+
+If you don't provide a key, one will be automatically generated for you.
+
+#### Example Configurations
+
+**Direct Secret Key**:
+```yaml
+secretKey: "2a59e6190ec43998923e4553491d174c8b8cc0d4f91b541fe71bd479e93edf35"
+```
+*Tip*: Generate a secure key using the command `openssl rand -hex 32`.
+
+**External Secret Reference**:
+```yaml
+secretKeyExternalSecret:
+  name: my-secret
+  key: secret-key
+```
+
+### Utils Secret
+
+The **Utils Secret** is used to authenticate requests to the cron utility endpoint, enabling secure triggering of scheduled tasks. You can configure it in one of two ways:
+
+1. **Direct Configuration**: Set the secret directly using the `utilsSecret` field.
+2. **External Secret Reference**: Reference an existing secret using the `utilsSecretExternalSecret.name` and `utilsSecretExternalSecret.key` fields.
+
+If not provided, a utils secret will be automatically generated.
+
+#### Example Configurations
+
+**Direct Utils Secret**:
+```yaml
+utilsSecret: "my-super-secret-utils-secret"
+```
+
+**External Secret Reference**:
+```yaml
+utilsSecretExternalSecret:
+  name: my-secret
+  key: secret-key
 ```
 
 ## Authentication Methods
