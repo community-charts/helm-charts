@@ -1308,7 +1308,7 @@ tests:
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
-            name: GITEA_CLIENT_SECRET
+            name: OIDC_CLIENT_SECRET
             valueFrom:
               secretKeyRef:
                 name: fake-existing-secret
@@ -1334,7 +1334,7 @@ tests:
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
-            name: GITLAB_CLIENT_SECRET
+            name: OIDC_CLIENT_SECRET
             valueFrom:
               secretKeyRef:
                 name: fake-existing-secret
@@ -1382,7 +1382,7 @@ tests:
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
-            name: AUTH0_CLIENT_SECRET
+            name: OIDC_CLIENT_SECRET
             valueFrom:
               secretKeyRef:
                 name: fake-existing-secret
@@ -1407,7 +1407,7 @@ tests:
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
-            name: KEYCLOAK_CLIENT_SECRET
+            name: OIDC_CLIENT_SECRET
             valueFrom:
               secretKeyRef:
                 name: fake-existing-secret

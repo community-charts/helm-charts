@@ -293,14 +293,14 @@ spec:
                   key: {{ .Values.auth.github.existingSecret.appPrivateKeyKey }}
           {{- end }}
           {{- if and .Values.auth.gitea.enabled .Values.auth.gitea.existingSecret.name }}
-            - name: GITEA_CLIENT_SECRET
+            - name: OIDC_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.auth.gitea.existingSecret.name }}
                   key: {{ .Values.auth.gitea.existingSecret.clientSecretKey }}
           {{- end }}
           {{- if and .Values.auth.gitlab.enabled .Values.auth.gitlab.existingSecret.name }}
-            - name: GITLAB_CLIENT_SECRET
+            - name: OIDC_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.auth.gitlab.existingSecret.name }}
@@ -314,14 +314,14 @@ spec:
                   key: {{ .Values.auth.discord.existingSecret.clientSecretKey }}
           {{- end }}
           {{- if and .Values.auth.auth0.enabled .Values.auth.auth0.existingSecret.name }}
-            - name: AUTH0_CLIENT_SECRET
+            - name: OIDC_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.auth.auth0.existingSecret.name }}
                   key: {{ .Values.auth.auth0.existingSecret.clientSecretKey }}
           {{- end }}
           {{- if and .Values.auth.keycloak.enabled .Values.auth.keycloak.existingSecret.name }}
-            - name: KEYCLOAK_CLIENT_SECRET
+            - name: OIDC_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.auth.keycloak.existingSecret.name }}

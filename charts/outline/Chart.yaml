@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.5.0
+version: 0.5.1
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -52,16 +52,8 @@ annotations:
       url: https://docs.getoutline.com/s/hosting/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: removed
-      description: S3 region pattern is removed from the chart.
-      links:
-        - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/179
-    - kind: added
-      description: Add support for Secret Key and Utils Secret External Secrets.
-      links:
-        - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/177
+    - kind: fixed
+      description: The environment variables for the authentication client secret have been corrected to ensure proper integration with Gitea, GitLab, Auth0, and Keycloak existing secrets.
   artifacthub.io/images: |
     - name: outline
       image: outlinewiki/outline:0.85.1

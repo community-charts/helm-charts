@@ -96,11 +96,14 @@ web:
 externalRedis:
   host: "redis.example.com"
   existingSecret: "external-redis-secret"
+  usernameSecretKey: "redis-username"
+  passwordSecretKey: "redis-password"
 
 externalPostgresql:
   host: "postgresql.example.com"
   database: "outline"
   existingSecret: "external-postgresql-secret"
+  secretKey: "postgres-password"
 
 fileStorage:
   mode: "local"

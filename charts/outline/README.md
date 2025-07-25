@@ -4,7 +4,7 @@
 
 A Helm chart for the fastest knowledge base for growing teams. Beautiful, realtime collaborative, feature packed, and markdown compatible.
 
-![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.85.1](https://img.shields.io/badge/AppVersion-0.85.1-informational?style=flat-square)
+![Version: 0.5.1](https://img.shields.io/badge/Version-0.5.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.85.1](https://img.shields.io/badge/AppVersion-0.85.1-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -96,11 +96,14 @@ web:
 externalRedis:
   host: "redis.example.com"
   existingSecret: "external-redis-secret"
+  usernameSecretKey: "redis-username"
+  passwordSecretKey: "redis-password"
 
 externalPostgresql:
   host: "postgresql.example.com"
   database: "outline"
   existingSecret: "external-postgresql-secret"
+  secretKey: "postgres-password"
 
 fileStorage:
   mode: "local"
