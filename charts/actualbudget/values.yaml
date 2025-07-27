@@ -104,24 +104,28 @@ login:
 
   # -- This is for setting up the openid login. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/
   openid:
-    # -- This is for setting the enforce for the openid login.
+    # -- This is for setting the enforce for the openid login. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_openid_enforce
     enforce: true
     # -- This is the provider name for the openid provider.
     providerName: "OpenID Connect"
     # -- Deprecated: Please use discoveryUrl instead. This field will be removed in next major version.
     dicovertUrl: ""
-    # -- This is the discovery url for the openid provider.
+    # -- This is the discovery url for the openid provider. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_openid_discovery_url
     discoveryUrl: ""
-    # -- This is the client id for the openid provider. If not set and existingSecret is set, the client id will be read from the existing secret.
+    # -- This is the client id for the openid provider. If not set and existingSecret is set, the client id will be read from the existing secret. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_openid_client_id
     clientId: ""
-    # -- This is the client secret for the openid provider. If not set and existingSecret is set, the client secret will be read from the existing secret.
+    # -- This is the client secret for the openid provider. If not set and existingSecret is set, the client secret will be read from the existing secret. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_openid_client_secret
     clientSecret: ""
-    # -- This is the authorization endpoint for the openid provider.
+    # -- This is the authorization endpoint for the openid provider. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_openid_authorization_endpoint
     authorizationEndpoint: ""
-    # -- This is the token endpoint for the openid provider.
+    # -- This is the token endpoint for the openid provider. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_openid_token_endpoint
     tokenEndpoint: ""
-    # -- This is the user info endpoint for the openid provider.
+    # -- This is the user info endpoint for the openid provider. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_openid_userinfo_endpoint
     userInfoEndpoint: ""
+    # -- Tells the server whether it should use the OpenID (OIDC) or a more general OAuth2 flow. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_openid_auth_method
+    authMethod: "openid"
+    # -- Controls how access tokens expire. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_token_expiration
+    tokenExpiration: "never"
     # -- This is for setting up the existing secret for the openid provider.
     existingSecret:
       # -- This is the name of the existing secret.

@@ -92,7 +92,7 @@
           "properties": {
             "enforce": {
               "default": true,
-              "description": "Whether to enforce the openid login.",
+              "description": "Whether to enforce the openid login. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_openid_enforce",
               "required": [],
               "title": "enforce",
               "type": "boolean"
@@ -114,21 +114,21 @@
             "dicovertUrl": {
               "default": "",
               "deprecated": true,
-              "description": "Please use discoveryUrl instead. This field will be removed in next major version.",
+              "description": "Deprecated: Please use discoveryUrl instead. This field will be removed in next major version.",
               "required": [],
               "title": "dicovertUrl",
               "type": "string"
             },
             "clientId": {
               "default": "",
-              "description": "The client id for the openid provider.",
+              "description": "The client id for the openid provider. If not set and existingSecret is set, the client id will be read from the existing secret. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_openid_client_id",
               "required": [],
               "title": "clientId",
               "type": "string"
             },
             "clientSecret": {
               "default": "",
-              "description": "The client secret for the openid provider.",
+              "description": "The client secret for the openid provider. If not set and existingSecret is set, the client secret will be read from the existing secret. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_openid_client_secret",
               "required": [],
               "title": "clientSecret",
               "type": "string"
@@ -164,24 +164,48 @@
             },
             "authorizationEndpoint": {
               "default": "",
-              "description": "The authorization endpoint for the openid provider.",
+              "description": "The authorization endpoint for the openid provider. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_openid_authorization_endpoint",
               "required": [],
               "title": "authorizationEndpoint",
               "type": "string"
             },
             "tokenEndpoint": {
               "default": "",
-              "description": "The token endpoint for the openid provider.",
+              "description": "The token endpoint for the openid provider. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_openid_token_endpoint",
               "required": [],
               "title": "tokenEndpoint",
               "type": "string"
             },
             "userInfoEndpoint": {
               "default": "",
-              "description": "The user info endpoint for the openid provider.",
+              "description": "The user info endpoint for the openid provider. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_openid_userinfo_endpoint",
               "required": [],
               "title": "userInfoEndpoint",
               "type": "string"
+            },
+            "authMethod": {
+              "default": "openid",
+              "description": "Tells the server whether it should use the OpenID (OIDC) or a more general OAuth2 flow. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_openid_auth_method",
+              "required": [],
+              "title": "authMethod",
+              "type": "string",
+              "enum": ["openid", "oauth2"]
+            },
+            "tokenExpiration": {
+              "default": "never",
+              "description": "Controls how access tokens expire. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_token_expiration",
+              "required": [],
+              "title": "tokenExpiration",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": ["never", "openid-provider"]
+                },
+                {
+                  "type": "number",
+                  "minimum": 0
+                }
+              ]
             }
           },
           "required": [
@@ -193,7 +217,9 @@
             "authorizationEndpoint",
             "tokenEndpoint",
             "userInfoEndpoint",
-            "existingSecret"
+            "existingSecret",
+            "authMethod",
+            "tokenExpiration"
           ]
         }
       },

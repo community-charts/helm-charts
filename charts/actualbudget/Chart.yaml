@@ -54,6 +54,11 @@ annotations:
       links:
         - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/186
+    - kind: added
+      description: Add support for authMethod and tokenExpiration fields for openid provider.
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/188
   artifacthub.io/images: |
     - name: actualbudget
       image: actualbudget/actual-server:25.7.1
