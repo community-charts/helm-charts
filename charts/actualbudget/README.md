@@ -56,6 +56,38 @@ persistence:
   existingClaim: actualbudget-volume
 ```
 
+## Configuring OpenID Connect
+
+The `actualbudget` Helm chart supports OpenID Connect (OIDC) for authentication with providers like Keycloak or Auth0. Please find full tested providers from [here](https://actualbudget.org/docs/config/oauth-auth/#tested-providers). Configure the `login.openid` settings in `values.yaml` or a `secrets.yaml` file to enable it. See the [Values](#values) table for all options, including `login.openid.tokenExpiration` (valid values: `"never"`, `"openid-provider"`, or seconds like `3600`).
+
+### Example Configuration
+
+To use OpenID with a Kubernetes Secret for sensitive data:
+
+1. **Create a Secret**:
+
+```bash
+kubectl create secret generic actualbudget-openid-secret \
+  --from-literal=clientId=actualbudget-client \
+  --from-literal=clientSecret=your-client-secret
+```
+
+2. **Update `values.yaml`**:
+
+```yaml
+login:
+  method: "openid"
+  openid:
+    enforce: true
+    providerName: "Keycloak"
+    discoveryUrl: "https://keycloak.example.com/auth/realms/my-realm/.well-known/openid-configuration"
+    tokenExpiration: 3600
+    existingSecret:
+      name: "actualbudget-openid-secret"
+      clientIdKey: "clientId"
+      clientSecretKey: "clientSecret"
+```
+
 ## Upgrading
 
 This section provides information about significant updates and breaking changes in each version of the Helm Chart to facilitate a smooth upgrade process.
