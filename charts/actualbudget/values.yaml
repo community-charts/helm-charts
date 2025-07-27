@@ -102,7 +102,7 @@ login:
     - header
     - openid
 
-  # -- This is for setting up the openid login. For more information checkout: https://actualbudget.org/docs/experimental/oauth-auth/
+  # -- This is for setting up the openid login. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/
   openid:
     # -- This is for setting the enforce for the openid login.
     enforce: true
@@ -112,9 +112,9 @@ login:
     dicovertUrl: ""
     # -- This is the discovery url for the openid provider.
     discoveryUrl: ""
-    # -- This is the client id for the openid provider.
+    # -- This is the client id for the openid provider. If not set and existingSecret is set, the client id will be read from the existing secret.
     clientId: ""
-    # -- This is the client secret for the openid provider.
+    # -- This is the client secret for the openid provider. If not set and existingSecret is set, the client secret will be read from the existing secret.
     clientSecret: ""
     # -- This is the authorization endpoint for the openid provider.
     authorizationEndpoint: ""
@@ -122,6 +122,14 @@ login:
     tokenEndpoint: ""
     # -- This is the user info endpoint for the openid provider.
     userInfoEndpoint: ""
+    # -- This is for setting up the existing secret for the openid provider.
+    existingSecret:
+      # -- This is the name of the existing secret.
+      name: ""
+      # -- This is the key of the client id in the existing secret.
+      clientIdKey: ""
+      # -- This is the key of the client secret in the existing secret.
+      clientSecretKey: ""
 
 # -- This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:

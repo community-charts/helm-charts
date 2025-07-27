@@ -313,6 +313,45 @@ tests:
             operator: fake-operator
             value: fake-value
 
+  - it: should set client id and client secret from existing secret when existing secret name is set name client id key and client secret key is set
+    set:
+      ingress:
+        enabled: true
+        hosts:
+          - host: actualbudget.local
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+      login:
+        method: "openid"
+        openid:
+          authorizationEndpoint: "https://openid.com/authorize"
+          tokenEndpoint: "https://openid.com/token"
+          userInfoEndpoint: "https://openid.com/userinfo"
+          existingSecret:
+            name: "fake-existing-secret"
+            clientIdKey: "client-id"
+            clientSecretKey: "client-secret"
+    chart:
+      appVersion: 25.1.0
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].env
+          content:
+            name: ACTUAL_OPENID_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: client-id
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].env
+          content:
+            name: ACTUAL_OPENID_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: fake-existing-secret
+                key: client-secret
+
   - it: should match snapshot of default values
     asserts:
       - matchSnapshot: { }

@@ -4,7 +4,7 @@
 
 A local-first personal finance app
 
-![Version: 1.7.2](https://img.shields.io/badge/Version-1.7.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 25.7.1](https://img.shields.io/badge/AppVersion-25.7.1-informational?style=flat-square)
+![Version: 1.8.0](https://img.shields.io/badge/Version-1.8.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 25.7.1](https://img.shields.io/badge/AppVersion-25.7.1-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -112,16 +112,20 @@ helm upgrade [RELEASE_NAME] community-charts/actualbudget
 | ingress | object | `{"annotations":{},"className":"","enabled":false,"hosts":[{"host":"actualbudget.local","paths":[{"path":"/","pathType":"ImplementationSpecific"}]}],"tls":[]}` | This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/ |
 | initContainers | list | `[]` | Additional init containers on the output Deployment definition. |
 | livenessProbe | object | `{"httpGet":{"path":"/","port":"http"}}` | This is to setup the liveness probe more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
-| login | object | `{"allowedLoginMethods":["password","header","openid"],"method":"password","openid":{"authorizationEndpoint":"","clientId":"","clientSecret":"","dicovertUrl":"","discoveryUrl":"","enforce":true,"providerName":"OpenID Connect","tokenEndpoint":"","userInfoEndpoint":""},"skipSSLVerification":false}` | This is for setting up the login for the server. For more information checkout: https://actualbudget.org/docs/config/#loginmethod |
+| login | object | `{"allowedLoginMethods":["password","header","openid"],"method":"password","openid":{"authorizationEndpoint":"","clientId":"","clientSecret":"","dicovertUrl":"","discoveryUrl":"","enforce":true,"existingSecret":{"clientIdKey":"","clientSecretKey":"","name":""},"providerName":"OpenID Connect","tokenEndpoint":"","userInfoEndpoint":""},"skipSSLVerification":false}` | This is for setting up the login for the server. For more information checkout: https://actualbudget.org/docs/config/#loginmethod |
 | login.allowedLoginMethods | list | `["password","header","openid"]` | This is the allowed login methods. |
 | login.method | string | `"password"` | This is the method to use for login. Possible values are "password" or "header" or "openid". |
-| login.openid | object | `{"authorizationEndpoint":"","clientId":"","clientSecret":"","dicovertUrl":"","discoveryUrl":"","enforce":true,"providerName":"OpenID Connect","tokenEndpoint":"","userInfoEndpoint":""}` | This is for setting up the openid login. For more information checkout: https://actualbudget.org/docs/experimental/oauth-auth/ |
+| login.openid | object | `{"authorizationEndpoint":"","clientId":"","clientSecret":"","dicovertUrl":"","discoveryUrl":"","enforce":true,"existingSecret":{"clientIdKey":"","clientSecretKey":"","name":""},"providerName":"OpenID Connect","tokenEndpoint":"","userInfoEndpoint":""}` | This is for setting up the openid login. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/ |
 | login.openid.authorizationEndpoint | string | `""` | This is the authorization endpoint for the openid provider. |
-| login.openid.clientId | string | `""` | This is the client id for the openid provider. |
-| login.openid.clientSecret | string | `""` | This is the client secret for the openid provider. |
+| login.openid.clientId | string | `""` | This is the client id for the openid provider. If not set and existingSecret is set, the client id will be read from the existing secret. |
+| login.openid.clientSecret | string | `""` | This is the client secret for the openid provider. If not set and existingSecret is set, the client secret will be read from the existing secret. |
 | login.openid.dicovertUrl | string | `""` | Deprecated: Please use discoveryUrl instead. This field will be removed in next major version. |
 | login.openid.discoveryUrl | string | `""` | This is the discovery url for the openid provider. |
 | login.openid.enforce | bool | `true` | This is for setting the enforce for the openid login. |
+| login.openid.existingSecret | object | `{"clientIdKey":"","clientSecretKey":"","name":""}` | This is for setting up the existing secret for the openid provider. |
+| login.openid.existingSecret.clientIdKey | string | `""` | This is the key of the client id in the existing secret. |
+| login.openid.existingSecret.clientSecretKey | string | `""` | This is the key of the client secret in the existing secret. |
+| login.openid.existingSecret.name | string | `""` | This is the name of the existing secret. |
 | login.openid.providerName | string | `"OpenID Connect"` | This is the provider name for the openid provider. |
 | login.openid.tokenEndpoint | string | `""` | This is the token endpoint for the openid provider. |
 | login.openid.userInfoEndpoint | string | `""` | This is the user info endpoint for the openid provider. |

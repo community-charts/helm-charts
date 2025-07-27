@@ -73,6 +73,22 @@ spec:
               value: {{ $value | quote }}
           {{- end }}
           {{- if and .Values.ingress.enabled (eq .Values.login.method "openid") (contains "openid" (.Values.login.allowedLoginMethods | join ",")) (semverCompare ">=25.1.0" (ternary .Chart.AppVersion .Values.image.tag (eq .Values.image.tag ""))) }}
+            {{- if .Values.login.openid.existingSecret.name }}
+            {{- if .Values.login.openid.existingSecret.clientIdKey }}
+            - name: ACTUAL_OPENID_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.login.openid.existingSecret.name }}
+                  key: {{ .Values.login.openid.existingSecret.clientIdKey }}
+            {{- end }}
+            {{- if .Values.login.openid.existingSecret.clientSecretKey }}
+            - name: ACTUAL_OPENID_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.login.openid.existingSecret.name }}
+                  key: {{ .Values.login.openid.existingSecret.clientSecretKey }}
+            {{- end }}
+            {{- end }}
           envFrom:
             - secretRef:
                 name: {{ template "actualbudget.fullname" . }}-openid-secret

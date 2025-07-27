@@ -133,6 +133,35 @@
               "title": "clientSecret",
               "type": "string"
             },
+            "existingSecret": {
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "The name of the existing secret.",
+                  "required": [],
+                  "title": "name",
+                  "type": "string"
+                },
+                "clientIdKey": {
+                  "default": "",
+                  "description": "The key of the client id in the existing secret.",
+                  "required": [],
+                  "title": "clientIdKey",
+                  "type": "string"
+                },
+                "clientSecretKey": {
+                  "default": "",
+                  "description": "The key of the client secret in the existing secret.",
+                  "required": [],
+                  "title": "clientSecretKey",
+                  "type": "string"
+                }
+              },
+              "required": ["name", "clientSecretKey"],
+              "title": "existingSecret",
+              "type": "object"
+            },
             "authorizationEndpoint": {
               "default": "",
               "description": "The authorization endpoint for the openid provider.",
@@ -159,12 +188,12 @@
             "enforce",
             "providerName",
             "discoveryUrl",
-            "dicovertUrl",
             "clientId",
             "clientSecret",
             "authorizationEndpoint",
             "tokenEndpoint",
-            "userInfoEndpoint"
+            "userInfoEndpoint",
+            "existingSecret"
           ]
         }
       },
@@ -197,6 +226,19 @@
                 }
               },
               {
+                "required": ["discoveryUrl", "existingSecret"],
+                "properties": {
+                  "discoveryUrl": { "minLength": 1 },
+                  "existingSecret": {
+                    "required": ["name", "clientSecretKey"],
+                    "properties": {
+                      "name": { "minLength": 1 },
+                      "clientSecretKey": { "minLength": 1 }
+                    }
+                  }
+                }
+              },
+              {
                 "required": [
                   "authorizationEndpoint",
                   "tokenEndpoint",
@@ -210,6 +252,26 @@
                   "userInfoEndpoint": { "minLength": 1 },
                   "clientId": { "minLength": 1 },
                   "clientSecret": { "minLength": 1 }
+                }
+              },
+              {
+                "required": [
+                  "authorizationEndpoint",
+                  "tokenEndpoint",
+                  "userInfoEndpoint",
+                  "existingSecret"
+                ],
+                "properties": {
+                  "authorizationEndpoint": { "minLength": 1 },
+                  "tokenEndpoint": { "minLength": 1 },
+                  "userInfoEndpoint": { "minLength": 1 },
+                  "existingSecret": {
+                    "required": ["name", "clientSecretKey"],
+                    "properties": {
+                      "name": { "minLength": 1 },
+                      "clientSecretKey": { "minLength": 1 }
+                    }
+                  }
                 }
               }
             ]
