@@ -4,6 +4,82 @@ entries:
   - annotations:
       artifacthub.io/alternativeName: actual
       artifacthub.io/changes: |-
+        - kind: changed
+          description: Update actualbudget/actual-server image version to 25.8.0
+          links:
+            - name: Upstream Project
+              url: https://hub.docker.com/r/actualbudget/actual-server
+      artifacthub.io/containsSecurityUpdates: "false"
+      artifacthub.io/images: |
+        - name: actualbudget
+          image: actualbudget/actual-server:25.8.0
+          platforms:
+            - linux/amd64
+            - linux/arm64
+            - linux/arm/v7
+      artifacthub.io/license: MIT
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/community-charts/helm-charts
+        - name: Chart Usage Page
+          url: https://community-charts.github.io/docs/charts/actualbudget/usage
+        - name: Upstream Project
+          url: https://github.com/actualbudget/actual
+      artifacthub.io/maintainers: |
+        - name: burakince
+          email: burak.ince@linux.org.tr
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/screenshots: |
+        - title: User Interface Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-overview-of-user-interface.png
+        - title: Account Register Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-account-register-overview.png
+        - title: Budget Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-budget-overview.png
+        - title: Payees Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-payees-overview.png
+        - title: Reports Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-reports-overview.png
+        - title: Rules Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-rules-overview.png
+        - title: Schedules Overview
+          url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-schedules-overview.png
+      artifacthub.io/signKey: |
+        fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
+        url: https://keybase.io/communitycharts/pgp_keys.asc
+    apiVersion: v2
+    appVersion: 25.8.0
+    created: "2025-08-02T22:04:53.257443016Z"
+    description: A local-first personal finance app
+    digest: 1036b669555c8e3999ac0fc0fa7bcd3fa68371442538827390a41c2127e95c80
+    home: https://actualbudget.org/
+    icon: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/actual.png
+    keywords:
+    - actualbudget
+    - actual-budget
+    - actual
+    - docker
+    - finance
+    - personal-finance
+    - money
+    - budgeting
+    kubeVersion: '>=1.16.0-0'
+    maintainers:
+    - email: burak.ince@linux.org.tr
+      name: burakince
+      url: https://www.burakince.com
+    name: actualbudget
+    sources:
+    - https://github.com/community-charts/helm-charts
+    - https://github.com/actualbudget/actual
+    type: application
+    urls:
+    - https://github.com/community-charts/helm-charts/releases/download/actualbudget-1.8.1/actualbudget-1.8.1.tgz
+    version: 1.8.1
+  - annotations:
+      artifacthub.io/alternativeName: actual
+      artifacthub.io/changes: |-
         - kind: added
           description: Add support for existing secret for openid provider.
           links:
@@ -27149,4 +27225,4 @@ entries:
     urls:
     - https://github.com/community-charts/helm-charts/releases/download/pypiserver-0.1.0/pypiserver-0.1.0.tgz
     version: 0.1.0
-generated: "2025-08-02T17:10:28.46479422Z"
+generated: "2025-08-02T22:04:53.258096083Z"
