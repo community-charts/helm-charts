@@ -338,6 +338,22 @@ spec:
                   key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
             {{- end }}
           {{- end }}
+          {{- if and .Values.artifactRoot.s3.enabled .Values.artifactRoot.s3.existingSecret.name }}
+            {{- if .Values.artifactRoot.s3.existingSecret.keyOfAccessKeyId }}
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.artifactRoot.s3.existingSecret.name }}
+                  key: {{ .Values.artifactRoot.s3.existingSecret.keyOfAccessKeyId }}
+            {{- end }}
+            {{- if .Values.artifactRoot.s3.existingSecret.keyOfSecretAccessKey }}
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.artifactRoot.s3.existingSecret.name }}
+                  key: {{ .Values.artifactRoot.s3.existingSecret.keyOfSecretAccessKey }}
+            {{- end }}
+          {{- end }}
           {{- range $key, $value := .Values.extraEnvVars }}
             - name: {{ upper $key }}
               value: {{ $value | quote }}

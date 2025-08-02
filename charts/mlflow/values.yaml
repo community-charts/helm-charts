@@ -223,6 +223,14 @@ artifactRoot:
     awsAccessKeyId: "" # (awsAccessKeyId and awsSecretAccessKey) or roleArn serviceaccount annotation required
     # -- AWS IAM user AWS_SECRET_ACCESS_KEY which has attached policy for access to the S3 bucket
     awsSecretAccessKey: "" # (awsAccessKeyId and awsSecretAccessKey) or roleArn serviceaccount annotation required
+    # -- Existing secret for AWS IAM user AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY secrets.
+    existingSecret:
+      # -- This is for setting up the AWS IAM user secrets existing secret name.
+      name: ""
+      # -- This is for setting up the key for AWS_ACCESS_KEY_ID secret. If it's set, awsAccessKeyId will be ignored.
+      keyOfAccessKeyId: ""
+      # -- This is for setting up the key for AWS_SECRET_ACCESS_KEY secret. If it's set, awsSecretAccessKey will be ignored.
+      keyOfSecretAccessKey: ""
 
   # -- Specifies if you want to use Google Cloud Storage Mlflow Artifact Root
   gcs:
