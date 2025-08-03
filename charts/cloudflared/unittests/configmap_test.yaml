@@ -4,9 +4,36 @@ templates:
   - configmap.yaml
 
 tests:
+  - it: should set credentials file credentials.json when base64EncodedConfigJsonFile set
+    set:
+      tunnelConfig:
+        name: unittest
+      tunnelSecrets:
+        base64EncodedPemFile: UEVNLUZJTEUtQ09OVEVOVA==
+        base64EncodedConfigJsonFile: eyJmaWxlIjoiQ29uZmlnSnNvbkZpbGUifQ==
+    asserts:
+      - matchRegex:
+          path: data["config.yaml"]
+          pattern: 'credentials-file: /etc/cloudflared/creds/credentials\.json'
+
+  - it: should set existingConfigJsonFileSecret.key when existingConfigJsonFileSecret.name set
+    set:
+      tunnelConfig:
+        name: unittest
+      tunnelSecrets:
+        base64EncodedPemFile: UEVNLUZJTEUtQ09OVEVOVA==
+        existingConfigJsonFileSecret:
+          name: my-config-json-file-secret
+          key: customconfig.json
+    asserts:
+      - matchRegex:
+          path: data["config.yaml"]
+          pattern: 'credentials-file: /etc/cloudflared/creds/customconfig\.json'
+
   - it: should match snapshot of default values
     set:
-      tunnelConfig.name: unittest
+      tunnelConfig:
+        name: unittest
     release:
       name: cloudflared
       namespace: cloudflared
@@ -18,8 +45,9 @@ tests:
 
   - it: should match snapshot of warp routing on
     set:
-      tunnelConfig.name: unittest
-      tunnelConfig.warpRouting: true
+      tunnelConfig:
+        name: unittest
+        warpRouting: true
     release:
       name: cloudflared
       namespace: cloudflared

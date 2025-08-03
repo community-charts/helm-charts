@@ -6,7 +6,7 @@ data:
   config.yaml: |
 
     tunnel: {{ required "A valid .Values.tunnelConfig.name entry required!" .Values.tunnelConfig.name }}
-    credentials-file: /etc/cloudflared/creds/credentials.json
+    credentials-file: {{ printf "/etc/cloudflared/creds/%s" (ternary .Values.tunnelSecrets.existingConfigJsonFileSecret.key "credentials.json" (ne .Values.tunnelSecrets.existingConfigJsonFileSecret.name "")) }}
     originRequest:
       connectTimeout: {{ .Values.tunnelConfig.connectTimeout }}
 {{- if .Values.tunnelConfig.warpRouting }}

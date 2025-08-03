@@ -69,6 +69,25 @@ To configure the chart, encode the required tunnel files using the following com
 3. **Set the Tunnel Name**
    Pass the name of your tunnel, as created earlier via the Cloudflared CLI, to the `tunnelConfig.name` configuration.
 
+### Setting Credentials to Kubernetes Secrets and working with Existing Secrets
+
+```console
+cp ~/.cloudflared/*.json ./credentials.json
+kubectl create secret generic config-json-file-secret -n cloudflare --from-file=credentials.json
+
+kubectl create secret generic cert-pem-file-secret -n cloudflare --from-file=~/.cloudflared/cert.pem
+```
+
+And use the following configuration rather than base64 versions.
+
+```yaml
+tunnelSecrets:
+  existingConfigJsonFileSecret:
+    name: config-json-file-secret
+  existingPemFileSecret:
+    name: cert-pem-file-secret
+```
+
 ### Configuring Ingress
 
 The default ingress configuration is shown below. Replace the placeholder values with your domain and server settings. It is recommended to use a separate `values.yaml` file to manage this configuration.

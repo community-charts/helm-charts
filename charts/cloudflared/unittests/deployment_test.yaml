@@ -7,9 +7,11 @@ templates:
 tests:
   - it: should be custom service account when we do not create it
     set:
-      serviceAccount.create: false
-      serviceAccount.name: customsa
-      tunnelConfig.name: "unittest"
+      serviceAccount:
+        create: false
+        name: customsa
+      tunnelConfig:
+        name: unittest
     asserts:
       - equal:
           path: spec.template.spec.serviceAccountName
@@ -18,8 +20,10 @@ tests:
 
   - it: should use DaemonSet when all nodes flag enabled
     set:
-      replica.allNodes: true
-      tunnelConfig.name: "unittest"
+      replica:
+        allNodes: true
+      tunnelConfig:
+        name: unittest
     asserts:
       - isKind:
           of: DaemonSet
@@ -27,8 +31,10 @@ tests:
 
   - it: should use Deployment when all nodes flag disabled
     set:
-      replica.allNodes: false
-      tunnelConfig.name: "unittest"
+      replica:
+        allNodes: false
+      tunnelConfig:
+        name: unittest
     asserts:
       - isKind:
           of: Deployment
@@ -36,12 +42,14 @@ tests:
 
   - it: should use update strategy when all nodes flag enabled
     set:
-      replica.allNodes: true
+      replica:
+        allNodes: true
       updateStrategy:
         type: RollingUpdate
         rollingUpdate:
           maxUnavailable: 1
-      tunnelConfig.name: "unittest"
+      tunnelConfig:
+        name: unittest
     asserts:
       - equal:
           path: spec.updateStrategy.type
@@ -54,9 +62,11 @@ tests:
 
   - it: should use replica when all nodes flag disabled
     set:
-      replica.allNodes: false
-      replica.count: 5
-      tunnelConfig.name: "unittest"
+      replica:
+        allNodes: false
+        count: 5
+      tunnelConfig:
+        name: unittest
     asserts:
       - equal:
           path: spec.replicas
@@ -66,9 +76,110 @@ tests:
   - it: should set termination grace period
     set:
       terminationGracePeriodSeconds: 10
-      tunnelConfig.name: "unittest"
+      tunnelConfig:
+        name: unittest
     asserts:
       - equal:
           path: spec.template.spec.terminationGracePeriodSeconds
           value: 10
+        template: deployment.yaml
+
+  - it: should set credentials from tunnel-credentials when base64EncodedPemFile and base64EncodedConfigJsonFile fields set
+    set:
+      tunnelConfig:
+        name: unittest
+      tunnelSecrets:
+        base64EncodedPemFile: UEVNLUZJTEUtQ09OVEVOVA==
+        base64EncodedConfigJsonFile: eyJmaWxlIjoiQ29uZmlnSnNvbkZpbGUifQ==
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content: 
+            name: creds
+            projected:
+              sources:
+                - secret:
+                    name: tunnel-credentials
+        template: deployment.yaml
+
+  - it: should set pem file from existing secret when existingPemFileSecret name set
+    set:
+      tunnelConfig:
+        name: unittest
+      tunnelSecrets:
+        base64EncodedConfigJsonFile: eyJmaWxlIjoiQ29uZmlnSnNvbkZpbGUifQ==
+        existingPemFileSecret:
+          name: my-pem-file-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content: 
+            name: creds
+            projected:
+              sources:
+                - secret:
+                    name: tunnel-credentials
+                - secret:
+                    name: my-pem-file-secret
+        template: deployment.yaml
+
+  - it: should set config json file from existing secret when existingConfigJsonFileSecret name set
+    set:
+      tunnelConfig:
+        name: unittest
+      tunnelSecrets:
+        base64EncodedPemFile: UEVNLUZJTEUtQ09OVEVOVA==
+        existingConfigJsonFileSecret:
+          name: my-config-json-file-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content: 
+            name: creds
+            projected:
+              sources:
+                - secret:
+                    name: tunnel-credentials
+                - secret:
+                    name: my-config-json-file-secret
+        template: deployment.yaml
+
+  - it: should set pem file and config json file from existing secrets when existingPemFileSecret name and existingConfigJsonFileSecret name set
+    set:
+      tunnelConfig:
+        name: unittest
+      tunnelSecrets:
+        existingPemFileSecret:
+          name: my-pem-file-secret
+        existingConfigJsonFileSecret:
+          name: my-config-json-file-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content: 
+            name: creds
+            projected:
+              sources:
+                - secret:
+                    name: my-pem-file-secret
+                - secret:
+                    name: my-config-json-file-secret
+        template: deployment.yaml
+
+  - it: should set TUNNEL_ORIGIN_CERT environment variable when existingPemFileSecret name set and key is different than cert.pem
+    set:
+      tunnelConfig:
+        name: unittest
+      tunnelSecrets:
+        existingPemFileSecret:
+          name: my-pem-file-secret
+          key: custom.pem
+        existingConfigJsonFileSecret:
+          name: my-config-json-file-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "cloudflared")].env
+          content:
+            name: TUNNEL_ORIGIN_CERT
+            value: /etc/cloudflared/creds/custom.pem
         template: deployment.yaml

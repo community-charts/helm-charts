@@ -53,6 +53,11 @@ spec:
             - name: active-con-stat
               containerPort: 2000
               protocol: TCP
+        {{- if and .Values.tunnelSecrets.existingPemFileSecret.name (ne .Values.tunnelSecrets.existingPemFileSecret.key "cert.pem") }}
+          env:
+            - name: TUNNEL_ORIGIN_CERT
+              value: {{ printf "/etc/cloudflared/creds/%s" .Values.tunnelSecrets.existingPemFileSecret.key }}
+        {{- end }}
           livenessProbe:
             httpGet:
               path: /ready
@@ -71,8 +76,20 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
         - name: creds
-          secret:
-            secretName: tunnel-credentials
+          projected:
+            sources:
+            {{- if or (eq .Values.tunnelSecrets.existingPemFileSecret.name "") (eq .Values.tunnelSecrets.existingConfigJsonFileSecret.name "") }}
+              - secret:
+                  name: tunnel-credentials
+            {{- end }}
+            {{- if .Values.tunnelSecrets.existingPemFileSecret.name }}
+              - secret:
+                  name: {{ .Values.tunnelSecrets.existingPemFileSecret.name }}
+            {{- end }}
+            {{- if .Values.tunnelSecrets.existingConfigJsonFileSecret.name }}
+              - secret:
+                  name: {{ .Values.tunnelSecrets.existingConfigJsonFileSecret.name }}
+            {{- end }}
         - name: config
           configMap:
             name: cloudflared

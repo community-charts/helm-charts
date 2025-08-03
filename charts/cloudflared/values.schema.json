@@ -635,9 +635,51 @@
           "required": [],
           "title": "base64EncodedPemFile",
           "type": "string"
+        },
+        "existingConfigJsonFileSecret": {
+          "additionalProperties": false,
+          "description": "This is for setting up the existing secret for the cloudflared tunnel configuration JSON file. If not set, the base64EncodedConfigJsonFile will be used.",
+          "properties": {
+            "name": {
+              "default": "",
+              "description": "The name of the existing secret.",
+              "required": [],
+              "title": "name",
+              "type": "string"
+            },
+            "key": {
+              "default": "credentials.json",
+              "description": "The key of the configuration JSON file in the existing secret.",
+              "required": [],
+              "title": "key",
+              "type": "string"
+            }
+          },
+          "required": ["name", "key"]
+        },
+        "existingPemFileSecret": {
+          "additionalProperties": false,
+          "description": "This is for setting up the existing secret for the cloudflared tunnel certificate PEM file. If not set, the base64EncodedPemFile will be used.",
+          "properties": {
+            "name": {
+              "default": "",
+              "description": "The name of the existing secret.",
+              "required": [],
+              "title": "name",
+              "type": "string"
+            },
+            "key": {
+              "default": "cert.pem",
+              "description": "The key of the certificate PEM file in the existing secret.",
+              "required": [],
+              "title": "key",
+              "type": "string"
+            }
+          },
+          "required": ["name", "key"]
         }
       },
-      "required": ["base64EncodedPemFile", "base64EncodedConfigJsonFile"],
+      "required": ["base64EncodedPemFile", "base64EncodedConfigJsonFile", "existingPemFileSecret", "existingConfigJsonFileSecret"],
       "title": "tunnelSecrets",
       "type": "object"
     },

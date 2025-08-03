@@ -4,7 +4,7 @@
 
 A Helm chart for cloudflare tunnel
 
-![Version: 2.0.9](https://img.shields.io/badge/Version-2.0.9-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.7.0](https://img.shields.io/badge/AppVersion-2025.7.0-informational?style=flat-square)
+![Version: 2.1.0](https://img.shields.io/badge/Version-2.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.7.0](https://img.shields.io/badge/AppVersion-2025.7.0-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -68,6 +68,25 @@ To configure the chart, encode the required tunnel files using the following com
 
 3. **Set the Tunnel Name**
    Pass the name of your tunnel, as created earlier via the Cloudflared CLI, to the `tunnelConfig.name` configuration.
+
+### Setting Credentials to Kubernetes Secrets and working with Existing Secrets
+
+```console
+cp ~/.cloudflared/*.json ./credentials.json
+kubectl create secret generic config-json-file-secret -n cloudflare --from-file=credentials.json
+
+kubectl create secret generic cert-pem-file-secret -n cloudflare --from-file=~/.cloudflared/cert.pem
+```
+
+And use the following configuration rather than base64 versions.
+
+```yaml
+tunnelSecrets:
+  existingConfigJsonFileSecret:
+    name: config-json-file-secret
+  existingPemFileSecret:
+    name: cert-pem-file-secret
+```
 
 ### Configuring Ingress
 
@@ -163,8 +182,15 @@ helm upgrade [RELEASE_NAME] community-charts/cloudflared
 | tolerations | list | `[{"effect":"NoSchedule","operator":"Exists"}]` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/ |
 | tunnelConfig | object | `{"autoUpdateFrequency":"24h","connectTimeout":"30s","gracePeriod":"30s","logLevel":"info","metricsUpdateFrequency":"5s","name":"","noAutoUpdate":true,"protocol":"auto","retries":5,"transportLogLevel":"warn","warpRouting":false}` | Please find more configuration from https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/arguments/ |
 | tunnelConfig.name | string | `""` | cloudflared tunnel name |
-| tunnelSecrets.base64EncodedConfigJsonFile | string | `""` |  |
-| tunnelSecrets.base64EncodedPemFile | string | `""` |  |
+| tunnelSecrets | object | `{"base64EncodedConfigJsonFile":"","base64EncodedPemFile":"","existingConfigJsonFileSecret":{"key":"credentials.json","name":""},"existingPemFileSecret":{"key":"cert.pem","name":""}}` | This is for setting up the cloudflared tunnel secrets. For more information checkout: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/local-management/create-local-tunnel/ |
+| tunnelSecrets.base64EncodedConfigJsonFile | string | `""` | This is for cloudflared tunnel configuration JSON file. |
+| tunnelSecrets.base64EncodedPemFile | string | `""` | This is for cloudflared tunnel certificate PEM file. |
+| tunnelSecrets.existingConfigJsonFileSecret | object | `{"key":"credentials.json","name":""}` | This is for setting up the existing secret for the cloudflared tunnel configuration JSON file. If not set, the base64EncodedConfigJsonFile will be used. |
+| tunnelSecrets.existingConfigJsonFileSecret.key | string | `"credentials.json"` | This is the key of the configuration JSON file in the existing secret. |
+| tunnelSecrets.existingConfigJsonFileSecret.name | string | `""` | This is the name of the existing secret. |
+| tunnelSecrets.existingPemFileSecret | object | `{"key":"cert.pem","name":""}` | This is for setting up the existing secret for the cloudflared tunnel certificate PEM file. If not set, the base64EncodedPemFile will be used. |
+| tunnelSecrets.existingPemFileSecret.key | string | `"cert.pem"` | This is the key of the certificate PEM file in the existing secret. |
+| tunnelSecrets.existingPemFileSecret.name | string | `""` | This is the name of the existing secret. |
 | updateStrategy.rollingUpdate.maxUnavailable | int | `1` |  |
 | updateStrategy.type | string | `"RollingUpdate"` |  |
 

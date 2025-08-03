@@ -71,9 +71,24 @@ securityContext:
   runAsUser: 65532
   runAsGroup: 65532
 
+# -- This is for setting up the cloudflared tunnel secrets. For more information checkout: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/local-management/create-local-tunnel/
 tunnelSecrets:
+  # -- This is for cloudflared tunnel certificate PEM file.
   base64EncodedPemFile: ""
+  # -- This is for cloudflared tunnel configuration JSON file.
   base64EncodedConfigJsonFile: ""
+  # -- This is for setting up the existing secret for the cloudflared tunnel certificate PEM file. If not set, the base64EncodedPemFile will be used.
+  existingPemFileSecret:
+    # -- This is the name of the existing secret.
+    name: ""
+    # -- This is the key of the certificate PEM file in the existing secret.
+    key: "cert.pem"
+  # -- This is for setting up the existing secret for the cloudflared tunnel configuration JSON file. If not set, the base64EncodedConfigJsonFile will be used.
+  existingConfigJsonFileSecret:
+    # -- This is the name of the existing secret.
+    name: ""
+    # -- This is the key of the configuration JSON file in the existing secret.
+    key: "credentials.json"
 
 # -- Please find more configuration from https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/arguments/
 tunnelConfig:
