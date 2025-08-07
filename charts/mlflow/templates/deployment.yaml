@@ -60,9 +60,36 @@ spec:
       serviceAccountName: {{ include "mlflow.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-    {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) (or .Values.backendStore.databaseConnectionCheck .Values.backendStore.databaseMigration) ) .Values.initContainers }}
+    {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) (or .Values.backendStore.databaseConnectionCheck .Values.backendStore.databaseMigration) ) .Values.initContainers (and .Values.auth.enabled .Values.auth.postgres.enabled .Values.auth.existingDatabaseSecret.name) }}
       initContainers:
     {{- end }}
+      {{- if and .Values.auth.enabled .Values.auth.postgres.enabled .Values.auth.existingDatabaseSecret.name }}
+        - name: auth-config-substitution
+          image: "busybox:1.32"
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - |
+              sed "s/auth_user/$AUTH_PGUSER/g; s/auth_password/$AUTH_PGPASSWORD/g" /etc/mlflow/auth-template/basic_auth.ini > /etc/mlflow/auth/basic_auth.ini
+          env:
+            - name: AUTH_PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.existingDatabaseSecret.name }}
+                  key: {{ .Values.auth.existingDatabaseSecret.usernameKey }}
+            - name: AUTH_PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.existingDatabaseSecret.name }}
+                  key: {{ .Values.auth.existingDatabaseSecret.passwordKey }}
+          volumeMounts:
+            - name: auth-config-secret
+              mountPath: /etc/mlflow/auth-template
+              readOnly: true
+            - name: auth-config-volume
+              mountPath: /etc/mlflow/auth
+      {{- end }}
       {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
         - name: dbchecker
           image: "busybox:1.32"
@@ -338,18 +365,6 @@ spec:
                   key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
             {{- end }}
           {{- end }}
-          {{- if and .Values.auth.enabled .Values.auth.postgres.enabled .Values.auth.existingDatabaseSecret.name }}
-            - name: AUTH_PGUSER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.auth.existingDatabaseSecret.name }}
-                  key: {{ .Values.auth.existingDatabaseSecret.usernameKey }}
-            - name: AUTH_PGPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.auth.existingDatabaseSecret.name }}
-                  key: {{ .Values.auth.existingDatabaseSecret.passwordKey }}
-          {{- end }}
           {{- if and .Values.artifactRoot.s3.enabled .Values.artifactRoot.s3.existingSecret.name }}
             {{- if .Values.artifactRoot.s3.existingSecret.keyOfAccessKeyId }}
             - name: AWS_ACCESS_KEY_ID
@@ -384,9 +399,15 @@ spec:
           {{- if or .Values.extraVolumeMounts .Values.auth.enabled .Values.ldapAuth.enabled }}
           volumeMounts:
             {{- if .Values.auth.enabled }}
+              {{- if and .Values.auth.postgres.enabled .Values.auth.existingDatabaseSecret.name }}
+            - name: auth-config-volume
+              mountPath: {{ .Values.auth.configPath | trimSuffix "/" | quote }}
+              readOnly: true
+              {{- else }}
             - name: auth-config-secret
               mountPath: {{ .Values.auth.configPath | trimSuffix "/" | quote }}
               readOnly: true
+              {{- end }}
             {{- else if .Values.ldapAuth.enabled }}
             - name: auth-config-secret
               mountPath: "/etc/mlflow/auth"
@@ -434,6 +455,10 @@ spec:
         - name: auth-config-secret
           secret:
             secretName: {{ template "mlflow.fullname" . }}-auth-config-secret
+        {{- if and .Values.auth.enabled .Values.auth.postgres.enabled .Values.auth.existingDatabaseSecret.name }}
+        - name: auth-config-volume
+          emptyDir: {}
+        {{- end }}
           {{- if or .Values.ldapAuth.encodedTrustedCACertificate .Values.ldapAuth.externalSecretForTrustedCACertificate }}
         - name: trusted-ca-cert-secret
           secret:
