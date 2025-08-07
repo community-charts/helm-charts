@@ -338,6 +338,18 @@ spec:
                   key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
             {{- end }}
           {{- end }}
+          {{- if and .Values.auth.enabled .Values.auth.postgres.enabled .Values.auth.existingDatabaseSecret.name }}
+            - name: AUTH_PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.existingDatabaseSecret.name }}
+                  key: {{ .Values.auth.existingDatabaseSecret.usernameKey }}
+            - name: AUTH_PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.existingDatabaseSecret.name }}
+                  key: {{ .Values.auth.existingDatabaseSecret.passwordKey }}
+          {{- end }}
           {{- if and .Values.artifactRoot.s3.enabled .Values.artifactRoot.s3.existingSecret.name }}
             {{- if .Values.artifactRoot.s3.existingSecret.keyOfAccessKeyId }}
             - name: AWS_ACCESS_KEY_ID
