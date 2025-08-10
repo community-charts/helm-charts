@@ -345,6 +345,8 @@ ingress:
 
 > **Tip**: auth and ldapAuth can not be enabled at same time!
 
+### Authentication with Plain Admin Settings Example
+
 ```yaml
 auth:
   enabled: true
@@ -352,7 +354,18 @@ auth:
   adminPassword: "S3cr3+"
 ```
 
+### Authentication with Existing Admin Credentials Secret Example
+
+```yaml
+auth:
+  enabled: true
+  existingAdminSecret:
+    name: auth-admin-secret
+```
+
 Use following configuration for centralised PosgreSQL DB backend for authentication backend.
+
+### Authentication Postgres DB Backend with Plain Settings Example
 
 ```yaml
 auth:
@@ -366,6 +379,22 @@ auth:
     database: "auth"
     user: "mlflowauth"
     password: "A4m1nPa33w0rd!"
+```
+
+### Authentication Postgres DB Backend with Existing Secret Example
+
+```yaml
+auth:
+  enabled: true
+  existingAdminSecret:
+    name: auth-admin-secret
+  postgres:
+    enabled: true
+    host: postgresql--auth-instance1.abcdef1234.eu-central-1.rds.amazonaws.com
+    port: 5432
+    database: auth
+    existingSecret:
+      name: auth-postgres-database-secret
 ```
 
 ## Basic Authentication with LDAP Backend
