@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.6.1
+version: 0.6.2
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "0.86.0"
+appVersion: "0.86.1"
 kubeVersion: ">=1.23.0-0"
 home: https://www.getoutline.com/
 maintainers:
@@ -53,23 +53,23 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update outlinewiki/outline image version to 0.86.0
+      description: Update outlinewiki/outline image version to 0.86.1
       links:
         - name: Upstream Project
           url: https://hub.docker.com/r/outlinewiki/outline
     - kind: changed
-      description: Update dependency redis from 21.2.11 to 21.2.14
+      description: Update dependency redis from 21.2.14 to 22.0.1
       links:
         - name: ArtifactHub
           url: https://artifacthub.io/packages/helm/bitnami/redis
     - kind: changed
-      description: Update dependency postgresql from 16.7.19 to 16.7.21
+      description: Update dependency postgresql from 16.7.21 to 16.7.24
       links:
         - name: ArtifactHub
           url: https://artifacthub.io/packages/helm/bitnami/postgresql
   artifacthub.io/images: |
     - name: outline
-      image: outlinewiki/outline:0.86.0
+      image: outlinewiki/outline:0.86.1
       platforms:
         - linux/amd64
         - linux/arm64
@@ -88,11 +88,11 @@ annotations:
     url: https://keybase.io/communitycharts/pgp_keys.asc
 dependencies:
   - name: redis
-    version: 21.2.14
+    version: 22.0.1
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
   - name: postgresql
-    version: 16.7.21
+    version: 16.7.24
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: minio
