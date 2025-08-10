@@ -58,6 +58,8 @@ annotations:
           url: https://github.com/community-charts/helm-charts/issues/200
     - kind: added
       description: Add existing secret support to auth admin credentials.
+    - kind: added
+      description: Add telemetry flag to enable or disable collecting telemetry data.
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.2.0

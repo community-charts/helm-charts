@@ -182,6 +182,15 @@ tests:
           path: data.MLFLOW_LOGGING_LEVEL
           value: DEBUG
 
+  - it: should disable telemetry on default
+    asserts:
+      - equal:
+          path: data.MLFLOW_DISABLE_TELEMETRY
+          value: "true"
+      - equal:
+          path: data.DO_NOT_TRACK
+          value: "true"
+
   - it: should match snapshot of default values
     release:
       name: mlflow

@@ -32,6 +32,10 @@ data:
 {{- if .Values.log.enabled }}
   MLFLOW_LOGGING_LEVEL: {{ .Values.log.level | upper | quote }}
 {{- end }}
+{{- if not .Values.telemetry.enabled }}
+  MLFLOW_DISABLE_TELEMETRY: "true"
+  DO_NOT_TRACK: "true"
+{{- end }}
 ---
 {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseMigration }}
 {{- $dbConnectionDriver := "" }}

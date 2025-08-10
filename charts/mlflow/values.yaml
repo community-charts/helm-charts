@@ -91,6 +91,11 @@ log:
   # -- Mlflow logging level.
   level: info
 
+# -- Mlflow Usage Tracking settings. More information can be found here: https://mlflow.org/docs/latest/community/usage-tracking/
+telemetry:
+  # -- Specifies if you want to enable collecting anonymized usage data about how core features of the platform are used.
+  enabled: false
+
 # -- Mlflow database connection settings
 backendStore:
   # -- Specifies if you want to run database migration

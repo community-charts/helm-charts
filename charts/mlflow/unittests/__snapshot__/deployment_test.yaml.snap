@@ -2,7 +2,9 @@ should match snapshot of default values:
   1: |
     apiVersion: v1
     data:
+      DO_NOT_TRACK: "true"
       MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_DISABLE_TELEMETRY: "true"
       MLFLOW_LOGGING_LEVEL: INFO
     kind: ConfigMap
     metadata:
@@ -40,7 +42,7 @@ should match snapshot of default values:
       template:
         metadata:
           annotations:
-            checksum/config: 44e4de26e99974b591018f1d2577d68d961f8c5bbdf964dd9b46a2b7131a2c71
+            checksum/config: 6a1114d91915da5454596d7c7d7f7ae694d835f570534869b7d474e0638ca692
           labels:
             app: mlflow
             app.kubernetes.io/instance: mlflow
@@ -108,7 +110,9 @@ should match snapshot with additional values:
   1: |
     apiVersion: v1
     data:
+      DO_NOT_TRACK: "true"
       MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_DISABLE_TELEMETRY: "true"
       MLFLOW_LOGGING_LEVEL: INFO
       PGDATABASE: test-database
       PGHOST: test-host
@@ -217,7 +221,7 @@ should match snapshot with additional values:
       template:
         metadata:
           annotations:
-            checksum/config: 0ce0636a4b5ced44ed82746e804d314e8b0e4ba38f6c69700530a592d95c88be
+            checksum/config: 7cf756fca80e8aef42d169fa6f6f29599997639b9551fd43b22f2f9c1e04669c
             test-key: test-value
           labels:
             app: mlflow
@@ -396,7 +400,9 @@ should match snapshot with additional values when bitnami mysql is enabled:
   1: |
     apiVersion: v1
     data:
+      DO_NOT_TRACK: "true"
       MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_DISABLE_TELEMETRY: "true"
       MLFLOW_LOGGING_LEVEL: INFO
       MYSQL_DATABASE: test-database
       MYSQL_HOST: mlflow-mysql
@@ -510,7 +516,7 @@ should match snapshot with additional values when bitnami mysql is enabled:
       template:
         metadata:
           annotations:
-            checksum/config: 29ab142d10e2a36b62f04ddf774b145c96b4d0b076af32a5052b2cd15a5c1143
+            checksum/config: 5826804f40464dfefc92f94053865758e121d600bce4013a3615974cd5427111
             test-key: test-value
           labels:
             app: mlflow
@@ -709,7 +715,9 @@ should match snapshot with additional values when bitnami postgresql is enabled:
   1: |
     apiVersion: v1
     data:
+      DO_NOT_TRACK: "true"
       MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_DISABLE_TELEMETRY: "true"
       MLFLOW_LOGGING_LEVEL: INFO
       PGDATABASE: test-database
       PGHOST: mlflow-postgresql
@@ -818,7 +826,7 @@ should match snapshot with additional values when bitnami postgresql is enabled:
       template:
         metadata:
           annotations:
-            checksum/config: e3aea5cf987ddd081f46229b3605f869c3c1ae5aab1e916a05d49639cf6526c2
+            checksum/config: 12f0efcb6b8d7385900db3813272b6b491230a579d255f012186d3ee4d879a05
             test-key: test-value
           labels:
             app: mlflow
@@ -1017,7 +1025,9 @@ should match snapshot with additional values when mysql is enabled:
   1: |
     apiVersion: v1
     data:
+      DO_NOT_TRACK: "true"
       MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_DISABLE_TELEMETRY: "true"
       MLFLOW_LOGGING_LEVEL: INFO
       MYSQL_DATABASE: test-database
       MYSQL_HOST: test-host
@@ -1131,7 +1141,7 @@ should match snapshot with additional values when mysql is enabled:
       template:
         metadata:
           annotations:
-            checksum/config: 1c9552b78002ee7ccade5f9bf6bc5667a2b38393ee6ea114ada45ae42338eef0
+            checksum/config: cf97228f92e9e7a556787864ae424f440d546d75ecbed391905f9becb9ec1588
             test-key: test-value
           labels:
             app: mlflow
@@ -1310,7 +1320,9 @@ should match snapshot with additional values when postgresql is enabled:
   1: |
     apiVersion: v1
     data:
+      DO_NOT_TRACK: "true"
       MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_DISABLE_TELEMETRY: "true"
       MLFLOW_LOGGING_LEVEL: INFO
       PGDATABASE: test-database
       PGHOST: test-host
@@ -1419,7 +1431,7 @@ should match snapshot with additional values when postgresql is enabled:
       template:
         metadata:
           annotations:
-            checksum/config: 0ce0636a4b5ced44ed82746e804d314e8b0e4ba38f6c69700530a592d95c88be
+            checksum/config: 7cf756fca80e8aef42d169fa6f6f29599997639b9551fd43b22f2f9c1e04669c
             test-key: test-value
           labels:
             app: mlflow

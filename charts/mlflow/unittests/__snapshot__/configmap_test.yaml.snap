@@ -2,7 +2,9 @@ should match snapshot of default values:
   1: |
     apiVersion: v1
     data:
+      DO_NOT_TRACK: "true"
       MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_DISABLE_TELEMETRY: "true"
       MLFLOW_LOGGING_LEVEL: INFO
     kind: ConfigMap
     metadata:
@@ -16,7 +18,9 @@ should match snapshot of default values with bitnami mysql:
   1: |
     apiVersion: v1
     data:
+      DO_NOT_TRACK: "true"
       MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_DISABLE_TELEMETRY: "true"
       MLFLOW_LOGGING_LEVEL: INFO
       MYSQL_DATABASE: mlflow
       MYSQL_HOST: mlflow-mysql
@@ -33,7 +37,9 @@ should match snapshot of default values with bitnami postgresql:
   1: |
     apiVersion: v1
     data:
+      DO_NOT_TRACK: "true"
       MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_DISABLE_TELEMETRY: "true"
       MLFLOW_LOGGING_LEVEL: INFO
       PGDATABASE: mlflow
       PGHOST: mlflow-postgresql
@@ -50,7 +56,9 @@ should match snapshot of default values with mysql:
   1: |
     apiVersion: v1
     data:
+      DO_NOT_TRACK: "true"
       MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_DISABLE_TELEMETRY: "true"
       MLFLOW_LOGGING_LEVEL: INFO
       MYSQL_DATABASE: mlflow
       MYSQL_HOST: mysql-custom-service
@@ -67,7 +75,9 @@ should match snapshot of default values with postgres:
   1: |
     apiVersion: v1
     data:
+      DO_NOT_TRACK: "true"
       MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_DISABLE_TELEMETRY: "true"
       MLFLOW_LOGGING_LEVEL: INFO
       PGDATABASE: mlflow
       PGHOST: postgres-custom-service

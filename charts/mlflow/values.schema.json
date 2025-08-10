@@ -1210,6 +1210,22 @@
       "title": "log",
       "type": "object"
     },
+    "telemetry": {
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Mlflow Usage Tracking settings. More information can be found here: https://mlflow.org/docs/latest/community/usage-tracking/",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "description": "Specifies if you want to enable collecting anonymized usage data about how core features of the platform are used.",
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        }
+      },
+      "required": ["enabled"],
+      "title": "telemetry"
+    },
     "serviceAccount": {
       "additionalProperties": false,
       "properties": {
@@ -2027,6 +2043,7 @@
     "securityContext",
     "service",
     "log",
+    "telemetry",
     "backendStore",
     "postgresql",
     "mysql",
