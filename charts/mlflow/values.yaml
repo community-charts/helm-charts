@@ -252,7 +252,7 @@ auth:
   adminUsername: ""
   # -- Mlflow admin user password
   adminPassword: ""
-  # -- Specifies if you want to use an existing admin credentials secret for auth.
+  # -- Specifies if you want to use an existing admin credentials secret for auth. If it's set, adminUsername and adminPassword will be ignored.
   existingAdminSecret:
     # -- The name of the existing admin credentials secret.
     name: ""
@@ -290,7 +290,7 @@ auth:
     password: "" # required
     # -- postgres database connection driver. e.g.: "psycopg2"
     driver: ""
-    # -- Specifies if you want to use an existing database secret for auth.
+    # -- Specifies if you want to use an existing database secret for auth. If it's set, user and password will be ignored.
     existingSecret:
       # -- The name of the existing database secret.
       name: ""

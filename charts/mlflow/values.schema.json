@@ -1396,7 +1396,7 @@
         "existingAdminSecret": {
           "additionalProperties": false,
           "type": "object",
-          "description": "Specifies if you want to use an existing admin credentials secret for auth.",
+          "description": "Specifies if you want to use an existing admin credentials secret for auth. If it's set, adminUsername and adminPassword will be ignored.",
           "properties": {
             "name": {
               "default": "",
@@ -1515,7 +1515,7 @@
             "existingSecret": {
               "additionalProperties": false,
               "type": "object",
-              "description": "Specifies if you want to use an existing database secret for auth.",
+              "description": "Specifies if you want to use an existing database secret for auth. If it's set, user and password will be ignored.",
               "properties": {
                 "name": {
                   "default": "",

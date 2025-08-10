@@ -614,7 +614,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | auth.configPath | string | `"/etc/mlflow/auth/"` | Mlflow authentication INI configuration file path. |
 | auth.defaultPermission | string | `"READ"` | Default permission for all users. More details: https://mlflow.org/docs/latest/auth/index.html#permissions |
 | auth.enabled | bool | `false` | Specifies if you want to enable mlflow authentication. auth and ldapAuth can't be enabled at same time. |
-| auth.existingAdminSecret | object | `{"name":"","passwordKey":"password","usernameKey":"username"}` | Specifies if you want to use an existing admin credentials secret for auth. |
+| auth.existingAdminSecret | object | `{"name":"","passwordKey":"password","usernameKey":"username"}` | Specifies if you want to use an existing admin credentials secret for auth. If it's set, adminUsername and adminPassword will be ignored. |
 | auth.existingAdminSecret.name | string | `""` | The name of the existing admin credentials secret. |
 | auth.existingAdminSecret.passwordKey | string | `"password"` | The key of the admin password in the existing admin credentials secret. |
 | auth.existingAdminSecret.usernameKey | string | `"username"` | The key of the admin username in the existing admin credentials secret. |
@@ -622,7 +622,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | auth.postgres.database | string | `""` | mlflow authorization database name created before in the postgres instance |
 | auth.postgres.driver | string | `""` | postgres database connection driver. e.g.: "psycopg2" |
 | auth.postgres.enabled | bool | `false` | Specifies if you want to use postgres auth backend storage |
-| auth.postgres.existingSecret | object | `{"name":"","passwordKey":"password","usernameKey":"username"}` | Specifies if you want to use an existing database secret for auth. |
+| auth.postgres.existingSecret | object | `{"name":"","passwordKey":"password","usernameKey":"username"}` | Specifies if you want to use an existing database secret for auth. If it's set, user and password will be ignored. |
 | auth.postgres.existingSecret.name | string | `""` | The name of the existing database secret. |
 | auth.postgres.existingSecret.passwordKey | string | `"password"` | The key of the password in the existing database secret. |
 | auth.postgres.existingSecret.usernameKey | string | `"username"` | The key of the username in the existing database secret. |

@@ -56,6 +56,8 @@ annotations:
       links:
         - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/200
+    - kind: added
+      description: Add existing secret support to auth admin credentials.
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.2.0
