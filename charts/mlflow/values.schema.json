@@ -1480,6 +1480,35 @@
               "required": [],
               "title": "driver",
               "type": "string"
+            },
+            "existingSecret": {
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "The name of the existing database secret.",
+                  "required": [],
+                  "title": "name",
+                  "type": "string"
+                },
+                "usernameKey": {
+                  "default": "username",
+                  "description": "The key of the username in the existing database secret.",
+                  "required": [],
+                  "title": "usernameKey",
+                  "type": "string"
+                },
+                "passwordKey": {
+                  "default": "password",
+                  "description": "The key of the password in the existing database secret.",
+                  "required": [],
+                  "title": "passwordKey",
+                  "type": "string"
+                }
+              },
+              "required": ["name", "usernameKey", "passwordKey"],
+              "title": "existingSecret",
+              "type": "object"
             }
           },
           "required": [
@@ -1489,38 +1518,10 @@
             "database",
             "user",
             "password",
-            "driver"
+            "driver",
+            "existingSecret"
           ],
           "title": "postgres",
-          "type": "object"
-        },
-        "existingDatabaseSecret": {
-          "additionalProperties": false,
-          "properties": {
-            "name": {
-              "default": "",
-              "description": "The name of the existing database secret.",
-              "required": [],
-              "title": "name",
-              "type": "string"
-            },
-            "usernameKey": {
-              "default": "username",
-              "description": "The key of the username in the existing database secret.",
-              "required": [],
-              "title": "usernameKey",
-              "type": "string"
-            },
-            "passwordKey": {
-              "default": "password",
-              "description": "The key of the password in the existing database secret.",
-              "required": [],
-              "title": "passwordKey",
-              "type": "string"
-            }
-          },
-          "required": ["name", "usernameKey", "passwordKey"],
-          "title": "existingDatabaseSecret",
           "type": "object"
         }
       },
@@ -1535,8 +1536,7 @@
         "sqliteFullPath",
         "configPath",
         "configFile",
-        "postgres",
-        "existingDatabaseSecret"
+        "postgres"
       ],
       "title": "auth",
       "type": "object"

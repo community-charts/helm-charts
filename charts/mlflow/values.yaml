@@ -282,15 +282,14 @@ auth:
     password: "" # required
     # -- postgres database connection driver. e.g.: "psycopg2"
     driver: ""
-
-  # -- Specifies if you want to use an existing database secret for auth.
-  existingDatabaseSecret:
-    # -- The name of the existing database secret.
-    name: ""
-    # -- The key of the username in the existing database secret.
-    usernameKey: "username"
-    # -- The key of the password in the existing database secret.
-    passwordKey: "password"
+    # -- Specifies if you want to use an existing database secret for auth.
+    existingSecret:
+      # -- The name of the existing database secret.
+      name: ""
+      # -- The key of the username in the existing database secret.
+      usernameKey: "username"
+      # -- The key of the password in the existing database secret.
+      passwordKey: "password"
 
 # -- Basic Authentication with LDAP backend
 ldapAuth:
