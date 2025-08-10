@@ -252,6 +252,14 @@ auth:
   adminUsername: ""
   # -- Mlflow admin user password
   adminPassword: ""
+  # -- Specifies if you want to use an existing admin credentials secret for auth.
+  existingAdminSecret:
+    # -- The name of the existing admin credentials secret.
+    name: ""
+    # -- The key of the admin username in the existing admin credentials secret.
+    usernameKey: "username"
+    # -- The key of the admin password in the existing admin credentials secret.
+    passwordKey: "password"
   # -- Default permission for all users. More details: https://mlflow.org/docs/latest/auth/index.html#permissions
   defaultPermission: READ
   # -- Default registered authentication app name. If you want to use your custom authentication function, please look at: https://mlflow.org/docs/latest/auth/index.html#custom-authentication

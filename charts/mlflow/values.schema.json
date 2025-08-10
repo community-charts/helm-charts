@@ -363,6 +363,8 @@
         },
         "existingDatabaseSecret": {
           "additionalProperties": false,
+          "type": "object",
+          "description": "Specifies if you want to use an existing database secret.",
           "properties": {
             "name": {
               "default": "",
@@ -387,8 +389,7 @@
             }
           },
           "required": ["name", "usernameKey", "passwordKey"],
-          "title": "existingDatabaseSecret",
-          "type": "object"
+          "title": "existingDatabaseSecret"
         }
       },
       "required": [
@@ -1392,6 +1393,36 @@
           "title": "adminPassword",
           "type": "string"
         },
+        "existingAdminSecret": {
+          "additionalProperties": false,
+          "type": "object",
+          "description": "Specifies if you want to use an existing admin credentials secret for auth.",
+          "properties": {
+            "name": {
+              "default": "",
+              "description": "The name of the existing admin credentials secret.",
+              "required": [],
+              "title": "name",
+              "type": "string"
+            },
+            "usernameKey": {
+              "default": "username",
+              "description": "The key of the admin username in the existing admin credentials secret.",
+              "required": [],
+              "title": "usernameKey",
+              "type": "string"
+            },
+            "passwordKey": {
+              "default": "password",
+              "description": "The key of the admin password in the existing admin credentials secret.",
+              "required": [],
+              "title": "passwordKey",
+              "type": "string"
+            }
+          },
+          "required": ["name", "usernameKey", "passwordKey"],
+          "title": "existingAdminSecret"
+        },
         "defaultPermission": {
           "default": "READ",
           "required": [],
@@ -1483,6 +1514,8 @@
             },
             "existingSecret": {
               "additionalProperties": false,
+              "type": "object",
+              "description": "Specifies if you want to use an existing database secret for auth.",
               "properties": {
                 "name": {
                   "default": "",
@@ -1507,8 +1540,7 @@
                 }
               },
               "required": ["name", "usernameKey", "passwordKey"],
-              "title": "existingSecret",
-              "type": "object"
+              "title": "existingSecret"
             }
           },
           "required": [
@@ -1529,6 +1561,7 @@
         "enabled",
         "adminUsername",
         "adminPassword",
+        "existingAdminSecret",
         "defaultPermission",
         "appName",
         "authorizationFunction",

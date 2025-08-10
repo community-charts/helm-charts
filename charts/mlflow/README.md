@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 1.4.2-alpha.1](https://img.shields.io/badge/Version-1.4.2--alpha.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.2.0](https://img.shields.io/badge/AppVersion-3.2.0-informational?style=flat-square)
+![Version: 1.5.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.2.0](https://img.shields.io/badge/AppVersion-3.2.0-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -605,7 +605,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | artifactRoot.s3.existingSecret.keyOfSecretAccessKey | string | `""` | This is for setting up the key for AWS_SECRET_ACCESS_KEY secret. If it's set, awsSecretAccessKey will be ignored. |
 | artifactRoot.s3.existingSecret.name | string | `""` | This is for setting up the AWS IAM user secrets existing secret name. |
 | artifactRoot.s3.path | string | `""` | S3 bucket folder. If you want to use root level, please don't set anything. |
-| auth | object | `{"adminPassword":"","adminUsername":"","appName":"basic-auth","authorizationFunction":"mlflow.server.auth:authenticate_request_basic_auth","configFile":"basic_auth.ini","configPath":"/etc/mlflow/auth/","defaultPermission":"READ","enabled":false,"postgres":{"database":"","driver":"","enabled":false,"existingSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"host":"","password":"","port":5432,"user":""},"sqliteFile":"basic_auth.db","sqliteFullPath":""}` | Mlflow authentication settings |
+| auth | object | `{"adminPassword":"","adminUsername":"","appName":"basic-auth","authorizationFunction":"mlflow.server.auth:authenticate_request_basic_auth","configFile":"basic_auth.ini","configPath":"/etc/mlflow/auth/","defaultPermission":"READ","enabled":false,"existingAdminSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"postgres":{"database":"","driver":"","enabled":false,"existingSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"host":"","password":"","port":5432,"user":""},"sqliteFile":"basic_auth.db","sqliteFullPath":""}` | Mlflow authentication settings |
 | auth.adminPassword | string | `""` | Mlflow admin user password |
 | auth.adminUsername | string | `""` | Mlflow admin user username |
 | auth.appName | string | `"basic-auth"` | Default registered authentication app name. If you want to use your custom authentication function, please look at: https://mlflow.org/docs/latest/auth/index.html#custom-authentication |
@@ -614,6 +614,10 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | auth.configPath | string | `"/etc/mlflow/auth/"` | Mlflow authentication INI configuration file path. |
 | auth.defaultPermission | string | `"READ"` | Default permission for all users. More details: https://mlflow.org/docs/latest/auth/index.html#permissions |
 | auth.enabled | bool | `false` | Specifies if you want to enable mlflow authentication. auth and ldapAuth can't be enabled at same time. |
+| auth.existingAdminSecret | object | `{"name":"","passwordKey":"password","usernameKey":"username"}` | Specifies if you want to use an existing admin credentials secret for auth. |
+| auth.existingAdminSecret.name | string | `""` | The name of the existing admin credentials secret. |
+| auth.existingAdminSecret.passwordKey | string | `"password"` | The key of the admin password in the existing admin credentials secret. |
+| auth.existingAdminSecret.usernameKey | string | `"username"` | The key of the admin username in the existing admin credentials secret. |
 | auth.postgres | object | `{"database":"","driver":"","enabled":false,"existingSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"host":"","password":"","port":5432,"user":""}` | PostgreSQL based centrilised authentication database |
 | auth.postgres.database | string | `""` | mlflow authorization database name created before in the postgres instance |
 | auth.postgres.driver | string | `""` | postgres database connection driver. e.g.: "psycopg2" |
