@@ -138,6 +138,16 @@ tests:
     asserts:
       - matchSnapshot: { }
 
+  - it: should match snapshot of main persistence with multiple main node and mode read write many
+    set:
+      main:
+        count: 3
+        persistence:
+          enabled: true
+          accessMode: ReadWriteMany
+    asserts:
+      - matchSnapshot: { }
+
   - it: should match snapshot of worker persistence
     set:
       main:

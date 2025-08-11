@@ -1885,3 +1885,20 @@ tests:
           enabled: true
     asserts:
       - matchSnapshot: { }
+
+  - it: should match snapshot of main persistence with multiple main node and mode read write many
+    release:
+      name: n8n
+      namespace: n8n
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    set:
+      encryptionKey: "test-encryption-key"
+      main:
+        count: 3
+        persistence:
+          enabled: true
+          accessMode: ReadWriteMany
+    asserts:
+      - matchSnapshot: { }

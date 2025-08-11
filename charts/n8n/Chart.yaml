@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.13.10
+version: 1.14.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -50,11 +50,11 @@ annotations:
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Update n8nio/n8n image version to 1.105.4
+    - kind: fixed
+      description: Fixed an issue where PVCs were not created when using multiple main node replicas with persistence in ReadWriteMany mode.
       links:
-        - name: Upstream Project
-          url: https://github.com/n8n-io/n8n
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/203
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:1.105.4

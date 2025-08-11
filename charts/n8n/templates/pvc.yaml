@@ -1,4 +1,4 @@
-{{- if and .Values.main.persistence.enabled (not .Values.main.persistence.existingClaim) (eq (int .Values.main.count) 1) }}
+{{- if and .Values.main.persistence.enabled (not .Values.main.persistence.existingClaim) (not .Values.main.forceToUseStatefulset) (or (and (eq (int .Values.main.count) 1) (eq .Values.main.persistence.accessMode "ReadWriteOnce")) (and (gt (int .Values.main.count) 1) (eq .Values.main.persistence.accessMode "ReadWriteMany"))) }}
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
