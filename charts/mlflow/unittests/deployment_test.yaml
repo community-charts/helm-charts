@@ -1333,387 +1333,127 @@ tests:
     asserts:
       - matchSnapshot: { }
 
-  - it: should match snapshot with additional values
+  # ESO (External Secrets Operator) volume mounting tests
+  - it: should mount external auth secret when configured
     set:
       auth:
         enabled: true
-      backendStore:
-        databaseMigration: true
-        databaseConnectionCheck: true
-        postgres:
-          enabled: true
-          host: test-host
-          database: test-database
-          user: test-user
-          password: test-password
-      podAnnotations:
-        test-key: test-value
-      extraPodLabels:
-        "azure.workload.identity/use": "true"
-      podSecurityContext:
-        fsGroup: 1001
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1001
-      initContainers:
-        - name: init-myservice
-          image: busybox:1.28
-      resources:
-        limits:
-          cpu: 100m
-          memory: 128Mi
-        requests:
-          cpu: 100m
-          memory: 128Mi
-      extraVolumeMounts:
-        - name: mlflow-volume
-          mountPath: /mlflow/data
-        - name: example
-          mountPath: /example
-      extraVolumes:
-        - name: mlflow-volume
-          persistentVolumeClaim:
-            claimName: mlflow-pv-volume
-        - name: example
-          configMap:
-            name: example
-      nodeSelector:
-        disktype: ssd
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: kubernetes.io/e2e-az-name
-                    operator: In
-                    values:
-                      - e2e-az1
-                      - e2e-az2
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 1
-              preference:
-                matchExpressions:
-                  - key: custom-key
-                    operator: In
-                    values:
-                      - custom-value
-      tolerations:
-        - key: "example-key"
-          operator: "Exists"
-          effect: "NoSchedule"
-    release:
-      name: mlflow
-      namespace: mlflow
-    chart:
-      version: 1.0.0
-      appVersion: 1.0.0
+        externalAuthSecret:
+          name: "eso-generated-auth-secret"
+          key: "basic_auth.ini"
     asserts:
-      - matchSnapshot: { }
+      - equal:
+          path: spec.template.spec.volumes[?(@.name == "auth-config-secret")].secret.secretName
+          value: "eso-generated-auth-secret"
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.volumes[?(@.name == "auth-config-secret")].secret.items[0].key
+          value: "basic_auth.ini"
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.volumes[?(@.name == "auth-config-secret")].secret.items[0].path
+          value: "basic_auth.ini"
+        template: deployment.yaml
 
-  - it: should match snapshot with additional values when postgresql is enabled
+  - it: should mount external auth secret with custom key when configured
     set:
       auth:
         enabled: true
-      backendStore:
-        databaseMigration: true
-        databaseConnectionCheck: true
-        postgres:
-          enabled: true
-          host: test-host
-          database: test-database
-          user: test-user
-          password: test-password
-      podAnnotations:
-        test-key: test-value
-      extraPodLabels:
-        "azure.workload.identity/use": "true"
-      podSecurityContext:
-        fsGroup: 1001
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1001
-      initContainers:
-        - name: init-myservice
-          image: busybox:1.28
-      resources:
-        limits:
-          cpu: 100m
-          memory: 128Mi
-        requests:
-          cpu: 100m
-          memory: 128Mi
-      extraVolumeMounts:
-        - name: mlflow-volume
-          mountPath: /mlflow/data
-        - name: example
-          mountPath: /example
-      extraVolumes:
-        - name: mlflow-volume
-          persistentVolumeClaim:
-            claimName: mlflow-pv-volume
-        - name: example
-          configMap:
-            name: example
-      nodeSelector:
-        disktype: ssd
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: kubernetes.io/e2e-az-name
-                    operator: In
-                    values:
-                      - e2e-az1
-                      - e2e-az2
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 1
-              preference:
-                matchExpressions:
-                  - key: custom-key
-                    operator: In
-                    values:
-                      - custom-value
-      tolerations:
-        - key: "example-key"
-          operator: "Exists"
-          effect: "NoSchedule"
-    release:
-      name: mlflow
-      namespace: mlflow
-    chart:
-      version: 1.0.0
-      appVersion: 1.0.0
+        externalAuthSecret:
+          name: "eso-generated-auth-secret"
+          key: "custom_auth_config.ini"
     asserts:
-      - matchSnapshot: { }
+      - equal:
+          path: spec.template.spec.volumes[?(@.name == "auth-config-secret")].secret.secretName
+          value: "eso-generated-auth-secret"
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.volumes[?(@.name == "auth-config-secret")].secret.items[0].key
+          value: "custom_auth_config.ini"
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.volumes[?(@.name == "auth-config-secret")].secret.items[0].path
+          value: "custom_auth_config.ini"
+        template: deployment.yaml
 
-  - it: should match snapshot with additional values when bitnami postgresql is enabled
+  - it: should use helm-generated secret when external auth secret not specified
     set:
       auth:
         enabled: true
-      backendStore:
-        databaseMigration: true
-        databaseConnectionCheck: true
-      postgresql:
-        enabled: true
-        auth:
-          database: test-database
-          username: test-user
-          password: test-password
-      podAnnotations:
-        test-key: test-value
-      extraPodLabels:
-        "azure.workload.identity/use": "true"
-      podSecurityContext:
-        fsGroup: 1001
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1001
-      initContainers:
-        - name: init-myservice
-          image: busybox:1.28
-      resources:
-        limits:
-          cpu: 100m
-          memory: 128Mi
-        requests:
-          cpu: 100m
-          memory: 128Mi
-      extraVolumeMounts:
-        - name: mlflow-volume
-          mountPath: /mlflow/data
-        - name: example
-          mountPath: /example
-      extraVolumes:
-        - name: mlflow-volume
-          persistentVolumeClaim:
-            claimName: mlflow-pv-volume
-        - name: example
-          configMap:
-            name: example
-      nodeSelector:
-        disktype: ssd
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: kubernetes.io/e2e-az-name
-                    operator: In
-                    values:
-                      - e2e-az1
-                      - e2e-az2
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 1
-              preference:
-                matchExpressions:
-                  - key: custom-key
-                    operator: In
-                    values:
-                      - custom-value
-      tolerations:
-        - key: "example-key"
-          operator: "Exists"
-          effect: "NoSchedule"
-    release:
-      name: mlflow
-      namespace: mlflow
-    chart:
-      version: 1.0.0
-      appVersion: 1.0.0
+        adminUsername: "admin"
+        adminPassword: "thisisnotasecret"
     asserts:
-      - matchSnapshot: { }
+      - equal:
+          path: spec.template.spec.volumes[?(@.name == "auth-config-secret")].secret.secretName
+          value: "mlflow-auth-config-secret"
+        template: deployment.yaml
+      - notExists:
+          path: spec.template.spec.volumes[?(@.name == "auth-config-secret")].secret.items
+        template: deployment.yaml
 
-  - it: should match snapshot with additional values when mysql is enabled
+  - it: should set correct auth config path environment variable with external secret
     set:
       auth:
         enabled: true
-      backendStore:
-        databaseMigration: true
-        databaseConnectionCheck: true
-        mysql:
-          enabled: true
-          host: test-host
-          database: test-database
-          user: test-user
-          password: test-password
-      podAnnotations:
-        test-key: test-value
-      extraPodLabels:
-        "azure.workload.identity/use": "true"
-      podSecurityContext:
-        fsGroup: 1001
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1001
-      initContainers:
-        - name: init-myservice
-          image: busybox:1.28
-      resources:
-        limits:
-          cpu: 100m
-          memory: 128Mi
-        requests:
-          cpu: 100m
-          memory: 128Mi
-      extraVolumeMounts:
-        - name: mlflow-volume
-          mountPath: /mlflow/data
-        - name: example
-          mountPath: /example
-      extraVolumes:
-        - name: mlflow-volume
-          persistentVolumeClaim:
-            claimName: mlflow-pv-volume
-        - name: example
-          configMap:
-            name: example
-      nodeSelector:
-        disktype: ssd
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: kubernetes.io/e2e-az-name
-                    operator: In
-                    values:
-                      - e2e-az1
-                      - e2e-az2
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 1
-              preference:
-                matchExpressions:
-                  - key: custom-key
-                    operator: In
-                    values:
-                      - custom-value
-      tolerations:
-        - key: "example-key"
-          operator: "Exists"
-          effect: "NoSchedule"
-    release:
-      name: mlflow
-      namespace: mlflow
-    chart:
-      version: 1.0.0
-      appVersion: 1.0.0
+        externalAuthSecret:
+          name: "eso-generated-auth-secret"
+          key: "custom_auth.ini"
     asserts:
-      - matchSnapshot: { }
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env[?(@.name == "MLFLOW_AUTH_CONFIG_PATH")].value
+          value: "/etc/mlflow/auth/custom_auth.ini"
+        template: deployment.yaml
 
-  - it: should match snapshot with additional values when bitnami mysql is enabled
+  - it: should set correct auth config path environment variable with default external secret key
     set:
       auth:
         enabled: true
-      backendStore:
-        databaseMigration: true
-        databaseConnectionCheck: true
-      mysql:
-        enabled: true
-        auth:
-          database: test-database
-          username: test-user
-          password: test-password
-      podAnnotations:
-        test-key: test-value
-      extraPodLabels:
-        "azure.workload.identity/use": "true"
-      podSecurityContext:
-        fsGroup: 1001
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1001
-      initContainers:
-        - name: init-myservice
-          image: busybox:1.28
-      resources:
-        limits:
-          cpu: 100m
-          memory: 128Mi
-        requests:
-          cpu: 100m
-          memory: 128Mi
-      extraVolumeMounts:
-        - name: mlflow-volume
-          mountPath: /mlflow/data
-        - name: example
-          mountPath: /example
-      extraVolumes:
-        - name: mlflow-volume
-          persistentVolumeClaim:
-            claimName: mlflow-pv-volume
-        - name: example
-          configMap:
-            name: example
-      nodeSelector:
-        disktype: ssd
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: kubernetes.io/e2e-az-name
-                    operator: In
-                    values:
-                      - e2e-az1
-                      - e2e-az2
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 1
-              preference:
-                matchExpressions:
-                  - key: custom-key
-                    operator: In
-                    values:
-                      - custom-value
-      tolerations:
-        - key: "example-key"
-          operator: "Exists"
-          effect: "NoSchedule"
-    release:
-      name: mlflow
-      namespace: mlflow
-    chart:
-      version: 1.0.0
-      appVersion: 1.0.0
+        externalAuthSecret:
+          name: "eso-generated-auth-secret"
+          key: "basic_auth.ini"
     asserts:
-      - matchSnapshot: { }
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env[?(@.name == "MLFLOW_AUTH_CONFIG_PATH")].value
+          value: "/etc/mlflow/auth/basic_auth.ini"
+        template: deployment.yaml
+
+  - it: should set correct auth config path environment variable with helm-generated secret
+    set:
+      auth:
+        enabled: true
+        adminUsername: "admin"
+        adminPassword: "thisisnotasecret"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env[?(@.name == "MLFLOW_AUTH_CONFIG_PATH")].value
+          value: "/etc/mlflow/auth/basic_auth.ini"
+        template: deployment.yaml
+
+  - it: should mount external ldap auth secret when configured
+    set:
+      ldapAuth:
+        enabled: true
+        uri: "ldap://lldap:3890/dc=mlflow,dc=test"
+        lookupBind: "uid=%s,ou=people,dc=mlflow,dc=test"
+        groupAttribute: "dn"
+        searchBaseDistinguishedName: "ou=groups,dc=mlflow,dc=test"
+        searchFilter: "(&(objectclass=groupOfUniqueNames)(uniquemember=%s))"
+        adminGroupDistinguishedName: "cn=test-admin,ou=groups,dc=mlflow,dc=test"
+        userGroupDistinguishedName: "cn=test-user,ou=groups,dc=mlflow,dc=test"
+      auth:
+        externalAuthSecret:
+          name: "eso-ldap-auth-secret"
+          key: "ldap_basic_auth.ini"
+    asserts:
+      - equal:
+          path: spec.template.spec.volumes[?(@.name == "auth-config-secret")].secret.secretName
+          value: "eso-ldap-auth-secret"
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.volumes[?(@.name == "auth-config-secret")].secret.items[0].key
+          value: "ldap_basic_auth.ini"
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.volumes[?(@.name == "auth-config-secret")].secret.items[0].path
+          value: "ldap_basic_auth.ini"
+        template: deployment.yaml

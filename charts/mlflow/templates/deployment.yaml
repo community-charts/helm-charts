@@ -425,7 +425,7 @@ spec:
         {{- if or .Values.auth.enabled .Values.ldapAuth.enabled }}
         - name: auth-config-secret
           secret:
-            {{- if and .Values.auth.enabled .Values.auth.externalAuthSecret.name }}
+            {{- if and (or .Values.auth.enabled .Values.ldapAuth.enabled) .Values.auth.externalAuthSecret.name }}
             # Use externally managed secret (e.g., created by ESO)
             secretName: {{ .Values.auth.externalAuthSecret.name }}
             items:
