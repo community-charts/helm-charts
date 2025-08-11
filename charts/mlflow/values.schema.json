@@ -1439,6 +1439,29 @@
           "required": ["name", "usernameKey", "passwordKey"],
           "title": "existingAdminSecret"
         },
+        "externalAuthSecret": {
+          "additionalProperties": false,
+          "type": "object",
+          "description": "Specifies if you want to use an existing externally managed auth secret (e.g., created by ESO). If it's set, the Helm chart will reference this secret instead of creating its own.",
+          "properties": {
+            "name": {
+              "default": "",
+              "description": "The name of the existing externally managed auth secret",
+              "required": [],
+              "title": "name",
+              "type": "string"
+            },
+            "key": {
+              "default": "basic_auth.ini",
+              "description": "The key within the secret containing the auth config file",
+              "required": [],
+              "title": "key",
+              "type": "string"
+            }
+          },
+          "required": ["name", "key"],
+          "title": "externalAuthSecret"
+        },
         "defaultPermission": {
           "default": "READ",
           "required": [],
@@ -1578,6 +1601,7 @@
         "adminUsername",
         "adminPassword",
         "existingAdminSecret",
+        "externalAuthSecret",
         "defaultPermission",
         "appName",
         "authorizationFunction",

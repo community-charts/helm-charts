@@ -279,7 +279,11 @@ spec:
               value: {{ .Values.image.tag | default .Chart.AppVersion | quote }}
           {{- if .Values.auth.enabled }}
             - name: MLFLOW_AUTH_CONFIG_PATH
+              {{- if .Values.auth.externalAuthSecret.name }}
+              value: {{ printf "%s/%s" (.Values.auth.configPath | trimSuffix "/") .Values.auth.externalAuthSecret.key }}
+              {{- else }}
               value: {{ printf "%s/%s" (.Values.auth.configPath | trimSuffix "/") (default "basic_auth.ini" (.Values.auth.configFile | trimPrefix "/")) }}
+              {{- end }}
           {{- else if .Values.ldapAuth.enabled }}
             - name: MLFLOW_AUTH_CONFIG_PATH
               value: "/etc/mlflow/auth/ldap_basic_auth.ini"
@@ -421,12 +425,21 @@ spec:
         {{- if or .Values.auth.enabled .Values.ldapAuth.enabled }}
         - name: auth-config-secret
           secret:
+            {{- if and .Values.auth.enabled .Values.auth.externalAuthSecret.name }}
+            # Use externally managed secret (e.g., created by ESO)
+            secretName: {{ .Values.auth.externalAuthSecret.name }}
+            items:
+              - key: {{ .Values.auth.externalAuthSecret.key }}
+                path: {{ .Values.auth.externalAuthSecret.key }}
+            {{- else }}
+            # Use Helm-generated secret
             secretName: {{ template "mlflow.fullname" . }}-auth-config-secret
-          {{- if or .Values.ldapAuth.encodedTrustedCACertificate .Values.ldapAuth.externalSecretForTrustedCACertificate }}
+            {{- end }}
+        {{- if or .Values.ldapAuth.encodedTrustedCACertificate .Values.ldapAuth.externalSecretForTrustedCACertificate }}
         - name: trusted-ca-cert-secret
           secret:
             secretName: {{ default (printf "%s-trusted-ca-cert-secret" (include "mlflow.fullname" .)) .Values.ldapAuth.externalSecretForTrustedCACertificate }}
-          {{- end }}
+        {{- end }}
         {{- end }}
       {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}

@@ -148,6 +148,7 @@ backendStore:
     # -- The key of the password in the existing database secret.
     passwordKey: "password"
 
+
 # -- Bitnami PostgreSQL configuration. For more information checkout: https://github.com/bitnami/charts/tree/main/bitnami/postgresql
 postgresql:
   # -- Enable postgresql
@@ -237,6 +238,7 @@ artifactRoot:
       # -- This is for setting up the key for AWS_SECRET_ACCESS_KEY secret. If it's set, awsSecretAccessKey will be ignored.
       keyOfSecretAccessKey: ""
 
+
   # -- Specifies if you want to use Google Cloud Storage Mlflow Artifact Root
   gcs:
     # -- Specifies if you want to use Google Cloud Storage Mlflow Artifact Root
@@ -265,6 +267,12 @@ auth:
     usernameKey: "username"
     # -- The key of the admin password in the existing admin credentials secret.
     passwordKey: "password"
+  # -- Specifies if you want to use an existing externally managed auth secret (e.g., created by ESO). If it's set, the Helm chart will reference this secret instead of creating its own.
+  externalAuthSecret:
+    # -- The name of the existing externally managed auth secret
+    name: ""
+    # -- The key within the secret containing the auth config file
+    key: "basic_auth.ini"
   # -- Default permission for all users. More details: https://mlflow.org/docs/latest/auth/index.html#permissions
   defaultPermission: READ
   # -- Default registered authentication app name. If you want to use your custom authentication function, please look at: https://mlflow.org/docs/latest/auth/index.html#custom-authentication
@@ -303,6 +311,7 @@ auth:
       usernameKey: "username"
       # -- The key of the password in the existing database secret.
       passwordKey: "password"
+
 
 # -- Basic Authentication with LDAP backend
 ldapAuth:
