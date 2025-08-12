@@ -78,7 +78,9 @@ service:
   # -- This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
   type: ClusterIP
   # -- This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
-  port: 5000
+  port: 80
+  # -- The port that the MLFlow container listens on
+  targetPort: 5000
   # -- Default Service name
   name: http
   # -- Additional service annotations

@@ -1174,6 +1174,13 @@
           "title": "port",
           "type": "integer"
         },
+        "targetPort": {
+          "default": 5000,
+          "description": "The port that the MLFlow container listens on",
+          "required": [],
+          "title": "targetPort",
+          "type": "integer"
+        },
         "type": {
           "default": "ClusterIP",
           "description": "Specifies what type of Service should be created",

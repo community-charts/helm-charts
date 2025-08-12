@@ -219,7 +219,7 @@ spec:
           args:
             - server
             - --host=0.0.0.0
-            - --port={{ .Values.service.port }}
+            - --port={{ .Values.service.targetPort | default .Values.service.port }}
           {{- if or .Values.backendStore.postgres.enabled .Values.postgresql.enabled }}
             - --backend-store-uri=postgresql{{ $dbConnectionDriver }}://
           {{- else if or .Values.backendStore.mysql.enabled .Values.mysql.enabled }}
@@ -256,7 +256,7 @@ spec:
           {{- end }}
           ports:
             - name: {{ .Values.service.name }}
-              containerPort: {{ .Values.service.port }}
+              containerPort: {{ .Values.service.targetPort | default .Values.service.port }}
               protocol: TCP
           livenessProbe:
             httpGet:
