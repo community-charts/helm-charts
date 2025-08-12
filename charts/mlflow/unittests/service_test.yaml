@@ -6,13 +6,14 @@ templates:
 tests:
   - it: should use different port number when we change it
     set:
-      service.port: 80
+      service.port: 8080
+      service.targetPort: 8080
     asserts:
       - contains:
           path: spec.ports
           content:
-            port: 80
-            targetPort: 80
+            port: 8080
+            targetPort: 8080
           any: true
 
   - it: should use different port name when we change it
