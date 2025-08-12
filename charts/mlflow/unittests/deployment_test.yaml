@@ -910,15 +910,16 @@ tests:
 
   - it: should use different port number when we change it
     set:
-      service.port: 80
+      service.port: 8080
+      service.targetPort: 8080
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
-          content: --port=80
+          content: --port=8080
         template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "mlflow")].ports[0].containerPort
-          value: 80
+          value: 8080
         template: deployment.yaml
 
   - it: should use different port name when we change it
