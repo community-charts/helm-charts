@@ -880,7 +880,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
           content:
             name: pg-ssl-ca
-            mountPath: /home/node/certs
+            mountPath: /home/node/certs/ca/ca.crt
             subPath: ca.crt
             readOnly: true
           any: true
@@ -912,7 +912,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
           content:
             name: pg-ssl-ca
-            mountPath: /home/node/certs
+            mountPath: /home/node/certs/ca/ca.crt
             subPath: ca.crt
             readOnly: true
           any: true
@@ -942,7 +942,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
           content:
             name: pg-ssl-cert
-            mountPath: /home/node/certs
+            mountPath: /home/node/certs/cert/cert.crt
             subPath: cert.crt
             readOnly: true
           any: true
@@ -974,7 +974,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
           content:
             name: pg-ssl-cert
-            mountPath: /home/node/certs
+            mountPath: /home/node/certs/cert/cert.crt
             subPath: cert.crt
             readOnly: true
           any: true
@@ -1004,7 +1004,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
           content:
             name: pg-ssl-key
-            mountPath: /home/node/certs
+            mountPath: /home/node/certs/key/cert.key
             subPath: cert.key
             readOnly: true
           any: true
@@ -1036,7 +1036,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
           content:
             name: pg-ssl-key
-            mountPath: /home/node/certs
+            mountPath: /home/node/certs/key/cert.key
             subPath: cert.key
             readOnly: true
           any: true

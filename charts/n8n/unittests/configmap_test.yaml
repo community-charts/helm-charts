@@ -196,7 +196,7 @@ tests:
     asserts:
       - equal:
           path: data.DB_POSTGRESDB_SSL_CA
-          value: /home/node/certs/ca.crt
+          value: /home/node/certs/ca/ca.crt
 
   - it: should set postgresql ssl CA certificate when ssl enabled and existingCertificateAuthorityFileSecret.name is set
     set:
@@ -213,7 +213,7 @@ tests:
     asserts:
       - equal:
           path: data.DB_POSTGRESDB_SSL_CA
-          value: /home/node/certs/ca.crt
+          value: /home/node/certs/ca/ca.crt
 
   - it: should set postgresql ssl certificate when ssl enabled and base64EncodedCertFile is set
     set:
@@ -229,7 +229,7 @@ tests:
     asserts:
       - equal:
           path: data.DB_POSTGRESDB_SSL_CERT
-          value: /home/node/certs/cert.crt
+          value: /home/node/certs/cert/cert.crt
 
   - it: should set postgresql ssl certificate when ssl enabled and existingCertFileSecret.name is set
     set:
@@ -246,7 +246,7 @@ tests:
     asserts:
       - equal:
           path: data.DB_POSTGRESDB_SSL_CERT
-          value: /home/node/certs/cert.crt
+          value: /home/node/certs/cert/cert.crt
 
   - it: should set postgresql ssl certificate private key when ssl enabled and base64EncodedPrivateKeyFile is set
     set:
@@ -262,7 +262,7 @@ tests:
     asserts:
       - equal:
           path: data.DB_POSTGRESDB_SSL_KEY
-          value: /home/node/certs/cert.key
+          value: /home/node/certs/key/cert.key
 
   - it: should set postgresql ssl certificate private key when ssl enabled and existingPrivateKeyFileSecret.name is set
     set:
@@ -279,7 +279,7 @@ tests:
     asserts:
       - equal:
           path: data.DB_POSTGRESDB_SSL_KEY
-          value: /home/node/certs/cert.key
+          value: /home/node/certs/key/cert.key
 
   - it: should set vacum on startup when db type set to sqlite
     set:

@@ -200,19 +200,19 @@ spec:
           {{- end }}
           {{- if eq (include "n8n.postgres.ssl.hasCA" .) "true" }}
             - name: pg-ssl-ca
-              mountPath: /home/node/certs
+              mountPath: /home/node/certs/ca/ca.crt
               subPath: ca.crt
               readOnly: true
           {{- end }}
           {{- if eq (include "n8n.postgres.ssl.hasCert" .) "true" }}
             - name: pg-ssl-cert
-              mountPath: /home/node/certs
+              mountPath: /home/node/certs/cert/cert.crt
               subPath: cert.crt
               readOnly: true
           {{- end }}
           {{- if eq (include "n8n.postgres.ssl.hasKey" .) "true" }}
             - name: pg-ssl-key
-              mountPath: /home/node/certs
+              mountPath: /home/node/certs/key/cert.key
               subPath: cert.key
               readOnly: true
           {{- end }}

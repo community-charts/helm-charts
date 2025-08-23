@@ -1028,7 +1028,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
           content:
             name: pg-ssl-ca
-            mountPath: /home/node/certs
+            mountPath: /home/node/certs/ca/ca.crt
             subPath: ca.crt
             readOnly: true
           any: true
@@ -1060,7 +1060,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
           content:
             name: pg-ssl-ca
-            mountPath: /home/node/certs
+            mountPath: /home/node/certs/ca/ca.crt
             subPath: ca.crt
             readOnly: true
           any: true
@@ -1090,7 +1090,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
           content:
             name: pg-ssl-cert
-            mountPath: /home/node/certs
+            mountPath: /home/node/certs/cert/cert.crt
             subPath: cert.crt
             readOnly: true
           any: true
@@ -1122,7 +1122,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
           content:
             name: pg-ssl-cert
-            mountPath: /home/node/certs
+            mountPath: /home/node/certs/cert/cert.crt
             subPath: cert.crt
             readOnly: true
           any: true
@@ -1152,7 +1152,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
           content:
             name: pg-ssl-key
-            mountPath: /home/node/certs
+            mountPath: /home/node/certs/key/cert.key
             subPath: cert.key
             readOnly: true
           any: true
@@ -1184,7 +1184,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
           content:
             name: pg-ssl-key
-            mountPath: /home/node/certs
+            mountPath: /home/node/certs/key/cert.key
             subPath: cert.key
             readOnly: true
           any: true
@@ -2143,5 +2143,31 @@ tests:
         persistence:
           enabled: true
           accessMode: ReadWriteMany
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should match snapshot of postgres ssl certificate values
+    release:
+      name: n8n
+      namespace: n8n
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    set:
+      encryptionKey: "test-encryption-key"
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+            existingCertificateAuthorityFileSecret:
+              name: my-ca-cert-secret
+              key: root.crt
+            existingCertFileSecret:
+              name: my-client-cert-secret
+              key: client.crt
+            existingPrivateKeyFileSecret:
+              name: my-client-cert-private-key-secret
+              key: client.key
     asserts:
       - matchSnapshot: { }
