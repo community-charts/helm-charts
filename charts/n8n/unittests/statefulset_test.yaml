@@ -1944,3 +1944,29 @@ tests:
       encryptionKey: "test-encryption-key"
     asserts:
       - matchSnapshot: { }
+
+  - it: should match snapshot of postgres ssl certificate values
+    release:
+      name: n8n
+      namespace: n8n
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    set:
+      encryptionKey: "test-encryption-key"
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+            existingCertificateAuthorityFileSecret:
+              name: my-ca-cert-secret
+              key: root.crt
+            existingCertFileSecret:
+              name: my-client-cert-secret
+              key: client.crt
+            existingPrivateKeyFileSecret:
+              name: my-client-cert-private-key-secret
+              key: client.key
+    asserts:
+      - matchSnapshot: { }
