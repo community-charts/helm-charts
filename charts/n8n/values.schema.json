@@ -197,6 +197,158 @@
           "title": "sqlite",
           "type": "object"
         },
+        "postgresdb": {
+          "additionalProperties": false,
+          "properties": {
+            "poolSize": {
+              "default": 2,
+              "description": "Control how many parallel open Postgres connections n8n should have. Increasing it may help with resource utilization, but too many connections may degrade performance.",
+              "required": [],
+              "title": "poolSize",
+              "type": "integer",
+              "minimum": 1
+            },
+            "connectionTimeout": {
+              "default": 20000,
+              "description": "Postgres connection timeout (ms).",
+              "required": [],
+              "title": "connectionTimeout",
+              "type": "integer",
+              "minimum": 1000
+            },
+            "idleConnectionTimeout": {
+              "default": 30000,
+              "description": "Amount of time before an idle connection is eligible for eviction for being idle.",
+              "required": [],
+              "title": "idleConnectionTimeout",
+              "type": "integer",
+              "minimum": 1000
+            },
+            "schema": {
+              "default": "public",
+              "description": "The PostgreSQL schema.",
+              "required": [],
+              "title": "schema",
+              "type": "string"
+            },
+            "ssl": {
+              "additionalProperties": false,
+              "description": "The PostgreSQL connection SSL settings. Find more information from here: https://docs.n8n.io/hosting/configuration/supported-databases-settings/#postgresdb",
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "description": "Whether to enable SSL.",
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "base64EncodedCertificateAuthorityFile": {
+                  "default": "",
+                  "description": "The PostgreSQL base64 encoded version of SSL certificate authority file content.",
+                  "required": [],
+                  "title": "base64EncodedCertificateAuthorityFile",
+                  "type": "string"
+                },
+                "base64EncodedCertFile": {
+                  "default": "",
+                  "description": "The PostgreSQL base64 encoded version of SSL certificate file content.",
+                  "required": [],
+                  "title": "base64EncodedCertFile",
+                  "type": "string"
+                },
+                "base64EncodedPrivateKeyFile": {
+                  "default": "",
+                  "description": "The PostgreSQL base64 encoded version of SSL private key file content.",
+                  "required": [],
+                  "title": "base64EncodedPrivateKeyFile",
+                  "type": "string"
+                },
+                "existingCertificateAuthorityFileSecret": {
+                  "additionalProperties": false,
+                  "description": "The PostgreSQL existing certificate authority file secret.",
+                  "properties": {
+                    "name": {
+                      "default": "",
+                      "description": "The name of the existing secret.",
+                      "required": [],
+                      "title": "name",
+                      "type": "string"
+                    },
+                    "key": {
+                      "default": "",
+                      "description": "The key of the certificate authority file in the existing secret.",
+                      "required": [],
+                      "title": "key",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["name", "key"],
+                  "title": "existingCertificateAuthorityFileSecret",
+                  "type": "object"
+                },
+                "existingCertFileSecret": {
+                  "additionalProperties": false,
+                  "description": "The PostgreSQL existing certificate file secret.",
+                  "properties": {
+                    "name": {
+                      "default": "",
+                      "description": "The name of the existing secret.",
+                      "required": [],
+                      "title": "name",
+                      "type": "string"
+                    },
+                    "key": {
+                      "default": "",
+                      "description": "The key of the certificate file in the existing secret.",
+                      "required": [],
+                      "title": "key",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["name", "key"],
+                  "title": "existingCertFileSecret",
+                  "type": "object"
+                },
+                "existingPrivateKeyFileSecret": {
+                  "additionalProperties": false,
+                  "description": "The PostgreSQL existing SSL private key file secret.",
+                  "properties": {
+                    "name": {
+                      "default": "",
+                      "description": "The name of the existing secret.",
+                      "required": [],
+                      "title": "name",
+                      "type": "string"
+                    },
+                    "key": {
+                      "default": "",
+                      "description": "The key of the SSL private key in the existing secret.",
+                      "required": [],
+                      "title": "key",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["name", "key"],
+                  "title": "existingPrivateKeySecret",
+                  "type": "object"
+                },
+                "rejectUnauthorized": {
+                  "default": true,
+                  "description": "If n8n should reject unauthorized SSL connections (true) or not (false).",
+                  "required": [],
+                  "title": "rejectUnauthorized",
+                  "type": "boolean"
+                }
+              },
+              "required": ["enabled", "base64EncodedCertificateAuthorityFile", "base64EncodedCertFile", "base64EncodedPrivateKeyFile", "existingCertificateAuthorityFileSecret", "existingCertFileSecret", "existingPrivateKeyFileSecret", "rejectUnauthorized"],
+              "title": "ssl",
+              "type": "object"
+            }
+          },
+          "required": ["poolSize", "connectionTimeout", "idleConnectionTimeout", "schema", "ssl"],
+          "title": "postgresdb",
+          "type": "object"
+        },
         "tablePrefix": {
           "default": "",
           "description": "Prefix to use for table names.",
@@ -213,7 +365,7 @@
           "enum": ["sqlite", "postgresdb"]
         }
       },
-      "required": ["tablePrefix", "type", "logging", "sqlite"],
+      "required": ["tablePrefix", "type", "logging", "sqlite", "postgresdb"],
       "title": "db",
       "type": "object"
     },
@@ -1049,6 +1201,13 @@
           "minimum": 0,
           "type": "integer"
         },
+        "editorBaseUrl": {
+          "default": "",
+          "description": "Editor based URL. If it's not defined and ingress definition exists, ingress host will be used.",
+          "required": [],
+          "title": "editorBaseUrl",
+          "type": "string"
+        },
         "pdb": {
           "additionalProperties": false,
           "description": "PodDisruptionBudget configuration for the main node",
@@ -1403,7 +1562,7 @@
           "type": "string"
         }
       },
-      "required": ["count", "resources", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers", "affinity", "hostAliases", "runtimeClassName"],
+      "required": ["count", "editorBaseUrl", "resources", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers", "affinity", "hostAliases", "runtimeClassName"],
       "title": "main",
       "type": "object"
     },

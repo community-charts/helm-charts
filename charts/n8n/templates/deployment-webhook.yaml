@@ -195,15 +195,61 @@ spec:
             - secretRef:
                 name: {{ . }}
           {{- end }}
-          {{- with (default .Values.volumeMounts .Values.webhook.volumeMounts) }}
+          {{- if eq (include "n8n.webhook.hasVolumeMounts" .) "true" }}
           volumeMounts:
+          {{- end }}
+          {{- if eq (include "n8n.postgres.ssl.hasCA" .) "true" }}
+            - name: pg-ssl-ca
+              mountPath: /home/node/certs
+              subPath: ca.crt
+              readOnly: true
+          {{- end }}
+          {{- if eq (include "n8n.postgres.ssl.hasCert" .) "true" }}
+            - name: pg-ssl-cert
+              mountPath: /home/node/certs
+              subPath: cert.crt
+              readOnly: true
+          {{- end }}
+          {{- if eq (include "n8n.postgres.ssl.hasKey" .) "true" }}
+            - name: pg-ssl-key
+              mountPath: /home/node/certs
+              subPath: cert.key
+              readOnly: true
+          {{- end }}
+          {{- with (default .Values.volumeMounts .Values.webhook.volumeMounts) }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
       {{- with .Values.webhook.extraContainers }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with (default .Values.volumes .Values.webhook.volumes) }}
+      {{- if eq (include "n8n.webhook.hasVolumes" .) "true" }}
       volumes:
+      {{- end }}
+      {{- if eq (include "n8n.postgres.ssl.hasCA" .) "true" }}
+        - name: pg-ssl-ca
+          secret:
+            secretName: {{ default (printf "%s-pg-ssl-ca" (include "n8n.fullname" .)) .Values.db.postgresdb.ssl.existingCertificateAuthorityFileSecret.name }}
+            items:
+              - key: {{ default "ca.crt" .Values.db.postgresdb.ssl.existingCertificateAuthorityFileSecret.key }}
+                path: ca.crt
+      {{- end }}
+      {{- if eq (include "n8n.postgres.ssl.hasCert" .) "true" }}
+        - name: pg-ssl-cert
+          secret:
+            secretName: {{ default (printf "%s-pg-ssl-cert" (include "n8n.fullname" .)) .Values.db.postgresdb.ssl.existingCertFileSecret.name }}
+            items:
+              - key: {{ default "cert.crt" .Values.db.postgresdb.ssl.existingCertFileSecret.key }}
+                path: cert.crt
+      {{- end }}
+      {{- if eq (include "n8n.postgres.ssl.hasKey" .) "true" }}
+        - name: pg-ssl-key
+          secret:
+            secretName: {{ default (printf "%s-pg-ssl-key" (include "n8n.fullname" .)) .Values.db.postgresdb.ssl.existingPrivateKeyFileSecret.name }}
+            items:
+              - key: {{ default "cert.key" .Values.db.postgresdb.ssl.existingPrivateKeyFileSecret.key }}
+                path: cert.key
+      {{- end }}
+      {{- with (default .Values.volumes .Values.webhook.volumes) }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.nodeSelector }}

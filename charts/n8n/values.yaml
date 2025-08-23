@@ -197,6 +197,46 @@ db:
     # -- Runs VACUUM operation on startup to rebuild the database. Reduces file size and optimizes indexes. This is a long running blocking operation and increases start-up time.
     vacuum: false
 
+  postgresdb:
+    # -- Control how many parallel open Postgres connections n8n should have. Increasing it may help with resource utilization, but too many connections may degrade performance.
+    poolSize: 2
+    # -- Postgres connection timeout (ms).
+    connectionTimeout: 20000
+    # -- Amount of time before an idle connection is eligible for eviction for being idle.
+    idleConnectionTimeout: 30000
+    # -- The PostgreSQL schema.
+    schema: public
+    # -- The PostgreSQL connection SSL settings. Find more information from here: https://docs.n8n.io/hosting/configuration/supported-databases-settings/#postgresdb
+    ssl:
+      # -- Whether to enable SSL.
+      enabled: false
+      # -- The PostgreSQL base64 encoded version of SSL certificate authority file content.
+      base64EncodedCertificateAuthorityFile: ""
+      # -- The PostgreSQL base64 encoded version of SSL certificate file content.
+      base64EncodedCertFile: ""
+      # -- The PostgreSQL base64 encoded version of SSL private key file content.
+      base64EncodedPrivateKeyFile: ""
+      # -- The PostgreSQL existing certificate authority file secret.
+      existingCertificateAuthorityFileSecret:
+        # -- The name of the existing secret.
+        name: ""
+        # -- The key of the certificate authority file in the existing secret.
+        key: "ca.crt"
+      # -- The PostgreSQL existing certificate file secret.
+      existingCertFileSecret:
+        # -- The name of the existing secret.
+        name: ""
+        # -- The key of the certificate file in the existing secret.
+        key: "cert.crt"
+      # -- The PostgreSQL existing SSL private key file secret.
+      existingPrivateKeyFileSecret:
+        # -- The name of the existing secret.
+        name: ""
+        # -- The key of the SSL private key file in the existing secret.
+        key: "cert.key"
+      # -- If n8n should reject unauthorized SSL connections (true) or not (false).
+      rejectUnauthorized: true
+
 sentry:
   # -- Whether sentry is enabled.
   enabled: false
@@ -262,6 +302,9 @@ license:
 main:
   # -- Number of main nodes. Only enterprise license users can have one leader main node and mutiple follower main nodes.
   count: 1
+
+  # -- Editor based URL. If it's not defined and ingress definition exists, ingress host will be used.
+  editorBaseUrl: ""
 
   # -- Whether to enable the PodDisruptionBudget for the main pod.
   pdb:

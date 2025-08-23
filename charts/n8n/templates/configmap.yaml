@@ -22,6 +22,22 @@ data:
   DB_POSTGRESDB_PORT: {{ .Values.externalPostgresql.port | quote }}
   DB_POSTGRESDB_DATABASE: {{ .Values.externalPostgresql.database | quote }}
   {{- end }}
+  DB_POSTGRESDB_POOL_SIZE: {{ .Values.db.postgresdb.poolSize | quote }}
+  DB_POSTGRESDB_CONNECTION_TIMEOUT: {{ .Values.db.postgresdb.connectionTimeout | quote }}
+  DB_POSTGRESDB_IDLE_CONNECTION_TIMEOUT: {{ .Values.db.postgresdb.idleConnectionTimeout | quote }}
+  DB_POSTGRESDB_SCHEMA: {{ .Values.db.postgresdb.schema | quote }}
+  {{- if .Values.db.postgresdb.ssl.enabled }}
+  DB_POSTGRESDB_SSL_ENABLED: {{ .Values.db.postgresdb.ssl.enabled | quote }}
+  {{- if eq (include "n8n.postgres.ssl.hasCA" .) "true" }}
+  DB_POSTGRESDB_SSL_CA: "/home/node/certs/ca.crt"
+  {{- end }}
+  {{- if eq (include "n8n.postgres.ssl.hasCert" .) "true" }}
+  DB_POSTGRESDB_SSL_CERT: "/home/node/certs/cert.crt"
+  {{- end }}
+  {{- if eq (include "n8n.postgres.ssl.hasKey" .) "true" }}
+  DB_POSTGRESDB_SSL_KEY: "/home/node/certs/cert.key"
+  {{- end }}
+  {{- end }}
 {{- else }}
   DB_TYPE: {{ .Values.db.type | default "sqlite" }}
   DB_SQLITE_VACUUM_ON_STARTUP: {{ .Values.db.sqlite.vacuum | quote }}

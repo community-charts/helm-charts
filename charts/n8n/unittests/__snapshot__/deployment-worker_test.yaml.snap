@@ -2,9 +2,13 @@ should match snapshot of default values:
   1: |
     apiVersion: v1
     data:
+      DB_POSTGRESDB_CONNECTION_TIMEOUT: "20000"
       DB_POSTGRESDB_DATABASE: n8n
       DB_POSTGRESDB_HOST: ""
+      DB_POSTGRESDB_IDLE_CONNECTION_TIMEOUT: "30000"
+      DB_POSTGRESDB_POOL_SIZE: "2"
       DB_POSTGRESDB_PORT: "5432"
+      DB_POSTGRESDB_SCHEMA: public
       DB_TYPE: postgresdb
     kind: ConfigMap
     metadata:
@@ -178,7 +182,7 @@ should match snapshot of default values:
       template:
         metadata:
           annotations:
-            checksum/config: 8391c025e9f54ccd7f6f9ac529b627ac11ee82a53e72db3fee35c24e152f4852
+            checksum/config: 92da6feba0666840984235605d10d1c4d33bdaeaabf3916e6c470897f1a10b3a
           labels:
             app.kubernetes.io/component: worker
             app.kubernetes.io/instance: n8n
@@ -344,9 +348,13 @@ should match snapshot of worker persistence:
   1: |
     apiVersion: v1
     data:
+      DB_POSTGRESDB_CONNECTION_TIMEOUT: "20000"
       DB_POSTGRESDB_DATABASE: n8n
       DB_POSTGRESDB_HOST: ""
+      DB_POSTGRESDB_IDLE_CONNECTION_TIMEOUT: "30000"
+      DB_POSTGRESDB_POOL_SIZE: "2"
       DB_POSTGRESDB_PORT: "5432"
+      DB_POSTGRESDB_SCHEMA: public
       DB_TYPE: postgresdb
     kind: ConfigMap
     metadata:
@@ -520,7 +528,7 @@ should match snapshot of worker persistence:
       template:
         metadata:
           annotations:
-            checksum/config: 8391c025e9f54ccd7f6f9ac529b627ac11ee82a53e72db3fee35c24e152f4852
+            checksum/config: 92da6feba0666840984235605d10d1c4d33bdaeaabf3916e6c470897f1a10b3a
           labels:
             app.kubernetes.io/component: worker
             app.kubernetes.io/instance: n8n

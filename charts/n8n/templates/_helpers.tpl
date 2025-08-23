@@ -410,3 +410,124 @@ else
   rm /npmdata/packages.hash.new
 fi
 {{- end -}}
+
+{{/*
+Check Certificate Authority file defined for the Postgresql SSL connection
+*/}}
+{{- define "n8n.postgres.ssl.hasCA" -}}
+{{- $result := false -}}
+{{- if and (eq .Values.db.type "postgresdb") .Values.db.postgresdb.ssl.enabled (or .Values.db.postgresdb.ssl.base64EncodedCertificateAuthorityFile .Values.db.postgresdb.ssl.existingCertificateAuthorityFileSecret.name) -}}
+  {{- $result = true -}}
+{{- end -}}
+{{- $result -}}
+{{- end -}}
+
+{{/*
+Check Certificate file defined for the Postgresql SSL connection
+*/}}
+{{- define "n8n.postgres.ssl.hasCert" -}}
+{{- $result := false -}}
+{{- if and (eq .Values.db.type "postgresdb") .Values.db.postgresdb.ssl.enabled (or .Values.db.postgresdb.ssl.base64EncodedCertFile .Values.db.postgresdb.ssl.existingCertFileSecret.name) -}}
+  {{- $result = true -}}
+{{- end -}}
+{{- $result -}}
+{{- end -}}
+
+{{/*
+Check Private Key file defined for the Postgresql SSL connection
+*/}}
+{{- define "n8n.postgres.ssl.hasKey" -}}
+{{- $result := false -}}
+{{- if and (eq .Values.db.type "postgresdb") .Values.db.postgresdb.ssl.enabled (or .Values.db.postgresdb.ssl.base64EncodedPrivateKeyFile .Values.db.postgresdb.ssl.existingPrivateKeyFileSecret.name) -}}
+  {{- $result = true -}}
+{{- end -}}
+{{- $result -}}
+{{- end -}}
+
+{{/*
+Check if volumes should be included to main. If the context is not provided, result must be false
+*/}}
+{{- define "n8n.main.hasVolumes" -}}
+{{- $hasVolumes := false -}}
+{{- if or .Values.volumes .Values.main.volumes .Values.nodes.external.packages .Values.npmRegistry.enabled (eq (include "n8n.postgres.ssl.hasCA" .) "true") (eq (include "n8n.postgres.ssl.hasCert" .) "true") (eq (include "n8n.postgres.ssl.hasKey" .) "true") -}}
+  {{- $hasVolumes = true -}}
+{{- end -}}
+{{- $hasVolumes -}}
+{{- end -}}
+
+{{/*
+Check if volumeMounts should be included to main. If the context is not provided, result must be false
+*/}}
+{{- define "n8n.main.hasVolumeMounts" -}}
+{{- $hasVolumeMounts := false -}}
+{{- if or .Values.volumeMounts .Values.main.volumeMounts .Values.nodes.external.packages .Values.npmRegistry.enabled (eq (include "n8n.postgres.ssl.hasCA" .) "true") (eq (include "n8n.postgres.ssl.hasCert" .) "true") (eq (include "n8n.postgres.ssl.hasKey" .) "true") -}}
+  {{- $hasVolumeMounts = true -}}
+{{- end -}}
+{{- $hasVolumeMounts -}}
+{{- end -}}
+
+{{/*
+Check if volumes should be included to worker. If the context is not provided, result must be false
+*/}}
+{{- define "n8n.worker.hasVolumes" -}}
+{{- $hasVolumes := false -}}
+{{- if or .Values.volumes .Values.worker.volumes .Values.nodes.external.packages .Values.npmRegistry.enabled (eq (include "n8n.postgres.ssl.hasCA" .) "true") (eq (include "n8n.postgres.ssl.hasCert" .) "true") (eq (include "n8n.postgres.ssl.hasKey" .) "true") -}}
+  {{- $hasVolumes = true -}}
+{{- end -}}
+{{- $hasVolumes -}}
+{{- end -}}
+
+{{/*
+Check if volumeMounts should be included to worker. If the context is not provided, result must be false
+*/}}
+{{- define "n8n.worker.hasVolumeMounts" -}}
+{{- $hasVolumeMounts := false -}}
+{{- if or .Values.volumeMounts .Values.worker.volumeMounts .Values.nodes.external.packages .Values.npmRegistry.enabled (eq (include "n8n.postgres.ssl.hasCA" .) "true") (eq (include "n8n.postgres.ssl.hasCert" .) "true") (eq (include "n8n.postgres.ssl.hasKey" .) "true") -}}
+  {{- $hasVolumeMounts = true -}}
+{{- end -}}
+{{- $hasVolumeMounts -}}
+{{- end -}}
+
+{{/*
+Check if volumes should be included to webhook. If the context is not provided, result must be false
+*/}}
+{{- define "n8n.webhook.hasVolumes" -}}
+{{- $hasVolumes := false -}}
+{{- if or .Values.volumes .Values.webhook.volumes (eq (include "n8n.postgres.ssl.hasCA" .) "true") (eq (include "n8n.postgres.ssl.hasCert" .) "true") (eq (include "n8n.postgres.ssl.hasKey" .) "true") -}}
+  {{- $hasVolumes = true -}}
+{{- end -}}
+{{- $hasVolumes -}}
+{{- end -}}
+
+{{/*
+Check if volumeMounts should be included to webhook. If the context is not provided, result must be false
+*/}}
+{{- define "n8n.webhook.hasVolumeMounts" -}}
+{{- $hasVolumeMounts := false -}}
+{{- if or .Values.volumeMounts .Values.webhook.volumeMounts (eq (include "n8n.postgres.ssl.hasCA" .) "true") (eq (include "n8n.postgres.ssl.hasCert" .) "true") (eq (include "n8n.postgres.ssl.hasKey" .) "true") -}}
+  {{- $hasVolumeMounts = true -}}
+{{- end -}}
+{{- $hasVolumeMounts -}}
+{{- end -}}
+
+{{/*
+Check if volumes should be included to MCP webhook. If the context is not provided, result must be false
+*/}}
+{{- define "n8n.mcp-webhook.hasVolumes" -}}
+{{- $hasVolumes := false -}}
+{{- if or .Values.volumes .Values.webhook.mcp.volumes (eq (include "n8n.postgres.ssl.hasCA" .) "true") (eq (include "n8n.postgres.ssl.hasCert" .) "true") (eq (include "n8n.postgres.ssl.hasKey" .) "true") -}}
+  {{- $hasVolumes = true -}}
+{{- end -}}
+{{- $hasVolumes -}}
+{{- end -}}
+
+{{/*
+Check if volumeMounts should be included to MCP webhook. If the context is not provided, result must be false
+*/}}
+{{- define "n8n.mcp-webhook.hasVolumeMounts" -}}
+{{- $hasVolumeMounts := false -}}
+{{- if or .Values.volumeMounts .Values.webhook.mcp.volumeMounts (eq (include "n8n.postgres.ssl.hasCA" .) "true") (eq (include "n8n.postgres.ssl.hasCert" .) "true") (eq (include "n8n.postgres.ssl.hasKey" .) "true") -}}
+  {{- $hasVolumeMounts = true -}}
+{{- end -}}
+{{- $hasVolumeMounts -}}
+{{- end -}}

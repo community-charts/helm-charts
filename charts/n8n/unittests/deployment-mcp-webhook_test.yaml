@@ -1,4 +1,4 @@
-suite: test deployment-webhook
+suite: test deployment-mcp-webhook
 
 templates:
   - configmap.yaml
@@ -959,6 +959,192 @@ tests:
             secret:
               secretName: mysecret
               optional: false
+        template: deployment-mcp-webhook.yaml
+
+  - it: should set CA certificate volume and volumeMount when db.type postgresdb, postgresdb.ssl.enabled, and postgresdb.ssl.base64EncodedCertificateAuthorityFile are set
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+            base64EncodedCertificateAuthorityFile: Q0EgZmlsZSBjb250ZW50
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].volumeMounts
+          content:
+            name: pg-ssl-ca
+            mountPath: /home/node/certs
+            subPath: ca.crt
+            readOnly: true
+          any: true
+        template: deployment-mcp-webhook.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: pg-ssl-ca
+            secret:
+              secretName: n8n-pg-ssl-ca
+              items:
+                - key: ca.crt
+                  path: ca.crt
+          any: true
+        template: deployment-mcp-webhook.yaml
+
+  - it: should set CA certificate volume and volumeMount when db.type postgresdb, postgresdb.ssl.enabled, and postgresdb.ssl.existingCertificateAuthorityFileSecret.name are set
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+            existingCertificateAuthorityFileSecret:
+              name: ca-cert-secret
+              key: root.cert
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].volumeMounts
+          content:
+            name: pg-ssl-ca
+            mountPath: /home/node/certs
+            subPath: ca.crt
+            readOnly: true
+          any: true
+        template: deployment-mcp-webhook.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: pg-ssl-ca
+            secret:
+              secretName: ca-cert-secret
+              items:
+                - key: root.cert
+                  path: ca.crt
+          any: true
+        template: deployment-mcp-webhook.yaml
+
+  - it: should set certificate volume and volumeMount when db.type postgresdb, postgresdb.ssl.enabled, and postgresdb.ssl.base64EncodedCertFile are set
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+            base64EncodedCertFile: Y2VydGlmaWNhdGUgZmlsZSBjb250ZW50
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].volumeMounts
+          content:
+            name: pg-ssl-cert
+            mountPath: /home/node/certs
+            subPath: cert.crt
+            readOnly: true
+          any: true
+        template: deployment-mcp-webhook.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: pg-ssl-cert
+            secret:
+              secretName: n8n-pg-ssl-cert
+              items:
+                - key: cert.crt
+                  path: cert.crt
+          any: true
+        template: deployment-mcp-webhook.yaml
+
+  - it: should set certificate volume and volumeMount when db.type postgresdb, postgresdb.ssl.enabled, and postgresdb.ssl.existingCertFileSecret.name are set
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+            existingCertFileSecret:
+              name: my-cert-secret
+              key: client.cert
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].volumeMounts
+          content:
+            name: pg-ssl-cert
+            mountPath: /home/node/certs
+            subPath: cert.crt
+            readOnly: true
+          any: true
+        template: deployment-mcp-webhook.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: pg-ssl-cert
+            secret:
+              secretName: my-cert-secret
+              items:
+                - key: client.cert
+                  path: cert.crt
+          any: true
+        template: deployment-mcp-webhook.yaml
+
+  - it: should set certificate private key volume and volumeMount when db.type postgresdb, postgresdb.ssl.enabled, and postgresdb.ssl.base64EncodedPrivateKeyFile are set
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+            base64EncodedPrivateKeyFile: Y2VydGlmaWNhdGUgcHJpdmF0ZSBrZXkgZmlsZSBjb250ZW50
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].volumeMounts
+          content:
+            name: pg-ssl-key
+            mountPath: /home/node/certs
+            subPath: cert.key
+            readOnly: true
+          any: true
+        template: deployment-mcp-webhook.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: pg-ssl-key
+            secret:
+              secretName: n8n-pg-ssl-key
+              items:
+                - key: cert.key
+                  path: cert.key
+          any: true
+        template: deployment-mcp-webhook.yaml
+
+  - it: should set certificate private key volume and volumeMount when db.type postgresdb, postgresdb.ssl.enabled, and postgresdb.ssl.existingPrivateKeyFileSecret.name are set
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+            existingPrivateKeyFileSecret:
+              name: my-cert-private-key-secret
+              key: client.key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].volumeMounts
+          content:
+            name: pg-ssl-key
+            mountPath: /home/node/certs
+            subPath: cert.key
+            readOnly: true
+          any: true
+        template: deployment-mcp-webhook.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: pg-ssl-key
+            secret:
+              secretName: my-cert-private-key-secret
+              items:
+                - key: client.key
+                  path: cert.key
+          any: true
         template: deployment-mcp-webhook.yaml
 
   - it: should set node selector when nodeSelector is set

@@ -141,6 +141,146 @@ tests:
           path: data.DB_POSTGRESDB_DATABASE
           value: external_database
 
+  - it: should set postgresql connection settings when poolSize, connectionTimeout, idleConnectionTimeout, and schema are set
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          poolSize: 2
+          connectionTimeout: 20000
+          idleConnectionTimeout: 30000
+          schema: public
+    documentSelector:
+      path: metadata.name
+      value: n8n-database-configmap
+    asserts:
+      - equal:
+          path: data.DB_POSTGRESDB_POOL_SIZE
+          value: "2"
+      - equal:
+          path: data.DB_POSTGRESDB_CONNECTION_TIMEOUT
+          value: "20000"
+      - equal:
+          path: data.DB_POSTGRESDB_IDLE_CONNECTION_TIMEOUT
+          value: "30000"
+      - equal:
+          path: data.DB_POSTGRESDB_SCHEMA
+          value: public
+
+  - it: should set postgresql ssl connection enabled when postgresdb.ssl.enabled is set to true
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+    documentSelector:
+      path: metadata.name
+      value: n8n-database-configmap
+    asserts:
+      - equal:
+          path: data.DB_POSTGRESDB_SSL_ENABLED
+          value: "true"
+
+  - it: should set postgresql ssl CA certificate when ssl enabled and base64EncodedCertificateAuthorityFile is set
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+            base64EncodedCertificateAuthorityFile: Q0EgZmlsZSBjb250ZW50
+    documentSelector:
+      path: metadata.name
+      value: n8n-database-configmap
+    asserts:
+      - equal:
+          path: data.DB_POSTGRESDB_SSL_CA
+          value: /home/node/certs/ca.crt
+
+  - it: should set postgresql ssl CA certificate when ssl enabled and existingCertificateAuthorityFileSecret.name is set
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+            existingCertificateAuthorityFileSecret:
+              name: ca-cert-secret
+    documentSelector:
+      path: metadata.name
+      value: n8n-database-configmap
+    asserts:
+      - equal:
+          path: data.DB_POSTGRESDB_SSL_CA
+          value: /home/node/certs/ca.crt
+
+  - it: should set postgresql ssl certificate when ssl enabled and base64EncodedCertFile is set
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+            base64EncodedCertFile: Y2VydGlmaWNhdGUgZmlsZSBjb250ZW50
+    documentSelector:
+      path: metadata.name
+      value: n8n-database-configmap
+    asserts:
+      - equal:
+          path: data.DB_POSTGRESDB_SSL_CERT
+          value: /home/node/certs/cert.crt
+
+  - it: should set postgresql ssl certificate when ssl enabled and existingCertFileSecret.name is set
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+            existingCertFileSecret:
+              name: cert-secret
+    documentSelector:
+      path: metadata.name
+      value: n8n-database-configmap
+    asserts:
+      - equal:
+          path: data.DB_POSTGRESDB_SSL_CERT
+          value: /home/node/certs/cert.crt
+
+  - it: should set postgresql ssl certificate private key when ssl enabled and base64EncodedPrivateKeyFile is set
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+            base64EncodedPrivateKeyFile: Y2VydGlmaWNhdGUgcHJpdmF0ZSBrZXkgZmlsZSBjb250ZW50
+    documentSelector:
+      path: metadata.name
+      value: n8n-database-configmap
+    asserts:
+      - equal:
+          path: data.DB_POSTGRESDB_SSL_KEY
+          value: /home/node/certs/cert.key
+
+  - it: should set postgresql ssl certificate private key when ssl enabled and existingPrivateKeyFileSecret.name is set
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+            existingPrivateKeyFileSecret:
+              name: cert-private-key-secret
+    documentSelector:
+      path: metadata.name
+      value: n8n-database-configmap
+    asserts:
+      - equal:
+          path: data.DB_POSTGRESDB_SSL_KEY
+          value: /home/node/certs/cert.key
+
   - it: should set vacum on startup when db type set to sqlite
     set:
       db:

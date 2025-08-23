@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.14.3](https://img.shields.io/badge/Version-1.14.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.107.4](https://img.shields.io/badge/AppVersion-1.107.4-informational?style=flat-square)
+![Version: 1.15.0](https://img.shields.io/badge/Version-1.15.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.107.4](https://img.shields.io/badge/AppVersion-1.107.4-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -930,10 +930,29 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | binaryData.s3.bucketRegion | string | `"us-east-1"` | Region of the n8n bucket in S3-compatible external storage. For example, us-east-1 |
 | binaryData.s3.existingSecret | string | `""` | This is for setting up the s3 file storage existing secret. Must contain access-key-id and secret-access-key keys. |
 | binaryData.s3.host | string | `""` | Host of the n8n bucket in S3-compatible external storage. For example, s3.us-east-1.amazonaws.com |
-| db | object | `{"logging":{"enabled":false,"maxQueryExecutionTime":0,"options":"error"},"sqlite":{"database":"database.sqlite","poolSize":0,"vacuum":false},"tablePrefix":"","type":"sqlite"}` | n8n database configurations |
+| db | object | `{"logging":{"enabled":false,"maxQueryExecutionTime":0,"options":"error"},"postgresdb":{"connectionTimeout":20000,"idleConnectionTimeout":30000,"poolSize":2,"schema":"public","ssl":{"base64EncodedCertFile":"","base64EncodedCertificateAuthorityFile":"","base64EncodedPrivateKeyFile":"","enabled":false,"existingCertFileSecret":{"key":"cert.crt","name":""},"existingCertificateAuthorityFileSecret":{"key":"ca.crt","name":""},"existingPrivateKeyFileSecret":{"key":"cert.key","name":""},"rejectUnauthorized":true}},"sqlite":{"database":"database.sqlite","poolSize":0,"vacuum":false},"tablePrefix":"","type":"sqlite"}` | n8n database configurations |
 | db.logging.enabled | bool | `false` | Whether database logging is enabled. |
 | db.logging.maxQueryExecutionTime | int | `0` | Only queries that exceed this time (ms) will be logged. Set `0` to disable. |
 | db.logging.options | string | `"error"` | Database logging level. Requires `maxQueryExecutionTime` to be higher than `0`. Valid values 'query' | 'error' | 'schema' | 'warn' | 'info' | 'log' | 'all' |
+| db.postgresdb.connectionTimeout | int | `20000` | Postgres connection timeout (ms). |
+| db.postgresdb.idleConnectionTimeout | int | `30000` | Amount of time before an idle connection is eligible for eviction for being idle. |
+| db.postgresdb.poolSize | int | `2` | Control how many parallel open Postgres connections n8n should have. Increasing it may help with resource utilization, but too many connections may degrade performance. |
+| db.postgresdb.schema | string | `"public"` | The PostgreSQL schema. |
+| db.postgresdb.ssl | object | `{"base64EncodedCertFile":"","base64EncodedCertificateAuthorityFile":"","base64EncodedPrivateKeyFile":"","enabled":false,"existingCertFileSecret":{"key":"cert.crt","name":""},"existingCertificateAuthorityFileSecret":{"key":"ca.crt","name":""},"existingPrivateKeyFileSecret":{"key":"cert.key","name":""},"rejectUnauthorized":true}` | The PostgreSQL connection SSL settings. Find more information from here: https://docs.n8n.io/hosting/configuration/supported-databases-settings/#postgresdb |
+| db.postgresdb.ssl.base64EncodedCertFile | string | `""` | The PostgreSQL base64 encoded version of SSL certificate file content. |
+| db.postgresdb.ssl.base64EncodedCertificateAuthorityFile | string | `""` | The PostgreSQL base64 encoded version of SSL certificate authority file content. |
+| db.postgresdb.ssl.base64EncodedPrivateKeyFile | string | `""` | The PostgreSQL base64 encoded version of SSL private key file content. |
+| db.postgresdb.ssl.enabled | bool | `false` | Whether to enable SSL. |
+| db.postgresdb.ssl.existingCertFileSecret | object | `{"key":"cert.crt","name":""}` | The PostgreSQL existing certificate file secret. |
+| db.postgresdb.ssl.existingCertFileSecret.key | string | `"cert.crt"` | The key of the certificate file in the existing secret. |
+| db.postgresdb.ssl.existingCertFileSecret.name | string | `""` | The name of the existing secret. |
+| db.postgresdb.ssl.existingCertificateAuthorityFileSecret | object | `{"key":"ca.crt","name":""}` | The PostgreSQL existing certificate authority file secret. |
+| db.postgresdb.ssl.existingCertificateAuthorityFileSecret.key | string | `"ca.crt"` | The key of the certificate authority file in the existing secret. |
+| db.postgresdb.ssl.existingCertificateAuthorityFileSecret.name | string | `""` | The name of the existing secret. |
+| db.postgresdb.ssl.existingPrivateKeyFileSecret | object | `{"key":"cert.key","name":""}` | The PostgreSQL existing SSL private key file secret. |
+| db.postgresdb.ssl.existingPrivateKeyFileSecret.key | string | `"cert.key"` | The key of the SSL private key file in the existing secret. |
+| db.postgresdb.ssl.existingPrivateKeyFileSecret.name | string | `""` | The name of the existing secret. |
+| db.postgresdb.ssl.rejectUnauthorized | bool | `true` | If n8n should reject unauthorized SSL connections (true) or not (false). |
 | db.sqlite.database | string | `"database.sqlite"` | SQLite database file name |
 | db.sqlite.poolSize | int | `0` | SQLite database pool size. Set to `0` to disable pooling. |
 | db.sqlite.vacuum | bool | `false` | Runs VACUUM operation on startup to rebuild the database. Reduces file size and optimizes indexes. This is a long running blocking operation and increases start-up time. |
@@ -988,9 +1007,10 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | log.level | string | `"info"` | The log output level. The available options are (from lowest to highest level) are error, warn, info, and debug. The default value is info. You can learn more about these options [here](https://docs.n8n.io/hosting/logging-monitoring/logging/#log-levels). |
 | log.output | list | `["console"]` | Where to output logs to. Options are: `console` or `file` or both. |
 | log.scopes | list | `[]` | Scopes to filter logs by. Nothing is filtered by default. Supported log scopes: concurrency, external-secrets, license, multi-main-setup, pubsub, redis, scaling, waiting-executions |
-| main | object | `{"affinity":{},"count":1,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"forceToUseStatefulset":false,"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"persistence":{"accessMode":"ReadWriteOnce","annotations":{"helm.sh/resource-policy":"keep"},"enabled":false,"existingClaim":"","labels":{},"mountPath":"/home/node/.n8n","size":"8Gi","storageClass":"","subPath":"","volumeName":""},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"runtimeClassName":"","volumeMounts":[],"volumes":[]}` | Main node configurations |
+| main | object | `{"affinity":{},"count":1,"editorBaseUrl":"","extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"forceToUseStatefulset":false,"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"persistence":{"accessMode":"ReadWriteOnce","annotations":{"helm.sh/resource-policy":"keep"},"enabled":false,"existingClaim":"","labels":{},"mountPath":"/home/node/.n8n","size":"8Gi","storageClass":"","subPath":"","volumeName":""},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"runtimeClassName":"","volumeMounts":[],"volumes":[]}` | Main node configurations |
 | main.affinity | object | `{}` | Main node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
 | main.count | int | `1` | Number of main nodes. Only enterprise license users can have one leader main node and mutiple follower main nodes. |
+| main.editorBaseUrl | string | `""` | Editor based URL. If it's not defined and ingress definition exists, ingress host will be used. |
 | main.extraContainers | list | `[]` | Additional containers for the main pod |
 | main.extraEnvVars | object | `{}` | Extra environment variables |
 | main.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |

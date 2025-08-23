@@ -268,7 +268,7 @@ spec:
             - secretRef:
                 name: {{ . }}
           {{- end }}
-          {{- if or .Values.volumeMounts .Values.worker.volumeMounts .Values.nodes.external.packages .Values.npmRegistry.enabled .Values.worker.persistence.enabled }}
+          {{- if or (eq (include "n8n.worker.hasVolumeMounts" .) "true") .Values.worker.persistence.enabled }}
           volumeMounts:
           {{- end }}
           {{- if and (or .Values.nodes.external.packages .Values.worker.persistence.enabled) (eq .Values.taskRunners.mode "internal") }}
@@ -283,6 +283,24 @@ spec:
             - name: community-node-modules
               mountPath: "/home/node/.n8n/nodes"
               readOnly: false
+          {{- end }}
+          {{- if eq (include "n8n.postgres.ssl.hasCA" .) "true" }}
+            - name: pg-ssl-ca
+              mountPath: /home/node/certs
+              subPath: ca.crt
+              readOnly: true
+          {{- end }}
+          {{- if eq (include "n8n.postgres.ssl.hasCert" .) "true" }}
+            - name: pg-ssl-cert
+              mountPath: /home/node/certs
+              subPath: cert.crt
+              readOnly: true
+          {{- end }}
+          {{- if eq (include "n8n.postgres.ssl.hasKey" .) "true" }}
+            - name: pg-ssl-key
+              mountPath: /home/node/certs
+              subPath: cert.key
+              readOnly: true
           {{- end }}
           {{- with (default .Values.volumeMounts .Values.worker.volumeMounts) }}
             {{- toYaml . | nindent 12 }}
@@ -349,7 +367,7 @@ spec:
       {{- with .Values.worker.extraContainers }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if or .Values.volumes .Values.worker.volumes .Values.worker.persistence.enabled .Values.nodes.external.packages .Values.npmRegistry.enabled }}
+      {{- if or .Values.worker.persistence.enabled (eq (include "n8n.worker.hasVolumes" .) "true") }}
       volumes:
       {{- end }}
       {{- if .Values.worker.persistence.enabled }}
@@ -369,6 +387,30 @@ spec:
           secret:
             secretName: {{ default (printf "%s-npm-registry-secret" (include "n8n.fullname" .)) .Values.npmRegistry.secretName | quote }}
             optional: true
+      {{- end }}
+      {{- if eq (include "n8n.postgres.ssl.hasCA" .) "true" }}
+        - name: pg-ssl-ca
+          secret:
+            secretName: {{ default (printf "%s-pg-ssl-ca" (include "n8n.fullname" .)) .Values.db.postgresdb.ssl.existingCertificateAuthorityFileSecret.name }}
+            items:
+              - key: {{ default "ca.crt" .Values.db.postgresdb.ssl.existingCertificateAuthorityFileSecret.key }}
+                path: ca.crt
+      {{- end }}
+      {{- if eq (include "n8n.postgres.ssl.hasCert" .) "true" }}
+        - name: pg-ssl-cert
+          secret:
+            secretName: {{ default (printf "%s-pg-ssl-cert" (include "n8n.fullname" .)) .Values.db.postgresdb.ssl.existingCertFileSecret.name }}
+            items:
+              - key: {{ default "cert.crt" .Values.db.postgresdb.ssl.existingCertFileSecret.key }}
+                path: cert.crt
+      {{- end }}
+      {{- if eq (include "n8n.postgres.ssl.hasKey" .) "true" }}
+        - name: pg-ssl-key
+          secret:
+            secretName: {{ default (printf "%s-pg-ssl-key" (include "n8n.fullname" .)) .Values.db.postgresdb.ssl.existingPrivateKeyFileSecret.name }}
+            items:
+              - key: {{ default "cert.key" .Values.db.postgresdb.ssl.existingPrivateKeyFileSecret.key }}
+                path: cert.key
       {{- end }}
       {{- with (default .Values.volumes .Values.worker.volumes) }}
         {{- toYaml . | nindent 8 }}
