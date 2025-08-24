@@ -144,6 +144,7 @@ metadata:
     heritage: {{ .Release.Service }}
 data:
   EXECUTIONS_MODE: "queue"
+  QUEUE_BULL_REDIS_DB: {{ .Values.externalRedis.database | quote }}
   OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS: "true"
   {{- if .Values.redis.enabled }}
   QUEUE_BULL_REDIS_HOST: {{ template "n8n.fullname" . }}-redis-master
@@ -153,6 +154,17 @@ data:
   {{- if eq .Values.webhook.mode "queue" }}
   N8N_DISABLE_PRODUCTION_MAIN_PROCESS: "true"
   {{- end }}
+  {{- if .Values.externalRedis.tls.enabled }}
+  QUEUE_BULL_REDIS_TLS: {{ .Values.externalRedis.tls.enabled | quote }}
+  {{- end }}
+  {{- if and .Values.externalRedis.clusterNodes (gt (len .Values.externalRedis.clusterNodes) 0) }}
+    {{- $nodeList := list }}
+    {{- range .Values.externalRedis.clusterNodes }}
+      {{- $nodeList = append $nodeList (printf "%s:%d" .host (int .port)) }}
+    {{- end }}
+  QUEUE_BULL_REDIS_CLUSTER_NODES: {{ join "," $nodeList | quote }}
+  {{- end }}
+  QUEUE_BULL_REDIS_DUALSTACK: {{ .Values.externalRedis.dualStack | quote }}
 {{- end }}
 ---
 apiVersion: v1

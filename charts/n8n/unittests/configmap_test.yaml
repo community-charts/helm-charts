@@ -684,6 +684,146 @@ tests:
           path: data.N8N_DISABLE_PRODUCTION_MAIN_PROCESS
           value: "true"
 
+  - it: should set redis db when db type set to postgresdb and worker mode is queue
+    set:
+      db:
+        type: postgresdb
+      worker:
+        mode: queue
+      externalRedis:
+        database: 1
+    documentSelector:
+      path: metadata.name
+      value: n8n-queue-configmap
+    asserts:
+      - equal:
+          path: data.QUEUE_BULL_REDIS_DB
+          value: "1"
+
+  - it: should set redis db when db type set to postgresdb and webhook mode is queue
+    set:
+      db:
+        type: postgresdb
+      webhook:
+        mode: queue
+      externalRedis:
+        database: 1
+    documentSelector:
+      path: metadata.name
+      value: n8n-queue-configmap
+    asserts:
+      - equal:
+          path: data.QUEUE_BULL_REDIS_DB
+          value: "1"
+
+  - it: should enable redis connection tls when externalRedis.tls.enabled, db type set to postgresdb and worker mode is queue
+    set:
+      db:
+        type: postgresdb
+      worker:
+        mode: queue
+      externalRedis:
+        tls:
+          enabled: true
+    documentSelector:
+      path: metadata.name
+      value: n8n-queue-configmap
+    asserts:
+      - equal:
+          path: data.QUEUE_BULL_REDIS_TLS
+          value: "true"
+
+  - it: should enable redis connection tls when externalRedis.tls.enabled, db type set to postgresdb and webhook mode is queue
+    set:
+      db:
+        type: postgresdb
+      webhook:
+        mode: queue
+      externalRedis:
+        tls:
+          enabled: true
+    documentSelector:
+      path: metadata.name
+      value: n8n-queue-configmap
+    asserts:
+      - equal:
+          path: data.QUEUE_BULL_REDIS_TLS
+          value: "true"
+
+  - it: should enable redis dual-stack connection when externalRedis.dualStack, db type set to postgresdb and worker mode is queue
+    set:
+      db:
+        type: postgresdb
+      worker:
+        mode: queue
+      externalRedis:
+        dualStack: true
+    documentSelector:
+      path: metadata.name
+      value: n8n-queue-configmap
+    asserts:
+      - equal:
+          path: data.QUEUE_BULL_REDIS_DUALSTACK
+          value: "true"
+
+  - it: should enable redis dual-stack connection when externalRedis.dualStack, db type set to postgresdb and webhook mode is queue
+    set:
+      db:
+        type: postgresdb
+      webhook:
+        mode: queue
+      externalRedis:
+        dualStack: true
+    documentSelector:
+      path: metadata.name
+      value: n8n-queue-configmap
+    asserts:
+      - equal:
+          path: data.QUEUE_BULL_REDIS_DUALSTACK
+          value: "true"
+
+  - it: should set redis cluster nodes when externalRedis.clusterNodes have multiple objects, db type set to postgresdb and worker mode is queue
+    set:
+      db:
+        type: postgresdb
+      worker:
+        mode: queue
+      externalRedis:
+        clusterNodes:
+          - host: redis-node-1
+            port: 1234
+          - host: redis-2
+            port: 5678
+    documentSelector:
+      path: metadata.name
+      value: n8n-queue-configmap
+    asserts:
+      - equal:
+          path: data.QUEUE_BULL_REDIS_CLUSTER_NODES
+          value: "redis-node-1:1234,redis-2:5678"
+
+  - it: should set redis cluster nodes when externalRedis.clusterNodes have multiple objects, db type set to postgresdb and webhook mode is queue
+    set:
+      db:
+        type: postgresdb
+      webhook:
+        mode: queue
+      externalRedis:
+        clusterNodes:
+          - host: redis-node1
+            port: 4321
+          - host: redis2
+            port: 8765
+          - host: host-3
+            port: 9012
+    documentSelector:
+      path: metadata.name
+      value: n8n-queue-configmap
+    asserts:
+      - equal:
+          path: data.QUEUE_BULL_REDIS_CLUSTER_NODES
+          value: "redis-node1:4321,redis2:8765,host-3:9012"
+
   - it: should set workflow history enabled when workflowHistory.enabled is true
     set:
       workflowHistory:

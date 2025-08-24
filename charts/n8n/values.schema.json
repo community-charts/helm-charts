@@ -613,18 +613,25 @@
       "additionalProperties": false,
       "description": "External Redis parameters",
       "properties": {
-        "existingSecret": {
-          "default": "",
-          "description": "The name of an existing secret with Redis (must contain key `redis-password`) and Sentinel credentials.\nWhen it's set, the `externalRedis.password` parameter is ignored",
+        "database": {
+          "default": 0,
+          "description": "Redis database for Bull queue.",
           "required": [],
-          "title": "existingSecret",
-          "type": "string"
+          "title": "database",
+          "type": "integer"
         },
         "host": {
           "default": "",
           "description": "External Redis server host",
           "required": [],
           "title": "host",
+          "type": "string"
+        },
+        "username": {
+          "default": "",
+          "description": "External Redis username",
+          "required": [],
+          "title": "username",
           "type": "string"
         },
         "password": {
@@ -641,15 +648,67 @@
           "title": "port",
           "type": "integer"
         },
-        "username": {
+        "existingSecret": {
           "default": "",
-          "description": "External Redis username",
+          "description": "The name of an existing secret with Redis (must contain key `redis-password`) and Sentinel credentials.\nWhen it's set, the `externalRedis.password` parameter is ignored",
           "required": [],
-          "title": "username",
+          "title": "existingSecret",
           "type": "string"
+        },
+        "clusterNodes": {
+          "description": "List of Redis Cluster nodes. Setting this variable will create a Redis Cluster client instead of a Redis client, and n8n will ignore `externalRedis.host` and `externalRedis.port`.",
+          "items": {
+            "additionalProperties": false,
+            "description": "Redis Cluster node",
+            "properties": {
+              "host": {
+                "default": "",
+                "description": "External Redis server host",
+                "required": [],
+                "title": "host",
+                "type": "string"
+              },
+              "port": {
+                "default": 6379,
+                "description": "External Redis server port",
+                "required": [],
+                "title": "port",
+                "type": "integer"
+              }
+            },
+            "required": ["host", "port"],
+            "title": "clusterNode",
+            "type": "object"
+          },
+          "required": [],
+          "title": "clusterNodes",
+          "type": "array"
+        },
+        "tls": {
+          "additionalProperties": false,
+          "description": "Placeholder for future Redis TLS certificates.",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "description": "Whether to enable TLS on Redis connections.",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            }
+          },
+          "required": ["enabled"],
+          "title": "tls",
+          "type": "object"
+        },
+        "dualStack": {
+          "default": false,
+          "description": "Enable dual-stack support (IPv4 and IPv6) on Redis connections.",
+          "required": [],
+          "title": "dualStack",
+          "type": "boolean"
         }
       },
-      "required": ["host", "username", "password", "port", "existingSecret"],
+      "required": ["database", "host", "username", "password", "port", "existingSecret", "clusterNodes", "tls", "dualStack"],
       "title": "externalRedis",
       "type": "object"
     },

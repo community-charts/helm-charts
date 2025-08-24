@@ -60,6 +60,11 @@ annotations:
       links:
         - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/211
+    - kind: added
+      description: Added support for Redis TLS connection settings
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/214
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:1.107.4

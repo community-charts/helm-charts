@@ -80,6 +80,8 @@ should match snapshot of default values:
     data:
       EXECUTIONS_MODE: queue
       OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS: "true"
+      QUEUE_BULL_REDIS_DB: "0"
+      QUEUE_BULL_REDIS_DUALSTACK: "false"
       QUEUE_BULL_REDIS_HOST: ""
     kind: ConfigMap
     metadata:
@@ -223,7 +225,7 @@ should match snapshot of default values:
       template:
         metadata:
           annotations:
-            checksum/config: 92da6feba0666840984235605d10d1c4d33bdaeaabf3916e6c470897f1a10b3a
+            checksum/config: 0bfe5d66d9f555a662bf4f8ff510841da41b60763e05fcb433da594c94b10247
           labels:
             app.kubernetes.io/component: worker
             app.kubernetes.io/instance: n8n
@@ -441,6 +443,8 @@ should match snapshot of postgres ssl certificate values:
     data:
       EXECUTIONS_MODE: queue
       OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS: "true"
+      QUEUE_BULL_REDIS_DB: "0"
+      QUEUE_BULL_REDIS_DUALSTACK: "false"
       QUEUE_BULL_REDIS_HOST: ""
     kind: ConfigMap
     metadata:
@@ -584,7 +588,7 @@ should match snapshot of postgres ssl certificate values:
       template:
         metadata:
           annotations:
-            checksum/config: 4546aed29060abe095386e8d1e41b7f14089a60ce707d05c487ceab8f8b45b03
+            checksum/config: f5e78b8282648672650616640224ce2a46cfdc76a2ca18c98aa8281229c77e12
           labels:
             app.kubernetes.io/component: worker
             app.kubernetes.io/instance: n8n
@@ -829,6 +833,8 @@ should match snapshot of worker persistence:
     data:
       EXECUTIONS_MODE: queue
       OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS: "true"
+      QUEUE_BULL_REDIS_DB: "0"
+      QUEUE_BULL_REDIS_DUALSTACK: "false"
       QUEUE_BULL_REDIS_HOST: ""
     kind: ConfigMap
     metadata:

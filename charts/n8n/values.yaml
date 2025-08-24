@@ -1005,6 +1005,8 @@ redis:
 
 # -- External Redis parameters
 externalRedis:
+  # -- Redis database for Bull queue.
+  database: 0
   # -- External Redis server host
   host: ""
   # -- External Redis username
@@ -1016,6 +1018,18 @@ externalRedis:
   # -- The name of an existing secret with Redis (must contain key `redis-password`) and Sentinel credentials.
   # When it's set, the `externalRedis.password` parameter is ignored
   existingSecret: ""
+  # -- List of Redis Cluster nodes. Setting this variable will create a Redis Cluster client instead of a Redis client, and n8n will ignore `externalRedis.host` and `externalRedis.port`.
+  clusterNodes: []
+    # - host: redis-1
+    #   port: 6379
+    # - host: redis-2
+    #   port: 6379
+  # -- Placeholder for future Redis TLS certificates
+  tls:
+    # -- Enable TLS on Redis connections.
+    enabled: false
+  # -- Enable dual-stack support (IPv4 and IPv6) on Redis connections.
+  dualStack: false
 
 # -- Bitnami PostgreSQL configuration
 postgresql:
