@@ -606,7 +606,7 @@ tests:
           path: data.OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS
           value: "true"
 
-  - it: should set redis host redis-master when db type set to postgresdb and worker mode is queue and redis.enabled is true
+  - it: should set redis host redis-master and port when db type set to postgresdb and worker mode is queue and redis.enabled is true
     set:
       db:
         type: postgresdb
@@ -614,6 +614,10 @@ tests:
         mode: queue
       redis:
         enabled: true
+        master:
+          service:
+            ports:
+              redis: 6379
     documentSelector:
       path: metadata.name
       value: n8n-queue-configmap
@@ -621,8 +625,11 @@ tests:
       - equal:
           path: data.QUEUE_BULL_REDIS_HOST
           value: n8n-redis-master
+      - equal:
+          path: data.QUEUE_BULL_REDIS_PORT
+          value: "6379"
 
-  - it: should set redis host redis-master when db type set to postgresdb and webhook mode is queue and redis.enabled is true
+  - it: should set redis host redis-master and port when db type set to postgresdb and webhook mode is queue and redis.enabled is true
     set:
       db:
         type: postgresdb
@@ -630,6 +637,10 @@ tests:
         mode: queue
       redis:
         enabled: true
+        master:
+          service:
+            ports:
+              redis: 6379
     documentSelector:
       path: metadata.name
       value: n8n-queue-configmap
@@ -637,8 +648,11 @@ tests:
       - equal:
           path: data.QUEUE_BULL_REDIS_HOST
           value: n8n-redis-master
+      - equal:
+          path: data.QUEUE_BULL_REDIS_PORT
+          value: "6379"
 
-  - it: should set redis host from external redis host when db type set to postgresdb and worker mode is queue and redis.enabled is false
+  - it: should set redis host and port from external redis host and port when db type set to postgresdb and worker mode is queue and redis.enabled is false
     set:
       db:
         type: postgresdb
@@ -646,6 +660,7 @@ tests:
         mode: queue
       externalRedis:
         host: external-redis-hostname
+        port: 6380
     documentSelector:
       path: metadata.name
       value: n8n-queue-configmap
@@ -653,8 +668,11 @@ tests:
       - equal:
           path: data.QUEUE_BULL_REDIS_HOST
           value: external-redis-hostname
+      - equal:
+          path: data.QUEUE_BULL_REDIS_PORT
+          value: "6380"
 
-  - it: should set redis host from external redis host when db type set to postgresdb and webhook mode is queue and redis.enabled is false
+  - it: should set redis host and port from external redis host and port when db type set to postgresdb and webhook mode is queue and redis.enabled is false
     set:
       db:
         type: postgresdb
@@ -662,6 +680,7 @@ tests:
         mode: queue
       externalRedis:
         host: external-redis-hostname
+        port: 6380
     documentSelector:
       path: metadata.name
       value: n8n-queue-configmap
@@ -669,6 +688,9 @@ tests:
       - equal:
           path: data.QUEUE_BULL_REDIS_HOST
           value: external-redis-hostname
+      - equal:
+          path: data.QUEUE_BULL_REDIS_PORT
+          value: "6380"
 
   - it: should set disable production main process when db type set to postgresdb and webhook mode is queue
     set:

@@ -83,6 +83,7 @@ should match snapshot of default values:
       QUEUE_BULL_REDIS_DB: "0"
       QUEUE_BULL_REDIS_DUALSTACK: "false"
       QUEUE_BULL_REDIS_HOST: ""
+      QUEUE_BULL_REDIS_PORT: "6379"
     kind: ConfigMap
     metadata:
       labels:
@@ -184,7 +185,7 @@ should match snapshot of default values:
       template:
         metadata:
           annotations:
-            checksum/config: 0bfe5d66d9f555a662bf4f8ff510841da41b60763e05fcb433da594c94b10247
+            checksum/config: 8fb61eb0cf816a99cea6e26773cc00fa42056beb9d2646773c831ae2f64bec08
           labels:
             app.kubernetes.io/component: worker
             app.kubernetes.io/instance: n8n
@@ -435,6 +436,7 @@ should match snapshot of postgres ssl certificate values:
       QUEUE_BULL_REDIS_DB: "0"
       QUEUE_BULL_REDIS_DUALSTACK: "false"
       QUEUE_BULL_REDIS_HOST: ""
+      QUEUE_BULL_REDIS_PORT: "6379"
     kind: ConfigMap
     metadata:
       labels:
@@ -536,7 +538,7 @@ should match snapshot of postgres ssl certificate values:
       template:
         metadata:
           annotations:
-            checksum/config: f5e78b8282648672650616640224ce2a46cfdc76a2ca18c98aa8281229c77e12
+            checksum/config: 4b91f5a9264f8a417ef03702235da2bf32fdbb10f4520969f8c1381184c7d4d2
           labels:
             app.kubernetes.io/component: worker
             app.kubernetes.io/instance: n8n
@@ -815,6 +817,7 @@ should match snapshot of worker persistence:
       QUEUE_BULL_REDIS_DB: "0"
       QUEUE_BULL_REDIS_DUALSTACK: "false"
       QUEUE_BULL_REDIS_HOST: ""
+      QUEUE_BULL_REDIS_PORT: "6379"
     kind: ConfigMap
     metadata:
       labels:
@@ -916,7 +919,7 @@ should match snapshot of worker persistence:
       template:
         metadata:
           annotations:
-            checksum/config: 0bfe5d66d9f555a662bf4f8ff510841da41b60763e05fcb433da594c94b10247
+            checksum/config: 8fb61eb0cf816a99cea6e26773cc00fa42056beb9d2646773c831ae2f64bec08
           labels:
             app.kubernetes.io/component: worker
             app.kubernetes.io/instance: n8n

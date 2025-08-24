@@ -148,6 +148,7 @@ data:
   OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS: "true"
   {{- if .Values.redis.enabled }}
   QUEUE_BULL_REDIS_HOST: {{ template "n8n.fullname" . }}-redis-master
+  QUEUE_BULL_REDIS_PORT: {{ (default 6379 .Values.redis.master.service.ports.redis | int) | quote }}
   {{- else if and .Values.externalRedis.clusterNodes (gt (len .Values.externalRedis.clusterNodes) 0) }}
     {{- $nodeList := list }}
     {{- range .Values.externalRedis.clusterNodes }}
@@ -156,6 +157,7 @@ data:
   QUEUE_BULL_REDIS_CLUSTER_NODES: {{ (join "," $nodeList) | quote }}
   {{- else }}
   QUEUE_BULL_REDIS_HOST: {{ .Values.externalRedis.host | quote }}
+  QUEUE_BULL_REDIS_PORT: {{ .Values.externalRedis.port | quote }}
   {{- end }}
   {{- if eq .Values.webhook.mode "queue" }}
   N8N_DISABLE_PRODUCTION_MAIN_PROCESS: "true"

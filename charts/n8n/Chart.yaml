@@ -65,6 +65,11 @@ annotations:
       links:
         - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/214
+    - kind: fixed
+      description: Fix external Redis port number settings
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/215
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:1.107.4

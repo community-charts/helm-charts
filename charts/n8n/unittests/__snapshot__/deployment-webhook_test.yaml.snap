@@ -88,6 +88,7 @@ should match snapshot of postgres ssl certificate values:
       QUEUE_BULL_REDIS_DB: "0"
       QUEUE_BULL_REDIS_DUALSTACK: "false"
       QUEUE_BULL_REDIS_HOST: ""
+      QUEUE_BULL_REDIS_PORT: "6379"
     kind: ConfigMap
     metadata:
       labels:
@@ -189,7 +190,7 @@ should match snapshot of postgres ssl certificate values:
       template:
         metadata:
           annotations:
-            checksum/config: 3ea6a897b07b8e3125fab0be88367a0738331dce9ad39222e4aa02892c27c654
+            checksum/config: 9275478349b0d1960495024022e4b3e64e5681684b296cdd8cf49b9267e20bcd
           labels:
             app.kubernetes.io/component: webhook
             app.kubernetes.io/instance: n8n
