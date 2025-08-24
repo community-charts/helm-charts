@@ -148,6 +148,12 @@ data:
   OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS: "true"
   {{- if .Values.redis.enabled }}
   QUEUE_BULL_REDIS_HOST: {{ template "n8n.fullname" . }}-redis-master
+  {{- else if and .Values.externalRedis.clusterNodes (gt (len .Values.externalRedis.clusterNodes) 0) }}
+    {{- $nodeList := list }}
+    {{- range .Values.externalRedis.clusterNodes }}
+      {{- $nodeList = append $nodeList (printf "%s:%d" .host (int .port)) }}
+    {{- end }}
+  QUEUE_BULL_REDIS_CLUSTER_NODES: {{ (join "," $nodeList) | quote }}
   {{- else }}
   QUEUE_BULL_REDIS_HOST: {{ .Values.externalRedis.host | quote }}
   {{- end }}
@@ -156,13 +162,6 @@ data:
   {{- end }}
   {{- if .Values.externalRedis.tls.enabled }}
   QUEUE_BULL_REDIS_TLS: {{ .Values.externalRedis.tls.enabled | quote }}
-  {{- end }}
-  {{- if and .Values.externalRedis.clusterNodes (gt (len .Values.externalRedis.clusterNodes) 0) }}
-    {{- $nodeList := list }}
-    {{- range .Values.externalRedis.clusterNodes }}
-      {{- $nodeList = append $nodeList (printf "%s:%d" .host (int .port)) }}
-    {{- end }}
-  QUEUE_BULL_REDIS_CLUSTER_NODES: {{ join "," $nodeList | quote }}
   {{- end }}
   QUEUE_BULL_REDIS_DUALSTACK: {{ .Values.externalRedis.dualStack | quote }}
 {{- end }}

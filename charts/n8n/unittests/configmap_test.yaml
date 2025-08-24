@@ -1234,3 +1234,29 @@ tests:
       appVersion: 1.0.0
     asserts:
       - matchSnapshot: { }
+
+  - it: should match snapshot of external redis values
+    set:
+      db:
+        type: postgresdb
+      webhook:
+        mode: queue
+      externalRedis:
+        username: redis-username
+        password: redis-password
+        clusterNodes:
+          - host: redis-1
+            port: 6379
+          - host: redis-2
+            port: 6379
+        tls:
+          enabled: true
+        dualStack: true
+    release:
+      name: n8n
+      namespace: n8n
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }
