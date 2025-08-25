@@ -1021,6 +1021,305 @@ should match snapshot with additional values when bitnami postgresql is enabled:
             - configMap:
                 name: example
               name: example
+should match snapshot with additional values when mssql is enabled:
+  1: |
+    apiVersion: v1
+    data:
+      DO_NOT_TRACK: "true"
+      MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_DISABLE_TELEMETRY: "true"
+      MLFLOW_LOGGING_LEVEL: INFO
+      MSSQL_DATABASE: test-database
+      MSSQL_HOST: test-host
+      MSSQL_TCP_PORT: "1433"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-env-configmap
+  2: |
+    apiVersion: v1
+    data:
+      migrations.py: |-
+        from mlflow.store.db import utils
+        import os
+        username = os.getenv("MSSQL_USERNAME")
+        password = os.getenv("MSSQL_PWD")
+        host = os.getenv("MSSQL_HOST")
+        port = os.getenv("MSSQL_TCP_PORT")
+        database = os.getenv("MSSQL_DATABASE")
+        engine = utils.create_sqlalchemy_engine_with_retry(f"mssql+pymssql://{username}:{password}@{host}:{port}/{database}")
+        utils._initialize_tables(engine)
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-migrations
+  3: |
+    apiVersion: v1
+    data:
+      dbchecker.sh: |
+        #!/bin/sh
+
+        if [[ -z "${PGHOST}" && -z "${MYSQL_HOST}" && -z "${MSSQL_HOST}" ]]; then
+          HOST="localhost"
+        elif [[ -z "${PGHOST}" && -z "${MSSQL_HOST}" ]]; then
+          HOST="${MYSQL_HOST}"
+        elif [[ -z "${MSSQL_HOST}" && -z "${MYSQL_HOST}" ]]; then
+          HOST="${PGHOST}"
+        else
+          HOST="${MSSQL_HOST}"
+        fi
+
+        if [[ -z "${PGPORT}" && -z "${MYSQL_TCP_PORT}" && -z "${MSSQL_TCP_PORT}" ]]; then
+          PORT="5432"
+        elif [[ -z "${PGPORT}" && -z "${MSSQL_TCP_PORT}" ]]; then
+          PORT="${MYSQL_TCP_PORT}"
+        elif [[ -z "${MSSQL_TCP_PORT}" && -z "${MYSQL_TCP_PORT}" ]]; then
+          PORT="${PGPORT}"
+        else
+          PORT="${MSSQL_TCP_PORT}"
+        fi
+
+        COUNT=0
+
+        function fib() {
+          if [ $1 -le 0 ]; then
+            echo 0
+          elif [ $1 -eq 1 ]; then
+            echo 1
+          else
+            echo $(( $(fib $(($1 - 1)) ) + $(fib $(($1 - 2)) ) ))
+          fi
+        }
+
+        echo "[INFO] Waiting for Database to become ready..."
+
+        until nc -z -w 2 $HOST $PORT; do
+          COUNT=$((COUNT + 1));
+          SLEEP_TIME=$(fib $COUNT);
+          echo "[WARNING] Unable to access database! Sleeping $SLEEP_TIME seconds. Waiting for $HOST to listen on $PORT...";
+          sleep $SLEEP_TIME;
+        done;
+
+        echo "[INFO] Database OK ✓"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-dbchecker
+  4: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
+      name: mlflow
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: mlflow
+          app.kubernetes.io/instance: mlflow
+          app.kubernetes.io/name: mlflow
+      strategy:
+        rollingUpdate:
+          maxSurge: 100%
+          maxUnavailable: 0
+        type: RollingUpdate
+      template:
+        metadata:
+          annotations:
+            checksum/config: 132468a70ffb94392b5ec6c39d6ff0982eb72bae302ed42995dc2a9c5daa21c2
+            test-key: test-value
+          labels:
+            app: mlflow
+            app.kubernetes.io/instance: mlflow
+            app.kubernetes.io/name: mlflow
+            azure.workload.identity/use: "true"
+        spec:
+          affinity:
+            nodeAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+                - preference:
+                    matchExpressions:
+                      - key: custom-key
+                        operator: In
+                        values:
+                          - custom-value
+                  weight: 1
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: kubernetes.io/e2e-az-name
+                        operator: In
+                        values:
+                          - e2e-az1
+                          - e2e-az2
+          containers:
+            - args:
+                - server
+                - --host=0.0.0.0
+                - --port=5000
+                - --backend-store-uri=mssql+pymssql://$(MSSQL_USERNAME):$(MSSQL_PWD)@$(MSSQL_HOST):$(MSSQL_TCP_PORT)/$(MSSQL_DATABASE)
+                - --default-artifact-root=./mlruns
+                - --app-name=basic-auth
+                - --gunicorn-opts='--log-level=info'
+              command:
+                - mlflow
+              env:
+                - name: MLFLOW_VERSION
+                  value: 1.0.0
+                - name: MLFLOW_AUTH_CONFIG_PATH
+                  value: /etc/mlflow/auth/basic_auth.ini
+              envFrom:
+                - configMapRef:
+                    name: mlflow-env-configmap
+                - secretRef:
+                    name: mlflow-env-secret
+                - secretRef:
+                    name: mlflow-flask-server-secret-key
+              image: burakince/mlflow:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 5
+                httpGet:
+                  path: /health
+                  port: http
+                initialDelaySeconds: 10
+                periodSeconds: 30
+                timeoutSeconds: 3
+              name: mlflow
+              ports:
+                - containerPort: 5000
+                  name: http
+                  protocol: TCP
+              readinessProbe:
+                failureThreshold: 5
+                httpGet:
+                  path: /health
+                  port: http
+                initialDelaySeconds: 10
+                periodSeconds: 30
+                timeoutSeconds: 3
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
+              volumeMounts:
+                - mountPath: /etc/mlflow/auth
+                  name: auth-config-secret
+                  readOnly: true
+                - mountPath: /mlflow/data
+                  name: mlflow-volume
+                - mountPath: /example
+                  name: example
+          initContainers:
+            - command:
+                - /script/dbchecker.sh
+              envFrom:
+                - configMapRef:
+                    name: mlflow-env-configmap
+              image: busybox:1.32
+              imagePullPolicy: IfNotPresent
+              name: dbchecker
+              volumeMounts:
+                - mountPath: /script/dbchecker.sh
+                  name: dbchecker
+                  subPath: dbchecker.sh
+            - args:
+                - /opt/mlflow/migrations.py
+              command:
+                - python
+              envFrom:
+                - configMapRef:
+                    name: mlflow-env-configmap
+                - secretRef:
+                    name: mlflow-env-secret
+                - secretRef:
+                    name: mlflow-flask-server-secret-key
+              image: burakince/mlflow:1.0.0
+              imagePullPolicy: IfNotPresent
+              name: mlflow-db-migration
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
+              volumeMounts:
+                - mountPath: /opt/mlflow/migrations.py
+                  name: migrations-config
+                  readOnly: true
+                  subPath: migrations.py
+            - image: busybox:1.28
+              name: init-myservice
+          nodeSelector:
+            disktype: ssd
+          securityContext:
+            fsGroup: 1001
+            fsGroupChangePolicy: OnRootMismatch
+          serviceAccountName: mlflow
+          tolerations:
+            - effect: NoSchedule
+              key: example-key
+              operator: Exists
+          volumes:
+            - configMap:
+                defaultMode: 511
+                name: mlflow-dbchecker
+              name: dbchecker
+            - configMap:
+                name: mlflow-migrations
+              name: migrations-config
+            - name: auth-config-secret
+              secret:
+                secretName: mlflow-auth-config-secret
+            - name: mlflow-volume
+              persistentVolumeClaim:
+                claimName: mlflow-pv-volume
+            - configMap:
+                name: example
+              name: example
 should match snapshot with additional values when mysql is enabled:
   1: |
     apiVersion: v1

@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.5.0
+version: 1.6.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -52,14 +52,7 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: added
-      description: Add existing secret support to auth postgres credentials.
-      links:
-        - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/200
-    - kind: added
-      description: Add existing secret support to auth admin credentials.
-    - kind: added
-      description: Add telemetry flag to enable or disable collecting telemetry data.
+      description: Add backend store support for mssql
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.2.0

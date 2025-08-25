@@ -113,6 +113,36 @@ tests:
       - hasDocuments:
           count: 2
 
+  - it: should have mssql environments when mssql is enabled
+    set:
+      backendStore.mssql.enabled: true
+      backendStore.mssql.host: mssql-service
+      backendStore.mssql.port: 5555
+      backendStore.mssql.database: mssql
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: data.MSSQL_HOST
+          value: mssql-service
+      - equal:
+          path: data.MSSQL_TCP_PORT
+          value: "5555"
+      - equal:
+          path: data.MSSQL_DATABASE
+          value: mssql
+
+  - it: should have mssql environments and migration configmaps when mssql and migration are enabled
+    set:
+      backendStore.mssql.enabled: true
+      backendStore.mssql.host: mssql-service
+      backendStore.mssql.port: 5555
+      backendStore.mssql.database: mssql
+      backendStore.databaseMigration: true
+    asserts:
+      - hasDocuments:
+          count: 2
+
   - it: should have postgresql environments when postgresql is enabled
     set:
       postgresql:
@@ -256,6 +286,25 @@ tests:
     set:
       mysql:
         enabled: true
+    release:
+      name: mlflow
+      namespace: mlflow
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should match snapshot of default values with mssql
+    set:
+      backendStore:
+        mssql:
+          enabled: true
+          host: mssql-custom-service
+          port: 5555
+          database: mlflow
+          user: mlflowuser
+          password: mlflowpassword
     release:
       name: mlflow
       namespace: mlflow

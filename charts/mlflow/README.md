@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 1.5.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.2.0](https://img.shields.io/badge/AppVersion-3.2.0-informational?style=flat-square)
+![Version: 1.6.0](https://img.shields.io/badge/Version-1.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.2.0](https://img.shields.io/badge/AppVersion-3.2.0-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -667,7 +667,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | autoscaling.maxReplicas | int | `5` | The maximum number of replicas. |
 | autoscaling.metrics | list | `[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}]` | The metrics to use for autoscaling. |
 | autoscaling.minReplicas | int | `1` | The minimum number of replicas. |
-| backendStore | object | `{"databaseConnectionCheck":false,"databaseMigration":false,"defaultSqlitePath":":memory:","existingDatabaseSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"mysql":{"database":"","driver":"pymysql","enabled":false,"host":"","password":"","port":3306,"user":""},"postgres":{"database":"","driver":"","enabled":false,"host":"","password":"","port":5432,"user":""}}` | Mlflow database connection settings |
+| backendStore | object | `{"databaseConnectionCheck":false,"databaseMigration":false,"defaultSqlitePath":":memory:","existingDatabaseSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"mssql":{"database":"","driver":"pymssql","enabled":false,"host":"","password":"","port":1433,"user":""},"mysql":{"database":"","driver":"pymysql","enabled":false,"host":"","password":"","port":3306,"user":""},"postgres":{"database":"","driver":"","enabled":false,"host":"","password":"","port":5432,"user":""}}` | Mlflow database connection settings |
 | backendStore.databaseConnectionCheck | bool | `false` | Add an additional init container, which checks for database availability |
 | backendStore.databaseMigration | bool | `false` | Specifies if you want to run database migration |
 | backendStore.defaultSqlitePath | string | `":memory:"` | Specifies the default sqlite path |
@@ -675,6 +675,13 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | backendStore.existingDatabaseSecret.name | string | `""` | The name of the existing database secret. |
 | backendStore.existingDatabaseSecret.passwordKey | string | `"password"` | The key of the password in the existing database secret. |
 | backendStore.existingDatabaseSecret.usernameKey | string | `"username"` | The key of the username in the existing database secret. |
+| backendStore.mssql.database | string | `""` | mlflow database name created before in the mssql instance |
+| backendStore.mssql.driver | string | `"pymssql"` | mssql database connection driver. e.g.: "pymssql" |
+| backendStore.mssql.enabled | bool | `false` | Specifies if you want to use mssql backend storage |
+| backendStore.mssql.host | string | `""` | mssql host address |
+| backendStore.mssql.password | string | `""` | mssql database user password which can access to mlflow database |
+| backendStore.mssql.port | int | `1433` | mssql service port |
+| backendStore.mssql.user | string | `""` | mssql database user name which can access to mlflow database |
 | backendStore.mysql.database | string | `""` | mlflow database name created before in the mysql instance |
 | backendStore.mysql.driver | string | `"pymysql"` | mysql database connection driver. e.g.: "pymysql" |
 | backendStore.mysql.enabled | bool | `false` | Specifies if you want to use mysql backend storage |
