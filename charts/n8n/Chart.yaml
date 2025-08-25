@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.15.0
+version: 1.15.1
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -50,26 +50,8 @@ annotations:
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: fixed
-      description: Enhanced user experience by defining the Editor URL for seamless password reset and signup processes
-      links:
-        - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/210
     - kind: added
-      description: Added support for PostgreSQL database SSL settings
-      links:
-        - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/211
-    - kind: added
-      description: Added support for Redis TLS connection settings
-      links:
-        - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/214
-    - kind: fixed
-      description: Fix external Redis port number settings
-      links:
-        - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/215
+      description: Add default bitnami master redis port
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:1.107.4
