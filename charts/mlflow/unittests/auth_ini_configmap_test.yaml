@@ -1,0 +1,197 @@
+suite: test auth ini configmap
+
+templates:
+  - auth_ini_configmap.yaml
+
+release:
+  name: mlflow
+  namespace: mlflow
+
+chart:
+  version: 1.0.0
+  appVersion: 1.0.0
+
+tests:
+  - it: should be empty when auth is not enabled
+    set:
+      auth:
+        enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should be empty when ldap auth is not enabled
+    set:
+      ldapAuth:
+        enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should require postgres host when postgres enabled
+    set:
+      auth:
+        enabled: true
+        adminUsername: "admin"
+        adminPassword: "thisisnotasecret"
+        postgres:
+          enabled: true
+          database: auth
+          user: authuser
+          password: authpassword
+    asserts:
+      - failedTemplate:
+          errorMessage: "auth.postgres.host must be specified"
+
+  - it: should require postgres database when postgres enabled
+    set:
+      auth:
+        enabled: true
+        adminUsername: "admin"
+        adminPassword: "thisisnotasecret"
+        postgres:
+          enabled: true
+          host: postgresdb
+          user: authuser
+          password: authpassword
+    asserts:
+      - failedTemplate:
+          errorMessage: "auth.postgres.database must be specified"
+
+  - it: should require authorization function
+    set:
+      auth:
+        enabled: true
+        adminUsername: "admin"
+        adminPassword: "thisisnotasecret"
+        authorizationFunction: ""
+    asserts:
+      - failedTemplate:
+          errorMessage: "auth.authorizationFunction can not be empty!"
+
+  - it: should have fake ldap auth ini file
+    set:
+      ldapAuth:
+        enabled: true
+    asserts:
+      - equal:
+          path: data
+          value:
+            auth_template.ini: |
+              [mlflow]
+              default_permission = READ
+              database_uri = sqlite:///ldap_basic_auth.db
+              admin_username = fakeuser
+              admin_password = fakepassword
+              authorization_function = mlflowstack.auth.ldap:authenticate_request_basic_auth
+
+  - it: should use sqlite on default when auth enabled
+    set:
+      auth:
+        enabled: true
+        adminUsername: "admin"
+        adminPassword: "thisisnotasecret"
+    release:
+      name: mlflow
+      namespace: mlflow
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should use different path for sqlite
+    set:
+      auth:
+        enabled: true
+        adminUsername: "admin"
+        adminPassword: "thisisnotasecret"
+        sqliteFullPath: "/volumes/auth"
+    release:
+      name: mlflow
+      namespace: mlflow
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should use slash only path for sqlite
+    set:
+      auth:
+        enabled: true
+        adminUsername: "admin"
+        adminPassword: "thisisnotasecret"
+        sqliteFullPath: "/"
+    release:
+      name: mlflow
+      namespace: mlflow
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should use postgres when auth enabled and postgres backend enabled
+    set:
+      auth:
+        enabled: true
+        adminUsername: "admin"
+        adminPassword: "thisisnotasecret"
+        postgres:
+          enabled: true
+          host: postgresdb
+          port: 1234
+          database: auth
+          user: authuser
+          password: authpassword
+    release:
+      name: mlflow
+      namespace: mlflow
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should work with postgres driver
+    set:
+      auth:
+        enabled: true
+        adminUsername: "admin"
+        adminPassword: "thisisnotasecret"
+        postgres:
+          enabled: true
+          host: postgresdb
+          database: auth
+          user: authuser
+          password: authpassword
+          driver: psycopg2
+    release:
+      name: mlflow
+      namespace: mlflow
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should use ldap configurations when ldap auth enabled
+    set:
+      ldapAuth:
+        enabled: true
+        uri: "ldap://lldap:3890/dc=mlflow,dc=test"
+        lookupBind: "uid=%s,ou=people,dc=mlflow,dc=test"
+        groupAttribute: "dn"
+        searchBaseDistinguishedName: "ou=groups,dc=mlflow,dc=test"
+        searchFilter: "(&(objectclass=groupOfUniqueNames)(uniquemember=%s))"
+        adminGroupDistinguishedName: "cn=test-admin,ou=groups,dc=mlflow,dc=test"
+        userGroupDistinguishedName: "cn=test-user,ou=groups,dc=mlflow,dc=test"
+    release:
+      name: mlflow
+      namespace: mlflow
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }

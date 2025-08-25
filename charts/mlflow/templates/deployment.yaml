@@ -58,9 +58,11 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "mlflow.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
-    {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) (or .Values.backendStore.databaseConnectionCheck .Values.backendStore.databaseMigration) ) .Values.initContainers }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) (or .Values.backendStore.databaseConnectionCheck .Values.backendStore.databaseMigration) ) .Values.auth.enabled .Values.ldapAuth.enabled .Values.initContainers }}
       initContainers:
     {{- end }}
       {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
@@ -131,8 +133,10 @@ spec:
       {{- end }}
       {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseMigration }}
         - name: "mlflow-db-migration"
+          {{- with .Values.securityContext }}
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
@@ -206,20 +210,66 @@ spec:
               subPath: migrations.py
               readOnly: true
       {{- end }}
+      {{- if or .Values.auth.enabled .Values.ldapAuth.enabled }}
+        - name: ini-file-initializer
+          image: "busybox:1.32"
+          imagePullPolicy: IfNotPresent
+          command: ['sh', '-c']
+          args:
+            - |
+              sed -e "s/\$(ADMIN_USERNAME_PLACEHOLDER)/${ADMIN_USERNAME}/g" \
+                  -e "s/\$(ADMIN_PASSWORD_PLACEHOLDER)/${ADMIN_PASSWORD}/g" \
+                {{- if .Values.auth.postgres.enabled }}
+                  -e "s/\$(POSTGRES_USERNAME_PLACEHOLDER)/${DB_USERNAME}/g" \
+                  -e "s/\$(POSTGRES_PASSWORD_PLACEHOLDER)/${DB_PASSWORD}/g" \
+                {{- end }}
+                  /template/auth_template.ini > /config/auth_result.ini
+          env:
+          {{- if .Values.auth.postgres.enabled }}
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (printf "%s-auth-pg-secret" (include "mlflow.fullname" .)) .Values.auth.postgres.existingSecret.name }}
+                  key: {{ ternary "username" .Values.auth.postgres.existingSecret.usernameKey (eq .Values.auth.postgres.existingSecret.name "") }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (printf "%s-auth-pg-secret" (include "mlflow.fullname" .)) .Values.auth.postgres.existingSecret.name }}
+                  key: {{ ternary "password" .Values.auth.postgres.existingSecret.passwordKey (eq .Values.auth.postgres.existingSecret.name "") }}
+          {{- end }}
+            - name: ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (printf "%s-auth-admin-secret" (include "mlflow.fullname" .)) .Values.auth.existingAdminSecret.name }}
+                  key: {{ ternary "username" .Values.auth.existingAdminSecret.usernameKey (eq .Values.auth.existingAdminSecret.name "") }}
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (printf "%s-auth-admin-secret" (include "mlflow.fullname" .)) .Values.auth.existingAdminSecret.name }}
+                  key: {{ ternary "password" .Values.auth.existingAdminSecret.passwordKey (eq .Values.auth.existingAdminSecret.name "") }}
+          volumeMounts:
+            - name: auth-ini-template-file
+              mountPath: /template
+              readOnly: true
+            - name: ini-file
+              mountPath: /config
+      {{- end }}
       {{- with .Values.initContainers }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
+          {{- with .Values.securityContext }}
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["mlflow"]
           args:
             - server
             - --host=0.0.0.0
-            - --port={{ .Values.service.targetPort | default .Values.service.port }}
+            - --port={{ .Values.service.containerPort }}
           {{- if or .Values.backendStore.postgres.enabled .Values.postgresql.enabled }}
             - --backend-store-uri=postgresql{{ $dbConnectionDriver }}://
           {{- else if or .Values.backendStore.mysql.enabled .Values.mysql.enabled }}
@@ -255,20 +305,20 @@ spec:
             - --{{ kebabcase . }}
           {{- end }}
           ports:
-            - name: {{ .Values.service.name }}
-              containerPort: {{ .Values.service.targetPort | default .Values.service.port }}
+            - name: {{ .Values.service.containerPortName }}
+              containerPort: {{ .Values.service.containerPort }}
               protocol: TCP
           livenessProbe:
             httpGet:
               path: {{ include "mlflow.health" . }}
-              port: {{ .Values.service.name }}
+              port: {{ .Values.service.containerPortName }}
           {{- with .Values.livenessProbe }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
           readinessProbe:
             httpGet:
               path: {{ include "mlflow.health" . }}
-              port: {{ .Values.service.name }}
+              port: {{ .Values.service.containerPortName }}
           {{- with .Values.readinessProbe }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -279,11 +329,7 @@ spec:
               value: {{ .Values.image.tag | default .Chart.AppVersion | quote }}
           {{- if .Values.auth.enabled }}
             - name: MLFLOW_AUTH_CONFIG_PATH
-              {{- if .Values.auth.externalAuthSecret.name }}
-              value: {{ printf "%s/%s" (.Values.auth.configPath | trimSuffix "/") .Values.auth.externalAuthSecret.key }}
-              {{- else }}
               value: {{ printf "%s/%s" (.Values.auth.configPath | trimSuffix "/") (default "basic_auth.ini" (.Values.auth.configFile | trimPrefix "/")) }}
-              {{- end }}
           {{- else if .Values.ldapAuth.enabled }}
             - name: MLFLOW_AUTH_CONFIG_PATH
               value: "/etc/mlflow/auth/ldap_basic_auth.ini"
@@ -376,12 +422,14 @@ spec:
           {{- if or .Values.extraVolumeMounts .Values.auth.enabled .Values.ldapAuth.enabled }}
           volumeMounts:
             {{- if .Values.auth.enabled }}
-            - name: auth-config-secret
-              mountPath: {{ .Values.auth.configPath | trimSuffix "/" | quote }}
+            - name: ini-file
+              mountPath: {{ printf "%s/%s" (.Values.auth.configPath | trimSuffix "/") (default "basic_auth.ini" (.Values.auth.configFile | trimPrefix "/")) }}
+              subPath: auth_result.ini
               readOnly: true
             {{- else if .Values.ldapAuth.enabled }}
-            - name: auth-config-secret
-              mountPath: "/etc/mlflow/auth"
+            - name: ini-file
+              mountPath: /etc/mlflow/auth/ldap_basic_auth.ini
+              subPath: auth_result.ini
               readOnly: true
               {{- if or .Values.ldapAuth.encodedTrustedCACertificate .Values.ldapAuth.externalSecretForTrustedCACertificate }}
             - name: trusted-ca-cert-secret
@@ -423,23 +471,16 @@ spec:
             name: {{ template "mlflow.fullname" . }}-migrations
         {{- end }}
         {{- if or .Values.auth.enabled .Values.ldapAuth.enabled }}
-        - name: auth-config-secret
-          secret:
-            {{- if and (or .Values.auth.enabled .Values.ldapAuth.enabled) .Values.auth.externalAuthSecret.name }}
-            # Use externally managed secret (e.g., created by ESO)
-            secretName: {{ .Values.auth.externalAuthSecret.name }}
-            items:
-              - key: {{ .Values.auth.externalAuthSecret.key }}
-                path: {{ .Values.auth.externalAuthSecret.key }}
-            {{- else }}
-            # Use Helm-generated secret
-            secretName: {{ template "mlflow.fullname" . }}-auth-config-secret
-            {{- end }}
-        {{- if or .Values.ldapAuth.encodedTrustedCACertificate .Values.ldapAuth.externalSecretForTrustedCACertificate }}
+        - name: ini-file
+          emptyDir: {}
+        - name: auth-ini-template-file
+          configMap:
+            name: {{ template "mlflow.fullname" . }}-auth-ini-template
+          {{- if or .Values.ldapAuth.encodedTrustedCACertificate .Values.ldapAuth.externalSecretForTrustedCACertificate }}
         - name: trusted-ca-cert-secret
           secret:
             secretName: {{ default (printf "%s-trusted-ca-cert-secret" (include "mlflow.fullname" .)) .Values.ldapAuth.externalSecretForTrustedCACertificate }}
-        {{- end }}
+          {{- end }}
         {{- end }}
       {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}

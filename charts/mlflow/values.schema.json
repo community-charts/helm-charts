@@ -1174,12 +1174,19 @@
           "title": "port",
           "type": "integer"
         },
-        "targetPort": {
+        "containerPort": {
           "default": 5000,
-          "description": "The port that the MLFlow container listens on",
+          "description": "Default container port",
           "required": [],
-          "title": "targetPort",
+          "title": "containerPort",
           "type": "integer"
+        },
+        "containerPortName": {
+          "default": "mlflow",
+          "description": "Default container port name",
+          "required": [],
+          "title": "containerPortName",
+          "type": "string"
         },
         "type": {
           "default": "ClusterIP",
@@ -1189,7 +1196,7 @@
           "type": "string"
         }
       },
-      "required": ["enabled", "type", "port", "name", "annotations"],
+      "required": ["enabled", "type", "port", "containerPort", "name", "containerPortName", "annotations"],
       "title": "service",
       "type": "object"
     },
@@ -1446,29 +1453,6 @@
           "required": ["name", "usernameKey", "passwordKey"],
           "title": "existingAdminSecret"
         },
-        "externalAuthSecret": {
-          "additionalProperties": false,
-          "type": "object",
-          "description": "Specifies if you want to use an existing externally managed auth secret (e.g., created by ESO). If it's set, the Helm chart will reference this secret instead of creating its own.",
-          "properties": {
-            "name": {
-              "default": "",
-              "description": "The name of the existing externally managed auth secret",
-              "required": [],
-              "title": "name",
-              "type": "string"
-            },
-            "key": {
-              "default": "basic_auth.ini",
-              "description": "The key within the secret containing the auth config file",
-              "required": [],
-              "title": "key",
-              "type": "string"
-            }
-          },
-          "required": ["name", "key"],
-          "title": "externalAuthSecret"
-        },
         "defaultPermission": {
           "default": "READ",
           "required": [],
@@ -1608,7 +1592,6 @@
         "adminUsername",
         "adminPassword",
         "existingAdminSecret",
-        "externalAuthSecret",
         "defaultPermission",
         "appName",
         "authorizationFunction",

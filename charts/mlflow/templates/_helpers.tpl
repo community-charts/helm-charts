@@ -95,22 +95,3 @@ Create mysql name secret name.
 {{- define "mlflow.mysql.fullname" -}}
 {{- printf "%s-mysql" (include "mlflow.fullname" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
-
-{{/*
-Validate auth configuration
-*/}}
-{{- define "mlflow.validateAuth" -}}
-{{- if and .Values.auth.enabled .Values.auth.externalAuthSecret.enabled -}}
-  {{- if not .Values.auth.externalAuthSecret.name -}}
-    {{- fail "auth.externalAuthSecret.name must be specified when auth.externalAuthSecret.enabled is true" -}}
-  {{- end -}}
-{{- end -}}
-{{- if and .Values.auth.enabled (not .Values.auth.externalAuthSecret.enabled) -}}
-  {{- if and .Values.auth.postgres.enabled .Values.auth.postgres.existingSecret.name -}}
-    {{/* This will still use lookup and fail in ArgoCD */}}
-    {{- if .Values.argocdMode -}}
-      {{- fail "Cannot use auth.postgres.existingSecret with ArgoCD. Please use auth.externalAuthSecret instead." -}}
-    {{- end -}}
-  {{- end -}}
-{{- end -}}
-{{- end -}}

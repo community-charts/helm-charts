@@ -6,14 +6,13 @@ templates:
 tests:
   - it: should use different port number when we change it
     set:
-      service.port: 8080
-      service.targetPort: 8080
+      service.port: 80
     asserts:
       - contains:
           path: spec.ports
           content:
-            port: 8080
-            targetPort: 8080
+            port: 80
+            targetPort: mlflow
           any: true
 
   - it: should use different port name when we change it

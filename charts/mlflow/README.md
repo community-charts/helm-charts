@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 1.5.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.2.0](https://img.shields.io/badge/AppVersion-3.2.0-informational?style=flat-square)
+![Version: 1.6.0](https://img.shields.io/badge/Version-1.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.2.0](https://img.shields.io/badge/AppVersion-3.2.0-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -448,165 +448,6 @@ ldapAuth:
   externalSecretForTrustedCACertificate: "external-ca-certificate-secret"
 ```
 
-## External Secrets Operator (ESO) Integration
-
-This Helm chart supports integration with [External Secrets Operator](https://external-secrets.io/) (ESO), which is particularly important for GitOps workflows like ArgoCD. ESO enables automatic synchronization of secrets from external secret management systems (AWS Secrets Manager, HashiCorp Vault, Azure Key Vault, Google Secret Manager, etc.) into Kubernetes secrets.
-
-### Why ESO is Required for GitOps Workflows
-
-When using GitOps tools like ArgoCD, the chart rendering occurs on the ArgoCD server, which typically doesn't have cluster access permissions. This creates a limitation with Helm's `lookup` function that is used in the auth secret templates to validate existing secrets. In GitOps environments:
-
-- **ArgoCD Limitation**: ArgoCD cannot execute `lookup` functions during template rendering because it lacks cluster API access
-- **Security Isolation**: GitOps servers are intentionally isolated from cluster resources for security
-- **Template Rendering**: Charts must be renderable without live cluster access
-
-ESO solves this by:
-- Managing secret lifecycle independently of Helm chart rendering
-- Ensuring secrets exist before the chart is applied
-- Eliminating the need for `lookup` functions in auth configurations
-
-### Using External Auth Secrets
-
-The chart supports external auth secrets through the `auth.externalAuthSecret` configuration. When this is set, the chart will:
-
-1. **Skip Helm-generated secrets**: No auth secret will be created by the Helm chart
-2. **Mount external secret**: The deployment will mount the externally managed secret
-3. **Work with both auth types**: Supports both regular auth (`auth.enabled`) and LDAP auth (`ldapAuth.enabled`)
-
-#### Basic Auth with ESO Example
-
-```yaml
-# ESO SecretStore and ExternalSecret configuration (applied separately)
----
-apiVersion: external-secrets.io/v1beta1
-kind: ExternalSecret
-metadata:
-  name: mlflow-auth-config
-spec:
-  refreshInterval: 1m
-  secretStoreRef:
-    name: mlflow-secrets-store
-    kind: SecretStore
-  target:
-    name: mlflow-auth-external
-    creationPolicy: Owner
-    template:
-      engineVersion: v2
-      type: Opaque
-      data:
-        basic_auth.ini: |
-          [mlflow]
-          default_permission = READ
-          database_uri = postgresql://{{ .pgUsername }}:{{ .pgPassword }}@{{ .pgHost }}:5432/{{ .pgDatabase }}
-          admin_username = {{ .adminUsername }}
-          admin_password = {{ .adminPassword }}
-          authorization_function = mlflow.server.auth:authenticate_request_basic_auth
-  data:
-    - secretKey: pgUsername
-      remoteRef:
-        key: mlflow/auth/postgres-username
-    - secretKey: pgPassword
-      remoteRef:
-        key: mlflow/auth/postgres-password
-    - secretKey: adminUsername
-      remoteRef:
-        key: mlflow/auth/admin-username
-    - secretKey: adminPassword
-      remoteRef:
-        key: mlflow/auth/admin-password
-    - secretKey: pgHost
-      remoteRef:
-        key: mlflow/auth/postgres-host
-    - secretKey: pgDatabase
-      remoteRef:
-        key: mlflow/auth/postgres-database
-
-# MLflow Helm values
----
-auth:
-  enabled: true
-  externalAuthSecret:
-    name: "mlflow-auth-external"
-    key: "basic_auth.ini"
-
-# Backend store configuration
-backendStore:
-  postgres:
-    enabled: true
-    host: "postgresql-instance1.example.com"
-    port: 5432
-    database: "mlflow"
-  existingDatabaseSecret:
-    name: "postgres-database-secret"
-    usernameKey: "username"
-    passwordKey: "password"
-```
-
-#### LDAP Auth with ESO Example
-
-```yaml
-# ESO ExternalSecret configuration for LDAP
----
-apiVersion: external-secrets.io/v1beta1
-kind: ExternalSecret
-metadata:
-  name: mlflow-ldap-auth-config
-spec:
-  refreshInterval: 1m
-  secretStoreRef:
-    name: mlflow-secrets-store
-    kind: SecretStore
-  target:
-    name: mlflow-ldap-auth-external
-    creationPolicy: Owner
-    template:
-      engineVersion: v2
-      type: Opaque
-      data:
-        ldap_basic_auth.ini: |
-          [mlflow]
-          default_permission = READ
-          database_uri = sqlite:///ldap_basic_auth.db
-          admin_username = fakeuser
-          admin_password = fakepassword
-          authorization_function = mlflowstack.auth.ldap:authenticate_request_basic_auth
-  data: []  # No external data needed for LDAP config
-
-# MLflow Helm values
----
-ldapAuth:
-  enabled: true
-  uri: "ldaps://ldap.example.com:636/dc=example,dc=com"
-  tlsVerification: required
-  lookupBind: "uid=%s,ou=people,dc=example,dc=com"
-  groupAttribute: "dn"
-  searchBaseDistinguishedName: "ou=groups,dc=example,dc=com"
-  searchFilter: "(&(objectclass=groupOfUniqueNames)(uniquemember=%s))"
-  adminGroupDistinguishedName: "cn=mlflow-admins,ou=groups,dc=example,dc=com"
-  userGroupDistinguishedName: "cn=mlflow-users,ou=groups,dc=example,dc=com"
-
-auth:
-  externalAuthSecret:
-    name: "mlflow-ldap-auth-external"
-    key: "ldap_basic_auth.ini"
-```
-
-### Benefits of ESO Integration
-
-1. **GitOps Compatibility**: Works seamlessly with ArgoCD and other GitOps tools
-2. **Secret Rotation**: Automatic secret rotation without chart redeployment
-3. **Multi-Environment**: Different secrets per environment using the same chart
-4. **Security**: Centralized secret management with proper access controls
-5. **Compliance**: Audit trails and secret lifecycle management
-6. **Template Flexibility**: Use ESO templates to compose complex configuration files from individual secret values
-
-### Key Implementation Notes
-
-- **Template Engine**: ESO uses Go templates (v2) to generate the final secret content
-- **Secret Composition**: Individual secret values are fetched and composed into the `.ini` file format
-- **Automatic Refresh**: ESO automatically updates secrets based on the `refreshInterval`
-- **GitOps Safe**: No `lookup` functions required, making it compatible with ArgoCD and similar tools
-
 ## Auto Scaling Example
 
 This Helm chart supports Horizontal Pod Autoscaling (HPA) to dynamically scale the MLflow `Deployment` based on metrics. The HPA resource is created when `autoscaling.enabled` is `true` and specific conditions are met (see Prerequisites).
@@ -901,11 +742,13 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | replicaCount | int | `1` | Numbers of replicas |
 | resources | object | `{}` | This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":false,"runAsGroup":1001,"runAsNonRoot":true,"runAsUser":1001}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
-| service | object | `{"annotations":{},"enabled":true,"name":"http","port":5000,"type":"ClusterIP"}` | This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/ |
+| service | object | `{"annotations":{},"containerPort":5000,"containerPortName":"mlflow","enabled":true,"name":"http","port":80,"type":"ClusterIP"}` | This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/ |
 | service.annotations | object | `{}` | Additional service annotations |
+| service.containerPort | int | `5000` | Default container port |
+| service.containerPortName | string | `"mlflow"` | Default container port name |
 | service.enabled | bool | `true` | Specifies if you want to create a service |
 | service.name | string | `"http"` | Default Service name |
-| service.port | int | `5000` | This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports |
+| service.port | int | `80` | This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports |
 | service.type | string | `"ClusterIP"` | This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account. AWS EKS users can assign role arn from here. Please find more information from here: https://docs.aws.amazon.com/eks/latest/userguide/associate-service-account-role.html |
 | serviceAccount.automount | bool | `true` | Automatically mount a ServiceAccount's API credentials? |

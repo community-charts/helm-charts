@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.5.1
+version: 1.6.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -51,15 +51,18 @@ annotations:
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: added
-      description: Add existing secret support to auth postgres credentials.
+    - kind: changed
+      description: Auth and LDAP Auth external secret load functionality replaced with init containers
       links:
         - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/200
-    - kind: added
-      description: Add existing secret support to auth admin credentials.
-    - kind: added
-      description: Add telemetry flag to enable or disable collecting telemetry data.
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/217
+    - kind: fixed
+      description: Empty Security Context and Pod Security Context definitions will remove security context definitions
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/219
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.2.0
