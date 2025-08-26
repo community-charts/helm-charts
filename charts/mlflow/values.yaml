@@ -142,7 +142,7 @@ backendStore:
     password: "" # required
     # -- mysql database connection driver. e.g.: "pymysql"
     driver: "pymysql"
-  
+
   mssql:
     # -- Specifies if you want to use mssql backend storage
     enabled: false
