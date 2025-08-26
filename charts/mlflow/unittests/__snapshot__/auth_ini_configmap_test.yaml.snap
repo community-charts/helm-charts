@@ -1,0 +1,114 @@
+should use different path for sqlite:
+  1: |
+    apiVersion: v1
+    data:
+      auth_template.ini: |
+        [mlflow]
+        default_permission = READ
+        database_uri = sqlite:////volumes/authbasic_auth.db
+        admin_username = $(ADMIN_USERNAME_PLACEHOLDER)
+        admin_password = $(ADMIN_PASSWORD_PLACEHOLDER)
+        authorization_function = mlflow.server.auth:authenticate_request_basic_auth
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-auth-ini-template
+should use ldap configurations when ldap auth enabled:
+  1: |
+    apiVersion: v1
+    data:
+      auth_template.ini: |
+        [mlflow]
+        default_permission = READ
+        database_uri = sqlite:///ldap_basic_auth.db
+        admin_username = fakeuser
+        admin_password = fakepassword
+        authorization_function = mlflowstack.auth.ldap:authenticate_request_basic_auth
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-auth-ini-template
+should use postgres when auth enabled and postgres backend enabled:
+  1: |
+    apiVersion: v1
+    data:
+      auth_template.ini: |
+        [mlflow]
+        default_permission = READ
+        database_uri = postgresql://$(POSTGRES_USERNAME_PLACEHOLDER):$(POSTGRES_PASSWORD_PLACEHOLDER)@postgresdb:1234/auth
+        admin_username = $(ADMIN_USERNAME_PLACEHOLDER)
+        admin_password = $(ADMIN_PASSWORD_PLACEHOLDER)
+        authorization_function = mlflow.server.auth:authenticate_request_basic_auth
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-auth-ini-template
+should use slash only path for sqlite:
+  1: |
+    apiVersion: v1
+    data:
+      auth_template.ini: |
+        [mlflow]
+        default_permission = READ
+        database_uri = sqlite:////basic_auth.db
+        admin_username = $(ADMIN_USERNAME_PLACEHOLDER)
+        admin_password = $(ADMIN_PASSWORD_PLACEHOLDER)
+        authorization_function = mlflow.server.auth:authenticate_request_basic_auth
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-auth-ini-template
+should use sqlite on default when auth enabled:
+  1: |
+    apiVersion: v1
+    data:
+      auth_template.ini: |
+        [mlflow]
+        default_permission = READ
+        database_uri = sqlite:///basic_auth.db
+        admin_username = $(ADMIN_USERNAME_PLACEHOLDER)
+        admin_password = $(ADMIN_PASSWORD_PLACEHOLDER)
+        authorization_function = mlflow.server.auth:authenticate_request_basic_auth
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-auth-ini-template
+should work with postgres driver:
+  1: |
+    apiVersion: v1
+    data:
+      auth_template.ini: |
+        [mlflow]
+        default_permission = READ
+        database_uri = postgresql+psycopg2://$(POSTGRES_USERNAME_PLACEHOLDER):$(POSTGRES_PASSWORD_PLACEHOLDER)@postgresdb:5432/auth
+        admin_username = $(ADMIN_USERNAME_PLACEHOLDER)
+        admin_password = $(ADMIN_PASSWORD_PLACEHOLDER)
+        authorization_function = mlflow.server.auth:authenticate_request_basic_auth
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-auth-ini-template

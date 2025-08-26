@@ -1,0 +1,56 @@
+{{- if or .Values.auth.enabled .Values.ldapAuth.enabled }}
+  {{- $defaultPermission := "" }}
+  {{- $databaseUri := "" }}
+  {{- $adminUsername := "" }}
+  {{- $adminPassword := "" }}
+  {{- $authorizationFunction := "" }}
+
+  {{- if .Values.auth.enabled }}
+    {{- $defaultPermission = .Values.auth.defaultPermission }}
+    {{- if .Values.auth.postgres.enabled }}
+      {{- $dbConnectionDriver := "" }}
+      {{- if .Values.auth.postgres.driver }}
+        {{- $dbConnectionDriver = printf "+%s" .Values.auth.postgres.driver }}
+      {{- end }}
+      {{- $pgHost := required "auth.postgres.host must be specified" .Values.auth.postgres.host }}
+      {{- $pgPort := required "auth.postgres.port must be specified" .Values.auth.postgres.port | toString }}
+      {{- $pgDatabase := required "auth.postgres.database must be specified" .Values.auth.postgres.database }}
+      {{- $databaseUri = printf "postgresql%s://$(POSTGRES_USERNAME_PLACEHOLDER):$(POSTGRES_PASSWORD_PLACEHOLDER)@%s:%s/%s" $dbConnectionDriver $pgHost $pgPort $pgDatabase }}
+    {{- else }}
+      {{- $sqliteFile := .Values.auth.sqliteFile }}
+      {{- if .Values.auth.sqliteFullPath }}
+        {{- $path := printf "%s/" .Values.auth.sqliteFullPath | trimSuffix "/" }}
+        {{- $databaseUri = printf "sqlite:///%s%s" $path $sqliteFile }}
+      {{- else }}
+        {{- $databaseUri = printf "sqlite:///%s" $sqliteFile }}
+      {{- end }}
+    {{- end }}
+    {{- $adminUsername = "$(ADMIN_USERNAME_PLACEHOLDER)" }}
+    {{- $adminPassword = "$(ADMIN_PASSWORD_PLACEHOLDER)" }}
+    {{- $authorizationFunction = required "auth.authorizationFunction can not be empty!" .Values.auth.authorizationFunction }}
+  {{- else }}
+    {{- $defaultPermission = "READ" }}
+    {{- $databaseUri = "sqlite:///ldap_basic_auth.db" }}
+    {{- $adminUsername = "fakeuser" }}
+    {{- $adminPassword = "fakepassword" }}
+    {{- $authorizationFunction = "mlflowstack.auth.ldap:authenticate_request_basic_auth" }}
+  {{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "mlflow.fullname" . }}-auth-ini-template
+  labels:
+    app: {{ template "mlflow.name" . }}
+    chart: {{ template "mlflow.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  auth_template.ini: |
+    [mlflow]
+    default_permission = {{ $defaultPermission }}
+    database_uri = {{ $databaseUri }}
+    admin_username = {{ $adminUsername }}
+    admin_password = {{ $adminPassword }}
+    authorization_function = {{ $authorizationFunction }}
+{{- end }}

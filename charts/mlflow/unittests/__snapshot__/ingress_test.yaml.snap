@@ -22,7 +22,7 @@ should match snapshot of default values:
                   service:
                     name: mlflow
                     port:
-                      number: 5000
+                      number: 80
                 path: /
                 pathType: ImplementationSpecific
 should match snapshot of default values with old kubernetes ingress:
@@ -48,5 +48,5 @@ should match snapshot of default values with old kubernetes ingress:
             paths:
               - backend:
                   serviceName: mlflow
-                  servicePort: 5000
+                  servicePort: 80
                 path: /

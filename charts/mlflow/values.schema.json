@@ -1239,6 +1239,20 @@
           "title": "port",
           "type": "integer"
         },
+        "containerPort": {
+          "default": 5000,
+          "description": "Default container port",
+          "required": [],
+          "title": "containerPort",
+          "type": "integer"
+        },
+        "containerPortName": {
+          "default": "mlflow",
+          "description": "Default container port name",
+          "required": [],
+          "title": "containerPortName",
+          "type": "string"
+        },
         "type": {
           "default": "ClusterIP",
           "description": "Specifies what type of Service should be created",
@@ -1247,7 +1261,7 @@
           "type": "string"
         }
       },
-      "required": ["enabled", "type", "port", "name", "annotations"],
+      "required": ["enabled", "type", "port", "containerPort", "name", "containerPortName", "annotations"],
       "title": "service",
       "type": "object"
     },

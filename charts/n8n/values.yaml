@@ -997,9 +997,20 @@ dnsConfig: {}
 redis:
   # -- Enable redis
   enabled: false
+  # -- Enable redis architecture.
   architecture: standalone
 
+  # -- This is for setting up the auth.
+  auth:
+    # -- Enable password authentication
+    enabled: true
+
   master:
+    service:
+      ports:
+        # -- Redis master service port
+        redis: 6379
+
     persistence:
       enabled: false
 
@@ -1035,19 +1046,30 @@ externalRedis:
 postgresql:
   # -- Enable postgresql
   enabled: false
+  # -- Enable postgresql architecture.
   architecture: standalone
 
+  # -- This is for setting up the primary service.
   primary:
+    # -- This is for setting up the primary service.
     service:
+      # -- This is for setting up the service ports.
       ports:
+        # -- This is for setting up the postgresql port.
         postgresql: 5432
 
+    # -- This is for setting up the persistence.
     persistence:
+      # -- This is for setting up the persistence enabled.
       enabled: true
+      # -- This is for setting up the persistence existing claim.
       existingClaim: ""
 
+  # -- This is for setting up the auth.
   auth:
+    # -- This is for setting up the auth username.
     username: ""
+    # -- This is for setting up the auth password.
     password: ""
     # -- The name of the PostgreSQL database. For more information: https://docs.n8n.io/hosting/configuration/supported-databases-settings/#required-permissions
     database: "n8n"

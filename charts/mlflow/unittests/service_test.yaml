@@ -12,7 +12,7 @@ tests:
           path: spec.ports
           content:
             port: 80
-            targetPort: 80
+            targetPort: mlflow
           any: true
 
   - it: should use different port name when we change it
