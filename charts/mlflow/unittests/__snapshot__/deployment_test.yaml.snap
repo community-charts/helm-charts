@@ -225,7 +225,7 @@ should match snapshot with additional values:
       template:
         metadata:
           annotations:
-            checksum/config: 7cf756fca80e8aef42d169fa6f6f29599997639b9551fd43b22f2f9c1e04669c
+            checksum/config: 6b2e5b79819b41f2fb1616723011efa7695e94d68cb01a3f73683e5800ba3324
             test-key: test-value
           labels:
             app: mlflow
@@ -550,7 +550,7 @@ should match snapshot with additional values when auth and auth.postgres are ena
       template:
         metadata:
           annotations:
-            checksum/config: 7cf756fca80e8aef42d169fa6f6f29599997639b9551fd43b22f2f9c1e04669c
+            checksum/config: 6b2e5b79819b41f2fb1616723011efa7695e94d68cb01a3f73683e5800ba3324
             test-key: test-value
           labels:
             app: mlflow
@@ -892,7 +892,7 @@ should match snapshot with additional values when bitnami mysql is enabled:
       template:
         metadata:
           annotations:
-            checksum/config: 5826804f40464dfefc92f94053865758e121d600bce4013a3615974cd5427111
+            checksum/config: 6065215544154dc24f5f908e4b106efbb173f5cc637a6e3d76ff9eae9b06b28b
             test-key: test-value
           labels:
             app: mlflow
@@ -1237,7 +1237,7 @@ should match snapshot with additional values when bitnami postgresql is enabled:
       template:
         metadata:
           annotations:
-            checksum/config: 12f0efcb6b8d7385900db3813272b6b491230a579d255f012186d3ee4d879a05
+            checksum/config: ee05d6c851b77df0b10835b328e6dbd4d51f118ccebc0a1fe327a8662778281f
             test-key: test-value
           labels:
             app: mlflow
@@ -1642,20 +1642,20 @@ should match snapshot with additional values when mssql is enabled:
                 failureThreshold: 5
                 httpGet:
                   path: /health
-                  port: http
+                  port: mlflow
                 initialDelaySeconds: 10
                 periodSeconds: 30
                 timeoutSeconds: 3
               name: mlflow
               ports:
                 - containerPort: 5000
-                  name: http
+                  name: mlflow
                   protocol: TCP
               readinessProbe:
                 failureThreshold: 5
                 httpGet:
                   path: /health
-                  port: http
+                  port: mlflow
                 initialDelaySeconds: 10
                 periodSeconds: 30
                 timeoutSeconds: 3
@@ -1677,9 +1677,10 @@ should match snapshot with additional values when mssql is enabled:
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
-                - mountPath: /etc/mlflow/auth
-                  name: auth-config-secret
+                - mountPath: /etc/mlflow/auth/basic_auth.ini
+                  name: ini-file
                   readOnly: true
+                  subPath: auth_result.ini
                 - mountPath: /mlflow/data
                   name: mlflow-volume
                 - mountPath: /example
@@ -1733,6 +1734,34 @@ should match snapshot with additional values when mssql is enabled:
                   name: migrations-config
                   readOnly: true
                   subPath: migrations.py
+            - args:
+                - |
+                  sed -e "s/\$(ADMIN_USERNAME_PLACEHOLDER)/${ADMIN_USERNAME}/g" \
+                      -e "s/\$(ADMIN_PASSWORD_PLACEHOLDER)/${ADMIN_PASSWORD}/g" \
+                      /template/auth_template.ini > /config/auth_result.ini
+              command:
+                - sh
+                - -c
+              env:
+                - name: ADMIN_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      key: username
+                      name: mlflow-auth-admin-secret
+                - name: ADMIN_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: password
+                      name: mlflow-auth-admin-secret
+              image: busybox:1.32
+              imagePullPolicy: IfNotPresent
+              name: ini-file-initializer
+              volumeMounts:
+                - mountPath: /template
+                  name: auth-ini-template-file
+                  readOnly: true
+                - mountPath: /config
+                  name: ini-file
             - image: busybox:1.28
               name: init-myservice
           nodeSelector:
@@ -1753,9 +1782,11 @@ should match snapshot with additional values when mssql is enabled:
             - configMap:
                 name: mlflow-migrations
               name: migrations-config
-            - name: auth-config-secret
-              secret:
-                secretName: mlflow-auth-config-secret
+            - emptyDir: {}
+              name: ini-file
+            - configMap:
+                name: mlflow-auth-ini-template
+              name: auth-ini-template-file
             - name: mlflow-volume
               persistentVolumeClaim:
                 claimName: mlflow-pv-volume
@@ -1886,7 +1917,7 @@ should match snapshot with additional values when mysql is enabled:
       template:
         metadata:
           annotations:
-            checksum/config: cf97228f92e9e7a556787864ae424f440d546d75ecbed391905f9becb9ec1588
+            checksum/config: b77fb7a827de95deb339907af313cdec16b823deb6a36360d256a40e24472694
             test-key: test-value
           labels:
             app: mlflow
@@ -2211,7 +2242,7 @@ should match snapshot with additional values when postgresql is enabled:
       template:
         metadata:
           annotations:
-            checksum/config: 7cf756fca80e8aef42d169fa6f6f29599997639b9551fd43b22f2f9c1e04669c
+            checksum/config: 6b2e5b79819b41f2fb1616723011efa7695e94d68cb01a3f73683e5800ba3324
             test-key: test-value
           labels:
             app: mlflow
