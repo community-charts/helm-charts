@@ -147,20 +147,24 @@ should match snapshot with additional values:
       dbchecker.sh: |
         #!/bin/sh
 
-        if [[ -z "${PGHOST}" && -z "${MYSQL_HOST}" ]]; then
+        if [[ -z "${PGHOST}" && -z "${MYSQL_HOST}" && -z "${MSSQL_HOST}" ]]; then
           HOST="localhost"
-        elif [[ -z "${PGHOST}" ]]; then
+        elif [[ -z "${PGHOST}" && -z "${MSSQL_HOST}" ]]; then
           HOST="${MYSQL_HOST}"
-        else
+        elif [[ -z "${MSSQL_HOST}" && -z "${MYSQL_HOST}" ]]; then
           HOST="${PGHOST}"
+        else
+          HOST="${MSSQL_HOST}"
         fi
 
-        if [[ -z "${PGPORT}" && -z "${MYSQL_TCP_PORT}" ]]; then
+        if [[ -z "${PGPORT}" && -z "${MYSQL_TCP_PORT}" && -z "${MSSQL_TCP_PORT}" ]]; then
           PORT="5432"
-        elif [[ -z "${PGPORT}" ]]; then
+        elif [[ -z "${PGPORT}" && -z "${MSSQL_TCP_PORT}" ]]; then
           PORT="${MYSQL_TCP_PORT}"
-        else
+        elif [[ -z "${MSSQL_TCP_PORT}" && -z "${MYSQL_TCP_PORT}" ]]; then
           PORT="${PGPORT}"
+        else
+          PORT="${MSSQL_TCP_PORT}"
         fi
 
         COUNT=0
@@ -221,7 +225,7 @@ should match snapshot with additional values:
       template:
         metadata:
           annotations:
-            checksum/config: 7cf756fca80e8aef42d169fa6f6f29599997639b9551fd43b22f2f9c1e04669c
+            checksum/config: 6b2e5b79819b41f2fb1616723011efa7695e94d68cb01a3f73683e5800ba3324
             test-key: test-value
           labels:
             app: mlflow
@@ -468,20 +472,24 @@ should match snapshot with additional values when auth and auth.postgres are ena
       dbchecker.sh: |
         #!/bin/sh
 
-        if [[ -z "${PGHOST}" && -z "${MYSQL_HOST}" ]]; then
+        if [[ -z "${PGHOST}" && -z "${MYSQL_HOST}" && -z "${MSSQL_HOST}" ]]; then
           HOST="localhost"
-        elif [[ -z "${PGHOST}" ]]; then
+        elif [[ -z "${PGHOST}" && -z "${MSSQL_HOST}" ]]; then
           HOST="${MYSQL_HOST}"
-        else
+        elif [[ -z "${MSSQL_HOST}" && -z "${MYSQL_HOST}" ]]; then
           HOST="${PGHOST}"
+        else
+          HOST="${MSSQL_HOST}"
         fi
 
-        if [[ -z "${PGPORT}" && -z "${MYSQL_TCP_PORT}" ]]; then
+        if [[ -z "${PGPORT}" && -z "${MYSQL_TCP_PORT}" && -z "${MSSQL_TCP_PORT}" ]]; then
           PORT="5432"
-        elif [[ -z "${PGPORT}" ]]; then
+        elif [[ -z "${PGPORT}" && -z "${MSSQL_TCP_PORT}" ]]; then
           PORT="${MYSQL_TCP_PORT}"
-        else
+        elif [[ -z "${MSSQL_TCP_PORT}" && -z "${MYSQL_TCP_PORT}" ]]; then
           PORT="${PGPORT}"
+        else
+          PORT="${MSSQL_TCP_PORT}"
         fi
 
         COUNT=0
@@ -542,7 +550,7 @@ should match snapshot with additional values when auth and auth.postgres are ena
       template:
         metadata:
           annotations:
-            checksum/config: 7cf756fca80e8aef42d169fa6f6f29599997639b9551fd43b22f2f9c1e04669c
+            checksum/config: 6b2e5b79819b41f2fb1616723011efa7695e94d68cb01a3f73683e5800ba3324
             test-key: test-value
           labels:
             app: mlflow
@@ -806,20 +814,24 @@ should match snapshot with additional values when bitnami mysql is enabled:
       dbchecker.sh: |
         #!/bin/sh
 
-        if [[ -z "${PGHOST}" && -z "${MYSQL_HOST}" ]]; then
+        if [[ -z "${PGHOST}" && -z "${MYSQL_HOST}" && -z "${MSSQL_HOST}" ]]; then
           HOST="localhost"
-        elif [[ -z "${PGHOST}" ]]; then
+        elif [[ -z "${PGHOST}" && -z "${MSSQL_HOST}" ]]; then
           HOST="${MYSQL_HOST}"
-        else
+        elif [[ -z "${MSSQL_HOST}" && -z "${MYSQL_HOST}" ]]; then
           HOST="${PGHOST}"
+        else
+          HOST="${MSSQL_HOST}"
         fi
 
-        if [[ -z "${PGPORT}" && -z "${MYSQL_TCP_PORT}" ]]; then
+        if [[ -z "${PGPORT}" && -z "${MYSQL_TCP_PORT}" && -z "${MSSQL_TCP_PORT}" ]]; then
           PORT="5432"
-        elif [[ -z "${PGPORT}" ]]; then
+        elif [[ -z "${PGPORT}" && -z "${MSSQL_TCP_PORT}" ]]; then
           PORT="${MYSQL_TCP_PORT}"
-        else
+        elif [[ -z "${MSSQL_TCP_PORT}" && -z "${MYSQL_TCP_PORT}" ]]; then
           PORT="${PGPORT}"
+        else
+          PORT="${MSSQL_TCP_PORT}"
         fi
 
         COUNT=0
@@ -880,7 +892,7 @@ should match snapshot with additional values when bitnami mysql is enabled:
       template:
         metadata:
           annotations:
-            checksum/config: 5826804f40464dfefc92f94053865758e121d600bce4013a3615974cd5427111
+            checksum/config: 6065215544154dc24f5f908e4b106efbb173f5cc637a6e3d76ff9eae9b06b28b
             test-key: test-value
           labels:
             app: mlflow
@@ -1147,20 +1159,24 @@ should match snapshot with additional values when bitnami postgresql is enabled:
       dbchecker.sh: |
         #!/bin/sh
 
-        if [[ -z "${PGHOST}" && -z "${MYSQL_HOST}" ]]; then
+        if [[ -z "${PGHOST}" && -z "${MYSQL_HOST}" && -z "${MSSQL_HOST}" ]]; then
           HOST="localhost"
-        elif [[ -z "${PGHOST}" ]]; then
+        elif [[ -z "${PGHOST}" && -z "${MSSQL_HOST}" ]]; then
           HOST="${MYSQL_HOST}"
-        else
+        elif [[ -z "${MSSQL_HOST}" && -z "${MYSQL_HOST}" ]]; then
           HOST="${PGHOST}"
+        else
+          HOST="${MSSQL_HOST}"
         fi
 
-        if [[ -z "${PGPORT}" && -z "${MYSQL_TCP_PORT}" ]]; then
+        if [[ -z "${PGPORT}" && -z "${MYSQL_TCP_PORT}" && -z "${MSSQL_TCP_PORT}" ]]; then
           PORT="5432"
-        elif [[ -z "${PGPORT}" ]]; then
+        elif [[ -z "${PGPORT}" && -z "${MSSQL_TCP_PORT}" ]]; then
           PORT="${MYSQL_TCP_PORT}"
-        else
+        elif [[ -z "${MSSQL_TCP_PORT}" && -z "${MYSQL_TCP_PORT}" ]]; then
           PORT="${PGPORT}"
+        else
+          PORT="${MSSQL_TCP_PORT}"
         fi
 
         COUNT=0
@@ -1221,7 +1237,7 @@ should match snapshot with additional values when bitnami postgresql is enabled:
       template:
         metadata:
           annotations:
-            checksum/config: 12f0efcb6b8d7385900db3813272b6b491230a579d255f012186d3ee4d879a05
+            checksum/config: ee05d6c851b77df0b10835b328e6dbd4d51f118ccebc0a1fe327a8662778281f
             test-key: test-value
           labels:
             app: mlflow
@@ -1447,7 +1463,7 @@ should match snapshot with additional values when bitnami postgresql is enabled:
             - configMap:
                 name: example
               name: example
-should match snapshot with additional values when mysql is enabled:
+should match snapshot with additional values when mssql is enabled:
   1: |
     apiVersion: v1
     data:
@@ -1455,9 +1471,9 @@ should match snapshot with additional values when mysql is enabled:
       MLFLOW_CONFIGURE_LOGGING: "true"
       MLFLOW_DISABLE_TELEMETRY: "true"
       MLFLOW_LOGGING_LEVEL: INFO
-      MYSQL_DATABASE: test-database
-      MYSQL_HOST: test-host
-      MYSQL_TCP_PORT: "3306"
+      MSSQL_DATABASE: test-database
+      MSSQL_HOST: test-host
+      MSSQL_TCP_PORT: "1433"
     kind: ConfigMap
     metadata:
       labels:
@@ -1472,12 +1488,12 @@ should match snapshot with additional values when mysql is enabled:
       migrations.py: |-
         from mlflow.store.db import utils
         import os
-        username = os.getenv("MYSQL_USERNAME")
-        password = os.getenv("MYSQL_PWD")
-        host = os.getenv("MYSQL_HOST")
-        port = os.getenv("MYSQL_TCP_PORT")
-        database = os.getenv("MYSQL_DATABASE")
-        engine = utils.create_sqlalchemy_engine_with_retry(f"mysql+pymysql://{username}:{password}@{host}:{port}/{database}")
+        username = os.getenv("MSSQL_USERNAME")
+        password = os.getenv("MSSQL_PWD")
+        host = os.getenv("MSSQL_HOST")
+        port = os.getenv("MSSQL_TCP_PORT")
+        database = os.getenv("MSSQL_DATABASE")
+        engine = utils.create_sqlalchemy_engine_with_retry(f"mssql+pymssql://{username}:{password}@{host}:{port}/{database}")
         utils._initialize_tables(engine)
     kind: ConfigMap
     metadata:
@@ -1493,20 +1509,24 @@ should match snapshot with additional values when mysql is enabled:
       dbchecker.sh: |
         #!/bin/sh
 
-        if [[ -z "${PGHOST}" && -z "${MYSQL_HOST}" ]]; then
+        if [[ -z "${PGHOST}" && -z "${MYSQL_HOST}" && -z "${MSSQL_HOST}" ]]; then
           HOST="localhost"
-        elif [[ -z "${PGHOST}" ]]; then
+        elif [[ -z "${PGHOST}" && -z "${MSSQL_HOST}" ]]; then
           HOST="${MYSQL_HOST}"
-        else
+        elif [[ -z "${MSSQL_HOST}" && -z "${MYSQL_HOST}" ]]; then
           HOST="${PGHOST}"
+        else
+          HOST="${MSSQL_HOST}"
         fi
 
-        if [[ -z "${PGPORT}" && -z "${MYSQL_TCP_PORT}" ]]; then
+        if [[ -z "${PGPORT}" && -z "${MYSQL_TCP_PORT}" && -z "${MSSQL_TCP_PORT}" ]]; then
           PORT="5432"
-        elif [[ -z "${PGPORT}" ]]; then
+        elif [[ -z "${PGPORT}" && -z "${MSSQL_TCP_PORT}" ]]; then
           PORT="${MYSQL_TCP_PORT}"
-        else
+        elif [[ -z "${MSSQL_TCP_PORT}" && -z "${MYSQL_TCP_PORT}" ]]; then
           PORT="${PGPORT}"
+        else
+          PORT="${MSSQL_TCP_PORT}"
         fi
 
         COUNT=0
@@ -1567,7 +1587,337 @@ should match snapshot with additional values when mysql is enabled:
       template:
         metadata:
           annotations:
-            checksum/config: cf97228f92e9e7a556787864ae424f440d546d75ecbed391905f9becb9ec1588
+            checksum/config: 132468a70ffb94392b5ec6c39d6ff0982eb72bae302ed42995dc2a9c5daa21c2
+            test-key: test-value
+          labels:
+            app: mlflow
+            app.kubernetes.io/instance: mlflow
+            app.kubernetes.io/name: mlflow
+            azure.workload.identity/use: "true"
+        spec:
+          affinity:
+            nodeAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+                - preference:
+                    matchExpressions:
+                      - key: custom-key
+                        operator: In
+                        values:
+                          - custom-value
+                  weight: 1
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: kubernetes.io/e2e-az-name
+                        operator: In
+                        values:
+                          - e2e-az1
+                          - e2e-az2
+          containers:
+            - args:
+                - server
+                - --host=0.0.0.0
+                - --port=5000
+                - --backend-store-uri=mssql+pymssql://$(MSSQL_USERNAME):$(MSSQL_PWD)@$(MSSQL_HOST):$(MSSQL_TCP_PORT)/$(MSSQL_DATABASE)
+                - --default-artifact-root=./mlruns
+                - --app-name=basic-auth
+                - --gunicorn-opts='--log-level=info'
+              command:
+                - mlflow
+              env:
+                - name: MLFLOW_VERSION
+                  value: 1.0.0
+                - name: MLFLOW_AUTH_CONFIG_PATH
+                  value: /etc/mlflow/auth/basic_auth.ini
+              envFrom:
+                - configMapRef:
+                    name: mlflow-env-configmap
+                - secretRef:
+                    name: mlflow-env-secret
+                - secretRef:
+                    name: mlflow-flask-server-secret-key
+              image: burakince/mlflow:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 5
+                httpGet:
+                  path: /health
+                  port: mlflow
+                initialDelaySeconds: 10
+                periodSeconds: 30
+                timeoutSeconds: 3
+              name: mlflow
+              ports:
+                - containerPort: 5000
+                  name: mlflow
+                  protocol: TCP
+              readinessProbe:
+                failureThreshold: 5
+                httpGet:
+                  path: /health
+                  port: mlflow
+                initialDelaySeconds: 10
+                periodSeconds: 30
+                timeoutSeconds: 3
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
+              volumeMounts:
+                - mountPath: /etc/mlflow/auth/basic_auth.ini
+                  name: ini-file
+                  readOnly: true
+                  subPath: auth_result.ini
+                - mountPath: /mlflow/data
+                  name: mlflow-volume
+                - mountPath: /example
+                  name: example
+          initContainers:
+            - command:
+                - /script/dbchecker.sh
+              envFrom:
+                - configMapRef:
+                    name: mlflow-env-configmap
+              image: busybox:1.32
+              imagePullPolicy: IfNotPresent
+              name: dbchecker
+              volumeMounts:
+                - mountPath: /script/dbchecker.sh
+                  name: dbchecker
+                  subPath: dbchecker.sh
+            - args:
+                - /opt/mlflow/migrations.py
+              command:
+                - python
+              envFrom:
+                - configMapRef:
+                    name: mlflow-env-configmap
+                - secretRef:
+                    name: mlflow-env-secret
+                - secretRef:
+                    name: mlflow-flask-server-secret-key
+              image: burakince/mlflow:1.0.0
+              imagePullPolicy: IfNotPresent
+              name: mlflow-db-migration
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
+              volumeMounts:
+                - mountPath: /opt/mlflow/migrations.py
+                  name: migrations-config
+                  readOnly: true
+                  subPath: migrations.py
+            - args:
+                - |
+                  sed -e "s/\$(ADMIN_USERNAME_PLACEHOLDER)/${ADMIN_USERNAME}/g" \
+                      -e "s/\$(ADMIN_PASSWORD_PLACEHOLDER)/${ADMIN_PASSWORD}/g" \
+                      /template/auth_template.ini > /config/auth_result.ini
+              command:
+                - sh
+                - -c
+              env:
+                - name: ADMIN_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      key: username
+                      name: mlflow-auth-admin-secret
+                - name: ADMIN_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: password
+                      name: mlflow-auth-admin-secret
+              image: busybox:1.32
+              imagePullPolicy: IfNotPresent
+              name: ini-file-initializer
+              volumeMounts:
+                - mountPath: /template
+                  name: auth-ini-template-file
+                  readOnly: true
+                - mountPath: /config
+                  name: ini-file
+            - image: busybox:1.28
+              name: init-myservice
+          nodeSelector:
+            disktype: ssd
+          securityContext:
+            fsGroup: 1001
+            fsGroupChangePolicy: OnRootMismatch
+          serviceAccountName: mlflow
+          tolerations:
+            - effect: NoSchedule
+              key: example-key
+              operator: Exists
+          volumes:
+            - configMap:
+                defaultMode: 511
+                name: mlflow-dbchecker
+              name: dbchecker
+            - configMap:
+                name: mlflow-migrations
+              name: migrations-config
+            - emptyDir: {}
+              name: ini-file
+            - configMap:
+                name: mlflow-auth-ini-template
+              name: auth-ini-template-file
+            - name: mlflow-volume
+              persistentVolumeClaim:
+                claimName: mlflow-pv-volume
+            - configMap:
+                name: example
+              name: example
+should match snapshot with additional values when mysql is enabled:
+  1: |
+    apiVersion: v1
+    data:
+      DO_NOT_TRACK: "true"
+      MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_DISABLE_TELEMETRY: "true"
+      MLFLOW_LOGGING_LEVEL: INFO
+      MYSQL_DATABASE: test-database
+      MYSQL_HOST: test-host
+      MYSQL_TCP_PORT: "3306"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-env-configmap
+  2: |
+    apiVersion: v1
+    data:
+      migrations.py: |-
+        from mlflow.store.db import utils
+        import os
+        username = os.getenv("MYSQL_USERNAME")
+        password = os.getenv("MYSQL_PWD")
+        host = os.getenv("MYSQL_HOST")
+        port = os.getenv("MYSQL_TCP_PORT")
+        database = os.getenv("MYSQL_DATABASE")
+        engine = utils.create_sqlalchemy_engine_with_retry(f"mysql+pymysql://{username}:{password}@{host}:{port}/{database}")
+        utils._initialize_tables(engine)
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-migrations
+  3: |
+    apiVersion: v1
+    data:
+      dbchecker.sh: |
+        #!/bin/sh
+
+        if [[ -z "${PGHOST}" && -z "${MYSQL_HOST}" && -z "${MSSQL_HOST}" ]]; then
+          HOST="localhost"
+        elif [[ -z "${PGHOST}" && -z "${MSSQL_HOST}" ]]; then
+          HOST="${MYSQL_HOST}"
+        elif [[ -z "${MSSQL_HOST}" && -z "${MYSQL_HOST}" ]]; then
+          HOST="${PGHOST}"
+        else
+          HOST="${MSSQL_HOST}"
+        fi
+
+        if [[ -z "${PGPORT}" && -z "${MYSQL_TCP_PORT}" && -z "${MSSQL_TCP_PORT}" ]]; then
+          PORT="5432"
+        elif [[ -z "${PGPORT}" && -z "${MSSQL_TCP_PORT}" ]]; then
+          PORT="${MYSQL_TCP_PORT}"
+        elif [[ -z "${MSSQL_TCP_PORT}" && -z "${MYSQL_TCP_PORT}" ]]; then
+          PORT="${PGPORT}"
+        else
+          PORT="${MSSQL_TCP_PORT}"
+        fi
+
+        COUNT=0
+
+        function fib() {
+          if [ $1 -le 0 ]; then
+            echo 0
+          elif [ $1 -eq 1 ]; then
+            echo 1
+          else
+            echo $(( $(fib $(($1 - 1)) ) + $(fib $(($1 - 2)) ) ))
+          fi
+        }
+
+        echo "[INFO] Waiting for Database to become ready..."
+
+        until nc -z -w 2 $HOST $PORT; do
+          COUNT=$((COUNT + 1));
+          SLEEP_TIME=$(fib $COUNT);
+          echo "[WARNING] Unable to access database! Sleeping $SLEEP_TIME seconds. Waiting for $HOST to listen on $PORT...";
+          sleep $SLEEP_TIME;
+        done;
+
+        echo "[INFO] Database OK ✓"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-dbchecker
+  4: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
+      name: mlflow
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: mlflow
+          app.kubernetes.io/instance: mlflow
+          app.kubernetes.io/name: mlflow
+      strategy:
+        rollingUpdate:
+          maxSurge: 100%
+          maxUnavailable: 0
+        type: RollingUpdate
+      template:
+        metadata:
+          annotations:
+            checksum/config: b77fb7a827de95deb339907af313cdec16b823deb6a36360d256a40e24472694
             test-key: test-value
           labels:
             app: mlflow
@@ -1814,20 +2164,24 @@ should match snapshot with additional values when postgresql is enabled:
       dbchecker.sh: |
         #!/bin/sh
 
-        if [[ -z "${PGHOST}" && -z "${MYSQL_HOST}" ]]; then
+        if [[ -z "${PGHOST}" && -z "${MYSQL_HOST}" && -z "${MSSQL_HOST}" ]]; then
           HOST="localhost"
-        elif [[ -z "${PGHOST}" ]]; then
+        elif [[ -z "${PGHOST}" && -z "${MSSQL_HOST}" ]]; then
           HOST="${MYSQL_HOST}"
-        else
+        elif [[ -z "${MSSQL_HOST}" && -z "${MYSQL_HOST}" ]]; then
           HOST="${PGHOST}"
+        else
+          HOST="${MSSQL_HOST}"
         fi
 
-        if [[ -z "${PGPORT}" && -z "${MYSQL_TCP_PORT}" ]]; then
+        if [[ -z "${PGPORT}" && -z "${MYSQL_TCP_PORT}" && -z "${MSSQL_TCP_PORT}" ]]; then
           PORT="5432"
-        elif [[ -z "${PGPORT}" ]]; then
+        elif [[ -z "${PGPORT}" && -z "${MSSQL_TCP_PORT}" ]]; then
           PORT="${MYSQL_TCP_PORT}"
-        else
+        elif [[ -z "${MSSQL_TCP_PORT}" && -z "${MYSQL_TCP_PORT}" ]]; then
           PORT="${PGPORT}"
+        else
+          PORT="${MSSQL_TCP_PORT}"
         fi
 
         COUNT=0
@@ -1888,7 +2242,7 @@ should match snapshot with additional values when postgresql is enabled:
       template:
         metadata:
           annotations:
-            checksum/config: 7cf756fca80e8aef42d169fa6f6f29599997639b9551fd43b22f2f9c1e04669c
+            checksum/config: 6b2e5b79819b41f2fb1616723011efa7695e94d68cb01a3f73683e5800ba3324
             test-key: test-value
           labels:
             app: mlflow

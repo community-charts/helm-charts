@@ -19,6 +19,8 @@
   {{- $dbConnectionDriver = printf "+%s" .Values.backendStore.postgres.driver }}
 {{- else if and (or .Values.backendStore.mysql.enabled .Values.mysql.enabled) .Values.backendStore.mysql.driver }}
   {{- $dbConnectionDriver = printf "+%s" .Values.backendStore.mysql.driver }}
+{{- else if and .Values.backendStore.mssql.enabled .Values.backendStore.mssql.driver }}
+  {{- $dbConnectionDriver = printf "+%s" .Values.backendStore.mssql.driver }}
 {{- end }}
 apiVersion: apps/v1
 kind: Deployment
@@ -62,10 +64,10 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-    {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) (or .Values.backendStore.databaseConnectionCheck .Values.backendStore.databaseMigration) ) .Values.auth.enabled .Values.ldapAuth.enabled .Values.initContainers }}
+    {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) (or .Values.backendStore.databaseConnectionCheck .Values.backendStore.databaseMigration) ) .Values.auth.enabled .Values.ldapAuth.enabled .Values.initContainers }}
       initContainers:
     {{- end }}
-      {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
+      {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
         - name: dbchecker
           image: "busybox:1.32"
           imagePullPolicy: IfNotPresent
@@ -122,6 +124,18 @@ spec:
                   name: {{ .Values.backendStore.existingDatabaseSecret.name }}
                   key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
             {{- end }}
+            {{- if .Values.backendStore.mssql.enabled }}
+            - name: MSSQL_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+                  key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
+            - name: MSSQL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+                  key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
+            {{- end }}
           {{- end }}
           envFrom:
             - configMapRef:
@@ -131,7 +145,7 @@ spec:
               mountPath: /script/dbchecker.sh
               subPath: dbchecker.sh
       {{- end }}
-      {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseMigration }}
+      {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseMigration }}
         - name: "mlflow-db-migration"
           {{- with .Values.securityContext }}
           securityContext:
@@ -188,6 +202,18 @@ spec:
                   name: {{ .Values.backendStore.existingDatabaseSecret.name }}
                   key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
             - name: MYSQL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+                  key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
+            {{- end }}
+            {{- if .Values.backendStore.mssql.enabled }}
+            - name: MSSQL_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+                  key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
+            - name: MSSQL_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.backendStore.existingDatabaseSecret.name }}
@@ -274,6 +300,8 @@ spec:
             - --backend-store-uri=postgresql{{ $dbConnectionDriver }}://
           {{- else if or .Values.backendStore.mysql.enabled .Values.mysql.enabled }}
             - --backend-store-uri=mysql{{ $dbConnectionDriver }}://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
+          {{- else if or .Values.backendStore.mssql.enabled }}
+            - --backend-store-uri=mssql{{ $dbConnectionDriver }}://$(MSSQL_USERNAME):$(MSSQL_PWD)@$(MSSQL_HOST):$(MSSQL_TCP_PORT)/$(MSSQL_DATABASE)
           {{- else }}
             - "--backend-store-uri=sqlite:///{{ .Values.backendStore.defaultSqlitePath }}"
           {{- end }}
@@ -387,6 +415,18 @@ spec:
                   name: {{ .Values.backendStore.existingDatabaseSecret.name }}
                   key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
             {{- end }}
+            {{- if .Values.backendStore.mssql.enabled }}
+            - name: MSSQL_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+                  key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
+            - name: MSSQL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+                  key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
+            {{- end }}
           {{- end }}
           {{- if and .Values.artifactRoot.s3.enabled .Values.artifactRoot.s3.existingSecret.name }}
             {{- if .Values.artifactRoot.s3.existingSecret.keyOfAccessKeyId }}
@@ -457,15 +497,15 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) (or .Values.backendStore.databaseConnectionCheck .Values.backendStore.databaseMigration) ) .Values.extraVolumes .Values.auth.enabled .Values.ldapAuth.enabled }}
+      {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) (or .Values.backendStore.databaseConnectionCheck .Values.backendStore.databaseMigration) ) .Values.extraVolumes .Values.auth.enabled .Values.ldapAuth.enabled }}
       volumes:
-        {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
+        {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
         - name: dbchecker
           configMap:
             name: {{ template "mlflow.fullname" . }}-dbchecker
             defaultMode: 0777
         {{- end }}
-        {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseMigration }}
+        {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseMigration }}
         - name: migrations-config
           configMap:
             name: {{ template "mlflow.fullname" . }}-migrations

@@ -143,6 +143,22 @@ backendStore:
     # -- mysql database connection driver. e.g.: "pymysql"
     driver: "pymysql"
 
+  mssql:
+    # -- Specifies if you want to use mssql backend storage
+    enabled: false
+    # -- mssql host address
+    host: "" # required
+    # -- mssql service port
+    port: 1433 # required
+    # -- mlflow database name created before in the mssql instance
+    database: "" # required
+    # -- mssql database user name which can access to mlflow database
+    user: "" # required
+    # -- mssql database user password which can access to mlflow database
+    password: "" # required
+    # -- mssql database connection driver. e.g.: "pymssql"
+    driver: "pymssql"
+
   # -- Specifies if you want to use an existing database secret.
   existingDatabaseSecret:
     # -- The name of the existing database secret.

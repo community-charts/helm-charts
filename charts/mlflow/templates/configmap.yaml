@@ -23,6 +23,11 @@ data:
   MYSQL_TCP_PORT: {{ required "mysql port must be specified" .Values.backendStore.mysql.port | quote }}
   MYSQL_DATABASE: {{ required "mysql database must be specified" .Values.backendStore.mysql.database }}
 {{- end }}
+{{- if .Values.backendStore.mssql.enabled }}
+  MSSQL_HOST: {{ required "mssql host must be specified" .Values.backendStore.mssql.host }}
+  MSSQL_TCP_PORT: {{ required "mssql port must be specified" .Values.backendStore.mssql.port | quote }}
+  MSSQL_DATABASE: {{ required "mssql database must be specified" .Values.backendStore.mssql.database }}
+{{- end }}
 {{- if .Values.mysql.enabled }}
   MYSQL_HOST: {{ template "mlflow.fullname" . }}-mysql
   MYSQL_TCP_PORT: {{ default "3306" .Values.mysql.primary.service.ports.mysql | quote }}
@@ -37,12 +42,14 @@ data:
   DO_NOT_TRACK: "true"
 {{- end }}
 ---
-{{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseMigration }}
+{{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseMigration }}
 {{- $dbConnectionDriver := "" }}
 {{- if and (or .Values.backendStore.postgres.enabled .Values.postgresql.enabled .Values.postgresql.enabled) .Values.backendStore.postgres.driver }}
   {{- $dbConnectionDriver = printf "+%s" .Values.backendStore.postgres.driver }}
 {{- else if and (or .Values.backendStore.mysql.enabled .Values.mysql.enabled) .Values.backendStore.mysql.driver }}
   {{- $dbConnectionDriver = printf "+%s" .Values.backendStore.mysql.driver }}
+{{- else if and .Values.backendStore.mssql.enabled .Values.backendStore.mssql.driver }}
+  {{- $dbConnectionDriver = printf "+%s" .Values.backendStore.mssql.driver }}
 {{- end }}
 apiVersion: v1
 kind: ConfigMap
@@ -68,10 +75,17 @@ data:
     port = os.getenv("MYSQL_TCP_PORT")
     database = os.getenv("MYSQL_DATABASE")
     engine = utils.create_sqlalchemy_engine_with_retry(f"mysql{{ $dbConnectionDriver }}://{username}:{password}@{host}:{port}/{database}")
+  {{- else if .Values.backendStore.mssql.enabled }}
+    username = os.getenv("MSSQL_USERNAME")
+    password = os.getenv("MSSQL_PWD")
+    host = os.getenv("MSSQL_HOST")
+    port = os.getenv("MSSQL_TCP_PORT")
+    database = os.getenv("MSSQL_DATABASE")
+    engine = utils.create_sqlalchemy_engine_with_retry(f"mssql{{ $dbConnectionDriver }}://{username}:{password}@{host}:{port}/{database}")
   {{- end }}
     utils._initialize_tables(engine)
 {{- end }}
-{{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
+{{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
 ---
 apiVersion: v1
 kind: ConfigMap

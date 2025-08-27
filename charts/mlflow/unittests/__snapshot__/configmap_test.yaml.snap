@@ -52,6 +52,25 @@ should match snapshot of default values with bitnami postgresql:
         heritage: Helm
         release: mlflow
       name: mlflow-env-configmap
+should match snapshot of default values with mssql:
+  1: |
+    apiVersion: v1
+    data:
+      DO_NOT_TRACK: "true"
+      MLFLOW_CONFIGURE_LOGGING: "true"
+      MLFLOW_DISABLE_TELEMETRY: "true"
+      MLFLOW_LOGGING_LEVEL: INFO
+      MSSQL_DATABASE: mlflow
+      MSSQL_HOST: mssql-custom-service
+      MSSQL_TCP_PORT: "5555"
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        chart: mlflow-1.0.0
+        heritage: Helm
+        release: mlflow
+      name: mlflow-env-configmap
 should match snapshot of default values with mysql:
   1: |
     apiVersion: v1
