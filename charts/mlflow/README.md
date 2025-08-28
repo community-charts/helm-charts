@@ -703,6 +703,9 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | image.repository | string | `"burakince/mlflow"` | The docker image repository to use |
 | image.tag | string | `""` | The docker image tag to use. Default app version |
 | imagePullSecrets | list | `[]` | Image pull secrets for private docker registry usages |
+| initImage.pullPolicy | string | `"IfNotPresent"` | The docker init image pull policy |
+| initImage.repository | string | `"busybox"` | The docker init image repository to use |
+| initImage.tag | string | `"1.32"` | The docker init image tag to use |
 | ingress.annotations | object | `{}` | Additional ingress annotations |
 | ingress.className | string | `""` | New style ingress class name. Only possible if you use K8s 1.18.0 or later version |
 | ingress.enabled | bool | `false` | Specifies if you want to create an ingress access |

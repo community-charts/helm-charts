@@ -52,6 +52,8 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
+      description: Update chart to support values for init containers
+    - kind: changed
       description: Update burakince/mlflow image version to 3.3.2
       links:
         - name: Upstream Project
