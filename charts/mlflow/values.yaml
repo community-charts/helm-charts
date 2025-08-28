@@ -15,6 +15,12 @@ image:
   # -- The docker image tag to use. Default app version
   tag: ""
 
+# mlflow init image
+initImage:
+  repository: busybox
+  tag: "1.32"
+  pullPolicy: IfNotPresent
+
 # -- This will set the deployment strategy more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
 strategy:
   type: "RollingUpdate"

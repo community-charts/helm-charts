@@ -784,6 +784,37 @@
       "title": "image",
       "type": "object"
     },
+    "initImage": {
+      "additionalProperties": false,
+      "description": "mlflow init image",
+      "properties": {
+        "pullPolicy": {
+          "default": "IfNotPresent",
+          "description": "The docker image pull policy",
+          "required": [],
+          "title": "pullPolicy",
+          "type": "string",
+          "enum": ["IfNotPresent", "Never", "Always"]
+        },
+        "repository": {
+          "default": "busybox",
+          "description": "The docker image repository to use",
+          "required": [],
+          "title": "repository",
+          "type": "string"
+        },
+        "tag": {
+          "default": "1.32",
+          "description": "The docker image tag to use. Default app version",
+          "required": [],
+          "title": "tag",
+          "type": "string"
+        }
+      },
+      "required": ["repository", "pullPolicy", "tag"],
+      "title": "image",
+      "type": "object"
+    },
     "imagePullSecrets": {
       "description": "Image pull secrets for private docker registry usages",
       "items": {
