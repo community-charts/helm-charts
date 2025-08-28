@@ -67,8 +67,8 @@ spec:
     {{- end }}
       {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
         - name: dbchecker
-          image: "busybox:1.32"
-          imagePullPolicy: IfNotPresent
+          image: "{{ .Values.initImage.repository }}:{{ .Values.initImage.tag }}"
+          imagePullPolicy: {{ .Values.initImage.pullPolicy }}
           command: [ "/script/dbchecker.sh" ]
         {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name }}
           env:
@@ -212,8 +212,8 @@ spec:
       {{- end }}
       {{- if or .Values.auth.enabled .Values.ldapAuth.enabled }}
         - name: ini-file-initializer
-          image: "busybox:1.32"
-          imagePullPolicy: IfNotPresent
+          image: "{{ .Values.initImage.repository }}:{{ .Values.initImage.tag }}"
+          imagePullPolicy: {{ .Values.initImage.pullPolicy }}
           command: ['sh', '-c']
           args:
             - |
