@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.6.1
+version: 1.6.2
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "3.3.1"
+appVersion: "3.3.2"
 kubeVersion: ">=1.16.0-0"
 home: https://mlflow.org
 maintainers:
@@ -52,23 +52,18 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update burakince/mlflow image version to 3.3.1
+      description: Update burakince/mlflow image version to 3.3.2
       links:
         - name: Upstream Project
           url: https://hub.docker.com/r/burakince/mlflow
     - kind: changed
-      description: Update dependency postgresql from 16.7.21 to 16.7.26
+      description: Update dependency postgresql from 16.7.26 to 16.7.27
       links:
         - name: ArtifactHub
           url: https://artifacthub.io/packages/helm/bitnami/postgresql
-    - kind: changed
-      description: Update dependency mysql from 14.0.0 to 14.0.3
-      links:
-        - name: ArtifactHub
-          url: https://artifacthub.io/packages/helm/bitnami/mysql
   artifacthub.io/images: |
     - name: mlflow
-      image: burakince/mlflow:3.3.1
+      image: burakince/mlflow:3.3.2
   artifacthub.io/license: MIT
   artifacthub.io/maintainers: |
     - name: burakince
@@ -101,7 +96,7 @@ annotations:
     url: https://keybase.io/communitycharts/pgp_keys.asc
 dependencies:
   - name: postgresql
-    version: 16.7.26
+    version: 16.7.27
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: mysql
