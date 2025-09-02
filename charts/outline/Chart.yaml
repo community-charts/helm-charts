@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.6.3
+version: 0.6.4
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "0.87.1"
+appVersion: "0.87.3"
 kubeVersion: ">=1.23.0-0"
 home: https://www.getoutline.com/
 maintainers:
@@ -53,23 +53,13 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update outlinewiki/outline image version to 0.87.1
+      description: Update outlinewiki/outline image version to 0.87.3
       links:
         - name: Upstream Project
           url: https://hub.docker.com/r/outlinewiki/outline
-    - kind: changed
-      description: Update dependency redis from 22.0.1 to 22.0.7
-      links:
-        - name: ArtifactHub
-          url: https://artifacthub.io/packages/helm/bitnami/redis
-    - kind: changed
-      description: Update dependency postgresql from 16.7.24 to 16.7.27
-      links:
-        - name: ArtifactHub
-          url: https://artifacthub.io/packages/helm/bitnami/postgresql
   artifacthub.io/images: |
     - name: outline
-      image: outlinewiki/outline:0.87.1
+      image: outlinewiki/outline:0.87.3
       platforms:
         - linux/amd64
         - linux/arm64
