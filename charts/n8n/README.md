@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.15.4](https://img.shields.io/badge/Version-1.15.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.109.2](https://img.shields.io/badge/AppVersion-1.109.2-informational?style=flat-square)
+![Version: 1.15.5](https://img.shields.io/badge/Version-1.15.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.110.1](https://img.shields.io/badge/AppVersion-1.110.1-informational?style=flat-square)
 
 ## Official Documentation
 
