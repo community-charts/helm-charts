@@ -63,8 +63,7 @@ securityContext:
   capabilities:
     drop:
       - ALL
-    add:
-      - NET_RAW
+    add: []
   readOnlyRootFilesystem: true
   runAsNonRoot: true
   privileged: false
