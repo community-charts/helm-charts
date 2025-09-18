@@ -855,8 +855,9 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | readinessProbe.initialDelaySeconds | int | `10` | This is for setting up the initial delay seconds. |
 | readinessProbe.periodSeconds | int | `30` | This is for setting up the period seconds. |
 | readinessProbe.timeoutSeconds | int | `3` | This is for setting up the timeout seconds. |
-| redis | object | `{"architecture":"standalone","auth":{"enabled":true},"enabled":false,"master":{"persistence":{"enabled":false},"service":{"ports":{"redis":6379}}}}` | Bitnami Redis configuration |
+| redis | object | `{"architecture":"standalone","auth":{"enabled":true},"enabled":false,"image":{"repository":"bitnamilegacy/redis"},"master":{"persistence":{"enabled":false},"service":{"ports":{"redis":6379}}}}` | Bitnami Redis configuration |
 | redis.enabled | bool | `false` | Enable redis |
+| redis.image.repository | string | `"bitnamilegacy/redis"` | This is temporary workaround because of bitnami's deprecation until to completely replace it with our solution. |
 | replicaCount | int | `1` |  |
 | resources | object | `{}` | This is to setup the resources more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
 | secretKey | string | `""` | This is for setting up the secret key. It will be auto generated if not set and external secret is not set. |
