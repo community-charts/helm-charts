@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 1.7.0](https://img.shields.io/badge/Version-1.7.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.3.1](https://img.shields.io/badge/AppVersion-3.3.1-informational?style=flat-square)
+![Version: 1.7.0](https://img.shields.io/badge/Version-1.7.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.4.0](https://img.shields.io/badge/AppVersion-3.4.0-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -587,7 +587,7 @@ Kubernetes: `>=1.16.0-0`
 | Repository | Name | Version |
 |------------|------|---------|
 | https://charts.bitnami.com/bitnami | mysql | 14.0.3 |
-| https://charts.bitnami.com/bitnami | postgresql | 16.7.26 |
+| https://charts.bitnami.com/bitnami | postgresql | 16.7.27 |
 
 ## Uninstall Helm Chart
 
@@ -735,16 +735,18 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | log | object | `{"enabled":true,"level":"info"}` | Mlflow logging settings |
 | log.enabled | bool | `true` | Specifies if you want to enable mlflow logging. |
 | log.level | string | `"info"` | Mlflow logging level. |
-| mysql | object | `{"architecture":"standalone","auth":{"database":"mlflow","password":"","username":""},"enabled":false,"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"mysql":3306}}}}` | Bitnami MySQL configuration. For more information checkout: https://github.com/bitnami/charts/tree/main/bitnami/mysql |
+| mysql | object | `{"architecture":"standalone","auth":{"database":"mlflow","password":"","username":""},"enabled":false,"image":{"repository":"bitnamilegacy/mysql"},"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"mysql":3306}}}}` | Bitnami MySQL configuration. For more information checkout: https://github.com/bitnami/charts/tree/main/bitnami/mysql |
 | mysql.auth.database | string | `"mlflow"` | The name of the MySQL database. |
 | mysql.enabled | bool | `false` | Enable mysql |
+| mysql.image.repository | string | `"bitnamilegacy/mysql"` | This is temporary workaround because of bitnami's deprecation until to completely replace it with our solution. |
 | nameOverride | string | `""` | String to override the default generated name |
 | nodeSelector | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector |
 | podAnnotations | object | `{}` | Annotations for the pod |
 | podSecurityContext | object | `{"fsGroup":1001,"fsGroupChangePolicy":"OnRootMismatch"}` | This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
-| postgresql | object | `{"architecture":"standalone","auth":{"database":"mlflow","password":"","username":""},"enabled":false,"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"postgresql":5432}}}}` | Bitnami PostgreSQL configuration. For more information checkout: https://github.com/bitnami/charts/tree/main/bitnami/postgresql |
+| postgresql | object | `{"architecture":"standalone","auth":{"database":"mlflow","password":"","username":""},"enabled":false,"image":{"repository":"bitnamilegacy/postgresql"},"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"postgresql":5432}}}}` | Bitnami PostgreSQL configuration. For more information checkout: https://github.com/bitnami/charts/tree/main/bitnami/postgresql |
 | postgresql.auth.database | string | `"mlflow"` | The name of the PostgreSQL database. |
 | postgresql.enabled | bool | `false` | Enable postgresql |
+| postgresql.image.repository | string | `"bitnamilegacy/postgresql"` | This is temporary workaround because of bitnami's deprecation until to completely replace it with our solution. |
 | readinessProbe | object | `{"failureThreshold":5,"initialDelaySeconds":10,"periodSeconds":30,"timeoutSeconds":3}` | Readiness probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes). |
 | replicaCount | int | `1` | Numbers of replicas |
 | resources | object | `{}` | This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |

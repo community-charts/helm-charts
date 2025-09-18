@@ -19,7 +19,7 @@ version: 1.7.0
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "3.3.1"
+appVersion: "3.4.0"
 kubeVersion: ">=1.16.0-0"
 home: https://mlflow.org
 maintainers:
@@ -53,9 +53,12 @@ annotations:
   artifacthub.io/changes: |-
     - kind: added
       description: Add backend store support for mssql.
+      links:
+        - name: GitHub Issue
+          url: https://github.com/burakince/mlflow/issues/288
   artifacthub.io/images: |
     - name: mlflow
-      image: burakince/mlflow:3.3.1
+      image: burakince/mlflow:3.4.0
   artifacthub.io/license: MIT
   artifacthub.io/maintainers: |
     - name: burakince
@@ -88,7 +91,7 @@ annotations:
     url: https://keybase.io/communitycharts/pgp_keys.asc
 dependencies:
   - name: postgresql
-    version: 16.7.26
+    version: 16.7.27
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: mysql
