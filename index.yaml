@@ -17760,6 +17760,119 @@ entries:
   - annotations:
       artifacthub.io/changes: |-
         - kind: changed
+          description: Update n8nio/n8n image version to 1.111.1
+          links:
+            - name: Upstream Project
+              url: https://github.com/n8n-io/n8n
+      artifacthub.io/containsSecurityUpdates: "false"
+      artifacthub.io/images: |
+        - name: n8n
+          image: n8nio/n8n:1.111.1
+          platforms:
+            - linux/amd64
+            - linux/arm64
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/community-charts/helm-charts
+        - name: Chart Usage Page
+          url: https://community-charts.github.io/docs/charts/n8n/usage
+        - name: Upstream Project
+          url: https://github.com/n8n-io/n8n
+        - name: Official Documentation
+          url: https://docs.n8n.io/
+      artifacthub.io/maintainers: |
+        - name: burakince
+          email: burak.ince@linux.org.tr
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/screenshots: |
+        - title: Editor UI Walkthrough
+          url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-one/chapter-one/editor-ui-walkthrough.gif
+        - title: Node Menu Drilldown
+          url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-one/chapter-one/l1-c1-node-menu-drilldown.gif
+        - title: Adding a Node
+          url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-one/chapter-one/l1-c1-add-node-click.gif
+        - title: Node Buttons
+          url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-one/chapter-one/node-buttons.gif
+        - title: Nathans Workflow
+          url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-one/chapter-four/l1-c4-nathans-workflow.png
+        - title: Set Node
+          url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-one/chapter-five/l1-c5-4-set-node.png
+        - title: Workflow with Set Node
+          url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-one/chapter-five/l1-c5-4-workflow-with-set-node.png
+        - title: Code Node
+          url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-one/chapter-five/l1-c5-5-5-code-node.png
+        - title: Discord Output
+          url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-one/chapter-five/l1-c5-5-6-discord-output.png
+        - title: Exercise Function
+          url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-two/chapter-one/exercise_function.png
+        - title: Exercise Function Not Nested
+          url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-two/chapter-one/exercise_function_notnested.png
+        - title: Exercise Function Reference
+          url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-two/chapter-one/exercise_function_reference.png
+        - title: HTTP Request Node
+          url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-two/chapter-two/exercise_html_httprequestnode.png
+        - title: HTTP Extraction Node
+          url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-two/chapter-two/exercise_html_htmlextractnode.png
+        - title: Binary Data HTTP Request Node
+          url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-two/chapter-two/exercise_binarydata_httprequest_file.png
+        - title: Binary to JSON Node
+          url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-two/chapter-two/exercise_binarydata_movedata_btoj.png
+        - title: JSON to XML Node
+          url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-two/chapter-two/exercise_html_xmlnode_table.png
+        - title: Workflow
+          url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-two/chapter-five/workflow2.png
+      artifacthub.io/signKey: |
+        fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
+        url: https://keybase.io/communitycharts/pgp_keys.asc
+    apiVersion: v2
+    appVersion: 1.111.1
+    created: "2025-09-19T15:46:31.234655384Z"
+    dependencies:
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 22.0.7
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 16.7.27
+    - condition: minio.enabled
+      name: minio
+      repository: https://charts.min.io/
+      version: 5.4.0
+    description: A Helm chart for fair-code workflow automation platform with native
+      AI capabilities. Combine visual building with custom code, self-host or cloud,
+      400+ integrations.
+    digest: ff68e199d58a3faec41ed8d966da45be6d770bdd610d8a3d7f2bca2eed7534e1
+    home: https://n8n.io
+    icon: https://avatars1.githubusercontent.com/u/45487711?s=200&v=4
+    keywords:
+    - n8n
+    - Workflow Automation
+    - Workflow
+    - Automation
+    - iPaaS
+    - integration-framework
+    - low-code-plattform
+    - low-code
+    kubeVersion: '>=1.23.0-0'
+    maintainers:
+    - email: burak.ince@linux.org.tr
+      name: burakince
+      url: https://www.burakince.com
+    name: n8n
+    sources:
+    - https://github.com/community-charts/helm-charts
+    - https://github.com/n8n-io/n8n
+    type: application
+    urls:
+    - https://github.com/community-charts/helm-charts/releases/download/n8n-1.15.7/n8n-1.15.7.tgz
+    version: 1.15.7
+  - annotations:
+      artifacthub.io/changes: |-
+        - kind: changed
           description: Update n8nio/n8n image version to 1.111.0
           links:
             - name: Upstream Project
@@ -30342,4 +30455,4 @@ entries:
     urls:
     - https://github.com/community-charts/helm-charts/releases/download/pypiserver-0.1.0/pypiserver-0.1.0.tgz
     version: 0.1.0
-generated: "2025-09-18T17:33:29.255678111Z"
+generated: "2025-09-19T15:46:31.235202773Z"
