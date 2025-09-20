@@ -1485,6 +1485,40 @@ tests:
                 key: awsSecretAccessKey
         template: deployment.yaml
 
+  - it: should use custom init containers when initImage repository set different
+    set:
+      initImage:
+        repository: my-custom-image
+        tag: "0.0.1"
+        pullPolicy: Always
+      backendStore:
+        databaseConnectionCheck: true
+      postgresql:
+        enabled: true
+        auth:
+          database: test-database
+          username: test-user
+          password: test-password
+      auth:
+        enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "dbchecker")].image
+          value: "my-custom-image:0.0.1"
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "dbchecker")].imagePullPolicy
+          value: Always
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "ini-file-initializer")].image
+          value: "my-custom-image:0.0.1"
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "ini-file-initializer")].imagePullPolicy
+          value: Always
+        template: deployment.yaml
+
   - it: should match snapshot of default values
     release:
       name: mlflow
