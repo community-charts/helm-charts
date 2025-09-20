@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 1.6.2](https://img.shields.io/badge/Version-1.6.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.3.2](https://img.shields.io/badge/AppVersion-3.3.2-informational?style=flat-square)
+![Version: 1.7.1](https://img.shields.io/badge/Version-1.7.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.4.0](https://img.shields.io/badge/AppVersion-3.4.0-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -667,7 +667,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | autoscaling.maxReplicas | int | `5` | The maximum number of replicas. |
 | autoscaling.metrics | list | `[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}]` | The metrics to use for autoscaling. |
 | autoscaling.minReplicas | int | `1` | The minimum number of replicas. |
-| backendStore | object | `{"databaseConnectionCheck":false,"databaseMigration":false,"defaultSqlitePath":":memory:","existingDatabaseSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"mysql":{"database":"","driver":"pymysql","enabled":false,"host":"","password":"","port":3306,"user":""},"postgres":{"database":"","driver":"","enabled":false,"host":"","password":"","port":5432,"user":""}}` | Mlflow database connection settings |
+| backendStore | object | `{"databaseConnectionCheck":false,"databaseMigration":false,"defaultSqlitePath":":memory:","existingDatabaseSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"mssql":{"database":"","driver":"pymssql","enabled":false,"host":"","password":"","port":1433,"user":""},"mysql":{"database":"","driver":"pymysql","enabled":false,"host":"","password":"","port":3306,"user":""},"postgres":{"database":"","driver":"","enabled":false,"host":"","password":"","port":5432,"user":""}}` | Mlflow database connection settings |
 | backendStore.databaseConnectionCheck | bool | `false` | Add an additional init container, which checks for database availability |
 | backendStore.databaseMigration | bool | `false` | Specifies if you want to run database migration |
 | backendStore.defaultSqlitePath | string | `":memory:"` | Specifies the default sqlite path |
@@ -675,6 +675,13 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | backendStore.existingDatabaseSecret.name | string | `""` | The name of the existing database secret. |
 | backendStore.existingDatabaseSecret.passwordKey | string | `"password"` | The key of the password in the existing database secret. |
 | backendStore.existingDatabaseSecret.usernameKey | string | `"username"` | The key of the username in the existing database secret. |
+| backendStore.mssql.database | string | `""` | mlflow database name created before in the mssql instance |
+| backendStore.mssql.driver | string | `"pymssql"` | mssql database connection driver. e.g.: "pymssql" |
+| backendStore.mssql.enabled | bool | `false` | Specifies if you want to use mssql backend storage |
+| backendStore.mssql.host | string | `""` | mssql host address |
+| backendStore.mssql.password | string | `""` | mssql database user password which can access to mlflow database |
+| backendStore.mssql.port | int | `1433` | mssql service port |
+| backendStore.mssql.user | string | `""` | mssql database user name which can access to mlflow database |
 | backendStore.mysql.database | string | `""` | mlflow database name created before in the mysql instance |
 | backendStore.mysql.driver | string | `"pymysql"` | mysql database connection driver. e.g.: "pymysql" |
 | backendStore.mysql.enabled | bool | `false` | Specifies if you want to use mysql backend storage |
@@ -699,6 +706,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | extraVolumes | list | `[]` | Extra Volumes for the pod |
 | flaskServerSecretKey | string | `""` | Mlflow Flask Server Secret Key. Default: Will be auto generated. |
 | fullnameOverride | string | `""` | String to override the default generated fullname |
+| image | object | `{"pullPolicy":"IfNotPresent","repository":"burakince/mlflow","tag":""}` | Image of mlflow |
 | image.pullPolicy | string | `"IfNotPresent"` | The docker image pull policy |
 | image.repository | string | `"burakince/mlflow"` | The docker image repository to use |
 | image.tag | string | `""` | The docker image tag to use. Default app version |
@@ -711,6 +719,19 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` | Ingress path type |
 | ingress.tls | list | `[]` | Ingress tls configuration for https access |
 | initContainers | list | `[]` | Init Containers for Mlflow Pod |
+| initImages | object | `{"dbchecker":{"pullPolicy":"IfNotPresent","repository":"busybox","tag":"1.32"},"iniFileInitializer":{"pullPolicy":"IfNotPresent","repository":"busybox","tag":"1.32"},"mlflowDbMigration":{"pullPolicy":"IfNotPresent","repository":"burakince/mlflow","tag":""}}` | mlflow init images |
+| initImages.dbchecker | object | `{"pullPolicy":"IfNotPresent","repository":"busybox","tag":"1.32"}` | dbchecker init container image configuration |
+| initImages.dbchecker.pullPolicy | string | `"IfNotPresent"` | dbchecker init container image pull policy |
+| initImages.dbchecker.repository | string | `"busybox"` | dbchecker init container image repository to use |
+| initImages.dbchecker.tag | string | `"1.32"` | dbchecker init container image tag to use |
+| initImages.iniFileInitializer | object | `{"pullPolicy":"IfNotPresent","repository":"busybox","tag":"1.32"}` | ini-file-initializer init container image configuration |
+| initImages.iniFileInitializer.pullPolicy | string | `"IfNotPresent"` | ini-file-initializer init container image pull policy |
+| initImages.iniFileInitializer.repository | string | `"busybox"` | ini-file-initializer init container image repository to use |
+| initImages.iniFileInitializer.tag | string | `"1.32"` | ini-file-initializer init container image tag to use |
+| initImages.mlflowDbMigration | object | `{"pullPolicy":"IfNotPresent","repository":"burakince/mlflow","tag":""}` | mlflow-db-migration init container image configuration |
+| initImages.mlflowDbMigration.pullPolicy | string | `"IfNotPresent"` | mlflow-db-migration init container image pull policy. |
+| initImages.mlflowDbMigration.repository | string | `"burakince/mlflow"` | mlflow-db-migration init container image repository to use. |
+| initImages.mlflowDbMigration.tag | string | `""` | mlflow-db-migration init container image tag to use. Default app version |
 | ldapAuth | object | `{"adminGroupDistinguishedName":"","enabled":false,"encodedTrustedCACertificate":"","externalSecretForTrustedCACertificate":"","groupAttribute":"dn","groupAttributeKey":"","lookupBind":"","searchBaseDistinguishedName":"","searchFilter":"(&(objectclass=groupOfUniqueNames)(uniquemember=%s))","tlsVerification":"required","uri":"","userGroupDistinguishedName":""}` | Basic Authentication with LDAP backend |
 | ldapAuth.adminGroupDistinguishedName | string | `""` | LDAP DN for the admin group. e.g.: "cn=test-admin,ou=groups,dc=mlflow,dc=test" |
 | ldapAuth.enabled | bool | `false` | Specifies if you want to enable mlflow LDAP authentication. auth and ldapAuth can't be enabled at same time. |
@@ -728,16 +749,18 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | log | object | `{"enabled":true,"level":"info"}` | Mlflow logging settings |
 | log.enabled | bool | `true` | Specifies if you want to enable mlflow logging. |
 | log.level | string | `"info"` | Mlflow logging level. |
-| mysql | object | `{"architecture":"standalone","auth":{"database":"mlflow","password":"","username":""},"enabled":false,"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"mysql":3306}}}}` | Bitnami MySQL configuration. For more information checkout: https://github.com/bitnami/charts/tree/main/bitnami/mysql |
+| mysql | object | `{"architecture":"standalone","auth":{"database":"mlflow","password":"","username":""},"enabled":false,"image":{"repository":"bitnamilegacy/mysql"},"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"mysql":3306}}}}` | Bitnami MySQL configuration. For more information checkout: https://github.com/bitnami/charts/tree/main/bitnami/mysql |
 | mysql.auth.database | string | `"mlflow"` | The name of the MySQL database. |
 | mysql.enabled | bool | `false` | Enable mysql |
+| mysql.image.repository | string | `"bitnamilegacy/mysql"` | This is temporary workaround because of bitnami's deprecation until to completely replace it with our solution. |
 | nameOverride | string | `""` | String to override the default generated name |
 | nodeSelector | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector |
 | podAnnotations | object | `{}` | Annotations for the pod |
 | podSecurityContext | object | `{"fsGroup":1001,"fsGroupChangePolicy":"OnRootMismatch"}` | This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
-| postgresql | object | `{"architecture":"standalone","auth":{"database":"mlflow","password":"","username":""},"enabled":false,"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"postgresql":5432}}}}` | Bitnami PostgreSQL configuration. For more information checkout: https://github.com/bitnami/charts/tree/main/bitnami/postgresql |
+| postgresql | object | `{"architecture":"standalone","auth":{"database":"mlflow","password":"","username":""},"enabled":false,"image":{"repository":"bitnamilegacy/postgresql"},"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"postgresql":5432}}}}` | Bitnami PostgreSQL configuration. For more information checkout: https://github.com/bitnami/charts/tree/main/bitnami/postgresql |
 | postgresql.auth.database | string | `"mlflow"` | The name of the PostgreSQL database. |
 | postgresql.enabled | bool | `false` | Enable postgresql |
+| postgresql.image.repository | string | `"bitnamilegacy/postgresql"` | This is temporary workaround because of bitnami's deprecation until to completely replace it with our solution. |
 | readinessProbe | object | `{"failureThreshold":5,"initialDelaySeconds":10,"periodSeconds":30,"timeoutSeconds":3}` | Readiness probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes). |
 | replicaCount | int | `1` | Numbers of replicas |
 | resources | object | `{}` | This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |

@@ -4,7 +4,7 @@
 
 A Helm chart for the fastest knowledge base for growing teams. Beautiful, realtime collaborative, feature packed, and markdown compatible.
 
-![Version: 0.6.4](https://img.shields.io/badge/Version-0.6.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.87.3](https://img.shields.io/badge/AppVersion-0.87.3-informational?style=flat-square)
+![Version: 0.6.5](https://img.shields.io/badge/Version-0.6.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.87.4](https://img.shields.io/badge/AppVersion-0.87.4-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -828,13 +828,14 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | podAnnotations | object | `{}` | This is for setting Kubernetes Annotations to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
 | podLabels | object | `{}` | This is for setting Kubernetes Labels to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/ |
 | podSecurityContext | object | `{"fsGroup":1001,"fsGroupChangePolicy":"OnRootMismatch"}` | This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
-| postgresql | object | `{"architecture":"standalone","auth":{"database":"outline","password":"","username":""},"enabled":false,"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"postgresql":5432}}}}` | Bitnami PostgreSQL configuration |
+| postgresql | object | `{"architecture":"standalone","auth":{"database":"outline","password":"","username":""},"enabled":false,"image":{"repository":"bitnamilegacy/postgresql"},"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"postgresql":5432}}}}` | Bitnami PostgreSQL configuration |
 | postgresql.architecture | string | `"standalone"` | Enable postgresql architecture. |
 | postgresql.auth | object | `{"database":"outline","password":"","username":""}` | This is for setting up the auth. |
 | postgresql.auth.database | string | `"outline"` | This is for setting up the auth database. |
 | postgresql.auth.password | string | `""` | This is for setting up the auth password. |
 | postgresql.auth.username | string | `""` | This is for setting up the auth username. |
 | postgresql.enabled | bool | `false` | Enable postgresql |
+| postgresql.image.repository | string | `"bitnamilegacy/postgresql"` | This is temporary workaround because of bitnami's deprecation until to completely replace it with our solution. |
 | postgresql.primary | object | `{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"postgresql":5432}}}` | This is for setting up the primary service. |
 | postgresql.primary.persistence | object | `{"enabled":true,"existingClaim":""}` | This is for setting up the persistence. |
 | postgresql.primary.persistence.enabled | bool | `true` | This is for setting up the persistence enabled. |
@@ -854,8 +855,9 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | readinessProbe.initialDelaySeconds | int | `10` | This is for setting up the initial delay seconds. |
 | readinessProbe.periodSeconds | int | `30` | This is for setting up the period seconds. |
 | readinessProbe.timeoutSeconds | int | `3` | This is for setting up the timeout seconds. |
-| redis | object | `{"architecture":"standalone","auth":{"enabled":true},"enabled":false,"master":{"persistence":{"enabled":false},"service":{"ports":{"redis":6379}}}}` | Bitnami Redis configuration |
+| redis | object | `{"architecture":"standalone","auth":{"enabled":true},"enabled":false,"image":{"repository":"bitnamilegacy/redis"},"master":{"persistence":{"enabled":false},"service":{"ports":{"redis":6379}}}}` | Bitnami Redis configuration |
 | redis.enabled | bool | `false` | Enable redis |
+| redis.image.repository | string | `"bitnamilegacy/redis"` | This is temporary workaround because of bitnami's deprecation until to completely replace it with our solution. |
 | replicaCount | int | `1` |  |
 | resources | object | `{}` | This is to setup the resources more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
 | secretKey | string | `""` | This is for setting up the secret key. It will be auto generated if not set and external secret is not set. |

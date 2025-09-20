@@ -6,7 +6,7 @@
 # -- (int) Numbers of replicas
 replicaCount: 1
 
-# Image of mlflow
+# -- Image of mlflow
 image:
   # -- The docker image repository to use
   repository: burakince/mlflow
@@ -14,6 +14,33 @@ image:
   pullPolicy: IfNotPresent
   # -- The docker image tag to use. Default app version
   tag: ""
+
+# -- mlflow init images
+initImages:
+  # -- dbchecker init container image configuration
+  dbchecker:
+    # -- dbchecker init container image repository to use
+    repository: busybox
+    # -- dbchecker init container image pull policy
+    pullPolicy: IfNotPresent
+    # -- dbchecker init container image tag to use
+    tag: "1.32"
+  # -- mlflow-db-migration init container image configuration
+  mlflowDbMigration:
+    # -- mlflow-db-migration init container image repository to use.
+    repository: burakince/mlflow
+    # -- mlflow-db-migration init container image pull policy.
+    pullPolicy: IfNotPresent
+    # -- mlflow-db-migration init container image tag to use. Default app version
+    tag: ""
+  # -- ini-file-initializer init container image configuration
+  iniFileInitializer:
+    # -- ini-file-initializer init container image repository to use
+    repository: busybox
+    # -- ini-file-initializer init container image pull policy
+    pullPolicy: IfNotPresent
+    # -- ini-file-initializer init container image tag to use
+    tag: "1.32"
 
 # -- This will set the deployment strategy more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
 strategy:
@@ -143,6 +170,22 @@ backendStore:
     # -- mysql database connection driver. e.g.: "pymysql"
     driver: "pymysql"
 
+  mssql:
+    # -- Specifies if you want to use mssql backend storage
+    enabled: false
+    # -- mssql host address
+    host: "" # required
+    # -- mssql service port
+    port: 1433 # required
+    # -- mlflow database name created before in the mssql instance
+    database: "" # required
+    # -- mssql database user name which can access to mlflow database
+    user: "" # required
+    # -- mssql database user password which can access to mlflow database
+    password: "" # required
+    # -- mssql database connection driver. e.g.: "pymssql"
+    driver: "pymssql"
+
   # -- Specifies if you want to use an existing database secret.
   existingDatabaseSecret:
     # -- The name of the existing database secret.
@@ -157,6 +200,10 @@ postgresql:
   # -- Enable postgresql
   enabled: false
   architecture: standalone
+
+  image:
+    # -- This is temporary workaround because of bitnami's deprecation until to completely replace it with our solution.
+    repository: bitnamilegacy/postgresql
 
   primary:
     service:
@@ -178,6 +225,10 @@ mysql:
   # -- Enable mysql
   enabled: false
   architecture: standalone
+
+  image:
+    # -- This is temporary workaround because of bitnami's deprecation until to completely replace it with our solution.
+    repository: bitnamilegacy/mysql
 
   primary:
     service:
