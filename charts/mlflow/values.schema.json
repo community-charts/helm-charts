@@ -849,35 +849,106 @@
       "title": "image",
       "type": "object"
     },
-    "initImage": {
+    "initImages": {
       "additionalProperties": false,
-      "description": "mlflow init image",
+      "description": "mlflow init images",
       "properties": {
-        "pullPolicy": {
-          "default": "IfNotPresent",
-          "description": "The docker image pull policy",
-          "required": [],
-          "title": "pullPolicy",
-          "type": "string",
-          "enum": ["IfNotPresent", "Never", "Always"]
+        "dbchecker": {
+          "additionalProperties": false,
+          "description": "dbchecker init container image configuration",
+          "properties": {
+            "repository": {
+              "default": "busybox",
+              "description": "dbchecker init container image repository to use",
+              "required": [],
+              "title": "repository",
+              "type": "string"
+            },
+            "pullPolicy": {
+              "default": "IfNotPresent",
+              "description": "dbchecker init container image pull policy",
+              "required": [],
+              "title": "pullPolicy",
+              "type": "string",
+              "enum": ["IfNotPresent", "Never", "Always"]
+            },
+            "tag": {
+              "default": "1.32",
+              "description": "dbchecker init container image tag to use",
+              "required": [],
+              "title": "tag",
+              "type": "string"
+            }
+          },
+          "required": ["repository", "pullPolicy", "tag"],
+          "title": "dbchecker",
+          "type": "object"
         },
-        "repository": {
-          "default": "busybox",
-          "description": "The docker image repository to use",
-          "required": [],
-          "title": "repository",
-          "type": "string"
+        "mlflowDbMigration": {
+          "additionalProperties": false,
+          "description": "mlflow-db-migration init container image configuration",
+          "properties": {
+            "repository": {
+              "default": "burakince/mlflow",
+              "description": "mlflow-db-migration init container image repository to use",
+              "required": [],
+              "title": "repository",
+              "type": "string"
+            },
+            "pullPolicy": {
+              "default": "IfNotPresent",
+              "description": "mlflow-db-migration init container image pull policy",
+              "required": [],
+              "title": "pullPolicy",
+              "type": "string",
+              "enum": ["IfNotPresent", "Never", "Always"]
+            },
+            "tag": {
+              "default": "",
+              "description": "mlflow-db-migration init container image tag to use. Default app version",
+              "required": [],
+              "title": "tag",
+              "type": "string"
+            }
+          },
+          "required": ["repository", "pullPolicy", "tag"],
+          "title": "mlflowDbMigration",
+          "type": "object"
         },
-        "tag": {
-          "default": "1.32",
-          "description": "The docker image tag to use. Default app version",
-          "required": [],
-          "title": "tag",
-          "type": "string"
+        "iniFileInitializer": {
+          "additionalProperties": false,
+          "description": "ini-file-initializer init container image configuration",
+          "properties": {
+            "repository": {
+              "default": "busybox",
+              "description": "ini-file-initializer init container image repository to use",
+              "required": [],
+              "title": "repository",
+              "type": "string"
+            },
+            "pullPolicy": {
+              "default": "IfNotPresent",
+              "description": "ini-file-initializer init container image pull policy",
+              "required": [],
+              "title": "pullPolicy",
+              "type": "string",
+              "enum": ["IfNotPresent", "Never", "Always"]
+            },
+            "tag": {
+              "default": "1.32",
+              "description": "ini-file-initializer init container image tag to use",
+              "required": [],
+              "title": "tag",
+              "type": "string"
+            }
+          },
+          "required": ["repository", "pullPolicy", "tag"],
+          "title": "iniFileInitializer",
+          "type": "object"
         }
       },
-      "required": ["repository", "pullPolicy", "tag"],
-      "title": "image",
+      "required": ["dbchecker", "mlflowDbMigration", "iniFileInitializer"],
+      "title": "initImages",
       "type": "object"
     },
     "imagePullSecrets": {
@@ -2142,6 +2213,7 @@
   "required": [
     "replicaCount",
     "image",
+    "initImages",
     "strategy",
     "imagePullSecrets",
     "nameOverride",

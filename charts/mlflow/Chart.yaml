@@ -52,7 +52,7 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update chart to support values for init containers
+      description: Update chart to support values for custom init container images
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.4.0

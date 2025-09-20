@@ -1485,14 +1485,24 @@ tests:
                 key: awsSecretAccessKey
         template: deployment.yaml
 
-  - it: should use custom init containers when initImage repository set different
+  - it: should use custom init containers when initImages set different than default values
     set:
-      initImage:
-        repository: my-custom-image
-        tag: "0.0.1"
-        pullPolicy: Always
+      initImages:
+        dbchecker:
+          repository: my-custom-dbchecker-image
+          tag: "0.0.1"
+          pullPolicy: Always
+        mlflowDbMigration:
+          repository: my-custom-db-migration-image
+          tag: "0.1.0"
+          pullPolicy: Always
+        iniFileInitializer:
+          repository: my-custom-auth-ini-file-init-image
+          tag: "1.0.0"
+          pullPolicy: Always
       backendStore:
         databaseConnectionCheck: true
+        databaseMigration: true
       postgresql:
         enabled: true
         auth:
@@ -1501,18 +1511,28 @@ tests:
           password: test-password
       auth:
         enabled: true
+        adminUsername: test-admin-username
+        adminPassword: test-admin-password
     asserts:
       - equal:
           path: spec.template.spec.initContainers[?(@.name == "dbchecker")].image
-          value: "my-custom-image:0.0.1"
+          value: "my-custom-dbchecker-image:0.0.1"
         template: deployment.yaml
       - equal:
           path: spec.template.spec.initContainers[?(@.name == "dbchecker")].imagePullPolicy
           value: Always
         template: deployment.yaml
       - equal:
+          path: spec.template.spec.initContainers[?(@.name == "mlflow-db-migration")].image
+          value: "my-custom-db-migration-image:0.1.0"
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "mlflow-db-migration")].imagePullPolicy
+          value: Always
+        template: deployment.yaml
+      - equal:
           path: spec.template.spec.initContainers[?(@.name == "ini-file-initializer")].image
-          value: "my-custom-image:0.0.1"
+          value: "my-custom-auth-ini-file-init-image:1.0.0"
         template: deployment.yaml
       - equal:
           path: spec.template.spec.initContainers[?(@.name == "ini-file-initializer")].imagePullPolicy

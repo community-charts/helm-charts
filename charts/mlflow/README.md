@@ -706,6 +706,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | extraVolumes | list | `[]` | Extra Volumes for the pod |
 | flaskServerSecretKey | string | `""` | Mlflow Flask Server Secret Key. Default: Will be auto generated. |
 | fullnameOverride | string | `""` | String to override the default generated fullname |
+| image | object | `{"pullPolicy":"IfNotPresent","repository":"burakince/mlflow","tag":""}` | Image of mlflow |
 | image.pullPolicy | string | `"IfNotPresent"` | The docker image pull policy |
 | image.repository | string | `"burakince/mlflow"` | The docker image repository to use |
 | image.tag | string | `""` | The docker image tag to use. Default app version |
@@ -718,9 +719,19 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` | Ingress path type |
 | ingress.tls | list | `[]` | Ingress tls configuration for https access |
 | initContainers | list | `[]` | Init Containers for Mlflow Pod |
-| initImage.pullPolicy | string | `"IfNotPresent"` |  |
-| initImage.repository | string | `"busybox"` |  |
-| initImage.tag | string | `"1.32"` |  |
+| initImages | object | `{"dbchecker":{"pullPolicy":"IfNotPresent","repository":"busybox","tag":"1.32"},"iniFileInitializer":{"pullPolicy":"IfNotPresent","repository":"busybox","tag":"1.32"},"mlflowDbMigration":{"pullPolicy":"IfNotPresent","repository":"burakince/mlflow","tag":""}}` | mlflow init images |
+| initImages.dbchecker | object | `{"pullPolicy":"IfNotPresent","repository":"busybox","tag":"1.32"}` | dbchecker init container image configuration |
+| initImages.dbchecker.pullPolicy | string | `"IfNotPresent"` | dbchecker init container image pull policy |
+| initImages.dbchecker.repository | string | `"busybox"` | dbchecker init container image repository to use |
+| initImages.dbchecker.tag | string | `"1.32"` | dbchecker init container image tag to use |
+| initImages.iniFileInitializer | object | `{"pullPolicy":"IfNotPresent","repository":"busybox","tag":"1.32"}` | ini-file-initializer init container image configuration |
+| initImages.iniFileInitializer.pullPolicy | string | `"IfNotPresent"` | ini-file-initializer init container image pull policy |
+| initImages.iniFileInitializer.repository | string | `"busybox"` | ini-file-initializer init container image repository to use |
+| initImages.iniFileInitializer.tag | string | `"1.32"` | ini-file-initializer init container image tag to use |
+| initImages.mlflowDbMigration | object | `{"pullPolicy":"IfNotPresent","repository":"burakince/mlflow","tag":""}` | mlflow-db-migration init container image configuration |
+| initImages.mlflowDbMigration.pullPolicy | string | `"IfNotPresent"` | mlflow-db-migration init container image pull policy. |
+| initImages.mlflowDbMigration.repository | string | `"burakince/mlflow"` | mlflow-db-migration init container image repository to use. |
+| initImages.mlflowDbMigration.tag | string | `""` | mlflow-db-migration init container image tag to use. Default app version |
 | ldapAuth | object | `{"adminGroupDistinguishedName":"","enabled":false,"encodedTrustedCACertificate":"","externalSecretForTrustedCACertificate":"","groupAttribute":"dn","groupAttributeKey":"","lookupBind":"","searchBaseDistinguishedName":"","searchFilter":"(&(objectclass=groupOfUniqueNames)(uniquemember=%s))","tlsVerification":"required","uri":"","userGroupDistinguishedName":""}` | Basic Authentication with LDAP backend |
 | ldapAuth.adminGroupDistinguishedName | string | `""` | LDAP DN for the admin group. e.g.: "cn=test-admin,ou=groups,dc=mlflow,dc=test" |
 | ldapAuth.enabled | bool | `false` | Specifies if you want to enable mlflow LDAP authentication. auth and ldapAuth can't be enabled at same time. |

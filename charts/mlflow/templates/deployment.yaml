@@ -69,8 +69,8 @@ spec:
     {{- end }}
       {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
         - name: dbchecker
-          image: "{{ .Values.initImage.repository }}:{{ .Values.initImage.tag }}"
-          imagePullPolicy: {{ .Values.initImage.pullPolicy }}
+          image: "{{ .Values.initImages.dbchecker.repository }}:{{ .Values.initImages.dbchecker.tag }}"
+          imagePullPolicy: {{ .Values.initImages.dbchecker.pullPolicy }}
           command: [ "/script/dbchecker.sh" ]
         {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name }}
           env:
@@ -151,8 +151,8 @@ spec:
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.initImages.mlflowDbMigration.repository }}:{{ .Values.initImages.mlflowDbMigration.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.initImages.mlflowDbMigration.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
         {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name }}
@@ -238,8 +238,8 @@ spec:
       {{- end }}
       {{- if or .Values.auth.enabled .Values.ldapAuth.enabled }}
         - name: ini-file-initializer
-          image: "{{ .Values.initImage.repository }}:{{ .Values.initImage.tag }}"
-          imagePullPolicy: {{ .Values.initImage.pullPolicy }}
+          image: "{{ .Values.initImages.iniFileInitializer.repository }}:{{ .Values.initImages.iniFileInitializer.tag }}"
+          imagePullPolicy: {{ .Values.initImages.iniFileInitializer.pullPolicy }}
           command: ['sh', '-c']
           args:
             - |

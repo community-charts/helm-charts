@@ -6,7 +6,7 @@
 # -- (int) Numbers of replicas
 replicaCount: 1
 
-# Image of mlflow
+# -- Image of mlflow
 image:
   # -- The docker image repository to use
   repository: burakince/mlflow
@@ -15,11 +15,32 @@ image:
   # -- The docker image tag to use. Default app version
   tag: ""
 
-# mlflow init image
-initImage:
-  repository: busybox
-  tag: "1.32"
-  pullPolicy: IfNotPresent
+# -- mlflow init images
+initImages:
+  # -- dbchecker init container image configuration
+  dbchecker:
+    # -- dbchecker init container image repository to use
+    repository: busybox
+    # -- dbchecker init container image pull policy
+    pullPolicy: IfNotPresent
+    # -- dbchecker init container image tag to use
+    tag: "1.32"
+  # -- mlflow-db-migration init container image configuration
+  mlflowDbMigration:
+    # -- mlflow-db-migration init container image repository to use.
+    repository: burakince/mlflow
+    # -- mlflow-db-migration init container image pull policy.
+    pullPolicy: IfNotPresent
+    # -- mlflow-db-migration init container image tag to use. Default app version
+    tag: ""
+  # -- ini-file-initializer init container image configuration
+  iniFileInitializer:
+    # -- ini-file-initializer init container image repository to use
+    repository: busybox
+    # -- ini-file-initializer init container image pull policy
+    pullPolicy: IfNotPresent
+    # -- ini-file-initializer init container image tag to use
+    tag: "1.32"
 
 # -- This will set the deployment strategy more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
 strategy:
