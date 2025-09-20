@@ -94,7 +94,7 @@ tests:
     asserts:
       - contains:
           path: spec.template.spec.volumes
-          content: 
+          content:
             name: creds
             projected:
               sources:
@@ -113,7 +113,7 @@ tests:
     asserts:
       - contains:
           path: spec.template.spec.volumes
-          content: 
+          content:
             name: creds
             projected:
               sources:
@@ -134,7 +134,7 @@ tests:
     asserts:
       - contains:
           path: spec.template.spec.volumes
-          content: 
+          content:
             name: creds
             projected:
               sources:
@@ -156,7 +156,7 @@ tests:
     asserts:
       - contains:
           path: spec.template.spec.volumes
-          content: 
+          content:
             name: creds
             projected:
               sources:
@@ -166,7 +166,7 @@ tests:
                     name: my-config-json-file-secret
         template: deployment.yaml
 
-  - it: should set TUNNEL_ORIGIN_CERT environment variable when existingPemFileSecret name set and key is different than cert.pem
+  - it: should set TUNNEL_ORIGIN_CERT environment variable
     set:
       tunnelConfig:
         name: unittest
@@ -183,3 +183,16 @@ tests:
             name: TUNNEL_ORIGIN_CERT
             value: /etc/cloudflared/creds/custom.pem
         template: deployment.yaml
+
+  - it: should match snapshot of default values
+    set:
+      tunnelConfig:
+        name: unittest
+    release:
+      name: cloudflared
+      namespace: cloudflare
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }

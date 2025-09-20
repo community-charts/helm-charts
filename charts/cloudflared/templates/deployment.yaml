@@ -53,11 +53,9 @@ spec:
             - name: active-con-stat
               containerPort: 2000
               protocol: TCP
-        {{- if and .Values.tunnelSecrets.existingPemFileSecret.name (ne .Values.tunnelSecrets.existingPemFileSecret.key "cert.pem") }}
           env:
             - name: TUNNEL_ORIGIN_CERT
-              value: {{ printf "/etc/cloudflared/creds/%s" .Values.tunnelSecrets.existingPemFileSecret.key }}
-        {{- end }}
+              value: {{ printf "/etc/cloudflared/creds/%s" (default "cert.pem" .Values.tunnelSecrets.existingPemFileSecret.key) | quote }}
           livenessProbe:
             httpGet:
               path: /ready

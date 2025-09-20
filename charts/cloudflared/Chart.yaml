@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 2.1.3
+version: 2.2.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -52,11 +52,10 @@ annotations:
       url: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
+    - kind: removed
+      description: NET_RAW removed from default security context capabilities
     - kind: changed
-      description: Update cloudflare/cloudflared image version to 2025.9.0
-      links:
-        - name: Upstream Project
-          url: https://hub.docker.com/r/cloudflare/cloudflared
+      description: Always set TUNNEL_ORIGIN_CERT environment variable with correct certificate file location
   artifacthub.io/images: |
     - name: cloudflared
       image: cloudflare/cloudflared:2025.9.0
