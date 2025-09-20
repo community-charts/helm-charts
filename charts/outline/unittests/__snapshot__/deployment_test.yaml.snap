@@ -1,0 +1,289 @@
+should match snapshot of default values:
+  1: |
+    apiVersion: v1
+    data:
+      entrypoint.sh: |
+        #!/bin/bash
+
+        # Construct the JSON string with host, port, username, and password from environment variables
+        JSON=$(printf '{"host":"%s","port":%d,"username":"%s","password":"%s"}' \
+          "$REDIS_HOST" "$REDIS_PORT" "$REDIS_USERNAME" "$REDIS_PASSWORD")
+
+        # Base64-encode the JSON string
+        BASE64_JSON=$(echo -n "$JSON" | base64)
+
+        # Set the REDIS_URL environment variable. You can find more information about REDIS_URL [here](https://docs.getoutline.com/s/hosting/doc/redis-LGM4BFXYp4#h-advanced)
+        export REDIS_URL="ioredis://$BASE64_JSON"
+
+        # Execute the original command (yarn start)
+        exec yarn start
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: outline
+        chart: outline-1.0.0
+        heritage: Helm
+        release: outline
+      name: outline-entrypoint
+  2: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app.kubernetes.io/instance: outline
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: outline
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: outline-1.0.0
+      name: outline
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app.kubernetes.io/instance: outline
+          app.kubernetes.io/name: outline
+      strategy:
+        rollingUpdate:
+          maxSurge: 25%
+          maxUnavailable: 25%
+        type: RollingUpdate
+      template:
+        metadata:
+          annotations:
+            checksum/config: 52b4c94af9c3e1eb23b0391ff13115d7b3328cc1271a67be91c19eac87d78e93
+            checksum/secret: c9f56502fc6d865fa60d33519aa2d0f897bea71d2af7c35aa4b71a1fa9e70e50
+          labels:
+            app.kubernetes.io/instance: outline
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: outline
+            app.kubernetes.io/version: 1.0.0
+            helm.sh/chart: outline-1.0.0
+        spec:
+          containers:
+            - command:
+                - /bin/bash
+                - /entrypoint.sh
+              env:
+                - name: NODE_ENV
+                  value: production
+                - name: SECRET_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      key: secret-key
+                      name: outline-auto-generated-secret
+                - name: UTILS_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      key: utils-secret
+                      name: outline-auto-generated-secret
+                - name: PORT
+                  value: "3000"
+                - name: DEFAULT_LANGUAGE
+                  value: en_US
+                - name: URL
+                  value: http://outline:3000
+                - name: RATE_LIMITER_ENABLED
+                  value: "false"
+                - name: ENABLE_UPDATES
+                  value: "false"
+                - name: TELEMETRY
+                  value: "false"
+                - name: FORCE_HTTPS
+                  value: "true"
+                - name: WEB_CONCURRENCY
+                  value: "1"
+                - name: LOG_LEVEL
+                  value: info
+                - name: PGUSER
+                  value: postgres
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: postgres-password
+                      name: outline-postgresql
+                      optional: true
+                - name: PGPORT
+                  value: "5432"
+                - name: PGHOST
+                  value: fake-postgresql-service
+                - name: PGDATABASE
+                  value: outline
+                - name: DATABASE_CONNECTION_POOL_MIN
+                  value: ""
+                - name: DATABASE_CONNECTION_POOL_MAX
+                  value: "20"
+                - name: PGSSLMODE
+                  value: disable
+                - name: DATABASE_URL
+                  value: postgres://$(PGUSER):$(PGPASSWORD)@$(PGHOST):$(PGPORT)/$(PGDATABASE)
+                - name: REDIS_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      key: redis-username
+                      name: outline-redis
+                      optional: true
+                - name: REDIS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: redis-password
+                      name: outline-redis
+                      optional: true
+                - name: REDIS_HOST
+                  value: fake-redis-service
+                - name: REDIS_PORT
+                  value: "6379"
+                - name: FILE_STORAGE
+                  value: local
+                - name: FILE_STORAGE_UPLOAD_MAX_SIZE
+                  value: "262144000"
+                - name: FILE_STORAGE_IMPORT_MAX_SIZE
+                  value: ""
+                - name: FILE_STORAGE_WORKSPACE_IMPORT_MAX_SIZE
+                  value: ""
+                - name: FILE_STORAGE_LOCAL_ROOT_DIR
+                  value: /var/lib/outline/data
+              envFrom:
+                - secretRef:
+                    name: outline-auth-secret
+                - secretRef:
+                    name: outline-smtp-secret
+                - secretRef:
+                    name: outline-integrations-secret
+              image: outlinewiki/outline:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 5
+                httpGet:
+                  path: /_health
+                  port: http
+                initialDelaySeconds: 10
+                periodSeconds: 30
+                timeoutSeconds: 3
+              name: outline
+              ports:
+                - containerPort: 3000
+                  name: http
+                  protocol: TCP
+              readinessProbe:
+                failureThreshold: 5
+                httpGet:
+                  path: /_health
+                  port: http
+                initialDelaySeconds: 10
+                periodSeconds: 30
+                timeoutSeconds: 3
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
+              volumeMounts:
+                - mountPath: /entrypoint.sh
+                  name: entrypoint-volume
+                  subPath: entrypoint.sh
+          securityContext:
+            fsGroup: 1001
+            fsGroupChangePolicy: OnRootMismatch
+          serviceAccountName: outline
+          volumes:
+            - configMap:
+                defaultMode: 493
+                name: outline-entrypoint
+              name: entrypoint-volume
+  3: |
+    apiVersion: v1
+    data:
+      postgres-password: UDQ1NXcwcmQh
+    kind: Secret
+    metadata:
+      labels:
+        app: outline
+        chart: outline-1.0.0
+        heritage: Helm
+        release: outline
+      name: outline-postgresql
+    type: Opaque
+  4: |
+    apiVersion: v1
+    data:
+      redis-password: UDQ1NXcwcmQh
+      redis-username: ZGVmYXVsdA==
+    kind: Secret
+    metadata:
+      labels:
+        app: outline
+        chart: outline-1.0.0
+        heritage: Helm
+        release: outline
+      name: outline-redis
+    type: Opaque
+  5: |
+    apiVersion: v1
+    data:
+      secret-key: NWM4OTg2YmIwNzJiNTljYzgwOTFhMjUwZDY1ZWE0N2M0YjFiZTM5YjBmN2FjY2U1Njc0YWE5MGVlZTBkZWY1ZA==
+      utils-secret: N2E0NzI2ZGM2NWY0Zjc2ZDE0MDA4OGQyYjY2NzY3OTc0OWUzNmRlMzhiZjIzYmFhNTM3NTVlNDJlODYxNDdjMg==
+    kind: Secret
+    metadata:
+      annotations:
+        helm.sh/hook: pre-install
+        helm.sh/hook-delete-policy: before-hook-creation
+      labels:
+        app: outline
+        chart: outline-1.0.0
+        heritage: Helm
+        release: outline
+      name: outline-auto-generated-secret
+      namespace: outline
+    type: Opaque
+  6: |
+    apiVersion: v1
+    data: null
+    kind: Secret
+    metadata:
+      labels:
+        app: outline
+        chart: outline-1.0.0
+        heritage: Helm
+        release: outline
+      name: outline-auth-secret
+      namespace: outline
+    type: Opaque
+  7: |
+    apiVersion: v1
+    data:
+      SMTP_FROM_EMAIL: ""
+      SMTP_HOST: ""
+      SMTP_PASSWORD: ""
+      SMTP_PORT: NTg3
+      SMTP_REPLY_EMAIL: ""
+      SMTP_SECURE: dHJ1ZQ==
+      SMTP_TLS_CIPHERS: ""
+      SMTP_USERNAME: ""
+    kind: Secret
+    metadata:
+      labels:
+        app: outline
+        chart: outline-1.0.0
+        heritage: Helm
+        release: outline
+      name: outline-smtp-secret
+      namespace: outline
+    type: Opaque
+  8: |
+    apiVersion: v1
+    data: null
+    kind: Secret
+    metadata:
+      labels:
+        app: outline
+        chart: outline-1.0.0
+        heritage: Helm
+        release: outline
+      name: outline-integrations-secret
+      namespace: outline
+    type: Opaque

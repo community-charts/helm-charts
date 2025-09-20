@@ -1,13 +1,17 @@
 suite: test deployment
 
 templates:
+  - configmap.yaml
+  - secret.yaml
   - deployment.yaml
 
 set:
   externalPostgresql:
     host: fake-postgresql-service
+    password: P455w0rd!
   externalRedis:
     host: fake-redis-service
+    password: P455w0rd!
 
 release:
   name: outline
@@ -25,6 +29,7 @@ tests:
       - equal:
           path: spec.replicas
           value: 2
+        template: deployment.yaml
 
   - it: should be custom service account when we do not create it
     set:
@@ -35,6 +40,7 @@ tests:
       - equal:
           path: spec.template.spec.serviceAccountName
           value: customsa
+        template: deployment.yaml
 
   - it: should set strategy to Recreate when strategy.type is Recreate
     set:
@@ -44,6 +50,7 @@ tests:
       - equal:
           path: spec.strategy.type
           value: Recreate
+        template: deployment.yaml
 
   - it: should set strategy to RollingUpdate when strategy.type is RollingUpdate
     set:
@@ -56,12 +63,15 @@ tests:
       - equal:
           path: spec.strategy.type
           value: RollingUpdate
+        template: deployment.yaml
       - equal:
           path: spec.strategy.rollingUpdate.maxUnavailable
           value: 1
+        template: deployment.yaml
       - equal:
           path: spec.strategy.rollingUpdate.maxSurge
           value: 1
+        template: deployment.yaml
 
   - it: should set pod annotations when podAnnotations are set
     set:
@@ -71,6 +81,7 @@ tests:
       - equal:
           path: spec.template.metadata.annotations.test
           value: test
+        template: deployment.yaml
 
   - it: should set image pull secrets when imagePullSecrets are set
     set:
@@ -80,6 +91,7 @@ tests:
       - equal:
           path: spec.template.spec.imagePullSecrets[0].name
           value: fake-image-pull-secret
+        template: deployment.yaml
 
   - it: should set pod security context when podSecurityContext is set
     set:
@@ -91,12 +103,15 @@ tests:
       - equal:
           path: spec.template.spec.securityContext.runAsUser
           value: 1000
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.securityContext.runAsGroup
           value: 1000
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.securityContext.runAsNonRoot
           value: true
+        template: deployment.yaml
 
   - it: should set container security context when securityContext is set
     set:
@@ -108,12 +123,15 @@ tests:
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].securityContext.runAsUser
           value: 1000
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].securityContext.runAsGroup
           value: 1000
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].securityContext.runAsNonRoot
           value: true
+        template: deployment.yaml
 
   - it: should use image repository and tag from image when they set
     set:
@@ -124,6 +142,7 @@ tests:
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].image
           value: fake-image-repository/fake-image:fake-tag
+        template: deployment.yaml
 
   - it: should use default image and chart app version as image tag when tag is not set
     set:
@@ -139,6 +158,7 @@ tests:
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].image
           value: outlinewiki/outline:0.81.0
+        template: deployment.yaml
 
   - it: should set image pull policy when imagePullPolicy is set
     set:
@@ -147,6 +167,7 @@ tests:
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].imagePullPolicy
           value: Always
+        template: deployment.yaml
 
   - it: should set ports when service.port is set
     set:
@@ -157,12 +178,15 @@ tests:
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].ports[0].name
           value: fake-port
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].ports[0].containerPort
           value: 8080
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].ports[0].protocol
           value: TCP
+        template: deployment.yaml
 
   - it: should set liveness probe when livenessProbe is set
     set:
@@ -179,24 +203,31 @@ tests:
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].livenessProbe.httpGet.path
           value: /health
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].livenessProbe.httpGet.port
           value: http
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].livenessProbe.initialDelaySeconds
           value: 10
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].livenessProbe.periodSeconds
           value: 10
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].livenessProbe.timeoutSeconds
           value: 5
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].livenessProbe.failureThreshold
           value: 3
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].livenessProbe.successThreshold
           value: 1
+        template: deployment.yaml
 
   - it: should set readiness probe when readinessProbe is set
     set:
@@ -213,24 +244,31 @@ tests:
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].readinessProbe.httpGet.path
           value: /health
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].readinessProbe.httpGet.port
           value: http
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].readinessProbe.initialDelaySeconds
           value: 10
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].readinessProbe.periodSeconds
           value: 10
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].readinessProbe.timeoutSeconds
           value: 5
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].readinessProbe.failureThreshold
           value: 3
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].readinessProbe.successThreshold
           value: 1
+        template: deployment.yaml
 
   - it: should set resources when resources are set
     set:
@@ -245,15 +283,19 @@ tests:
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].resources.requests.cpu
           value: 100m
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].resources.requests.memory
           value: 100Mi
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].resources.limits.cpu
           value: 200m
+        template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "outline")].resources.limits.memory
           value: 200Mi
+        template: deployment.yaml
 
   - it: should set required environment variables
     set:
@@ -266,6 +308,7 @@ tests:
           content:
             name: NODE_ENV
             value: production
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
@@ -274,6 +317,7 @@ tests:
               secretKeyRef:
                 key: secret-key
                 name: outline-auto-generated-secret
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
@@ -282,56 +326,67 @@ tests:
               secretKeyRef:
                 key: utils-secret
                 name: outline-auto-generated-secret
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: PORT
             value: "5000"
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: DEFAULT_LANGUAGE
             value: de_DE
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: URL
             value: http://outline:5000
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: RATE_LIMITER_ENABLED
             value: "false"
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: ENABLE_UPDATES
             value: "false"
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: TELEMETRY
             value: "false"
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: FORCE_HTTPS
             value: "true"
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: WEB_CONCURRENCY
             value: "1"
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: LOG_LEVEL
             value: "info"
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: PGUSER
             value: postgres
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
@@ -341,36 +396,43 @@ tests:
                 key: postgres-password
                 name: outline-postgresql
                 optional: true
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: PGPORT
             value: "5432"
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: PGHOST
             value: fake-postgresql-service
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: PGDATABASE
             value: outline
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: DATABASE_CONNECTION_POOL_MIN
             value: ""
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: DATABASE_CONNECTION_POOL_MAX
             value: "20"
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: PGSSLMODE
             value: disable
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
@@ -380,6 +442,7 @@ tests:
                 key: redis-username
                 name: outline-redis
                 optional: true
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
@@ -389,46 +452,55 @@ tests:
                 key: redis-password
                 name: outline-redis
                 optional: true
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: REDIS_HOST
             value: fake-redis-service
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: REDIS_PORT
             value: "6379"
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: DATABASE_URL
             value: "postgres://$(PGUSER):$(PGPASSWORD)@$(PGHOST):$(PGPORT)/$(PGDATABASE)"
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: FILE_STORAGE
             value: "local"
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: FILE_STORAGE_UPLOAD_MAX_SIZE
             value: "262144000"
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: FILE_STORAGE_IMPORT_MAX_SIZE
             value: ""
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: FILE_STORAGE_WORKSPACE_IMPORT_MAX_SIZE
             value: ""
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: FILE_STORAGE_LOCAL_ROOT_DIR
             value: "/var/lib/outline/data"
+        template: deployment.yaml
 
   - it: should set secret key from external secret when secretKeyExternalSecret is set
     set:
@@ -444,6 +516,7 @@ tests:
               secretKeyRef:
                 key: fake-secret-key
                 name: fake-secret-key-external-secret
+        template: deployment.yaml
 
   - it: should set utils secret from external secret when utilsSecretExternalSecret is set
     set:
@@ -459,6 +532,7 @@ tests:
               secretKeyRef:
                 key: fake-utils-secret
                 name: fake-utils-secret-external-secret
+        template: deployment.yaml
 
   - it: should set http ingress url when ingress is enabled and tls is not set
     set:
@@ -475,6 +549,7 @@ tests:
           content:
             name: URL
             value: http://fake-host.local
+        template: deployment.yaml
 
   - it: should set https ingress url when ingress is enabled and tls is set
     set:
@@ -495,6 +570,7 @@ tests:
           content:
             name: URL
             value: https://fake-host.local
+        template: deployment.yaml
 
   - it: should set url when url is set
     set:
@@ -505,6 +581,7 @@ tests:
           content:
             name: URL
             value: https://my.company.com
+        template: deployment.yaml
 
   - it: should set rate limiter when rateLimiter is enabled
     set:
@@ -518,16 +595,19 @@ tests:
           content:
             name: RATE_LIMITER_ENABLED
             value: "true"
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: RATE_LIMITER_REQUESTS
             value: "100"
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
             name: RATE_LIMITER_DURATION_WINDOW
             value: "60"
+        template: deployment.yaml
 
   - it: should set not force https when web.forceHttps is false
     set:
@@ -539,6 +619,7 @@ tests:
           content:
             name: FORCE_HTTPS
             value: "false"
+        template: deployment.yaml
 
   - it: should skip ssl verification when web.skipSSLVerification is true
     set:
@@ -550,6 +631,7 @@ tests:
           content:
             name: NODE_TLS_REJECT_UNAUTHORIZED
             value: "0"
+        template: deployment.yaml
 
   - it: should set comma separated debug logs when logging.extraDebug is set
     set:
@@ -569,6 +651,7 @@ tests:
           content:
             name: DEBUG
             value: "lifecycle,http,editor,router,collaboration,misc,store,plugins"
+        template: deployment.yaml
 
   - it: should use password key when postgresql.auth.username is set and when postgresql.enabled
     set:
@@ -586,6 +669,7 @@ tests:
                 key: password
                 name: outline-postgresql
                 optional: true
+        template: deployment.yaml
 
   - it: should set postgresql password from existing secret when postgresql.enabled is false and externalPostgresql.existingSecret is set and externalPostgresql.passwordSecretKey is set
     set:
@@ -604,6 +688,7 @@ tests:
                 key: fale-password-key
                 name: fake-existing-secret
                 optional: true
+        template: deployment.yaml
 
   - it: should set postgresql port from external configuration when postgresql.enabled is false and externalPostgresql.port is set
     set:
@@ -617,6 +702,7 @@ tests:
           content:
             name: PGPORT
             value: "20185"
+        template: deployment.yaml
 
   - it: should set postgresql host by release name when postgresql.enabled is true
     set:
@@ -628,6 +714,7 @@ tests:
           content:
             name: PGHOST
             value: outline-postgresql
+        template: deployment.yaml
 
   - it: should set postgresql port from bitnami's configuration when postgresql.enabled is true and postgresql.primary.service.ports.postgresql is set
     set:
@@ -643,6 +730,7 @@ tests:
           content:
             name: PGPORT
             value: "20185"
+        template: deployment.yaml
 
   - it: should set postgresql database by postgresql.auth.database when postgresql.enabled is true
     set:
@@ -656,6 +744,7 @@ tests:
           content:
             name: PGDATABASE
             value: fake-database
+        template: deployment.yaml
 
   - it: should set redis username from existing secret when redis is not enabled and externalRedis.existingSecret is set
     set:
@@ -673,6 +762,7 @@ tests:
                 key: redis-username
                 name: fake-existing-secret
                 optional: true
+        template: deployment.yaml
 
   - it: should set redis username default when redis is enabled and externalRedis.existingSecret is not set
     set:
@@ -684,6 +774,7 @@ tests:
           content:
             name: REDIS_USERNAME
             value: "default"
+        template: deployment.yaml
 
   - it: should set redis port from bitnami's config when redis.enabled is true and redis.master.service.ports.redis is set
     set:
@@ -699,6 +790,7 @@ tests:
           content:
             name: REDIS_PORT
             value: "22000"
+        template: deployment.yaml
 
   - it: should set file storage directory and volume for it when fileStorage.mode is local and persistence is enabled
     set:
@@ -714,12 +806,14 @@ tests:
           content:
             name: FILE_STORAGE_LOCAL_ROOT_DIR
             value: "/any/path"
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.volumes
           content:
             name: data
             persistentVolumeClaim:
               claimName: outline-data
+        template: deployment.yaml
 
   - it: should set file storage directory and volume for it when fileStorage.mode is local and persistence is enabled and existingClaim is set
     set:
@@ -736,12 +830,14 @@ tests:
           content:
             name: FILE_STORAGE_LOCAL_ROOT_DIR
             value: "/another/path"
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.volumes
           content:
             name: data
             persistentVolumeClaim:
               claimName: fake-existing-claim
+        template: deployment.yaml
 
   - it: should set aws access key id from s3 object when fileStorage.mode is s3 and minio is not enabled
     set:
@@ -760,6 +856,7 @@ tests:
               secretKeyRef:
                 key: access-key-id
                 name: outline-s3-secret
+        template: deployment.yaml
 
   - it: should set aws access key from rootUser key when file storage mode is s3 and minio is enabled and users are not set
     set:
@@ -777,6 +874,7 @@ tests:
               secretKeyRef:
                 key: rootUser
                 name: outline-minio
+        template: deployment.yaml
 
   - it: should set aws access key from existing secret when file storage mode is s3 and minio is not enabled
     set:
@@ -795,6 +893,7 @@ tests:
               secretKeyRef:
                 key: access-key-id
                 name: fake-existing-secret
+        template: deployment.yaml
 
   - it: should set aws secret access key from s3 object when fileStorage.mode is s3 and minio is not enabled
     set:
@@ -813,6 +912,7 @@ tests:
               secretKeyRef:
                 key: secret-access-key
                 name: outline-s3-secret
+        template: deployment.yaml
 
   - it: should set aws secret access key from rootPassword key when file storage mode is s3 and minio is enabled and users are not set
     set:
@@ -830,6 +930,7 @@ tests:
               secretKeyRef:
                 key: rootPassword
                 name: outline-minio
+        template: deployment.yaml
 
   - it: should set aws secret access key from existing secret when file storage mode is s3 and minio is not enabled
     set:
@@ -848,6 +949,7 @@ tests:
               secretKeyRef:
                 key: secret-access-key
                 name: fake-existing-secret
+        template: deployment.yaml
 
   - it: should set bucket name from s3 object when file storage mode is s3 and minio is not enabled
     set:
@@ -861,6 +963,7 @@ tests:
           content:
             name: AWS_S3_UPLOAD_BUCKET_NAME
             value: fake-bucket
+        template: deployment.yaml
 
   - it: should set bucket name from minio bucket when file storage mode is s3 and minio is enabled
     set:
@@ -879,6 +982,7 @@ tests:
           content:
             name: AWS_S3_UPLOAD_BUCKET_NAME
             value: fake-bucket
+        template: deployment.yaml
 
   - it: should set bucket name from s3 object when file storage mode is s3 and minio is enabled but buckets are not set
     set:
@@ -895,6 +999,7 @@ tests:
           content:
             name: AWS_S3_UPLOAD_BUCKET_NAME
             value: fake-bucket
+        template: deployment.yaml
 
   - it: should set aws region from s3 object when file storage mode is s3
     set:
@@ -908,6 +1013,7 @@ tests:
           content:
             name: AWS_REGION
             value: eu-central-1
+        template: deployment.yaml
 
   - it: should set s3 bucket upload url from minio ingress when file storage mode is s3 and minio is enabled
     set:
@@ -924,6 +1030,7 @@ tests:
           content:
             name: AWS_S3_UPLOAD_BUCKET_URL
             value: http://fake-minio-ingress.minio.local
+        template: deployment.yaml
 
   - it: should set s3 bucket upload url from s3 object bucket url when file storage mode is s3 and minio is not enabled
     set:
@@ -939,6 +1046,7 @@ tests:
           content:
             name: AWS_S3_UPLOAD_BUCKET_URL
             value: https://fake-bucket-url
+        template: deployment.yaml
 
   - it: should set s3 force path style from s3 object when file storage mode is s3
     set:
@@ -952,6 +1060,7 @@ tests:
           content:
             name: AWS_S3_FORCE_PATH_STYLE
             value: "true"
+        template: deployment.yaml
 
   - it: should set s3 acl from s3 object when file storage mode is s3
     set:
@@ -965,6 +1074,7 @@ tests:
           content:
             name: AWS_S3_ACL
             value: public-read
+        template: deployment.yaml
 
   - it: should set extra environment variables when extraEnvVars are set
     set:
@@ -976,6 +1086,7 @@ tests:
           content:
             name: MY_KEY
             value: my_value
+        template: deployment.yaml
 
   - it: should set extra secret names for envFrom when extraSecretNamesForEnvFrom are set
     set:
@@ -987,6 +1098,7 @@ tests:
           content:
             secretRef:
               name: fake-existing-secret
+        template: deployment.yaml
 
   - it: should set extra volume mounts when volumeMounts are set
     set:
@@ -999,6 +1111,7 @@ tests:
           content:
             name: fake-volume
             mountPath: /fake/path
+        template: deployment.yaml
 
   - it: should set extra containers (sidecars) when extraContainers are set
     set:
@@ -1013,6 +1126,7 @@ tests:
             name: fake-container
             image: fake-image
             command: ["fake-command"]
+        template: deployment.yaml
 
   - it: should set extra volumes when volumes are set
     set:
@@ -1027,6 +1141,7 @@ tests:
             name: fake-volume
             persistentVolumeClaim:
               claimName: fake-existing-claim
+        template: deployment.yaml
 
   - it: should set node selector when nodeSelector is set
     set:
@@ -1036,6 +1151,7 @@ tests:
       - equal:
           path: spec.template.spec.nodeSelector.disktype
           value: ssd
+        template: deployment.yaml
 
   - it: should set affinity when affinity is set
     set:
@@ -1060,6 +1176,7 @@ tests:
                   operator: In
                   values:
                     - ssd
+        template: deployment.yaml
 
   - it: should set tolerations when tolerations are set
     set:
@@ -1074,6 +1191,7 @@ tests:
             key: fake-key
             operator: fake-operator
             value: fake-value
+        template: deployment.yaml
 
   - it: should set entrypoint script from volume mounts when redis is enabled and auth is enabled
     set:
@@ -1088,6 +1206,7 @@ tests:
             name: entrypoint-volume
             mountPath: /entrypoint.sh
             subPath: entrypoint.sh
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.volumes
           content:
@@ -1095,16 +1214,19 @@ tests:
             configMap:
               name: outline-entrypoint
               defaultMode: 0755
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].command
           content:
             /bin/bash
           any: true
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].command
           content:
             /entrypoint.sh
           any: true
+        template: deployment.yaml
 
   - it: should set entrypoint script from volume mounts when externalRedis is set
     set:
@@ -1122,6 +1244,7 @@ tests:
             name: entrypoint-volume
             mountPath: /entrypoint.sh
             subPath: entrypoint.sh
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.volumes
           content:
@@ -1129,16 +1252,19 @@ tests:
             configMap:
               name: outline-entrypoint
               defaultMode: 0755
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].command
           content:
             /bin/bash
           any: true
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].command
           content:
             /entrypoint.sh
           any: true
+        template: deployment.yaml
 
   - it: should set entrypoint script from volume mounts when externalRedis is set with existing secret
     set:
@@ -1155,6 +1281,7 @@ tests:
             name: entrypoint-volume
             mountPath: /entrypoint.sh
             subPath: entrypoint.sh
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.volumes
           content:
@@ -1162,16 +1289,19 @@ tests:
             configMap:
               name: outline-entrypoint
               defaultMode: 0755
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].command
           content:
             /bin/bash
           any: true
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].command
           content:
             /entrypoint.sh
           any: true
+        template: deployment.yaml
 
   - it: should set slack client secret from existing secret when auth.slack.enabled is true and auth.slack.existingSecret.name is set
     set:
@@ -1191,6 +1321,7 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: "client-secret"
+        template: deployment.yaml
 
   - it: should set google client secret from existing secret when auth.google.enabled is true and auth.google.existingSecret.name is set
     set:
@@ -1210,6 +1341,7 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: "client-secret"
+        template: deployment.yaml
 
   - it: should set azure client secret from existing secret when auth.azure.enabled is true and auth.azure.existingSecret.name is set
     set:
@@ -1231,6 +1363,7 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: "client-secret"
+        template: deployment.yaml
 
   - it: should set oidc client secret from existing secret when auth.oidc.enabled is true and auth.oidc.existingSecret.name is set
     set:
@@ -1259,6 +1392,7 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: "client-secret"
+        template: deployment.yaml
 
   - it: should set github client secret from existing secret when auth.github.enabled is true and auth.github.existingSecret.name is set
     set:
@@ -1281,6 +1415,7 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: "client-secret"
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
@@ -1289,6 +1424,7 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: "app-private-key"
+        template: deployment.yaml
 
   - it: should set gitea client secret from existing secret when auth.gitea.enabled is true and auth.gitea.existingSecret.name is set
     set:
@@ -1314,6 +1450,7 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: "client-secret"
+        template: deployment.yaml
 
   - it: should set gitlab client secret from existing secret when auth.gitlab.enabled is true and auth.gitlab.existingSecret.name is set
     set:
@@ -1340,6 +1477,7 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: "client-secret"
+        template: deployment.yaml
 
   - it: should set discord client secret from existing secret when auth.discord.enabled is true and auth.discord.existingSecret.name is set
     set:
@@ -1363,6 +1501,7 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: "client-secret"
+        template: deployment.yaml
 
   - it: should set auth0 client secret from existing secret when auth.auth0.enabled is true and auth.auth0.existingSecret.name is set
     set:
@@ -1388,6 +1527,7 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: "client-secret"
+        template: deployment.yaml
 
   - it: should set keycloak client secret from existing secret when auth.keycloak.enabled is true and auth.keycloak.existingSecret.name is set
     set:
@@ -1413,6 +1553,7 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: "client-secret"
+        template: deployment.yaml
 
   - it: should set saml cert from existing secret when auth.saml.enabled is true and auth.saml.existingSecret.name is set
     set:
@@ -1432,6 +1573,7 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: cert
+        template: deployment.yaml
 
   - it: should set iframely api key from existing secret when integrations.iframely.enabled is true and integrations.iframely.existingSecret.name is set
     set:
@@ -1451,6 +1593,7 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: "api-key"
+        template: deployment.yaml
 
   - it: should set openai api key from existing secret when integrations.openAI.enabled is true and integrations.openAI.existingSecret.name is set
     set:
@@ -1471,6 +1614,7 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: "api-key"
+        template: deployment.yaml
 
   - it: should set slack verification token from existing secret when integrations.slack.enabled is true and integrations.slack.existingSecret.name is set
     set:
@@ -1491,6 +1635,7 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: "verification-token"
+        template: deployment.yaml
 
   - it: should set dropbox app key from existing secret when integrations.dropbox.enabled is true and integrations.dropbox.existingSecret.name is set
     set:
@@ -1509,6 +1654,7 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: "app-key"
+        template: deployment.yaml
 
   - it: should set linear client id and secret from existing secret when integrations.linear.enabled is true and integrations.linear.existingSecret.name is set
     set:
@@ -1527,6 +1673,7 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: "client-secret"
+        template: deployment.yaml
 
   - it: should set notion client id and secret from existing secret when integrations.notion.enabled is true and integrations.notion.existingSecret.name is set
     set:
@@ -1545,6 +1692,7 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: "client-secret"
+        template: deployment.yaml
 
   - it: should set smtp username from existing secret when smtp.enabled is true and smtp.existingSecret.name is set
     set:
@@ -1567,6 +1715,7 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: "username"
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "outline")].env
           content:
@@ -1575,6 +1724,7 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: "password"
+        template: deployment.yaml
 
   - it: should set dnsPolicy when dnsPolicy is set
     set:
@@ -1645,3 +1795,16 @@ tests:
               - "my-host.com"
           any: true
         template: deployment.yaml
+
+  - it: should match snapshot of default values
+    set:
+      secretKey: "5c8986bb072b59cc8091a250d65ea47c4b1be39b0f7acce5674aa90eee0def5d"
+      utilsSecret: "7a4726dc65f4f76d140088d2b667679749e36de38bf23baa53755e42e86147c2"
+    release:
+      name: outline
+      namespace: outline
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }

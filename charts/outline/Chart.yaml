@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.6.5
+version: 0.7.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -52,11 +52,11 @@ annotations:
       url: https://docs.getoutline.com/s/hosting/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Update outlinewiki/outline image version to 0.87.4
+    - kind: fixed
+      description: Added automatic rolling restart for deployments on ConfigMap/Secret updates by including checksum annotations in deployment templates.
       links:
-        - name: Upstream Project
-          url: https://hub.docker.com/r/outlinewiki/outline
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/238
   artifacthub.io/images: |
     - name: outline
       image: outlinewiki/outline:0.87.4
