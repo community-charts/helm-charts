@@ -361,6 +361,71 @@
           "title": "postgres",
           "type": "object"
         },
+        "mssql": {
+          "additionalProperties": false,
+          "properties": {
+            "database": {
+              "default": "",
+              "description": "mlflow database name created before in the mssql instance",
+              "required": [],
+              "title": "database",
+              "type": "string"
+            },
+            "driver": {
+              "default": "pymssql",
+              "description": "mssql database connection driver. e.g.: \"pymssql\"",
+              "required": [],
+              "title": "driver",
+              "type": "string"
+            },
+            "enabled": {
+              "default": false,
+              "description": "Specifies if you want to use mssql backend storage",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "host": {
+              "default": "",
+              "description": "mssql host address",
+              "required": [],
+              "title": "host",
+              "type": "string"
+            },
+            "password": {
+              "default": "",
+              "description": "mssql database user password which can access to mlflow database",
+              "required": [],
+              "title": "password",
+              "type": "string"
+            },
+            "port": {
+              "default": 1433,
+              "description": "mssql service port",
+              "required": [],
+              "title": "port",
+              "type": "integer"
+            },
+            "user": {
+              "default": "",
+              "description": "mssql database user name which can access to mlflow database",
+              "required": [],
+              "title": "user",
+              "type": "string"
+            }
+          },
+          "required": [
+            "enabled",
+            "host",
+            "port",
+            "database",
+            "user",
+            "password",
+            "driver"
+          ],
+          "title": "mssql",
+          "type": "object"
+        },
         "existingDatabaseSecret": {
           "additionalProperties": false,
           "type": "object",

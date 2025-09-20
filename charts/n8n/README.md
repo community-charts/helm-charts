@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.15.2](https://img.shields.io/badge/Version-1.15.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.108.2](https://img.shields.io/badge/AppVersion-1.108.2-informational?style=flat-square)
+![Version: 1.15.7](https://img.shields.io/badge/Version-1.15.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.111.1](https://img.shields.io/badge/AppVersion-1.111.1-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -892,7 +892,7 @@ Kubernetes: `>=1.23.0-0`
 | Repository | Name | Version |
 |------------|------|---------|
 | https://charts.bitnami.com/bitnami | postgresql | 16.7.27 |
-| https://charts.bitnami.com/bitnami | redis | 22.0.6 |
+| https://charts.bitnami.com/bitnami | redis | 22.0.7 |
 | https://charts.min.io/ | minio | 5.4.0 |
 
 ## Uninstall Helm Chart
@@ -1108,13 +1108,14 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | podAnnotations | object | `{}` | This is for setting Kubernetes Annotations to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
 | podLabels | object | `{}` | This is for setting Kubernetes Labels to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/ |
 | podSecurityContext | object | `{"fsGroup":1000,"fsGroupChangePolicy":"OnRootMismatch"}` | This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
-| postgresql | object | `{"architecture":"standalone","auth":{"database":"n8n","password":"","username":""},"enabled":false,"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"postgresql":5432}}}}` | Bitnami PostgreSQL configuration |
+| postgresql | object | `{"architecture":"standalone","auth":{"database":"n8n","password":"","username":""},"enabled":false,"image":{"repository":"bitnamilegacy/postgresql"},"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"postgresql":5432}}}}` | Bitnami PostgreSQL configuration |
 | postgresql.architecture | string | `"standalone"` | Enable postgresql architecture. |
 | postgresql.auth | object | `{"database":"n8n","password":"","username":""}` | This is for setting up the auth. |
 | postgresql.auth.database | string | `"n8n"` | The name of the PostgreSQL database. For more information: https://docs.n8n.io/hosting/configuration/supported-databases-settings/#required-permissions |
 | postgresql.auth.password | string | `""` | This is for setting up the auth password. |
 | postgresql.auth.username | string | `""` | This is for setting up the auth username. |
 | postgresql.enabled | bool | `false` | Enable postgresql |
+| postgresql.image.repository | string | `"bitnamilegacy/postgresql"` | This is temporary workaround because of bitnami's deprecation until to completely replace it with our solution. |
 | postgresql.primary | object | `{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"postgresql":5432}}}` | This is for setting up the primary service. |
 | postgresql.primary.persistence | object | `{"enabled":true,"existingClaim":""}` | This is for setting up the persistence. |
 | postgresql.primary.persistence.enabled | bool | `true` | This is for setting up the persistence enabled. |
@@ -1123,11 +1124,12 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | postgresql.primary.service.ports | object | `{"postgresql":5432}` | This is for setting up the service ports. |
 | postgresql.primary.service.ports.postgresql | int | `5432` | This is for setting up the postgresql port. |
 | readinessProbe | object | `{}` | DEPRECATED: Use main, worker, and webhook blocks readinessProbe field instead. This field will be removed in a future release. |
-| redis | object | `{"architecture":"standalone","auth":{"enabled":true},"enabled":false,"master":{"persistence":{"enabled":false},"service":{"ports":{"redis":6379}}}}` | Bitnami Redis configuration |
+| redis | object | `{"architecture":"standalone","auth":{"enabled":true},"enabled":false,"image":{"repository":"bitnamilegacy/redis"},"master":{"persistence":{"enabled":false},"service":{"ports":{"redis":6379}}}}` | Bitnami Redis configuration |
 | redis.architecture | string | `"standalone"` | Enable redis architecture. |
 | redis.auth | object | `{"enabled":true}` | This is for setting up the auth. |
 | redis.auth.enabled | bool | `true` | Enable password authentication |
 | redis.enabled | bool | `false` | Enable redis |
+| redis.image.repository | string | `"bitnamilegacy/redis"` | This is temporary workaround because of bitnami's deprecation until to completely replace it with our solution. |
 | redis.master.service.ports.redis | int | `6379` | Redis master service port |
 | resources | object | `{}` | DEPRECATED: Use main, worker, and webhook blocks resources fields instead. This field will be removed in a future release. |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":false,"runAsGroup":1000,"runAsNonRoot":true,"runAsUser":1000}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |

@@ -23,14 +23,14 @@ tests:
           value: customsa
         template: deployment.yaml
 
-  - it: should be a memory backend when Postgres or MySQL or bitnami Postgres or bitnami MySQL are not enabled
+  - it: should be a memory backend when Postgres or MySQL or MSSQL or bitnami Postgres or bitnami MySQL are not enabled
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: "--backend-store-uri=sqlite:///:memory:"
         template: deployment.yaml
 
-  - it: should be a defined sqlite path backend when Postgres or MySQL or bitnami Postgres or bitnami MySQL are not enabled and sqlite path is defined
+  - it: should be a defined sqlite path backend when Postgres or MySQL or MSSQL or bitnami Postgres or bitnami MySQL are not enabled and sqlite path is defined
     set:
       backendStore.defaultSqlitePath: /mlflow/data/mlflow.db
     asserts:
@@ -129,6 +129,34 @@ tests:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --backend-store-uri=mysql+pymysql://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
+        template: deployment.yaml
+
+  - it: should be MSSQL backend when bitnami mssql is enabled
+    set:
+      backendStore:
+        mssql:
+          enabled: true
+          host: test-host
+          database: test-database
+          driver: ""
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --backend-store-uri=mssql://$(MSSQL_USERNAME):$(MSSQL_PWD)@$(MSSQL_HOST):$(MSSQL_TCP_PORT)/$(MSSQL_DATABASE)
+        template: deployment.yaml
+
+  - it: should use DB connection driver with MSSQL backend when mssql is enabled and driver defined
+    set:
+      backendStore:
+        mssql:
+          enabled: true
+          host: test-host
+          database: test-database
+          driver: "pymssql"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --backend-store-uri=mssql+pymssql://$(MSSQL_USERNAME):$(MSSQL_PWD)@$(MSSQL_HOST):$(MSSQL_TCP_PORT)/$(MSSQL_DATABASE)
         template: deployment.yaml
 
   - it: should be local folder as an artifact root when azureBlob or s3 or gcs is not enabled
@@ -384,7 +412,7 @@ tests:
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].envFrom
-          content: 
+          content:
             secretRef:
               name: mysupersecret
         template: deployment.yaml
@@ -402,7 +430,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "mlflow")].readinessProbe.httpGet.path
           value: /mlflow/health
         template: deployment.yaml
-  
+
   - it: should check that the db checker init container is present if enabled with postgres
     set:
       backendStore:
@@ -418,7 +446,7 @@ tests:
           path: spec.template.spec.initContainers[0].name
           value: dbchecker
         template: deployment.yaml
-  
+
   - it: should check that the db checker init container is present if enabled with postgresql
     set:
       postgresql:
@@ -465,7 +493,23 @@ tests:
           path: spec.template.spec.initContainers[0].name
           value: dbchecker
         template: deployment.yaml
-  
+
+  - it: should check that the db checker init container is present if enabled with mssql
+    set:
+      backendStore:
+        databaseConnectionCheck: true
+        mssql:
+          enabled: true
+          host: test-host
+          database: test-database
+          user: test-user
+          password: test-password
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker
+        template: deployment.yaml
+
   - it: should check that the db checker and additional init containers are present with postgres
     set:
       initContainers:
@@ -491,7 +535,7 @@ tests:
           path: spec.template.spec.initContainers[1].name
           value: init-container-test
         template: deployment.yaml
-  
+
   - it: should check that the db checker and additional init containers are present with postgresql
     set:
       initContainers:
@@ -632,6 +676,22 @@ tests:
           value: mlflow-db-migration
         template: deployment.yaml
 
+  - it: should have a DB migration init container present if enabled with MSSQl
+    set:
+      backendStore:
+        databaseMigration: true
+        mssql:
+          enabled: true
+          host: test-host
+          database: test-database
+          user: test-user
+          password: test-password
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: mlflow-db-migration
+        template: deployment.yaml
+
   - it: should have a DB migration init container and additional init containers are present with postgres
     set:
       initContainers:
@@ -725,6 +785,32 @@ tests:
           password: test-password
       backendStore:
         databaseMigration: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: mlflow-db-migration
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: init-container-test
+        template: deployment.yaml
+
+  - it: should have a DB migration init container and additional init containers are present with MSSQL
+    set:
+      initContainers:
+        - name: init-container-test
+          image: test:3.2
+          command:
+            - sleep
+            - infinity
+      backendStore:
+        databaseMigration: true
+        mssql:
+          enabled: true
+          host: test-host
+          database: test-database
+          user: test-user
+          password: test-password
     asserts:
       - equal:
           path: spec.template.spec.initContainers[0].name
@@ -844,6 +930,37 @@ tests:
       backendStore:
         databaseConnectionCheck: true
         databaseMigration: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: mlflow-db-migration
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[2].name
+          value: init-container-test
+        template: deployment.yaml
+
+  - it: should have a DB checker init container, DB migration init container and additional init containers are present with MSSQL
+    set:
+      initContainers:
+        - name: init-container-test
+          image: test:3.2
+          command:
+            - sleep
+            - infinity
+      backendStore:
+        databaseConnectionCheck: true
+        databaseMigration: true
+        mssql:
+          enabled: true
+          host: test-host
+          database: test-database
+          user: test-user
+          password: test-password
     asserts:
       - equal:
           path: spec.template.spec.initContainers[0].name
@@ -1163,6 +1280,37 @@ tests:
           path: spec.template.spec.containers[?(@.name == "mlflow")].env
           content:
             name: MYSQL_PWD
+            valueFrom:
+              secretKeyRef:
+                name: test-secret
+                key: customPassword
+        template: deployment.yaml
+
+  - it: should use username and password from existing secret when backendStore.existingDatabaseSecret is set and mssql is enabled
+    set:
+      backendStore:
+        existingDatabaseSecret:
+          name: test-secret
+          usernameKey: customUsername
+          passwordKey: customPassword
+        mssql:
+          enabled: true
+          host: test-host
+          database: test-database
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: MSSQL_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: test-secret
+                key: customUsername
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: MSSQL_PWD
             valueFrom:
               secretKeyRef:
                 name: test-secret
@@ -1748,6 +1896,83 @@ tests:
         databaseMigration: true
         databaseConnectionCheck: true
         postgres:
+          enabled: true
+          host: test-host
+          database: test-database
+          user: test-user
+          password: test-password
+      podAnnotations:
+        test-key: test-value
+      extraPodLabels:
+        "azure.workload.identity/use": "true"
+      podSecurityContext:
+        fsGroup: 1001
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+      initContainers:
+        - name: init-myservice
+          image: busybox:1.28
+      resources:
+        limits:
+          cpu: 100m
+          memory: 128Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      extraVolumeMounts:
+        - name: mlflow-volume
+          mountPath: /mlflow/data
+        - name: example
+          mountPath: /example
+      extraVolumes:
+        - name: mlflow-volume
+          persistentVolumeClaim:
+            claimName: mlflow-pv-volume
+        - name: example
+          configMap:
+            name: example
+      nodeSelector:
+        disktype: ssd
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/e2e-az-name
+                    operator: In
+                    values:
+                      - e2e-az1
+                      - e2e-az2
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              preference:
+                matchExpressions:
+                  - key: custom-key
+                    operator: In
+                    values:
+                      - custom-value
+      tolerations:
+        - key: "example-key"
+          operator: "Exists"
+          effect: "NoSchedule"
+    release:
+      name: mlflow
+      namespace: mlflow
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should match snapshot with additional values when mssql is enabled
+    set:
+      auth:
+        enabled: true
+      backendStore:
+        databaseMigration: true
+        databaseConnectionCheck: true
+        mssql:
           enabled: true
           host: test-host
           database: test-database

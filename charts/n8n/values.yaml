@@ -1000,6 +1000,10 @@ redis:
   # -- Enable redis architecture.
   architecture: standalone
 
+  image:
+    # -- This is temporary workaround because of bitnami's deprecation until to completely replace it with our solution.
+    repository: bitnamilegacy/redis
+
   # -- This is for setting up the auth.
   auth:
     # -- Enable password authentication
@@ -1048,6 +1052,10 @@ postgresql:
   enabled: false
   # -- Enable postgresql architecture.
   architecture: standalone
+
+  image:
+    # -- This is temporary workaround because of bitnami's deprecation until to completely replace it with our solution.
+    repository: bitnamilegacy/postgresql
 
   # -- This is for setting up the primary service.
   primary:
