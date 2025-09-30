@@ -294,7 +294,7 @@ license:
     # -- Time in hours before expiry a license should automatically renew.
     offsetInHours: 72
   # -- Server URL to retrieve license.
-  serverUrl: "http://license.n8n.io/v1"
+  serverUrl: "https://license.n8n.io/v1"
   # -- Tenant ID associated with the license. Only set this variable if explicitly instructed by n8n.
   tenantId: 1
 
