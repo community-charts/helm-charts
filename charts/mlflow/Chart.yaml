@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.7.1
+version: 1.7.2
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -52,7 +52,7 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update chart to support values for custom init container images
+      description: Add resources to dbchecker and ini-file-initializer initContainers using .Values.resources
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.4.0
