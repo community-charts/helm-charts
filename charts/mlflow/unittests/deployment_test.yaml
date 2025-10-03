@@ -2095,3 +2095,28 @@ tests:
       appVersion: 1.0.0
     asserts:
       - matchSnapshot: { }
+
+  - it: should set resources for init containers when resources are defined
+    set:
+      auth:
+        enabled: true
+      backendStore:
+        databaseConnectionCheck: true
+      postgresql:
+        enabled: true
+      resources:
+        limits:
+          cpu: 100m
+          memory: 128Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "dbchecker")].resources.requests.cpu
+          value: 100m
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "ini-file-initializer")].resources.limits.memory
+          value: 128Mi
+        template: deployment.yaml
