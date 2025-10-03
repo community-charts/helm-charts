@@ -332,6 +332,13 @@ should match snapshot with additional values:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -394,6 +401,13 @@ should match snapshot with additional values:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: ini-file-initializer
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -657,6 +671,13 @@ should match snapshot with additional values when auth and auth.postgres are ena
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -731,6 +752,13 @@ should match snapshot with additional values when auth and auth.postgres are ena
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: ini-file-initializer
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -1012,6 +1040,13 @@ should match snapshot with additional values when bitnami mysql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -1081,6 +1116,13 @@ should match snapshot with additional values when bitnami mysql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: ini-file-initializer
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -1357,6 +1399,13 @@ should match snapshot with additional values when bitnami postgresql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -1426,6 +1475,13 @@ should match snapshot with additional values when bitnami postgresql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: ini-file-initializer
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -1694,6 +1750,13 @@ should match snapshot with additional values when mssql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -1756,6 +1819,13 @@ should match snapshot with additional values when mssql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: ini-file-initializer
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -2024,6 +2094,13 @@ should match snapshot with additional values when mysql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -2086,6 +2163,13 @@ should match snapshot with additional values when mysql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: ini-file-initializer
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -2349,6 +2433,13 @@ should match snapshot with additional values when postgresql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -2411,6 +2502,13 @@ should match snapshot with additional values when postgresql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: ini-file-initializer
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
