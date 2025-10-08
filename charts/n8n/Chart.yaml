@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.15.13
+version: 1.15.14
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "1.114.3"
+appVersion: "1.114.4"
 kubeVersion: ">=1.23.0-0"
 home: https://n8n.io
 maintainers:
@@ -51,23 +51,23 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update n8nio/n8n image version to 1.114.3
+      description: Update n8nio/n8n image version to 1.114.4
       links:
         - name: Upstream Project
           url: https://github.com/n8n-io/n8n
     - kind: changed
-      description: Update dependency redis from 22.0.7 to 23.0.10
+      description: Update dependency redis from 23.0.10 to 23.1.1
       links:
         - name: ArtifactHub
           url: https://artifacthub.io/packages/helm/bitnami/redis
     - kind: changed
-      description: Update dependency postgresql from 16.7.27 to 18.0.7
+      description: Update dependency postgresql from 18.0.7 to 18.0.8
       links:
         - name: ArtifactHub
           url: https://artifacthub.io/packages/helm/bitnami/postgresql
   artifacthub.io/images: |
     - name: n8n
-      image: n8nio/n8n:1.114.3
+      image: n8nio/n8n:1.114.4
       platforms:
         - linux/amd64
         - linux/arm64
@@ -119,11 +119,11 @@ annotations:
     url: https://keybase.io/communitycharts/pgp_keys.asc
 dependencies:
   - name: redis
-    version: 23.0.10
+    version: 23.1.1
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
   - name: postgresql
-    version: 18.0.7
+    version: 18.0.8
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: minio
