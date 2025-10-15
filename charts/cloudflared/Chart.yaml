@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 2.2.1
+version: 2.2.2
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "2025.9.1"
+appVersion: "2025.10.0"
 kubeVersion: ">=1.21.0-0"
 home: https://github.com/cloudflare/cloudflared
 maintainers:
@@ -53,13 +53,13 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update cloudflare/cloudflared image version to 2025.9.1
+      description: Update cloudflare/cloudflared image version to 2025.10.0
       links:
         - name: Upstream Project
           url: https://hub.docker.com/r/cloudflare/cloudflared
   artifacthub.io/images: |
     - name: cloudflared
-      image: cloudflare/cloudflared:2025.9.1
+      image: cloudflare/cloudflared:2025.10.0
       platforms:
         - linux/amd64
         - linux/arm64
