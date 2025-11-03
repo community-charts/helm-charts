@@ -1089,7 +1089,7 @@ externalPostgresql:
   # -- External PostgreSQL username
   username: "postgres"
   # -- External PostgreSQL password
-  password: ""
+  password: "postgres"
   # -- External PostgreSQL server port
   port: 5432
   # -- The name of the external PostgreSQL database. For more information: https://docs.n8n.io/hosting/configuration/supported-databases-settings/#required-permissions
