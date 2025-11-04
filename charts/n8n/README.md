@@ -972,7 +972,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | externalPostgresql.database | string | `"n8n"` | The name of the external PostgreSQL database. For more information: https://docs.n8n.io/hosting/configuration/supported-databases-settings/#required-permissions |
 | externalPostgresql.existingSecret | string | `""` | The name of an existing secret with PostgreSQL (must contain key `postgres-password`) and credentials. When it's set, the `externalPostgresql.password` parameter is ignored |
 | externalPostgresql.host | string | `""` | External PostgreSQL server host |
-| externalPostgresql.password | string | `""` | External PostgreSQL password |
+| externalPostgresql.password | string | `"postgres"` | External PostgreSQL password |
 | externalPostgresql.port | int | `5432` | External PostgreSQL server port |
 | externalPostgresql.username | string | `"postgres"` | External PostgreSQL username |
 | externalRedis | object | `{"clusterNodes":[],"database":0,"dualStack":false,"existingSecret":"","host":"","password":"","port":6379,"tls":{"enabled":false},"username":""}` | External Redis parameters |

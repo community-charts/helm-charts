@@ -1083,7 +1083,7 @@ should match snapshot of postgres ssl certificate values:
   11: |
     apiVersion: v1
     data:
-      postgres-password: ""
+      postgres-password: cG9zdGdyZXM=
     kind: Secret
     metadata:
       labels:
