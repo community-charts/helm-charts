@@ -450,6 +450,13 @@
         "zu"
       ]
     },
+    "enableServiceLinks": {
+      "default": true,
+      "description": "Enable or disable service links for the pods.",
+      "required": [],
+      "title": "enableServiceLinks",
+      "type": "boolean"
+    },
     "sentry": {
       "additionalProperties": false,
       "properties": {
