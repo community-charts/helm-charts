@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.7.4
+version: 1.8.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -51,16 +51,11 @@ annotations:
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Update burakince/mlflow image version to 3.6.0
+    - kind: added
+      description: Add resources to dbchecker and ini-file-initializer init containers using resources definition.
       links:
-        - name: Upstream Project
-          url: https://hub.docker.com/r/burakince/mlflow
-    - kind: changed
-      description: Update dependency postgresql from 18.1.1 to 18.1.7
-      links:
-        - name: ArtifactHub
-          url: https://artifacthub.io/packages/helm/bitnami/postgresql
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/265
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.6.0
