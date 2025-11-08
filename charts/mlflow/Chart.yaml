@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.7.2
+version: 1.8.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "3.4.0"
+appVersion: "3.6.0"
 kubeVersion: ">=1.16.0-0"
 home: https://mlflow.org
 maintainers:
@@ -51,11 +51,14 @@ annotations:
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Add resources to dbchecker and ini-file-initializer initContainers using .Values.resources
+    - kind: added
+      description: Add resources to dbchecker and ini-file-initializer init containers using resources definition.
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/265
   artifacthub.io/images: |
     - name: mlflow
-      image: burakince/mlflow:3.4.0
+      image: burakince/mlflow:3.6.0
   artifacthub.io/license: MIT
   artifacthub.io/maintainers: |
     - name: burakince
@@ -88,7 +91,7 @@ annotations:
     url: https://keybase.io/communitycharts/pgp_keys.asc
 dependencies:
   - name: postgresql
-    version: 16.7.27
+    version: 18.1.7
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: mysql
