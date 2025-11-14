@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.16.1
+version: 1.16.2
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "1.119.1"
+appVersion: "1.119.2"
 kubeVersion: ">=1.23.0-0"
 home: https://n8n.io
 maintainers:
@@ -51,23 +51,18 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update n8nio/n8n image version to 1.119.1
+      description: Update n8nio/n8n image version to 1.119.2
       links:
         - name: Upstream Project
           url: https://github.com/n8n-io/n8n
     - kind: changed
-      description: Update dependency redis from 23.2.6 to 23.2.12
-      links:
-        - name: ArtifactHub
-          url: https://artifacthub.io/packages/helm/bitnami/redis
-    - kind: changed
-      description: Update dependency postgresql from 18.1.4 to 18.1.8
+      description: Update dependency postgresql from 18.1.8 to 18.1.9
       links:
         - name: ArtifactHub
           url: https://artifacthub.io/packages/helm/bitnami/postgresql
   artifacthub.io/images: |
     - name: n8n
-      image: n8nio/n8n:1.119.1
+      image: n8nio/n8n:1.119.2
       platforms:
         - linux/amd64
         - linux/arm64
@@ -123,7 +118,7 @@ dependencies:
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
   - name: postgresql
-    version: 18.1.8
+    version: 18.1.9
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: minio
