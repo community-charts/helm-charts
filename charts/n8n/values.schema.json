@@ -451,11 +451,11 @@
       ]
     },
     "enableServiceLinks": {
-      "default": true,
+      "default": null,
       "description": "Enable or disable service links for the pods.",
       "required": [],
       "title": "enableServiceLinks",
-      "type": "boolean"
+      "type": ["boolean", "null"]
     },
     "sentry": {
       "additionalProperties": false,
