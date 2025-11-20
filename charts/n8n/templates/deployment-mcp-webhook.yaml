@@ -239,7 +239,7 @@ spec:
       {{- with (default .Values.volumes .Values.webhook.mcp.volumes) }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.nodeSelector }}
+      {{- with (default .Values.nodeSelector .Values.webhook.mcp.nodeSelector) }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -247,7 +247,7 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.tolerations }}
+      {{- with (default .Values.tolerations .Values.webhook.mcp.tolerations) }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

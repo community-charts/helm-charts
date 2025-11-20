@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.17.0](https://img.shields.io/badge/Version-1.17.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.120.3](https://img.shields.io/badge/AppVersion-1.120.3-informational?style=flat-square)
+![Version: 1.18.0](https://img.shields.io/badge/Version-1.18.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.120.4](https://img.shields.io/badge/AppVersion-1.120.4-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -811,6 +811,151 @@ binaryData:
     bucketRegion: "us-east-1"
     existingSecret: "your-existing-secret"
 ```
+
+## Per-Workload Node Scheduling
+
+The chart supports per-workload node scheduling configurations, allowing you to control where different workload types (main, worker, webhook, mcp-webhook) are scheduled in your Kubernetes cluster.
+
+### Global Scheduling Configuration
+
+You can set global `nodeSelector` and `tolerations` that apply to all workloads:
+
+```yaml
+nodeSelector:
+  disktype: ssd
+
+tolerations:
+  - key: "example-key"
+    operator: "Exists"
+    effect: "NoSchedule"
+```
+
+### Per-Workload Scheduling Override
+
+Each workload type can override the global scheduling settings with its own configuration:
+
+```yaml
+# Global settings (apply to all workloads by default)
+nodeSelector:
+  disktype: ssd
+
+tolerations:
+  - key: "default-taint"
+    operator: "Exists"
+    effect: "NoSchedule"
+
+# Main node specific settings
+main:
+  nodeSelector:
+    workload-type: main-node
+  tolerations:
+    - key: "main-taint"
+      operator: "Equal"
+      value: "true"
+      effect: "NoSchedule"
+
+# Worker node specific settings
+worker:
+  mode: queue
+  nodeSelector:
+    workload-type: heavy-compute
+    instance-type: memory-optimized
+  tolerations:
+    - key: "compute-node"
+      operator: "Exists"
+      effect: "NoSchedule"
+
+# Webhook node specific settings
+webhook:
+  mode: queue
+  nodeSelector:
+    workload-type: webhook-handler
+  tolerations:
+    - key: "webhook-node"
+      operator: "Equal"
+      value: "true"
+      effect: "NoSchedule"
+
+# MCP Webhook node specific settings (when enabled)
+webhook:
+  mcp:
+    enabled: true
+    nodeSelector:
+      workload-type: mcp-webhook
+    tolerations:
+      - key: "mcp-node"
+        operator: "Exists"
+        effect: "NoSchedule"
+```
+
+### Use Case Examples
+
+#### Separate Compute-Intensive Workflows
+
+Schedule workers on high-performance nodes while keeping the main node on standard nodes:
+
+```yaml
+main:
+  nodeSelector:
+    node-type: standard
+
+worker:
+  mode: queue
+  nodeSelector:
+    node-type: high-cpu
+  tolerations:
+    - key: "high-performance"
+      operator: "Exists"
+      effect: "NoSchedule"
+```
+
+#### Multi-Tenant Cluster Isolation
+
+Use node selectors to isolate n8n components by tenant or environment:
+
+```yaml
+nodeSelector:
+  tenant: production
+  environment: prod
+
+main:
+  nodeSelector:
+    tenant: production
+    component: n8n-main
+
+worker:
+  nodeSelector:
+    tenant: production
+    component: n8n-worker
+```
+
+#### Cost Optimization with Spot Instances
+
+Schedule workers on spot instances while keeping main nodes on on-demand instances:
+
+```yaml
+main:
+  nodeSelector:
+    instance-lifecycle: on-demand
+
+worker:
+  mode: queue
+  nodeSelector:
+    instance-lifecycle: spot
+  tolerations:
+    - key: "spot-instance"
+      operator: "Exists"
+      effect: "NoSchedule"
+```
+
+### Notes
+
+- Per-workload settings (`main.nodeSelector`, `worker.nodeSelector`, etc.) take precedence over global settings
+- If a per-workload setting is not specified, the global setting is used as a fallback
+- This applies to both `nodeSelector` and `tolerations`
+- For more information on Kubernetes scheduling, see:
+  - [Node Selector](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector)
+  - [Taints and Tolerations](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
 
 ## Upgrading
 

@@ -1271,6 +1271,105 @@ tests:
             value: fake-value
         template: deployment.yaml
 
+  - it: should set node selector when main.nodeSelector is set
+    set:
+      main:
+        nodeSelector:
+          workload-type: main-node
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector.workload-type
+          value: main-node
+        template: deployment.yaml
+
+  - it: should override global nodeSelector when main.nodeSelector is set
+    set:
+      nodeSelector:
+        disktype: ssd
+      main:
+        nodeSelector:
+          workload-type: main-node
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector.workload-type
+          value: main-node
+        template: deployment.yaml
+      - isNull:
+          path: spec.template.spec.nodeSelector.disktype
+        template: deployment.yaml
+
+  - it: should set tolerations when main.tolerations are set
+    set:
+      main:
+        tolerations:
+          - key: main-key
+            operator: Equal
+            value: main-value
+            effect: NoSchedule
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: main-key
+            operator: Equal
+            value: main-value
+            effect: NoSchedule
+        template: deployment.yaml
+
+  - it: should override global tolerations when main.tolerations are set
+    set:
+      tolerations:
+        - key: global-key
+          operator: Exists
+          effect: NoSchedule
+      main:
+        tolerations:
+          - key: main-key
+            operator: Equal
+            value: main-value
+            effect: NoSchedule
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: main-key
+            operator: Equal
+            value: main-value
+            effect: NoSchedule
+        template: deployment.yaml
+      - notContains:
+          path: spec.template.spec.tolerations
+          content:
+            key: global-key
+            operator: Exists
+            effect: NoSchedule
+        template: deployment.yaml
+
+  - it: should use global nodeSelector when main.nodeSelector is not set
+    set:
+      nodeSelector:
+        disktype: ssd
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector.disktype
+          value: ssd
+        template: deployment.yaml
+
+  - it: should use global tolerations when main.tolerations are not set
+    set:
+      tolerations:
+        - key: global-key
+          operator: Exists
+          effect: NoSchedule
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: global-key
+            operator: Exists
+            effect: NoSchedule
+        template: deployment.yaml
+
   - it: should set topologySpreadConstraints when main.topologySpreadConstraints is set
     set:
       main:

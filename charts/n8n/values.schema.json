@@ -1590,6 +1590,23 @@
           "title": "affinity",
           "type": "object"
         },
+        "nodeSelector": {
+          "additionalProperties": true,
+          "description": "Main node selector. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector",
+          "required": [],
+          "title": "nodeSelector",
+          "type": "object"
+        },
+        "tolerations": {
+          "description": "Main node tolerations. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/",
+          "items": {
+            "type": "object",
+            "required": []
+          },
+          "required": [],
+          "title": "tolerations",
+          "type": "array"
+        },
         "topologySpreadConstraints": {
           "description": "Main node topology spread constraints. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/",
           "items": {
@@ -2395,6 +2412,23 @@
               "title": "affinity",
               "type": "object"
             },
+            "nodeSelector": {
+              "additionalProperties": true,
+              "description": "MCP webhook node selector. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector",
+              "required": [],
+              "title": "nodeSelector",
+              "type": "object"
+            },
+            "tolerations": {
+              "description": "MCP webhook node tolerations. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/",
+              "items": {
+                "type": "object",
+                "required": []
+              },
+              "required": [],
+              "title": "tolerations",
+              "type": "array"
+            },
             "topologySpreadConstraints": {
               "description": "MCP webhook node topology spread constraints. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/",
               "items": {
@@ -3091,6 +3125,23 @@
           "required": [],
           "title": "affinity",
           "type": "object"
+        },
+        "nodeSelector": {
+          "additionalProperties": true,
+          "description": "Webhook node selector. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector",
+          "required": [],
+          "title": "nodeSelector",
+          "type": "object"
+        },
+        "tolerations": {
+          "description": "Webhook node tolerations. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/",
+          "items": {
+            "type": "object",
+            "required": []
+          },
+          "required": [],
+          "title": "tolerations",
+          "type": "array"
         },
         "topologySpreadConstraints": {
           "description": "Webhook node topology spread constraints. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/",
@@ -3923,6 +3974,23 @@
           "required": [],
           "title": "affinity",
           "type": "object"
+        },
+        "nodeSelector": {
+          "additionalProperties": true,
+          "description": "Worker node selector. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector",
+          "required": [],
+          "title": "nodeSelector",
+          "type": "object"
+        },
+        "tolerations": {
+          "description": "Worker node tolerations. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/",
+          "items": {
+            "type": "object",
+            "required": []
+          },
+          "required": [],
+          "title": "tolerations",
+          "type": "array"
         },
         "topologySpreadConstraints": {
           "description": "Worker node topology spread constraints. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/",

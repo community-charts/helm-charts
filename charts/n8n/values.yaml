@@ -395,6 +395,12 @@ main:
   # -- Main node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity: {}
 
+  # -- Main node selector. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
+
+  # -- Main node tolerations. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
+
   # -- Main node topology spread constraints. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
   topologySpreadConstraints: []
   # - maxSkew: 1
@@ -581,6 +587,12 @@ worker:
   # -- Worker node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity: {}
 
+  # -- Worker node selector. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
+
+  # -- Worker node tolerations. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
+
   # -- Worker node topology spread constraints. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
   topologySpreadConstraints: []
   # - maxSkew: 1
@@ -666,6 +678,12 @@ webhook:
 
     # -- Webhook node affinity for the mcp webhook pod. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
     affinity: {}
+
+    # -- MCP webhook node selector. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+    nodeSelector: {}
+
+    # -- MCP webhook node tolerations. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+    tolerations: []
 
     # -- MCP webhook node topology spread constraints. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
     topologySpreadConstraints: []
@@ -820,6 +838,12 @@ webhook:
 
   # -- Webhook node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity: {}
+
+  # -- Webhook node selector. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
+
+  # -- Webhook node tolerations. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
 
   # -- Webhook node topology spread constraints. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
   topologySpreadConstraints: []

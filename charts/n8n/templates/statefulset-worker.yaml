@@ -389,7 +389,7 @@ spec:
       {{- with (default .Values.volumes .Values.worker.volumes) }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.nodeSelector }}
+      {{- with (default .Values.nodeSelector .Values.worker.nodeSelector) }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -397,7 +397,7 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.tolerations }}
+      {{- with (default .Values.tolerations .Values.worker.tolerations) }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
