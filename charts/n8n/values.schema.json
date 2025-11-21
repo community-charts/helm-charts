@@ -1590,6 +1590,33 @@
           "title": "affinity",
           "type": "object"
         },
+        "nodeSelector": {
+          "additionalProperties": true,
+          "description": "Main node selector. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector",
+          "required": [],
+          "title": "nodeSelector",
+          "type": "object"
+        },
+        "tolerations": {
+          "description": "Main node tolerations. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/",
+          "items": {
+            "type": "object",
+            "required": []
+          },
+          "required": [],
+          "title": "tolerations",
+          "type": "array"
+        },
+        "topologySpreadConstraints": {
+          "description": "Main node topology spread constraints. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/",
+          "items": {
+            "type": "object",
+            "required": []
+          },
+          "required": [],
+          "title": "topologySpreadConstraints",
+          "type": "array"
+        },
         "hostAliases": {
           "description": "Host aliases for the main pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases",
           "items": {
@@ -1621,7 +1648,7 @@
           "type": "string"
         }
       },
-      "required": ["count", "editorBaseUrl", "resources", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers", "affinity", "hostAliases", "runtimeClassName"],
+      "required": ["count", "editorBaseUrl", "resources", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers", "affinity", "topologySpreadConstraints", "hostAliases", "runtimeClassName"],
       "title": "main",
       "type": "object"
     },
@@ -2385,6 +2412,33 @@
               "title": "affinity",
               "type": "object"
             },
+            "nodeSelector": {
+              "additionalProperties": true,
+              "description": "MCP webhook node selector. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector",
+              "required": [],
+              "title": "nodeSelector",
+              "type": "object"
+            },
+            "tolerations": {
+              "description": "MCP webhook node tolerations. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/",
+              "items": {
+                "type": "object",
+                "required": []
+              },
+              "required": [],
+              "title": "tolerations",
+              "type": "array"
+            },
+            "topologySpreadConstraints": {
+              "description": "MCP webhook node topology spread constraints. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/",
+              "items": {
+                "type": "object",
+                "required": []
+              },
+              "required": [],
+              "title": "topologySpreadConstraints",
+              "type": "array"
+            },
             "hostAliases": {
               "description": "Host aliases for the mcp webhook pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases",
               "items": {
@@ -2410,7 +2464,7 @@
               "type": "array"
             }
           },
-          "required": ["enabled", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "initContainers", "extraContainers", "affinity", "hostAliases"],
+          "required": ["enabled", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "initContainers", "extraContainers", "affinity", "topologySpreadConstraints", "hostAliases"],
           "title": "mcp",
           "type": "object"
         },
@@ -3072,6 +3126,33 @@
           "title": "affinity",
           "type": "object"
         },
+        "nodeSelector": {
+          "additionalProperties": true,
+          "description": "Webhook node selector. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector",
+          "required": [],
+          "title": "nodeSelector",
+          "type": "object"
+        },
+        "tolerations": {
+          "description": "Webhook node tolerations. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/",
+          "items": {
+            "type": "object",
+            "required": []
+          },
+          "required": [],
+          "title": "tolerations",
+          "type": "array"
+        },
+        "topologySpreadConstraints": {
+          "description": "Webhook node topology spread constraints. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/",
+          "items": {
+            "type": "object",
+            "required": []
+          },
+          "required": [],
+          "title": "topologySpreadConstraints",
+          "type": "array"
+        },
         "hostAliases": {
           "description": "Host aliases for the webhook pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases",
           "items": {
@@ -3103,7 +3184,7 @@
           "type": "string"
         }
       },
-      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases", "mcp", "runtimeClassName"],
+      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "topologySpreadConstraints", "hostAliases", "mcp", "runtimeClassName"],
       "allOf": [
         {
           "if": {
@@ -3894,6 +3975,33 @@
           "title": "affinity",
           "type": "object"
         },
+        "nodeSelector": {
+          "additionalProperties": true,
+          "description": "Worker node selector. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector",
+          "required": [],
+          "title": "nodeSelector",
+          "type": "object"
+        },
+        "tolerations": {
+          "description": "Worker node tolerations. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/",
+          "items": {
+            "type": "object",
+            "required": []
+          },
+          "required": [],
+          "title": "tolerations",
+          "type": "array"
+        },
+        "topologySpreadConstraints": {
+          "description": "Worker node topology spread constraints. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/",
+          "items": {
+            "type": "object",
+            "required": []
+          },
+          "required": [],
+          "title": "topologySpreadConstraints",
+          "type": "array"
+        },
         "hostAliases": {
           "description": "Host aliases for the worker pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases",
           "items": {
@@ -3925,7 +4033,7 @@
           "type": "string"
         }
       },
-      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases", "runtimeClassName"],
+      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "topologySpreadConstraints", "hostAliases", "runtimeClassName"],
       "allOf": [
         {
           "if": {
