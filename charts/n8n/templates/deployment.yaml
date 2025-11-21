@@ -413,6 +413,10 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.main.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- if .Values.dnsPolicy }}
       dnsPolicy: {{ .Values.dnsPolicy }}
       {{- end }}

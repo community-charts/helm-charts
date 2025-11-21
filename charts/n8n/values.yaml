@@ -395,6 +395,16 @@ main:
   # -- Main node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity: {}
 
+  # -- Main node topology spread constraints. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+  topologySpreadConstraints: []
+  # - maxSkew: 1
+  #   topologyKey: topology.kubernetes.io/zone
+  #   whenUnsatisfiable: DoNotSchedule
+  #   labelSelector:
+  #     matchLabels:
+  #       app.kubernetes.io/name: n8n
+  #       app.kubernetes.io/component: main
+
   # -- Host aliases for the main pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases
   hostAliases: []
 
@@ -571,6 +581,16 @@ worker:
   # -- Worker node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity: {}
 
+  # -- Worker node topology spread constraints. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+  topologySpreadConstraints: []
+  # - maxSkew: 1
+  #   topologyKey: topology.kubernetes.io/zone
+  #   whenUnsatisfiable: DoNotSchedule
+  #   labelSelector:
+  #     matchLabels:
+  #       app.kubernetes.io/name: n8n
+  #       app.kubernetes.io/component: worker
+
   # -- Host aliases for the worker pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases
   hostAliases: []
 
@@ -646,6 +666,16 @@ webhook:
 
     # -- Webhook node affinity for the mcp webhook pod. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
     affinity: {}
+
+    # -- MCP webhook node topology spread constraints. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+    topologySpreadConstraints: []
+    # - maxSkew: 1
+    #   topologyKey: topology.kubernetes.io/zone
+    #   whenUnsatisfiable: DoNotSchedule
+    #   labelSelector:
+    #     matchLabels:
+    #       app.kubernetes.io/name: n8n
+    #       app.kubernetes.io/component: mcp-webhook
 
     # -- Host aliases for the mcp webhook pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases
     hostAliases: []
@@ -790,6 +820,16 @@ webhook:
 
   # -- Webhook node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity: {}
+
+  # -- Webhook node topology spread constraints. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+  topologySpreadConstraints: []
+  # - maxSkew: 1
+  #   topologyKey: topology.kubernetes.io/zone
+  #   whenUnsatisfiable: DoNotSchedule
+  #   labelSelector:
+  #     matchLabels:
+  #       app.kubernetes.io/name: n8n
+  #       app.kubernetes.io/component: webhook
 
   # -- Host aliases for the webhook pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases
   hostAliases: []
