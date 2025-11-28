@@ -53,15 +53,15 @@ annotations:
   artifacthub.io/changes: |-
     - kind: added
       description: Enhanced Flask Server Secret configuration with support for external secrets and annotations
-    - kind: improved
+    - kind: changed
       description: Better environment variable naming for authentication to avoid conflicts
     - kind: added
       description: Separate resources configuration for init containers instead of sharing main container resources
     - kind: added
       description: MSSQL backend support for HPA autoscaling conditions
-    - kind: improved
+    - kind: changed
       description: MySQL auth documentation and JSON schema validation
-    - kind: improved
+    - kind: changed
       description: Refactored environment variables in deployment templates using helper functions for better maintainability
     - kind: deprecated
       description: The flaskServerSecretKey parameter is deprecated in favor of flaskServerSecret object configuration
