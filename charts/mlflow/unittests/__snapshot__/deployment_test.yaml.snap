@@ -332,13 +332,7 @@ should match snapshot with additional values:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              resources: {}
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -357,13 +351,7 @@ should match snapshot with additional values:
               image: burakince/mlflow:1.0.0
               imagePullPolicy: IfNotPresent
               name: mlflow-db-migration
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              resources: {}
               securityContext:
                 allowPrivilegeEscalation: false
                 capabilities:
@@ -401,13 +389,7 @@ should match snapshot with additional values:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: ini-file-initializer
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              resources: {}
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -671,13 +653,7 @@ should match snapshot with additional values when auth and auth.postgres are ena
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              resources: {}
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -696,13 +672,7 @@ should match snapshot with additional values when auth and auth.postgres are ena
               image: burakince/mlflow:1.0.0
               imagePullPolicy: IfNotPresent
               name: mlflow-db-migration
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              resources: {}
               securityContext:
                 allowPrivilegeEscalation: false
                 capabilities:
@@ -722,19 +692,19 @@ should match snapshot with additional values when auth and auth.postgres are ena
                 - |
                   sed -e "s/\$(ADMIN_USERNAME_PLACEHOLDER)/${ADMIN_USERNAME}/g" \
                       -e "s/\$(ADMIN_PASSWORD_PLACEHOLDER)/${ADMIN_PASSWORD}/g" \
-                      -e "s/\$(POSTGRES_USERNAME_PLACEHOLDER)/${DB_USERNAME}/g" \
-                      -e "s/\$(POSTGRES_PASSWORD_PLACEHOLDER)/${DB_PASSWORD}/g" \
+                      -e "s/\$(POSTGRES_USERNAME_PLACEHOLDER)/${AUTH_POSTGRES_USERNAME}/g" \
+                      -e "s/\$(POSTGRES_PASSWORD_PLACEHOLDER)/${AUTH_POSTGRES_PWD}/g" \
                       /template/auth_template.ini > /config/auth_result.ini
               command:
                 - sh
                 - -c
               env:
-                - name: DB_USERNAME
+                - name: AUTH_POSTGRES_USERNAME
                   valueFrom:
                     secretKeyRef:
                       key: username
                       name: mlflow-auth-pg-secret
-                - name: DB_PASSWORD
+                - name: AUTH_POSTGRES_PWD
                   valueFrom:
                     secretKeyRef:
                       key: password
@@ -752,13 +722,7 @@ should match snapshot with additional values when auth and auth.postgres are ena
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: ini-file-initializer
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              resources: {}
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -1040,13 +1004,7 @@ should match snapshot with additional values when bitnami mysql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              resources: {}
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -1072,13 +1030,7 @@ should match snapshot with additional values when bitnami mysql is enabled:
               image: burakince/mlflow:1.0.0
               imagePullPolicy: IfNotPresent
               name: mlflow-db-migration
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              resources: {}
               securityContext:
                 allowPrivilegeEscalation: false
                 capabilities:
@@ -1116,13 +1068,7 @@ should match snapshot with additional values when bitnami mysql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: ini-file-initializer
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              resources: {}
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -1399,13 +1345,7 @@ should match snapshot with additional values when bitnami postgresql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              resources: {}
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -1431,13 +1371,7 @@ should match snapshot with additional values when bitnami postgresql is enabled:
               image: burakince/mlflow:1.0.0
               imagePullPolicy: IfNotPresent
               name: mlflow-db-migration
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              resources: {}
               securityContext:
                 allowPrivilegeEscalation: false
                 capabilities:
@@ -1475,13 +1409,7 @@ should match snapshot with additional values when bitnami postgresql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: ini-file-initializer
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              resources: {}
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -1750,13 +1678,7 @@ should match snapshot with additional values when mssql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              resources: {}
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -1775,13 +1697,7 @@ should match snapshot with additional values when mssql is enabled:
               image: burakince/mlflow:1.0.0
               imagePullPolicy: IfNotPresent
               name: mlflow-db-migration
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              resources: {}
               securityContext:
                 allowPrivilegeEscalation: false
                 capabilities:
@@ -1819,13 +1735,7 @@ should match snapshot with additional values when mssql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: ini-file-initializer
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              resources: {}
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -2094,13 +2004,7 @@ should match snapshot with additional values when mysql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              resources: {}
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -2119,13 +2023,7 @@ should match snapshot with additional values when mysql is enabled:
               image: burakince/mlflow:1.0.0
               imagePullPolicy: IfNotPresent
               name: mlflow-db-migration
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              resources: {}
               securityContext:
                 allowPrivilegeEscalation: false
                 capabilities:
@@ -2163,13 +2061,7 @@ should match snapshot with additional values when mysql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: ini-file-initializer
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              resources: {}
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -2433,13 +2325,7 @@ should match snapshot with additional values when postgresql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              resources: {}
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -2458,13 +2344,7 @@ should match snapshot with additional values when postgresql is enabled:
               image: burakince/mlflow:1.0.0
               imagePullPolicy: IfNotPresent
               name: mlflow-db-migration
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              resources: {}
               securityContext:
                 allowPrivilegeEscalation: false
                 capabilities:
@@ -2502,13 +2382,7 @@ should match snapshot with additional values when postgresql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: ini-file-initializer
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              resources: {}
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
