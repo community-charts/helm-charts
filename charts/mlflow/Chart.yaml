@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.8.0
+version: 1.9.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -52,10 +52,19 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: added
-      description: Add resources to dbchecker and ini-file-initializer init containers using resources definition.
-      links:
-        - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/265
+      description: Enhanced Flask Server Secret configuration with support for external secrets and annotations
+    - kind: improved
+      description: Better environment variable naming for authentication to avoid conflicts
+    - kind: added
+      description: Separate resources configuration for init containers instead of sharing main container resources
+    - kind: added
+      description: MSSQL backend support for HPA autoscaling conditions
+    - kind: improved
+      description: MySQL auth documentation and JSON schema validation
+    - kind: improved
+      description: Refactored environment variables in deployment templates using helper functions for better maintainability
+    - kind: deprecated
+      description: The flaskServerSecretKey parameter is deprecated in favor of flaskServerSecret object configuration
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.6.0

@@ -1,3 +1,17 @@
+{{- if .Values.flaskServerSecretKey }}
+** WARNING: DEPRECATION NOTICE **
+The parameter 'flaskServerSecretKey' is deprecated and will be removed in a future version.
+Please use 'flaskServerSecret.secretKey' instead.
+
+Migration example:
+  # Old (deprecated):
+  flaskServerSecretKey: "your-secret-key"
+
+  # New (recommended):
+  flaskServerSecret:
+    secretKey: "your-secret-key"  # or leave empty "" for auto-generation
+
+{{- end }}
 1. Get the application URL by running these commands:
 {{- if .Values.ingress.enabled }}
 {{- range $host := .Values.ingress.hosts }}
