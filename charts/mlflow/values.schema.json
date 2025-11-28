@@ -163,11 +163,7 @@
                   "type": "string"
                 }
               },
-              "required": [
-                "name",
-                "keyOfAccessKeyId",
-                "keyOfSecretAccessKey"
-              ]
+              "required": ["name", "keyOfAccessKeyId", "keyOfSecretAccessKey"]
             },
             "bucket": {
               "default": "",
@@ -203,7 +199,14 @@
           "type": "object"
         }
       },
-      "required": ["proxiedArtifactStorage", "defaultArtifactRoot", "defaultArtifactsDestination", "azureBlob", "s3", "gcs"],
+      "required": [
+        "proxiedArtifactStorage",
+        "defaultArtifactRoot",
+        "defaultArtifactsDestination",
+        "azureBlob",
+        "s3",
+        "gcs"
+      ],
       "title": "artifactRoot",
       "type": "object"
     },
@@ -951,6 +954,162 @@
       "title": "initImages",
       "type": "object"
     },
+    "initContainersResources": {
+      "additionalProperties": false,
+      "description": "Resource limits and requests for init containers",
+      "properties": {
+        "dbchecker": {
+          "additionalProperties": false,
+          "description": "Resources for dbchecker init container",
+          "properties": {
+            "limits": {
+              "additionalProperties": true,
+              "properties": {
+                "cpu": {
+                  "default": "100m",
+                  "required": [],
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "128Mi",
+                  "required": [],
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "limits",
+              "type": "object"
+            },
+            "requests": {
+              "additionalProperties": true,
+              "properties": {
+                "cpu": {
+                  "default": "50m",
+                  "required": [],
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "64Mi",
+                  "required": [],
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "requests",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "dbchecker",
+          "type": "object"
+        },
+        "mlflowDbMigration": {
+          "additionalProperties": false,
+          "description": "Resources for mlflow database migration init container",
+          "properties": {
+            "limits": {
+              "additionalProperties": true,
+              "properties": {
+                "cpu": {
+                  "default": "500m",
+                  "required": [],
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "512Mi",
+                  "required": [],
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "limits",
+              "type": "object"
+            },
+            "requests": {
+              "additionalProperties": true,
+              "properties": {
+                "cpu": {
+                  "default": "200m",
+                  "required": [],
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "256Mi",
+                  "required": [],
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "requests",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "mlflowDbMigration",
+          "type": "object"
+        },
+        "iniFileInitializer": {
+          "additionalProperties": false,
+          "description": "Resources for ini-file-initializer init container",
+          "properties": {
+            "limits": {
+              "additionalProperties": true,
+              "properties": {
+                "cpu": {
+                  "default": "100m",
+                  "required": [],
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "128Mi",
+                  "required": [],
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "limits",
+              "type": "object"
+            },
+            "requests": {
+              "additionalProperties": true,
+              "properties": {
+                "cpu": {
+                  "default": "50m",
+                  "required": [],
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "64Mi",
+                  "required": [],
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "requests",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "iniFileInitializer",
+          "type": "object"
+        }
+      },
+      "required": [],
+      "title": "initContainersResources",
+      "type": "object"
+    },
     "imagePullSecrets": {
       "description": "Image pull secrets for private docker registry usages",
       "items": {
@@ -1363,7 +1522,15 @@
           "type": "string"
         }
       },
-      "required": ["enabled", "type", "port", "containerPort", "name", "containerPortName", "annotations"],
+      "required": [
+        "enabled",
+        "type",
+        "port",
+        "containerPort",
+        "name",
+        "containerPortName",
+        "annotations"
+      ],
       "title": "service",
       "type": "object"
     },
@@ -1553,7 +1720,7 @@
       "type": "object"
     },
     "tolerations": {
-      "description": "Set the tolerations for the pod.",
+      "description": "For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/",
       "items": {
         "required": []
       },
@@ -1563,10 +1730,56 @@
     },
     "flaskServerSecretKey": {
       "default": "",
-      "description": "Mlflow flask server secret key",
+      "description": "DEPRECATED: Use flaskServerSecret.secretKey instead. Flask Server Secret plaintext key. If empty, will be auto generated.",
       "required": [],
       "title": "flaskServerSecretKey",
       "type": "string"
+    },
+    "flaskServerSecret": {
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Mlflow Flask Server Secret Key settings",
+      "properties": {
+        "secretKey": {
+          "default": "",
+          "description": "Flask Server Secret plaintext key. If empty, will be auto generated as a secure 32-character hex string.",
+          "required": [],
+          "title": "secretKey",
+          "type": "string"
+        },
+        "annotations": {
+          "additionalProperties": true,
+          "description": "Flask Server Secret annotations",
+          "required": [],
+          "title": "annotations",
+          "type": "object"
+        },
+        "existingSecret": {
+          "additionalProperties": false,
+          "type": "object",
+          "description": "Specifies if you want to use an existing flask server secret",
+          "properties": {
+            "name": {
+              "default": "",
+              "description": "The name of the existing flask server secret",
+              "required": [],
+              "title": "name",
+              "type": "string"
+            },
+            "key": {
+              "default": "key",
+              "description": "The key of the flask server secret in the existing secret",
+              "required": [],
+              "title": "key",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "title": "existingSecret"
+        }
+      },
+      "required": [],
+      "title": "flaskServerSecret"
     },
     "auth": {
       "additionalProperties": false,
@@ -1740,17 +1953,86 @@
               "title": "existingSecret"
             }
           },
-          "required": [
-            "enabled",
-            "host",
-            "port",
-            "database",
-            "user",
-            "password",
-            "driver",
-            "existingSecret"
-          ],
+          "required": [],
           "title": "postgres",
+          "type": "object"
+        },
+        "mysql": {
+          "additionalProperties": false,
+          "description": "MySQL based centrilised authentication database",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "description": "Specifies if you want to use mysql auth backend storage",
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "host": {
+              "default": "",
+              "description": "MySQL host address. e.g. your Amazon RDS for MySQL",
+              "title": "host",
+              "type": "string"
+            },
+            "port": {
+              "default": 3306,
+              "description": "MySQL service port",
+              "title": "port",
+              "type": "integer"
+            },
+            "database": {
+              "default": "",
+              "description": "mlflow authorization database name created before in the mysql instance",
+              "title": "database",
+              "type": "string"
+            },
+            "user": {
+              "default": "",
+              "description": "mysql database user name which can access to mlflow authorization database",
+              "title": "user",
+              "type": "string"
+            },
+            "password": {
+              "default": "",
+              "description": "mysql database user password which can access to mlflow authorization database",
+              "title": "password",
+              "type": "string"
+            },
+            "driver": {
+              "default": "pymysql",
+              "description": "mysql database connection driver. e.g.: pymysql",
+              "title": "driver",
+              "type": "string"
+            },
+            "existingSecret": {
+              "additionalProperties": false,
+              "type": "object",
+              "description": "Specifies if you want to use an existing database secret for auth",
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "The name of the existing database secret",
+                  "title": "name",
+                  "type": "string"
+                },
+                "usernameKey": {
+                  "default": "username",
+                  "description": "The key of the username in the existing database secret",
+                  "title": "usernameKey",
+                  "type": "string"
+                },
+                "passwordKey": {
+                  "default": "password",
+                  "description": "The key of the password in the existing database secret",
+                  "title": "passwordKey",
+                  "type": "string"
+                }
+              },
+              "required": ["name", "usernameKey", "passwordKey"],
+              "title": "existingSecret"
+            }
+          },
+          "required": [],
+          "title": "mysql",
           "type": "object"
         }
       },
@@ -1766,7 +2048,8 @@
         "sqliteFullPath",
         "configPath",
         "configFile",
-        "postgres"
+        "postgres",
+        "mysql"
       ],
       "title": "auth",
       "type": "object"
@@ -1902,7 +2185,7 @@
         },
         "metrics": {
           "type": "array",
-          "minItems": 1,
+          "minItems": 0,
           "description": "The metrics to use for autoscaling.",
           "items": {
             "type": "object",
@@ -1933,14 +2216,23 @@
                             "type": "string",
                             "enum": ["Utilization", "AverageValue", "Value"]
                           },
-                          "averageUtilization": { "type": "integer", "minimum": 0 },
+                          "averageUtilization": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
                           "averageValue": { "type": "string" },
                           "value": { "type": "string" }
                         },
-                        "if": { "properties": { "type": { "const": "Utilization" } } },
+                        "if": {
+                          "properties": { "type": { "const": "Utilization" } }
+                        },
                         "then": { "required": ["averageUtilization"] },
                         "else": {
-                          "if": { "properties": { "type": { "const": "AverageValue" } } },
+                          "if": {
+                            "properties": {
+                              "type": { "const": "AverageValue" }
+                            }
+                          },
                           "then": { "required": ["averageValue"] },
                           "else": { "required": ["value"] }
                         }
@@ -1974,7 +2266,10 @@
                                   "properties": {
                                     "key": { "type": "string" },
                                     "operator": { "type": "string" },
-                                    "values": { "type": "array", "items": { "type": "string" } }
+                                    "values": {
+                                      "type": "array",
+                                      "items": { "type": "string" }
+                                    }
                                   }
                                 }
                               }
@@ -1986,11 +2281,16 @@
                         "type": "object",
                         "required": ["type"],
                         "properties": {
-                          "type": { "type": "string", "enum": ["AverageValue", "Value"] },
+                          "type": {
+                            "type": "string",
+                            "enum": ["AverageValue", "Value"]
+                          },
                           "averageValue": { "type": "string" },
                           "value": { "type": "string" }
                         },
-                        "if": { "properties": { "type": { "const": "AverageValue" } } },
+                        "if": {
+                          "properties": { "type": { "const": "AverageValue" } }
+                        },
                         "then": { "required": ["averageValue"] },
                         "else": { "required": ["value"] }
                       }
@@ -2023,7 +2323,10 @@
                                   "properties": {
                                     "key": { "type": "string" },
                                     "operator": { "type": "string" },
-                                    "values": { "type": "array", "items": { "type": "string" } }
+                                    "values": {
+                                      "type": "array",
+                                      "items": { "type": "string" }
+                                    }
                                   }
                                 }
                               }
@@ -2044,11 +2347,16 @@
                         "type": "object",
                         "required": ["type"],
                         "properties": {
-                          "type": { "type": "string", "enum": ["Value", "AverageValue"] },
+                          "type": {
+                            "type": "string",
+                            "enum": ["Value", "AverageValue"]
+                          },
                           "value": { "type": "string" },
                           "averageValue": { "type": "string" }
                         },
-                        "if": { "properties": { "type": { "const": "Value" } } },
+                        "if": {
+                          "properties": { "type": { "const": "Value" } }
+                        },
                         "then": { "required": ["value"] },
                         "else": { "required": ["averageValue"] }
                       }
@@ -2081,7 +2389,10 @@
                                   "properties": {
                                     "key": { "type": "string" },
                                     "operator": { "type": "string" },
-                                    "values": { "type": "array", "items": { "type": "string" } }
+                                    "values": {
+                                      "type": "array",
+                                      "items": { "type": "string" }
+                                    }
                                   }
                                 }
                               }
@@ -2093,11 +2404,16 @@
                         "type": "object",
                         "required": ["type"],
                         "properties": {
-                          "type": { "type": "string", "enum": ["Value", "AverageValue"] },
+                          "type": {
+                            "type": "string",
+                            "enum": ["Value", "AverageValue"]
+                          },
                           "value": { "type": "string" },
                           "averageValue": { "type": "string" }
                         },
-                        "if": { "properties": { "type": { "const": "Value" } } },
+                        "if": {
+                          "properties": { "type": { "const": "Value" } }
+                        },
                         "then": { "required": ["value"] },
                         "else": { "required": ["averageValue"] }
                       }
@@ -2205,7 +2521,13 @@
           "additionalProperties": false
         }
       },
-      "required": ["enabled", "minReplicas", "maxReplicas", "metrics", "behavior"],
+      "required": [
+        "enabled",
+        "minReplicas",
+        "maxReplicas",
+        "metrics",
+        "behavior"
+      ],
       "title": "autoscaling",
       "type": "object"
     }
@@ -2246,7 +2568,9 @@
     "extraVolumeMounts",
     "livenessProbe",
     "readinessProbe",
+    "initContainersResources",
     "flaskServerSecretKey",
+    "flaskServerSecret",
     "auth",
     "ldapAuth",
     "autoscaling"
@@ -2423,6 +2747,63 @@
           }
         },
         "required": ["backendStore", "postgresql"]
+      }
+    },
+    {
+      "description": "Ensures only one of auth.postgres.enabled or auth.mysql.enabled can be true",
+      "if": {
+        "properties": {
+          "auth": {
+            "properties": {
+              "postgres": {
+                "properties": {
+                  "enabled": { "const": true }
+                }
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "auth": {
+            "properties": {
+              "mysql": {
+                "properties": {
+                  "enabled": { "const": false }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "auth": {
+            "properties": {
+              "mysql": {
+                "properties": {
+                  "enabled": { "const": true }
+                }
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "auth": {
+            "properties": {
+              "postgres": {
+                "properties": {
+                  "enabled": { "const": false }
+                }
+              }
+            }
+          }
+        }
       }
     }
   ],

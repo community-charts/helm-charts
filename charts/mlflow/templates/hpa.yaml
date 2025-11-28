@@ -1,4 +1,4 @@
-{{- if and .Values.autoscaling.enabled (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) (or .Values.artifactRoot.azureBlob.enabled .Values.artifactRoot.s3.enabled .Values.artifactRoot.gcs.enabled) (or (and .Values.auth.enabled .Values.auth.postgres.enabled) (not .Values.auth.enabled)) }}
+{{- if and .Values.autoscaling.enabled (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled) (or .Values.artifactRoot.azureBlob.enabled .Values.artifactRoot.s3.enabled .Values.artifactRoot.gcs.enabled) (or (and .Values.auth.enabled (or .Values.auth.postgres.enabled .Values.auth.mysql.enabled)) (not .Values.auth.enabled)) }}
 ---
 {{- if semverCompare ">=1.23-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: autoscaling/v2

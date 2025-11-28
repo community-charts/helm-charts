@@ -16,6 +16,15 @@
       {{- $pgPort := required "auth.postgres.port must be specified" .Values.auth.postgres.port | toString }}
       {{- $pgDatabase := required "auth.postgres.database must be specified" .Values.auth.postgres.database }}
       {{- $databaseUri = printf "postgresql%s://$(POSTGRES_USERNAME_PLACEHOLDER):$(POSTGRES_PASSWORD_PLACEHOLDER)@%s:%s/%s" $dbConnectionDriver $pgHost $pgPort $pgDatabase }}
+    {{- else if .Values.auth.mysql.enabled }}
+      {{- $dbConnectionDriver := "" }}
+      {{- if .Values.auth.mysql.driver }}
+        {{- $dbConnectionDriver = printf "+%s" .Values.auth.mysql.driver }}
+      {{- end }}
+      {{- $mysqlHost := required "auth.mysql.host must be specified" .Values.auth.mysql.host }}
+      {{- $mysqlPort := required "auth.mysql.port must be specified" .Values.auth.mysql.port | toString }}
+      {{- $mysqlDatabase := required "auth.mysql.database must be specified" .Values.auth.mysql.database }}
+      {{- $databaseUri = printf "mysql%s://$(MYSQL_USERNAME_PLACEHOLDER):$(MYSQL_PASSWORD_PLACEHOLDER)@%s:%s/%s" $dbConnectionDriver $mysqlHost $mysqlPort $mysqlDatabase }}
     {{- else }}
       {{- $sqliteFile := .Values.auth.sqliteFile }}
       {{- if .Values.auth.sqliteFullPath }}

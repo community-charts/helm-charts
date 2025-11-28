@@ -42,6 +42,33 @@ initImages:
     # -- ini-file-initializer init container image tag to use
     tag: "1.32"
 
+# -- Resource limits and requests for init containers
+initContainersResources:
+  # -- Resources for dbchecker init container
+  dbchecker: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 50m
+    #   memory: 64Mi
+  # -- Resources for mlflow database migration init container
+  mlflowDbMigration: {}
+    # limits:
+    #   cpu: 500m
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 200m
+    #   memory: 256Mi
+  # -- Resources for ini-file-initializer init container
+  iniFileInitializer: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 50m
+    #   memory: 64Mi
+
 # -- This will set the deployment strategy more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
 strategy:
   type: "RollingUpdate"
@@ -301,8 +328,21 @@ artifactRoot:
     # -- Google Cloud Storage bucket folder. If you want to use root level, please don't set anything.
     path: "" # optional
 
-# -- Mlflow Flask Server Secret Key. Default: Will be auto generated.
+# -- DEPRECATED: Use flaskServerSecret.secretKey instead. Flask Server Secret plaintext key. If empty, will be auto generated.
 flaskServerSecretKey: ""
+
+# -- Mlflow Flask Server Secret Key settings
+flaskServerSecret:
+  # -- Flask Server Secret plaintext key. If empty, will be auto generated as a secure 32-character hex string.
+  secretKey: ""
+  # -- Annotations for Flask Server Secret
+  annotations: {}
+  # -- Specifies if you want to use an existing flask server secret. If it's set, secretKey will be ignored.
+  existingSecret:
+    # -- The name of the existing flask server secret.
+    name: ""
+    # -- The key of the flask server secret in the existing secret.
+    key: "key"
 
 # -- Mlflow authentication settings
 auth:
@@ -349,6 +389,30 @@ auth:
     # -- postgres database user password which can access to mlflow authorization database
     password: "" # required
     # -- postgres database connection driver. e.g.: "psycopg2"
+    driver: ""
+    # -- Specifies if you want to use an existing database secret for auth. If it's set, user and password will be ignored.
+    existingSecret:
+      # -- The name of the existing database secret.
+      name: ""
+      # -- The key of the username in the existing database secret.
+      usernameKey: "username"
+      # -- The key of the password in the existing database secret.
+      passwordKey: "password"
+  # -- MySQL based centrilised authentication database
+  mysql:
+    # -- Specifies if you want to use mysql auth backend storage
+    enabled: false
+    # -- MySQL host address. e.g. your Amazon RDS for MySQL
+    host: "" # required
+    # -- MySQL service port
+    port: 3306 # required
+    # -- mlflow authorization database name created before in the mysql instance
+    database: "" # required
+    # -- mysql database user name which can access to mlflow authorization database
+    user: "" # required
+    # -- mysql database user password which can access to mlflow authorization database
+    password: "" # required
+    # -- mysql database connection driver. e.g.: "pymysql"
     driver: ""
     # -- Specifies if you want to use an existing database secret for auth. If it's set, user and password will be ignored.
     existingSecret:
@@ -433,23 +497,23 @@ autoscaling:
 
 # -- A map of arguments and values to pass to the `mlflow server` command. Keys must be camelcase. Helm will turn them to kebabcase style.
 extraArgs: {}
-# Number of gunicorn worker processes to handle requests (default: 4).
+  # Number of gunicorn worker processes to handle requests (default: 4).
   # workers: TEXT
-# A prefix which will be prepended to the path of all static paths.
-# It must always start with slash `/`
-# e.g. /mlflow
+  # A prefix which will be prepended to the path of all static paths.
+  # It must always start with slash `/`
+  # e.g. /mlflow
   # staticPrefix: TEXT
-# Additional command line options forwarded to gunicorn processes.
+  # Additional command line options forwarded to gunicorn processes.
   # gunicornOpts: TEXT
-# Additional command line options for waitress-serve.
+  # Additional command line options for waitress-serve.
   # waitressOpts: TEXT
 
 # -- A list of flags to pass to `mlflow server` command. Items must be camelcase. Helm will turn them to kebabcase style.
 extraFlags: []
-# If specified, enables serving of artifact uploads, downloads, and list requests by routing these requests
-# to the storage location that is specified by ‘–artifact-destination’ directly through a proxy.
+  # If specified, enables serving of artifact uploads, downloads, and list requests by routing these requests
+  # to the storage location that is specified by ‘–artifact-destination’ directly through a proxy.
   # serveArtifacts
-# If specified, configures the mlflow server to be used only for proxied artifact serving.
+  # If specified, configures the mlflow server to be used only for proxied artifact serving.
   # artifactsOnly
 
 # -- Extra environment variables
