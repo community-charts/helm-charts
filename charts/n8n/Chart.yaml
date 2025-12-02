@@ -19,7 +19,7 @@ version: 1.18.0
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "1.121.3"
+appVersion: "1.122.4"
 kubeVersion: ">=1.23.0-0"
 home: https://n8n.io
 maintainers:
@@ -58,13 +58,13 @@ annotations:
         - name: Kubernetes Tolerations Documentation
           url: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
     - kind: changed
-      description: Update n8nio/n8n image version to 1.121.3
+      description: Update n8nio/n8n image version to 1.122.4
       links:
         - name: Upstream Project
           url: https://github.com/n8n-io/n8n
   artifacthub.io/images: |
     - name: n8n
-      image: n8nio/n8n:1.121.3
+      image: n8nio/n8n:1.122.4
       platforms:
         - linux/amd64
         - linux/arm64
