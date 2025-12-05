@@ -72,73 +72,12 @@ spec:
           image: "{{ .Values.initImages.dbchecker.repository }}:{{ .Values.initImages.dbchecker.tag }}"
           imagePullPolicy: {{ .Values.initImages.dbchecker.pullPolicy }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.initContainersResources.dbchecker | nindent 12 }}
           command: [ "/script/dbchecker.sh" ]
         {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name }}
           env:
+            {{- include "mlflow.databaseEnvVars" . | nindent 12 }}
         {{- end }}
-          {{- if .Values.postgresql.enabled }}
-            - name: PGPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ (include "mlflow.postgresql.fullname" .) }}
-              {{- if .Values.postgresql.auth.username }}
-                  key: password
-              {{- else }}
-                  key: postgres-password
-              {{- end }}
-                  optional: true
-          {{- end }}
-          {{- if .Values.mysql.enabled }}
-            - name: MYSQL_PWD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ (include "mlflow.mysql.fullname" .) }}
-              {{- if .Values.mysql.auth.username }}
-                  key: password
-              {{- else }}
-                  key: mysql-root-password
-              {{- end }}
-                  optional: true
-          {{- end }}
-          {{- if .Values.backendStore.existingDatabaseSecret.name }}
-            {{- if .Values.backendStore.postgres.enabled }}
-            - name: PGPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
-            - name: PGUSER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
-            {{- end }}
-            {{- if .Values.backendStore.mysql.enabled }}
-            - name: MYSQL_PWD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
-            - name: MYSQL_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
-            {{- end }}
-            {{- if .Values.backendStore.mssql.enabled }}
-            - name: MSSQL_PWD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
-            - name: MSSQL_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
-            {{- end }}
-          {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ template "mlflow.fullname" . }}-env-configmap
@@ -156,72 +95,12 @@ spec:
           image: "{{ .Values.initImages.mlflowDbMigration.repository }}:{{ .Values.initImages.mlflowDbMigration.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.initImages.mlflowDbMigration.pullPolicy }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-        {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name }}
+            {{- toYaml .Values.initContainersResources.mlflowDbMigration | nindent 12 }}
+        {{- if or .Values.flaskServerSecret.existingSecret.name .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name }}
           env:
+            {{- include "mlflow.flaskServerSecretEnvVar" . | nindent 12 }}
+            {{- include "mlflow.databaseEnvVars" . | nindent 12 }}
         {{- end }}
-          {{- if .Values.postgresql.enabled }}
-            - name: PGPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ (include "mlflow.postgresql.fullname" .) }}
-              {{- if .Values.postgresql.auth.username }}
-                  key: password
-              {{- else }}
-                  key: postgres-password
-              {{- end }}
-                  optional: true
-          {{- end }}
-          {{- if .Values.mysql.enabled }}
-            - name: MYSQL_PWD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ (include "mlflow.mysql.fullname" .) }}
-              {{- if .Values.mysql.auth.username }}
-                  key: password
-              {{- else }}
-                  key: mysql-root-password
-              {{- end }}
-                  optional: true
-          {{- end }}
-          {{- if .Values.backendStore.existingDatabaseSecret.name }}
-            {{- if .Values.backendStore.postgres.enabled }}
-            - name: PGPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
-            - name: PGUSER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
-            {{- end }}
-            {{- if .Values.backendStore.mysql.enabled }}
-            - name: MYSQL_PWD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
-            - name: MYSQL_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
-            {{- end }}
-            {{- if .Values.backendStore.mssql.enabled }}
-            - name: MSSQL_PWD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
-            - name: MSSQL_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
-            {{- end }}
-          {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ template "mlflow.fullname" . }}-env-configmap
@@ -243,40 +122,23 @@ spec:
           image: "{{ .Values.initImages.iniFileInitializer.repository }}:{{ .Values.initImages.iniFileInitializer.tag }}"
           imagePullPolicy: {{ .Values.initImages.iniFileInitializer.pullPolicy }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.initContainersResources.iniFileInitializer | nindent 12 }}
           command: ['sh', '-c']
           args:
             - |
               sed -e "s/\$(ADMIN_USERNAME_PLACEHOLDER)/${ADMIN_USERNAME}/g" \
                   -e "s/\$(ADMIN_PASSWORD_PLACEHOLDER)/${ADMIN_PASSWORD}/g" \
                 {{- if .Values.auth.postgres.enabled }}
-                  -e "s/\$(POSTGRES_USERNAME_PLACEHOLDER)/${DB_USERNAME}/g" \
-                  -e "s/\$(POSTGRES_PASSWORD_PLACEHOLDER)/${DB_PASSWORD}/g" \
+                  -e "s/\$(POSTGRES_USERNAME_PLACEHOLDER)/${AUTH_POSTGRES_USERNAME}/g" \
+                  -e "s/\$(POSTGRES_PASSWORD_PLACEHOLDER)/${AUTH_POSTGRES_PWD}/g" \
+                {{- end }}
+                {{- if .Values.auth.mysql.enabled }}
+                  -e "s/\$(MYSQL_USERNAME_PLACEHOLDER)/${AUTH_MYSQL_USERNAME}/g" \
+                  -e "s/\$(MYSQL_PASSWORD_PLACEHOLDER)/${AUTH_MYSQL_PWD}/g" \
                 {{- end }}
                   /template/auth_template.ini > /config/auth_result.ini
           env:
-          {{- if .Values.auth.postgres.enabled }}
-            - name: DB_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ default (printf "%s-auth-pg-secret" (include "mlflow.fullname" .)) .Values.auth.postgres.existingSecret.name }}
-                  key: {{ ternary "username" .Values.auth.postgres.existingSecret.usernameKey (eq .Values.auth.postgres.existingSecret.name "") }}
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ default (printf "%s-auth-pg-secret" (include "mlflow.fullname" .)) .Values.auth.postgres.existingSecret.name }}
-                  key: {{ ternary "password" .Values.auth.postgres.existingSecret.passwordKey (eq .Values.auth.postgres.existingSecret.name "") }}
-          {{- end }}
-            - name: ADMIN_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ default (printf "%s-auth-admin-secret" (include "mlflow.fullname" .)) .Values.auth.existingAdminSecret.name }}
-                  key: {{ ternary "username" .Values.auth.existingAdminSecret.usernameKey (eq .Values.auth.existingAdminSecret.name "") }}
-            - name: ADMIN_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ default (printf "%s-auth-admin-secret" (include "mlflow.fullname" .)) .Values.auth.existingAdminSecret.name }}
-                  key: {{ ternary "password" .Values.auth.existingAdminSecret.passwordKey (eq .Values.auth.existingAdminSecret.name "") }}
+            {{- include "mlflow.authDatabaseEnvVars" . | nindent 12 }}
           volumeMounts:
             - name: auth-ini-template-file
               mountPath: /template
@@ -334,7 +196,7 @@ spec:
             {{- end }}
           {{- end }}
           {{- range .Values.extraFlags }}
-            - --{{ kebabcase . }}
+            - --{{ . }}
           {{- end }}
           ports:
             - name: {{ .Values.service.containerPortName }}
@@ -359,6 +221,7 @@ spec:
           env:
             - name: MLFLOW_VERSION
               value: {{ .Values.image.tag | default .Chart.AppVersion | quote }}
+            {{- include "mlflow.flaskServerSecretEnvVar" . | nindent 12 }}
           {{- if .Values.auth.enabled }}
             - name: MLFLOW_AUTH_CONFIG_PATH
               value: {{ printf "%s/%s" (.Values.auth.configPath | trimSuffix "/") (default "basic_auth.ini" (.Values.auth.configFile | trimPrefix "/")) }}
@@ -370,84 +233,8 @@ spec:
               value: "/certs/ca.crt"
             {{- end }}
           {{- end }}
-          {{- if .Values.postgresql.enabled }}
-            - name: PGPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ (include "mlflow.postgresql.fullname" .) }}
-              {{- if .Values.postgresql.auth.username }}
-                  key: password
-              {{- else }}
-                  key: postgres-password
-              {{- end }}
-                  optional: true
-          {{- end }}
-          {{- if .Values.mysql.enabled }}
-            - name: MYSQL_PWD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ (include "mlflow.mysql.fullname" .) }}
-              {{- if .Values.mysql.auth.username }}
-                  key: password
-              {{- else }}
-                  key: mysql-root-password
-              {{- end }}
-                  optional: true
-          {{- end }}
-          {{- if .Values.backendStore.existingDatabaseSecret.name }}
-            {{- if .Values.backendStore.postgres.enabled }}
-            - name: PGPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
-            - name: PGUSER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
-            {{- end }}
-            {{- if .Values.backendStore.mysql.enabled }}
-            - name: MYSQL_PWD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
-            - name: MYSQL_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
-            {{- end }}
-            {{- if .Values.backendStore.mssql.enabled }}
-            - name: MSSQL_PWD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
-            - name: MSSQL_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
-            {{- end }}
-          {{- end }}
-          {{- if and .Values.artifactRoot.s3.enabled .Values.artifactRoot.s3.existingSecret.name }}
-            {{- if .Values.artifactRoot.s3.existingSecret.keyOfAccessKeyId }}
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.artifactRoot.s3.existingSecret.name }}
-                  key: {{ .Values.artifactRoot.s3.existingSecret.keyOfAccessKeyId }}
-            {{- end }}
-            {{- if .Values.artifactRoot.s3.existingSecret.keyOfSecretAccessKey }}
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.artifactRoot.s3.existingSecret.name }}
-                  key: {{ .Values.artifactRoot.s3.existingSecret.keyOfSecretAccessKey }}
-            {{- end }}
-          {{- end }}
+            {{- include "mlflow.databaseEnvVars" . | nindent 12 }}
+            {{- include "mlflow.s3CredentialsEnvVars" . | nindent 12 }}
           {{- range $key, $value := .Values.extraEnvVars }}
             - name: {{ upper $key }}
               value: {{ $value | quote }}
@@ -457,8 +244,10 @@ spec:
                 name: {{ template "mlflow.fullname" . }}-env-configmap
             - secretRef:
                 name: {{ template "mlflow.fullname" . }}-env-secret
+          {{- if not .Values.flaskServerSecret.existingSecret.name }}
             - secretRef:
                 name: {{ template "mlflow.fullname" . }}-flask-server-secret-key
+          {{- end }}
           {{- range .Values.extraSecretNamesForEnvFrom }}
             - secretRef:
                 name: {{ . }}
