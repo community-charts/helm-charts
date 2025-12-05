@@ -1222,6 +1222,66 @@ tests:
             value: fake-value
         template: deployment-mcp-webhook.yaml
 
+  - it: should set topologySpreadConstraints when webhook.mcp.topologySpreadConstraints is set
+    set:
+      webhook:
+        mcp:
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: topology.kubernetes.io/zone
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: n8n
+                  app.kubernetes.io/component: mcp-webhook
+    asserts:
+      - contains:
+          path: spec.template.spec.topologySpreadConstraints
+          content:
+            maxSkew: 1
+            topologyKey: topology.kubernetes.io/zone
+            whenUnsatisfiable: DoNotSchedule
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: n8n
+                app.kubernetes.io/component: mcp-webhook
+        template: deployment-mcp-webhook.yaml
+
+  - it: should set multiple topologySpreadConstraints when webhook.mcp.topologySpreadConstraints has multiple entries
+    set:
+      webhook:
+        mcp:
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: topology.kubernetes.io/zone
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: n8n
+            - maxSkew: 1
+              topologyKey: kubernetes.io/hostname
+              whenUnsatisfiable: ScheduleAnyway
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: n8n
+    asserts:
+      - equal:
+          path: spec.template.spec.topologySpreadConstraints
+          value:
+            - maxSkew: 1
+              topologyKey: topology.kubernetes.io/zone
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: n8n
+            - maxSkew: 1
+              topologyKey: kubernetes.io/hostname
+              whenUnsatisfiable: ScheduleAnyway
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: n8n
+        template: deployment-mcp-webhook.yaml
+
   - it: should set task runner enabled environment variable
     asserts:
       - contains:

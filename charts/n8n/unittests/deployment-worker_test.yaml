@@ -1275,6 +1275,64 @@ tests:
             value: fake-value
         template: deployment-worker.yaml
 
+  - it: should set topologySpreadConstraints when worker.topologySpreadConstraints is set
+    set:
+      worker:
+        topologySpreadConstraints:
+          - maxSkew: 1
+            topologyKey: topology.kubernetes.io/zone
+            whenUnsatisfiable: DoNotSchedule
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: n8n
+                app.kubernetes.io/component: worker
+    asserts:
+      - contains:
+          path: spec.template.spec.topologySpreadConstraints
+          content:
+            maxSkew: 1
+            topologyKey: topology.kubernetes.io/zone
+            whenUnsatisfiable: DoNotSchedule
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: n8n
+                app.kubernetes.io/component: worker
+        template: deployment-worker.yaml
+
+  - it: should set multiple topologySpreadConstraints when worker.topologySpreadConstraints has multiple entries
+    set:
+      worker:
+        topologySpreadConstraints:
+          - maxSkew: 1
+            topologyKey: topology.kubernetes.io/zone
+            whenUnsatisfiable: DoNotSchedule
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: n8n
+          - maxSkew: 1
+            topologyKey: kubernetes.io/hostname
+            whenUnsatisfiable: ScheduleAnyway
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: n8n
+    asserts:
+      - equal:
+          path: spec.template.spec.topologySpreadConstraints
+          value:
+            - maxSkew: 1
+              topologyKey: topology.kubernetes.io/zone
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: n8n
+            - maxSkew: 1
+              topologyKey: kubernetes.io/hostname
+              whenUnsatisfiable: ScheduleAnyway
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: n8n
+        template: deployment-worker.yaml
+
   - it: should set task runner container when taskRunners.mode is external
     set:
       taskRunners:
@@ -2176,6 +2234,105 @@ tests:
       - equal:
           path: spec.template.spec.runtimeClassName
           value: my-runtime-class
+        template: deployment-worker.yaml
+
+  - it: should set node selector when worker.nodeSelector is set
+    set:
+      worker:
+        nodeSelector:
+          workload-type: worker-node
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector.workload-type
+          value: worker-node
+        template: deployment-worker.yaml
+
+  - it: should override global nodeSelector when worker.nodeSelector is set
+    set:
+      nodeSelector:
+        disktype: ssd
+      worker:
+        nodeSelector:
+          workload-type: worker-node
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector.workload-type
+          value: worker-node
+        template: deployment-worker.yaml
+      - isNull:
+          path: spec.template.spec.nodeSelector.disktype
+        template: deployment-worker.yaml
+
+  - it: should set tolerations when worker.tolerations are set
+    set:
+      worker:
+        tolerations:
+          - key: worker-key
+            operator: Equal
+            value: worker-value
+            effect: NoSchedule
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: worker-key
+            operator: Equal
+            value: worker-value
+            effect: NoSchedule
+        template: deployment-worker.yaml
+
+  - it: should override global tolerations when worker.tolerations are set
+    set:
+      tolerations:
+        - key: global-key
+          operator: Exists
+          effect: NoSchedule
+      worker:
+        tolerations:
+          - key: worker-key
+            operator: Equal
+            value: worker-value
+            effect: NoSchedule
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: worker-key
+            operator: Equal
+            value: worker-value
+            effect: NoSchedule
+        template: deployment-worker.yaml
+      - notContains:
+          path: spec.template.spec.tolerations
+          content:
+            key: global-key
+            operator: Exists
+            effect: NoSchedule
+        template: deployment-worker.yaml
+
+  - it: should use global nodeSelector when worker.nodeSelector is not set
+    set:
+      nodeSelector:
+        disktype: ssd
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector.disktype
+          value: ssd
+        template: deployment-worker.yaml
+
+  - it: should use global tolerations when worker.tolerations are not set
+    set:
+      tolerations:
+        - key: global-key
+          operator: Exists
+          effect: NoSchedule
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: global-key
+            operator: Exists
+            effect: NoSchedule
         template: deployment-worker.yaml
 
   - it: should match snapshot of default values
