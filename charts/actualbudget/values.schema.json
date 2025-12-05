@@ -918,6 +918,13 @@
       "required": [],
       "title": "volumes",
       "type": "array"
+    },
+    "priorityClassName": {
+      "default": "",
+      "required": [],
+      "description": "For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#priorityclass",
+      "title": "priorityClassName",
+      "type": "string"
     }
   },
   "required": [
