@@ -5635,6 +5635,101 @@ entries:
   mlflow:
   - annotations:
       artifacthub.io/changes: |-
+        - kind: changed
+          description: Update burakince/mlflow image version to 3.7.0
+          links:
+            - name: Upstream Project
+              url: https://hub.docker.com/r/burakince/mlflow
+        - kind: changed
+          description: Update dependency postgresql from 18.1.7 to 18.1.13
+          links:
+            - name: ArtifactHub
+              url: https://artifacthub.io/packages/helm/bitnami/postgresql
+      artifacthub.io/containsSecurityUpdates: "false"
+      artifacthub.io/images: |
+        - name: mlflow
+          image: burakince/mlflow:3.7.0
+      artifacthub.io/license: MIT
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/community-charts/helm-charts
+        - name: Chart Usage Page
+          url: https://community-charts.github.io/docs/charts/mlflow/usage
+        - name: Upstream Project
+          url: https://github.com/burakince/mlflow
+      artifacthub.io/maintainers: |
+        - name: burakince
+          email: burak.ince@linux.org.tr
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/screenshots: |
+        - title: Quickstart UI screenshot
+          url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/quickstart/quickstart_ui_screenshot.png
+        - title: OSS registry 1 register
+          url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/oss_registry_1_register.png
+        - title: OSS Registry 2 dialog
+          url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/oss_registry_2_dialog.png
+        - title: OSS Registry 3 overview
+          url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/oss_registry_3_overview.png
+        - title: OSS Registry 3b version
+          url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/oss_registry_3b_version.png
+        - title: OSS Registry 4 version
+          url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/oss_registry_4_model.png
+        - title: OSS Registry 4b version
+          url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/oss_registry_4b_model_alias.png
+        - title: OSS Registry 5 transition
+          url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/oss_registry_5_version.png
+        - title: OSS Registry 6 transition
+          url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/oss_registry_6_version.png
+        - title: Experiment compare
+          url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/tutorial-compare.png
+      artifacthub.io/signKey: |
+        fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
+        url: https://keybase.io/communitycharts/pgp_keys.asc
+    apiVersion: v2
+    appVersion: 3.7.0
+    created: "2025-12-07T02:53:39.516106688Z"
+    dependencies:
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 18.1.13
+    - condition: mysql.enabled
+      name: mysql
+      repository: https://charts.bitnami.com/bitnami
+      version: 14.0.3
+    description: A Helm chart for Mlflow open source platform for the machine learning
+      lifecycle
+    digest: 48c6e852546fb2734b3c39fc4bd88a46adc2d41a71556f48efe3f234d95b6a98
+    home: https://mlflow.org
+    icon: https://raw.githubusercontent.com/mlflow/mlflow/master/assets/logo.svg
+    keywords:
+    - docker
+    - machine-learning
+    - ai
+    - ml
+    - model-management
+    - mlflow
+    - mlflow-tracking-server
+    - mlflow-docker
+    - mlflow-tracking
+    - mlflow-kube
+    kubeVersion: '>=1.16.0-0'
+    maintainers:
+    - email: burak.ince@linux.org.tr
+      name: burakince
+      url: https://www.burakince.com
+    name: mlflow
+    sources:
+    - https://github.com/community-charts/helm-charts
+    - https://github.com/burakince/mlflow
+    - https://github.com/mlflow/mlflow
+    type: application
+    urls:
+    - https://github.com/community-charts/helm-charts/releases/download/mlflow-1.8.1/mlflow-1.8.1.tgz
+    version: 1.8.1
+  - annotations:
+      artifacthub.io/changes: |-
         - kind: added
           description: Add resources to dbchecker and ini-file-initializer init containers using resources definition.
           links:
@@ -34409,4 +34504,4 @@ entries:
     urls:
     - https://github.com/community-charts/helm-charts/releases/download/pypiserver-0.1.0/pypiserver-0.1.0.tgz
     version: 0.1.0
-generated: "2025-12-05T02:59:15.93874198Z"
+generated: "2025-12-07T02:53:39.516768869Z"
