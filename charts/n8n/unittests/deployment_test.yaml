@@ -2171,3 +2171,100 @@ tests:
               key: client.key
     asserts:
       - matchSnapshot: { }
+
+  - it: should set exec liveness probe when main.livenessProbe.exec is set (without httpGet)
+    set:
+      main:
+        livenessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - pgrep -f 'n8n' > /dev/null
+          initialDelaySeconds: 30
+          failureThreshold: 3
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.exec.command[0]
+          value: /bin/sh
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.exec.command[1]
+          value: -c
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.exec.command[2]
+          value: pgrep -f 'n8n' > /dev/null
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.initialDelaySeconds
+          value: 30
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.failureThreshold
+          value: 3
+        template: deployment.yaml
+      - isNull:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.httpGet
+        template: deployment.yaml
+
+  - it: should set exec readiness probe when main.readinessProbe.exec is set (without httpGet)
+    set:
+      main:
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - pgrep -f 'n8n' > /dev/null
+          initialDelaySeconds: 10
+          failureThreshold: 3
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].readinessProbe.exec.command[0]
+          value: /bin/sh
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].readinessProbe.exec.command[1]
+          value: -c
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].readinessProbe.exec.command[2]
+          value: pgrep -f 'n8n' > /dev/null
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].readinessProbe.initialDelaySeconds
+          value: 10
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].readinessProbe.failureThreshold
+          value: 3
+        template: deployment.yaml
+      - isNull:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].readinessProbe.httpGet
+        template: deployment.yaml
+
+  - it: should set tcpSocket liveness probe when main.livenessProbe.tcpSocket is set (without httpGet)
+    set:
+      main:
+        livenessProbe:
+          tcpSocket:
+            port: 5678
+          initialDelaySeconds: 30
+          failureThreshold: 3
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.tcpSocket.port
+          value: 5678
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.initialDelaySeconds
+          value: 30
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.failureThreshold
+          value: 3
+        template: deployment.yaml
+      - isNull:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe.httpGet
+        template: deployment.yaml

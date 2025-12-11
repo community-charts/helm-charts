@@ -542,3 +542,26 @@ Check if volumeMounts should be included to MCP webhook. If the context is not p
 {{- end -}}
 {{- $hasVolumeMounts -}}
 {{- end -}}
+
+{{/*
+Merge probe configuration ensuring only one probe type is used.
+Usage: include "n8n.mergeProbe" (dict "component" $componentProbe "root" $rootProbe)
+If exec is present, httpGet and tcpSocket are removed.
+If tcpSocket is present, httpGet and exec are removed.
+If httpGet is present, exec and tcpSocket are removed.
+*/}}
+{{- define "n8n.mergeProbe" -}}
+{{- $component := .component | default dict -}}
+{{- $root := .root | default dict -}}
+{{- if hasKey $component "exec" -}}
+{{- $component = omit $component "httpGet" "tcpSocket" -}}
+{{- $root = omit $root "httpGet" "tcpSocket" -}}
+{{- else if hasKey $component "tcpSocket" -}}
+{{- $component = omit $component "httpGet" "exec" -}}
+{{- $root = omit $root "httpGet" "exec" -}}
+{{- else if hasKey $component "httpGet" -}}
+{{- $component = omit $component "exec" "tcpSocket" -}}
+{{- $root = omit $root "exec" "tcpSocket" -}}
+{{- end -}}
+{{- toYaml (merge $component $root) -}}
+{{- end -}}
