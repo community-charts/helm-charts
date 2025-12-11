@@ -2231,3 +2231,100 @@ tests:
               key: client.key
     asserts:
       - matchSnapshot: { }
+
+  - it: should set exec liveness probe when worker.livenessProbe.exec is set (without httpGet)
+    set:
+      worker:
+        livenessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - pgrep -f 'n8n worker' > /dev/null
+          initialDelaySeconds: 30
+          failureThreshold: 3
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.exec.command[0]
+          value: /bin/sh
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.exec.command[1]
+          value: -c
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.exec.command[2]
+          value: pgrep -f 'n8n worker' > /dev/null
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.initialDelaySeconds
+          value: 30
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.failureThreshold
+          value: 3
+        template: deployment-worker.yaml
+      - isNull:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.httpGet
+        template: deployment-worker.yaml
+
+  - it: should set exec readiness probe when worker.readinessProbe.exec is set (without httpGet)
+    set:
+      worker:
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - pgrep -f 'n8n worker' > /dev/null
+          initialDelaySeconds: 10
+          failureThreshold: 3
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.exec.command[0]
+          value: /bin/sh
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.exec.command[1]
+          value: -c
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.exec.command[2]
+          value: pgrep -f 'n8n worker' > /dev/null
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.initialDelaySeconds
+          value: 10
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.failureThreshold
+          value: 3
+        template: deployment-worker.yaml
+      - isNull:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].readinessProbe.httpGet
+        template: deployment-worker.yaml
+
+  - it: should set tcpSocket liveness probe when worker.livenessProbe.tcpSocket is set (without httpGet)
+    set:
+      worker:
+        livenessProbe:
+          tcpSocket:
+            port: 5678
+          initialDelaySeconds: 30
+          failureThreshold: 3
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.tcpSocket.port
+          value: 5678
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.initialDelaySeconds
+          value: 30
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.failureThreshold
+          value: 3
+        template: deployment-worker.yaml
+      - isNull:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].livenessProbe.httpGet
+        template: deployment-worker.yaml

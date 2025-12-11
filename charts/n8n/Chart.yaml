@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.16.10
+version: 1.16.11
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -50,16 +50,11 @@ annotations:
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Update n8nio/n8n image version to 1.123.5
+    - kind: fixed
+      description: Fix probe configuration to allow exec and tcpSocket types without httpGet conflict
       links:
-        - name: Upstream Project
-          url: https://github.com/n8n-io/n8n
-    - kind: changed
-      description: Update dependency redis from 24.0.0 to 24.0.4
-      links:
-        - name: ArtifactHub
-          url: https://artifacthub.io/packages/helm/bitnami/redis
+        - name: Kubernetes Probe Types
+          url: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:1.123.5

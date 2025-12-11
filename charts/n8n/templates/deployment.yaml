@@ -101,13 +101,9 @@ spec:
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           livenessProbe:
-            {{- $rootLiveness := .Values.livenessProbe | default dict }}
-            {{- $mainLiveness := .Values.main.livenessProbe | default dict }}
-            {{- toYaml (merge $mainLiveness $rootLiveness) | nindent 12 }}
+            {{- include "n8n.mergeProbe" (dict "component" .Values.main.livenessProbe "root" .Values.livenessProbe) | nindent 12 }}
           readinessProbe:
-            {{- $rootReadiness := .Values.readinessProbe | default dict }}
-            {{- $mainReadiness := .Values.main.readinessProbe | default dict }}
-            {{- toYaml (merge $mainReadiness $rootReadiness) | nindent 12 }}
+            {{- include "n8n.mergeProbe" (dict "component" .Values.main.readinessProbe "root" .Values.readinessProbe) | nindent 12 }}
           resources:
             {{- toYaml (default .Values.resources .Values.main.resources) | nindent 12 }}
           env:
