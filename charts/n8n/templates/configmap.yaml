@@ -29,13 +29,13 @@ data:
   {{- if .Values.db.postgresdb.ssl.enabled }}
   DB_POSTGRESDB_SSL_ENABLED: {{ .Values.db.postgresdb.ssl.enabled | quote }}
   {{- if eq (include "n8n.postgres.ssl.hasCA" .) "true" }}
-  DB_POSTGRESDB_SSL_CA: "/home/node/certs/ca/ca.crt"
+  DB_POSTGRESDB_SSL_CA_FILE: "/home/node/certs/ca/ca.crt"
   {{- end }}
   {{- if eq (include "n8n.postgres.ssl.hasCert" .) "true" }}
-  DB_POSTGRESDB_SSL_CERT: "/home/node/certs/cert/cert.crt"
+  DB_POSTGRESDB_SSL_CERT_FILE: "/home/node/certs/cert/cert.crt"
   {{- end }}
   {{- if eq (include "n8n.postgres.ssl.hasKey" .) "true" }}
-  DB_POSTGRESDB_SSL_KEY: "/home/node/certs/key/cert.key"
+  DB_POSTGRESDB_SSL_KEY_FILE: "/home/node/certs/key/cert.key"
   {{- end }}
   {{- end }}
 {{- else }}

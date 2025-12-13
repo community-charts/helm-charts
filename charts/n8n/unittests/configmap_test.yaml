@@ -195,7 +195,7 @@ tests:
       value: n8n-database-configmap
     asserts:
       - equal:
-          path: data.DB_POSTGRESDB_SSL_CA
+          path: data.DB_POSTGRESDB_SSL_CA_FILE
           value: /home/node/certs/ca/ca.crt
 
   - it: should set postgresql ssl CA certificate when ssl enabled and existingCertificateAuthorityFileSecret.name is set
@@ -212,7 +212,7 @@ tests:
       value: n8n-database-configmap
     asserts:
       - equal:
-          path: data.DB_POSTGRESDB_SSL_CA
+          path: data.DB_POSTGRESDB_SSL_CA_FILE
           value: /home/node/certs/ca/ca.crt
 
   - it: should set postgresql ssl certificate when ssl enabled and base64EncodedCertFile is set
@@ -228,7 +228,7 @@ tests:
       value: n8n-database-configmap
     asserts:
       - equal:
-          path: data.DB_POSTGRESDB_SSL_CERT
+          path: data.DB_POSTGRESDB_SSL_CERT_FILE
           value: /home/node/certs/cert/cert.crt
 
   - it: should set postgresql ssl certificate when ssl enabled and existingCertFileSecret.name is set
@@ -245,7 +245,7 @@ tests:
       value: n8n-database-configmap
     asserts:
       - equal:
-          path: data.DB_POSTGRESDB_SSL_CERT
+          path: data.DB_POSTGRESDB_SSL_CERT_FILE
           value: /home/node/certs/cert/cert.crt
 
   - it: should set postgresql ssl certificate private key when ssl enabled and base64EncodedPrivateKeyFile is set
@@ -261,7 +261,7 @@ tests:
       value: n8n-database-configmap
     asserts:
       - equal:
-          path: data.DB_POSTGRESDB_SSL_KEY
+          path: data.DB_POSTGRESDB_SSL_KEY_FILE
           value: /home/node/certs/key/cert.key
 
   - it: should set postgresql ssl certificate private key when ssl enabled and existingPrivateKeyFileSecret.name is set
@@ -278,7 +278,7 @@ tests:
       value: n8n-database-configmap
     asserts:
       - equal:
-          path: data.DB_POSTGRESDB_SSL_KEY
+          path: data.DB_POSTGRESDB_SSL_KEY_FILE
           value: /home/node/certs/key/cert.key
 
   - it: should set vacum on startup when db type set to sqlite
