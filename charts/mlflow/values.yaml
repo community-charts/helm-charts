@@ -610,7 +610,9 @@ oauth2Proxy:
     clientSecret: ""
     redirectURL: ""
   # -- Extra args to pass to oauth2-proxy as flags
-  extraArgs: {}
+  extraArgs:
+    - "--cookie-secure=true"
+    - "--cookie-samesite=lax"
   # -- Extra environment variables for oauth2-proxy
   extraEnv: {}
   # -- Resources for the oauth2-proxy container

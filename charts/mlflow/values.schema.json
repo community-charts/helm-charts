@@ -1316,10 +1316,11 @@
         },
         "extraArgs": {
           "additionalProperties": true,
+          "default": ["--cookie-secure=true", "--cookie-samesite=lax"],
           "description": "Extra args to pass to oauth2-proxy",
           "required": [],
           "title": "extraArgs",
-          "type": "object"
+          "type": "array"
         },
         "extraEnv": {
           "additionalProperties": true,

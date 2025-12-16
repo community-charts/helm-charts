@@ -499,8 +499,6 @@ spec:
           args:
             - --http-address=0.0.0.0:{{ .Values.oauth2Proxy.listenPort }}
             - --upstream=http://127.0.0.1:{{ .Values.service.containerPort }}
-            - --cookie-secure=true
-            - --cookie-samesite=lax
             - --provider={{ .Values.oauth2Proxy.provider.name | default "keycloak" }}
             {{- if .Values.oauth2Proxy.provider.issuerURL }}
             - --oidc-issuer-url={{ .Values.oauth2Proxy.provider.issuerURL }}
@@ -508,8 +506,8 @@ spec:
             {{- if .Values.oauth2Proxy.provider.redirectURL }}
             - --redirect-url={{ .Values.oauth2Proxy.provider.redirectURL }}
             {{- end }}
-            {{- range $k, $v := .Values.oauth2Proxy.extraArgs }}
-            - {{ $v }}
+            {{- if .Values.oauth2Proxy.extraArgs }}
+            {{- toYaml .Values.oauth2Proxy.extraArgs | nindent 12 }}
             {{- end }}
           env:
             - name: OAUTH2_PROXY_CLIENT_ID
