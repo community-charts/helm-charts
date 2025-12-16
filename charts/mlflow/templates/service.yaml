@@ -15,5 +15,11 @@ spec:
       targetPort: {{ .Values.service.containerPortName }}
       protocol: TCP
       name: {{ .Values.service.name }}
+    {{- if .Values.oauth2Proxy.enabled }}
+    - port: {{ include "mlflow.servicePort" $ }}
+      targetPort: oauth2-proxy
+      protocol: TCP
+      name: oauth2-proxy
+    {{- end }}
   selector:
     {{- include "mlflow.selectorLabels" . | nindent 4 }}

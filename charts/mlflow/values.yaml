@@ -579,3 +579,39 @@ readinessProbe:
   periodSeconds: 30
   timeoutSeconds: 3
   failureThreshold: 5
+
+# -- oauth2-proxy sidecar configuration
+oauth2Proxy:
+  # -- Enable deploying oauth2-proxy as a sidecar to the mlflow pod
+  enabled: false
+  # -- If true the chart will create a Kubernetes secret with the oauth client id/secret
+  createSecret: false
+  # -- Secret containing oauth client credentials when not creating a secret
+  existingSecret: ""
+  # -- Keys used in the secret (when using existingSecret)
+  clientIDKey: client-id
+  clientSecretKey: client-secret
+  # -- OAuth2 Proxy image
+  image:
+    repository: quay.io/oauth2-proxy/oauth2-proxy
+    tag: v7.4.0
+    pullPolicy: IfNotPresent
+  # -- Upstream is constructed from the mlflow service container port
+  #    The chart will use: http://127.0.0.1:<service.containerPort>
+  # -- Port oauth2-proxy listens on inside the pod
+  listenPort: 4180
+  # -- Cookie secret for oauth2-proxy. If creating secret this can be provided here; otherwise provide via existingSecret
+  cookieSecret: ""
+  # -- Provider specific settings (example: keycloak)
+  provider:
+    name: keycloak
+    issuerURL: ""
+    clientID: ""
+    clientSecret: ""
+    redirectURL: ""
+  # -- Extra args to pass to oauth2-proxy as flags
+  extraArgs: {}
+  # -- Extra environment variables for oauth2-proxy
+  extraEnv: {}
+  # -- Resources for the oauth2-proxy container
+  resources: {}
