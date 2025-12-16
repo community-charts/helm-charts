@@ -9,10 +9,10 @@ should match snapshot of postgres ssl certificate values:
       DB_POSTGRESDB_POOL_SIZE: "2"
       DB_POSTGRESDB_PORT: "5432"
       DB_POSTGRESDB_SCHEMA: public
-      DB_POSTGRESDB_SSL_CA: /home/node/certs/ca/ca.crt
-      DB_POSTGRESDB_SSL_CERT: /home/node/certs/cert/cert.crt
+      DB_POSTGRESDB_SSL_CA_FILE: /home/node/certs/ca/ca.crt
+      DB_POSTGRESDB_SSL_CERT_FILE: /home/node/certs/cert/cert.crt
       DB_POSTGRESDB_SSL_ENABLED: "true"
-      DB_POSTGRESDB_SSL_KEY: /home/node/certs/key/cert.key
+      DB_POSTGRESDB_SSL_KEY_FILE: /home/node/certs/key/cert.key
       DB_TYPE: postgresdb
     kind: ConfigMap
     metadata:
@@ -190,7 +190,7 @@ should match snapshot of postgres ssl certificate values:
       template:
         metadata:
           annotations:
-            checksum/config: 9275478349b0d1960495024022e4b3e64e5681684b296cdd8cf49b9267e20bcd
+            checksum/config: 0ff0613143403777975a27de8ffe9fc4c1ac99ba8d69c68ed8a7ef1c2c85b7f6
           labels:
             app.kubernetes.io/component: webhook
             app.kubernetes.io/instance: n8n
