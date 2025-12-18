@@ -50,6 +50,10 @@ annotations:
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
+    - kind: fixed
+      description: Add missing taskRunners.image schema definition in values.schema.json
+    - kind: fixed
+      description: Fix deployment unit test to use correct task runner image (n8nio/runners instead of n8nio/n8n)
     - kind: changed
       description: Update n8nio/n8n image version to 2.1.4
       links:
