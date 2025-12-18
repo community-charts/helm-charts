@@ -51,6 +51,8 @@ annotations:
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
+    - kind: added
+      description: Add support for priorityClassName in the Deployment
     - kind: changed
       description: Update burakince/mlflow image version to 3.7.0
       links:
