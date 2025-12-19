@@ -168,3 +168,63 @@ tests:
       - equal:
           path: spec.selector.matchLabels["app.kubernetes.io/component"]
           value: worker
+
+  - it: should create pdb resource for mcp webhook node when webhook.mcp.count is bigger than 1
+    set:
+      db:
+        type: postgresdb
+      webhook:
+        mode: queue
+        count: 2
+        mcp:
+          enabled: true
+          count: 2
+          pdb:
+            enabled: true
+            minAvailable: 1
+    documentSelector:
+      path: metadata.name
+      value: n8n-mcp-webhook
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels["app.kubernetes.io/instance"]
+          value: n8n
+      - equal:
+          path: spec.selector.matchLabels["app.kubernetes.io/name"]
+          value: n8n-mcp-webhook
+      - equal:
+          path: spec.selector.matchLabels["app.kubernetes.io/component"]
+          value: mcp
+      - equal:
+          path: spec.minAvailable
+          value: 1
+
+  - it: should create pdb resource for mcp webhook node when webhook.mcp.autoscaling.enabled is true
+    set:
+      db:
+        type: postgresdb
+      webhook:
+        mode: queue
+        count: 2
+        mcp:
+          enabled: true
+          count: 1
+          autoscaling:
+            enabled: true
+          pdb:
+            enabled: true
+            minAvailable: 1
+    documentSelector:
+      path: metadata.name
+      value: n8n-mcp-webhook
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels["app.kubernetes.io/instance"]
+          value: n8n
+      - equal:
+          path: spec.selector.matchLabels["app.kubernetes.io/name"]
+          value: n8n-mcp-webhook
+      - equal:
+          path: spec.selector.matchLabels["app.kubernetes.io/component"]
+          value: mcp
+

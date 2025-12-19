@@ -46,3 +46,27 @@ spec:
     {{- toYaml .Values.webhook.autoscaling.behavior | nindent 4 }}
   {{- end }}
 {{- end }}
+{{- if and .Values.webhook.mcp.enabled .Values.webhook.mcp.autoscaling.enabled (eq .Values.db.type "postgresdb") (eq .Values.webhook.mode "queue") (or (gt (int .Values.webhook.count) 1) (.Values.webhook.autoscaling.enabled) (.Values.webhook.allNodes)) }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "n8n.mcp-webhook.fullname" . }}
+  labels:
+    {{- include "n8n.mcp-webhook.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "n8n.mcp-webhook.fullname" . }}
+  minReplicas: {{ .Values.webhook.mcp.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.webhook.mcp.autoscaling.maxReplicas }}
+  {{- with .Values.webhook.mcp.autoscaling.metrics }}
+  metrics:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- if and .Values.webhook.mcp.autoscaling.behavior (gt (len .Values.webhook.mcp.autoscaling.behavior) 0) }}
+  behavior:
+    {{- toYaml .Values.webhook.mcp.autoscaling.behavior | nindent 4 }}
+  {{- end }}
+{{- end }}

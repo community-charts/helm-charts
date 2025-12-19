@@ -38,14 +38,27 @@ tests:
           count: 0
         template: deployment-mcp-webhook.yaml
 
-  - it: should not set replica count when webhook count is set
+  - it: should set replica count from webhook.mcp.count
     set:
       webhook:
-        count: 3
+        mcp:
+          count: 3
     asserts:
       - equal:
           path: spec.replicas
-          value: 1
+          value: 3
+        template: deployment-mcp-webhook.yaml
+
+  - it: should not set replica count when webhook.mcp.autoscaling is enabled
+    set:
+      webhook:
+        mcp:
+          count: 3
+          autoscaling:
+            enabled: true
+    asserts:
+      - isNull:
+          path: spec.replicas
         template: deployment-mcp-webhook.yaml
 
   - it: should set strategy to Recreate when strategy.type is Recreate

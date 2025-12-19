@@ -6,7 +6,9 @@ metadata:
   labels:
     {{- include "n8n.mcp-webhook.labels" . | nindent 4 }}
 spec:
-  replicas: 1
+  {{- if not .Values.webhook.mcp.autoscaling.enabled }}
+  replicas: {{ .Values.webhook.mcp.count }}
+  {{- end }}
   strategy:
     type: {{ .Values.strategy.type }}
     {{- if eq .Values.strategy.type "RollingUpdate" }}

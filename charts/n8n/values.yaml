@@ -596,6 +596,41 @@ webhook:
     # -- Whether to enable MCP webhook
     enabled: true
 
+    # -- Number of MCP webhook pods to run. Ignored when autoscaling is enabled.
+    count: 2
+
+    # -- If true, the number of MCP webhooks will be automatically scaled based on default metrics. On default, it will scale based on CPU. For more information can be found here: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
+    autoscaling:
+      # -- Whether autoscaling is enabled.
+      enabled: false
+
+      # -- The minimum number of replicas.
+      minReplicas: 2
+
+      # -- The maximum number of replicas.
+      maxReplicas: 10
+
+      # -- The metrics to use for autoscaling.
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 80
+
+      # -- The behavior of the autoscaler.
+      behavior: {}
+
+    # -- Whether to enable the PodDisruptionBudget for the MCP webhook pod
+    pdb:
+      # -- Whether to enable the PodDisruptionBudget
+      enabled: true
+      # -- Minimum number of available replicas
+      minAvailable: 1
+      # -- Maximum number of unavailable replicas
+      maxUnavailable: null
+
     # -- This block is for setting up the resource management for the mcp webhook pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     resources: {}
 
