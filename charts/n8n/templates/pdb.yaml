@@ -55,3 +55,22 @@ spec:
     matchLabels:
       {{- include "n8n.worker.selectorLabels" . | nindent 6 }}
 {{- end }}
+{{- if and .Values.webhook.mcp.enabled .Values.webhook.mcp.pdb.enabled (eq .Values.db.type "postgresdb") (eq .Values.webhook.mode "queue") (or (gt (int .Values.webhook.count) 1) (.Values.webhook.autoscaling.enabled) (.Values.webhook.allNodes)) (or .Values.webhook.mcp.autoscaling.enabled (gt (int .Values.webhook.mcp.count) 1)) }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "n8n.mcp-webhook.fullname" . }}
+  labels:
+    {{- include "n8n.mcp-webhook.labels" . | nindent 4 }}
+spec:
+  {{- if .Values.webhook.mcp.pdb.minAvailable }}
+  minAvailable: {{ .Values.webhook.mcp.pdb.minAvailable }}
+  {{- end }}
+  {{- if .Values.webhook.mcp.pdb.maxUnavailable }}
+  maxUnavailable: {{ .Values.webhook.mcp.pdb.maxUnavailable }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "n8n.mcp-webhook.selectorLabels" . | nindent 6 }}
+{{- end }}

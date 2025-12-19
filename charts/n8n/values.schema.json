@@ -2178,6 +2178,88 @@
               "title": "enabled",
               "type": "boolean"
             },
+            "count": {
+              "default": 2,
+              "description": "Number of MCP webhook pods to run. Ignored when autoscaling is enabled.",
+              "required": [],
+              "title": "count",
+              "type": "integer",
+              "minimum": 1
+            },
+            "autoscaling": {
+              "additionalProperties": false,
+              "description": "Autoscaling configuration for MCP webhook pods",
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "description": "If true, the number of MCP webhooks will be automatically scaled based on default metrics",
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "minReplicas": {
+                  "default": 2,
+                  "description": "Minimum number of MCP webhook replicas",
+                  "required": [],
+                  "title": "minReplicas",
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "maxReplicas": {
+                  "default": 10,
+                  "description": "Maximum number of MCP webhook replicas",
+                  "required": [],
+                  "title": "maxReplicas",
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "metrics": {
+                  "type": "array",
+                  "description": "Metrics to use for autoscaling",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "behavior": {
+                  "additionalProperties": true,
+                  "description": "Behavior configuration for the autoscaler",
+                  "type": "object"
+                }
+              },
+              "required": ["enabled", "minReplicas", "maxReplicas"],
+              "title": "autoscaling",
+              "type": "object"
+            },
+            "pdb": {
+              "additionalProperties": false,
+              "description": "PodDisruptionBudget configuration for MCP webhook pods",
+              "properties": {
+                "enabled": {
+                  "default": true,
+                  "description": "Whether to enable the PodDisruptionBudget",
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "minAvailable": {
+                  "default": 1,
+                  "description": "Minimum number of available replicas",
+                  "required": [],
+                  "title": "minAvailable",
+                  "type": ["integer", "string", "null"]
+                },
+                "maxUnavailable": {
+                  "default": null,
+                  "description": "Maximum number of unavailable replicas",
+                  "required": [],
+                  "title": "maxUnavailable",
+                  "type": ["integer", "string", "null"]
+                }
+              },
+              "required": ["enabled"],
+              "title": "pdb",
+              "type": "object"
+            },
             "resources": {
               "additionalProperties": true,
               "description": "This block is for setting up the resource management for the mcp webhook pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
@@ -2410,7 +2492,7 @@
               "type": "array"
             }
           },
-          "required": ["enabled", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "initContainers", "extraContainers", "affinity", "hostAliases"],
+          "required": ["enabled", "count", "autoscaling", "pdb", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "initContainers", "extraContainers", "affinity", "hostAliases"],
           "title": "mcp",
           "type": "object"
         },
