@@ -3982,6 +3982,35 @@
     "taskRunners": {
       "additionalProperties": false,
       "properties": {
+        "image": {
+          "additionalProperties": false,
+          "properties": {
+            "repository": {
+              "default": "n8nio/runners",
+              "description": "The image repository for the task runner",
+              "required": [],
+              "title": "repository",
+              "type": "string"
+            },
+            "pullPolicy": {
+              "default": "IfNotPresent",
+              "description": "The image pull policy for the task runner",
+              "required": [],
+              "title": "pullPolicy",
+              "type": "string"
+            },
+            "tag": {
+              "default": "",
+              "description": "Overrides the image tag whose default is the chart appVersion",
+              "required": [],
+              "title": "tag",
+              "type": "string"
+            }
+          },
+          "required": ["repository", "pullPolicy", "tag"],
+          "title": "image",
+          "type": "object"
+        },
         "mode": {
           "default": "internal",
           "description": "Use `internal` to use internal task runner, or use `external` to have external sidecar task runner",
@@ -4116,7 +4145,7 @@
           "type": "object"
         }
       },
-      "required": ["mode", "taskTimeout", "taskHeartbeatInterval", "maxConcurrency", "broker"],
+      "required": ["image", "mode", "taskTimeout", "taskHeartbeatInterval", "maxConcurrency", "broker"],
       "if": {
         "properties": {
           "mode": { "const": "external" }
