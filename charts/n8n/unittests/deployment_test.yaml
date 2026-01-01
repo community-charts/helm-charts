@@ -1299,7 +1299,7 @@ tests:
         template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].args
-          value: ["javascript"]
+          value: ["javascript", "python"]
         template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].ports[0].containerPort
