@@ -892,6 +892,10 @@ serviceMonitor:
   namespace: ""
   # -- Set how frequently Prometheus should scrape
   interval: 30s
+  # -- Set the scheme to use for the scrape
+  scheme: http
+  # -- Set the TLS configuration for the scrape
+  tlsConfig: {}
   # -- Set labels for the ServiceMonitor, use this to define your scrape label for Prometheus Operator
   labels:
     # -- default `kube prometheus stack` helm chart serviceMonitor selector label

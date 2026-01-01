@@ -15,6 +15,13 @@ metadata:
 spec:
   endpoints:
     - port: {{ .Values.service.name }}
+    {{- if .Values.serviceMonitor.scheme }}
+      scheme: {{ .Values.serviceMonitor.scheme }}
+    {{- end }}
+    {{- if .Values.serviceMonitor.tlsConfig }}
+      tlsConfig:
+{{ toYaml .Values.serviceMonitor.tlsConfig | indent 8 }}
+    {{- end }}
     {{- if .Values.serviceMonitor.interval }}
       interval: {{ .Values.serviceMonitor.interval }}
     {{- end }}

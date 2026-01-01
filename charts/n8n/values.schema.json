@@ -4179,6 +4179,35 @@
           "type": "string",
           "pattern": "^\\d+(ms|s|m|h|d|w|y)$"
         },
+        "scheme": {
+          "description": "The scheme to use when scraping the metrics endpoint",
+          "title": "scheme",
+          "type": "string"
+        },
+        "tlsConfig": {
+          "description": "TLS configuration for scraping the metrics endpoint",
+          "title": "tlsConfig",
+          "type": "object",
+          "properties": {
+            "caFile": {
+              "description": "Path to the certificate authority file",
+              "type": "string"
+            },
+            "certFile": {
+              "description": "Path to the client certificate file",
+              "type": "string"
+            },
+            "insecureSkipVerify": {
+              "description": "Whether to skip TLS certificate verification",
+              "type": "boolean"
+            },
+            "keyFile": {
+              "description": "Path to the client key file",
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
         "labels": {
           "default": {
             "release": "prometheus"
@@ -4348,7 +4377,7 @@
           "additionalProperties": false
         }
       },
-      "required": ["enabled", "namespace", "interval", "labels", "timeout", "targetLabels", "metricRelabelings", "metricsPrefix", "include"],
+      "required": ["enabled", "namespace", "interval", "scheme", "tlsConfig", "labels", "timeout", "targetLabels", "metricRelabelings", "metricsPrefix", "include"],
       "title": "serviceMonitor",
       "type": "object"
     },
@@ -4365,7 +4394,7 @@
                 "default": "n8n-bucket",
                 "description": "This is for setting up the bucket name.",
                 "required": [],
-                "title": "name", 
+                "title": "name",
                 "type": "string"
               },
               "policy": {
@@ -4613,7 +4642,7 @@
                       },
                       "minItems": 1,
                       "required": [],
-                      "title": "actions", 
+                      "title": "actions",
                       "type": "array"
                     },
                     "resources": {
@@ -4732,7 +4761,7 @@
               "accessKey": {
                 "default": "n8n-user",
                 "required": [],
-                "title": "accessKey", 
+                "title": "accessKey",
                 "type": "string"
               },
               "policy": {
@@ -4752,7 +4781,7 @@
             },
             "required": [
               "accessKey",
-              "secretKey", 
+              "secretKey",
               "policy"
             ],
             "type": "object"
