@@ -294,7 +294,7 @@ spec:
           image: "{{ .Values.taskRunners.image.repository }}:{{ .Values.taskRunners.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.taskRunners.image.pullPolicy }}
           command: ["/usr/local/bin/task-runner-launcher"]
-          args: ["javascript"]
+          args: ["javascript", "python"]
           ports:
             - name: http
               containerPort: {{ .Values.taskRunners.external.port }}
