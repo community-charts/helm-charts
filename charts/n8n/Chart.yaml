@@ -112,16 +112,16 @@ annotations:
   artifacthub.io/signKey: |
     fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
     url: https://keybase.io/communitycharts/pgp_keys.asc
-dependencies:
-  - name: redis
-    version: 24.1.0
-    repository: https://charts.bitnami.com/bitnami
-    condition: redis.enabled
-  - name: postgresql
-    version: 18.2.0
-    repository: https://charts.bitnami.com/bitnami
-    condition: postgresql.enabled
-  - name: minio
-    version: 5.4.0
-    repository: https://charts.min.io/
-    condition: minio.enabled
+# dependencies:
+#   - name: redis
+#     version: 24.1.0
+#     repository: https://charts.bitnami.com/bitnami
+#     condition: redis.enabled
+#   - name: postgresql
+#     version: 18.2.0
+#     repository: https://charts.bitnami.com/bitnami
+#     condition: postgresql.enabled
+#   - name: minio
+#     version: 5.4.0
+#     repository: https://charts.min.io/
+#     condition: minio.enabled
