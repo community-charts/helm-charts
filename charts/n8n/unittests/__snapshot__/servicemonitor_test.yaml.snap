@@ -12,7 +12,6 @@ should match snapshot of default values:
         - interval: 30s
           path: /metrics
           port: http
-          scheme: http
           relabelings:
             - sourceLabels:
                 - __meta_kubernetes_pod_name
@@ -20,6 +19,7 @@ should match snapshot of default values:
             - action: replace
               replacement: main
               targetLabel: role
+          scheme: http
           scrapeTimeout: 10s
       namespaceSelector:
         matchNames:
