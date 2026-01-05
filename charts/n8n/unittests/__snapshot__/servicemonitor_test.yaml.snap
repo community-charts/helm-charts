@@ -19,6 +19,7 @@ should match snapshot of default values:
             - action: replace
               replacement: main
               targetLabel: role
+          scheme: http
           scrapeTimeout: 10s
       namespaceSelector:
         matchNames:
@@ -48,6 +49,7 @@ should match snapshot with worker mode queue:
             - action: replace
               replacement: main
               targetLabel: role
+          scheme: http
           scrapeTimeout: 10s
       namespaceSelector:
         matchNames:
