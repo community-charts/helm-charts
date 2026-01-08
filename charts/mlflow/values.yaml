@@ -78,6 +78,9 @@ serviceAccount:
 # -- Annotations for the pod
 podAnnotations: {}
 
+# -- Priority class name for the mlflow pod
+priorityClassName: ""
+
 # -- Extra labels for the pod
 extraPodLabels: {}
 
