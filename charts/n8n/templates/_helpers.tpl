@@ -542,3 +542,36 @@ Check if volumeMounts should be included to MCP webhook. If the context is not p
 {{- end -}}
 {{- $hasVolumeMounts -}}
 {{- end -}}
+
+{{/*
+Get task runner image repository. Defaults to main image repository if not specified.
+*/}}
+{{- define "n8n.taskRunner.image.repository" -}}
+{{- if .Values.taskRunners.external.image.repository -}}
+{{- .Values.taskRunners.external.image.repository -}}
+{{- else -}}
+{{- .Values.image.repository -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get task runner image tag. Defaults to main image tag or chart appVersion if not specified.
+*/}}
+{{- define "n8n.taskRunner.image.tag" -}}
+{{- if .Values.taskRunners.external.image.tag -}}
+{{- .Values.taskRunners.external.image.tag -}}
+{{- else -}}
+{{- .Values.image.tag | default .Chart.AppVersion -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get task runner image pull policy. Defaults to main image pullPolicy if not specified.
+*/}}
+{{- define "n8n.taskRunner.image.pullPolicy" -}}
+{{- if .Values.taskRunners.external.image.pullPolicy -}}
+{{- .Values.taskRunners.external.image.pullPolicy -}}
+{{- else -}}
+{{- .Values.image.pullPolicy -}}
+{{- end -}}
+{{- end -}}

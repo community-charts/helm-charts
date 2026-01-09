@@ -4109,6 +4109,36 @@
               "required": ["requests", "limits"],
               "title": "resources",
               "type": "object"
+            },
+            "image": {
+              "additionalProperties": false,
+              "description": "The image configuration for the external task runner. If not specified, defaults to the main n8n image.",
+              "properties": {
+                "repository": {
+                  "default": "",
+                  "description": "Repository for the task runner image",
+                  "required": [],
+                  "title": "repository",
+                  "type": "string"
+                },
+                "tag": {
+                  "default": "",
+                  "description": "Tag for the task runner image. If not specified, defaults to the main image tag or chart appVersion.",
+                  "required": [],
+                  "title": "tag",
+                  "type": "string"
+                },
+                "pullPolicy": {
+                  "default": "",
+                  "description": "Pull policy for the task runner image. If not specified, defaults to the main image pullPolicy.",
+                  "required": [],
+                  "title": "pullPolicy",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "image",
+              "type": "object"
             }
           },
           "required": ["autoShutdownTimeout", "port", "nodeOptions", "resources"],
