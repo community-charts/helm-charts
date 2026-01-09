@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.16.6
+version: 1.16.18
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "1.121.3"
+appVersion: "2.2.5"
 kubeVersion: ">=1.23.0-0"
 home: https://n8n.io
 maintainers:
@@ -51,13 +51,13 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update n8nio/n8n image version to 1.121.3
+      description: Update n8nio/n8n image version to 2.2.5
       links:
         - name: Upstream Project
           url: https://github.com/n8n-io/n8n
   artifacthub.io/images: |
     - name: n8n
-      image: n8nio/n8n:1.121.3
+      image: n8nio/n8n:2.2.5
       platforms:
         - linux/amd64
         - linux/arm64
@@ -109,11 +109,11 @@ annotations:
     url: https://keybase.io/communitycharts/pgp_keys.asc
 dependencies:
   - name: redis
-    version: 24.0.0
+    version: 24.1.0
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
   - name: postgresql
-    version: 18.1.13
+    version: 18.2.0
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: minio
