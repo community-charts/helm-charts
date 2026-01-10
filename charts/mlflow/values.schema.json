@@ -1361,6 +1361,13 @@
           "required": [],
           "title": "type",
           "type": "string"
+        },
+        "nodePort": {
+          "default": "",
+          "description": "NodePort port number (only used when type is NodePort or LoadBalancer)",
+          "required": [],
+          "title": "nodePort",
+          "type": ["integer", "string"]
         }
       },
       "required": ["enabled", "type", "port", "containerPort", "name", "containerPortName", "annotations"],
