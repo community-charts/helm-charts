@@ -36,4 +36,37 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: { }
+      - matchSnapshot: {}
+
+  - it: should use set nodeport when service type is NodePort
+    set:
+      service.type: NodePort
+      service.nodePort: 31080
+    asserts:
+      - contains:
+          path: spec.ports
+          content:
+            nodePort: 31080
+          any: true
+
+  - it: should not render nodeport when service type is ClusterIP
+    set:
+      service.type: ClusterIP
+      service.nodePort: 31080
+    asserts:
+      - notContains:
+          path: spec.ports
+          content:
+            nodePort: 31080
+          any: true
+
+  - it: should use set nodeport when service type is LoadBalancer
+    set:
+      service.type: LoadBalancer
+      service.nodePort: 31080
+    asserts:
+      - contains:
+          path: spec.ports
+          content:
+            nodePort: 31080
+          any: true

@@ -113,7 +113,7 @@ service:
   # -- Default container port name
   containerPortName: mlflow
   # -- NodePort port number (only used when type is NodePort or LoadBalancer)
-  nodePort: ""
+  nodePort:
   # -- Additional service annotations
   annotations: {}
 
