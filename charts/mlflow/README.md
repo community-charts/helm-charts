@@ -771,6 +771,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | service.containerPortName | string | `"mlflow"` | Default container port name |
 | service.enabled | bool | `true` | Specifies if you want to create a service |
 | service.name | string | `"http"` | Default Service name |
+| service.nodePort | int | `nil` | NodePort port number (only used when type is NodePort or LoadBalancer) |
 | service.port | int | `80` | This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports |
 | service.type | string | `"ClusterIP"` | This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account. AWS EKS users can assign role arn from here. Please find more information from here: https://docs.aws.amazon.com/eks/latest/userguide/associate-service-account-role.html |
