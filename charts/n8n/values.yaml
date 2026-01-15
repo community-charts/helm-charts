@@ -825,6 +825,14 @@ taskRunners:
     autoShutdownTimeout: 15
     # -- The port for the external task runner
     port: 5680
+    # -- The image configuration for the external task runner. If not specified, defaults to the main n8n image.
+    image:
+      # -- Repository for the task runner image
+      repository: ""
+      # -- Tag for the task runner image. If not specified, defaults to the main image tag or chart appVersion.
+      tag: ""
+      # -- Pull policy for the task runner image. If not specified, defaults to the main image pullPolicy.
+      pullPolicy: ""
     # -- The node options for the external task runner
     nodeOptions:
       - "--max-semi-space-size=16"
