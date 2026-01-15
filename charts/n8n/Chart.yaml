@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.16.20
+version: 1.16.23
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "2.2.6"
+appVersion: "2.3.5"
 kubeVersion: ">=1.23.0-0"
 home: https://n8n.io
 maintainers:
@@ -55,13 +55,13 @@ annotations:
     - kind: fixed
       description: Fix deployment unit test to use correct task runner image (n8nio/runners instead of n8nio/n8n)
     - kind: changed
-      description: Update n8nio/n8n image version to 2.2.6
+      description: Update n8nio/n8n image version to 2.3.5
       links:
         - name: Upstream Project
           url: https://github.com/n8n-io/n8n
   artifacthub.io/images: |
     - name: n8n
-      image: n8nio/n8n:2.2.6
+      image: n8nio/n8n:2.3.5
       platforms:
         - linux/amd64
         - linux/arm64
