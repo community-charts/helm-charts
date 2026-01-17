@@ -1115,6 +1115,13 @@
       "title": "podAnnotations",
       "type": "object"
     },
+    "priorityClassName": {
+      "default": "",
+      "description": "Priority class name for the pod",
+      "required": [],
+      "title": "priorityClassName",
+      "type": "string"
+    },
     "extraPodLabels": {
       "additionalProperties": true,
       "description": "Extra labels for the pod",

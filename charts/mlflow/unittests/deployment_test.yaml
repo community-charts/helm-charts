@@ -1057,6 +1057,15 @@ tests:
           value: differentname
         template: deployment.yaml
 
+  - it: should use overriden priorityClassName
+    set:
+      priorityClassName: my-priority-class
+    asserts:
+      - equal:
+          path: spec.template.spec.priorityClassName
+          value: my-priority-class
+        template: deployment.yaml
+
   - it: should use authentication settings when auth enabled
     set:
       auth.enabled: true
