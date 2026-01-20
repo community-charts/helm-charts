@@ -15,8 +15,8 @@ should match snapshot of default values:
         # Set the REDIS_URL environment variable. You can find more information about REDIS_URL [here](https://docs.getoutline.com/s/hosting/doc/redis-LGM4BFXYp4#h-advanced)
         export REDIS_URL="ioredis://$BASE64_JSON"
 
-        # Execute the original command (yarn start)
-        exec yarn start
+        # Execute the original command (node build/server/index.js)
+        exec node build/server/index.js
     kind: ConfigMap
     metadata:
       labels:
@@ -50,7 +50,7 @@ should match snapshot of default values:
       template:
         metadata:
           annotations:
-            checksum/config: 52b4c94af9c3e1eb23b0391ff13115d7b3328cc1271a67be91c19eac87d78e93
+            checksum/config: f6690f55baeea7db08ed3574581953cd6d75cf0bae9fe0db0fe8792308b96b08
             checksum/secret: c9f56502fc6d865fa60d33519aa2d0f897bea71d2af7c35aa4b71a1fa9e70e50
           labels:
             app.kubernetes.io/instance: outline
