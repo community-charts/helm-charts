@@ -52,6 +52,8 @@ annotations:
       url: https://docs.getoutline.com/s/hosting/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
+    - kind: added
+      description: Support setting custom labels on the local persistence pvc
     - kind: changed
       description: Update outlinewiki/outline image version to 1.1.0
       links:
