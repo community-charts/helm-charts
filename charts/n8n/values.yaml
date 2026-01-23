@@ -817,6 +817,15 @@ taskRunners:
 
   # -- The configuration for the external task runner
   external:
+    # -- The Docker image for the external task runner
+    image:
+      repository: "n8nio/runners"
+      tag: "latest"
+    # -- External task runner args supported languages
+    args:
+      - "javascript"
+    # -- Extra environment variables for the external task runner
+    extraEnvVars: {}
     # -- The auth token for the main node
     mainNodeAuthToken: ""
     # -- The auth token for the worker node
@@ -829,6 +838,11 @@ taskRunners:
     nodeOptions:
       - "--max-semi-space-size=16"
       - "--max-old-space-size=300"
+    # -- The security context for the external task runner
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
 
     # -- The resources for the external task runner
     resources:

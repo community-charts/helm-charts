@@ -4036,6 +4036,46 @@
         "external": {
           "additionalProperties": false,
           "properties": {
+            "image": {
+              "additionalProperties": false,
+              "description": "The Docker image for the external task runner",
+              "properties": {
+                "repository": {
+                  "default": "n8nio/runners",
+                  "description": "Repository for the external task runner image",
+                  "required": [],
+                  "title": "repository",
+                  "type": "string"
+                },
+                "tag": {
+                  "default": "latest",
+                  "description": "Tag for the external task runner image",
+                  "required": [],
+                  "title": "tag",
+                  "type": "string"
+                }
+              },
+              "required": ["repository", "tag"],
+              "title": "image",
+              "type": "object"
+            },
+            "extraEnvVars": {
+              "additionalProperties": true,
+              "description": "Extra environment variables for the external task runner",
+              "required": [],
+              "title": "extraEnvVars",
+              "type": "object"
+            },
+            "args": {
+              "default": ["javascript"],
+              "description": "Runner Args supported languages",
+              "required": [],
+              "title": "args",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
             "mainNodeAuthToken": {
               "default": "",
               "description": "This sets the auth token for the n8n main node of the external task runner",
@@ -4108,6 +4148,13 @@
               },
               "required": ["requests", "limits"],
               "title": "resources",
+              "type": "object"
+            },
+            "securityContext": {
+              "additionalProperties": true,
+              "description": "Security context for the external task runner container",
+              "required": [],
+              "title": "securityContext",
               "type": "object"
             }
           },
@@ -4365,7 +4412,7 @@
                 "default": "n8n-bucket",
                 "description": "This is for setting up the bucket name.",
                 "required": [],
-                "title": "name", 
+                "title": "name",
                 "type": "string"
               },
               "policy": {
@@ -4613,7 +4660,7 @@
                       },
                       "minItems": 1,
                       "required": [],
-                      "title": "actions", 
+                      "title": "actions",
                       "type": "array"
                     },
                     "resources": {
@@ -4732,7 +4779,7 @@
               "accessKey": {
                 "default": "n8n-user",
                 "required": [],
-                "title": "accessKey", 
+                "title": "accessKey",
                 "type": "string"
               },
               "policy": {
@@ -4752,7 +4799,7 @@
             },
             "required": [
               "accessKey",
-              "secretKey", 
+              "secretKey",
               "policy"
             ],
             "type": "object"
