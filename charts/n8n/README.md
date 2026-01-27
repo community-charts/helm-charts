@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.16.25](https://img.shields.io/badge/Version-1.16.25-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.4.5](https://img.shields.io/badge/AppVersion-2.4.5-informational?style=flat-square)
+![Version: 1.17.0](https://img.shields.io/badge/Version-1.17.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.4.5](https://img.shields.io/badge/AppVersion-2.4.5-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -1172,15 +1172,27 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | serviceMonitor.targetLabels | list | `[]` | Set of labels to transfer on the Kubernetes Service onto the target. |
 | serviceMonitor.timeout | string | `"10s"` | Set timeout for scrape |
 | strategy | object | `{"rollingUpdate":{"maxSurge":"25%","maxUnavailable":"25%"},"type":"RollingUpdate"}` | This will set the deployment strategy more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy |
-| taskRunners | object | `{"broker":{"address":"127.0.0.1","port":5679},"external":{"autoShutdownTimeout":15,"mainNodeAuthToken":"","nodeOptions":["--max-semi-space-size=16","--max-old-space-size=300"],"port":5680,"resources":{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}},"workerNodeAuthToken":""},"maxConcurrency":5,"mode":"internal","taskHeartbeatInterval":30,"taskTimeout":60}` | Task runners mode. Please follow the documentation for more information: https://docs.n8n.io/hosting/configuration/task-runners/ |
+| taskRunners | object | `{"broker":{"address":"127.0.0.1","port":5679},"external":{"autoShutdownTimeout":15,"image":{"repository":"","tag":""},"launcherConfig":{"config":"","existingConfigMap":"","existingSecret":"","key":"n8n-task-runners.json","mountPath":"/etc/n8n-task-runners.json"},"mainNodeAuthToken":"","nodeOptions":["--max-semi-space-size=16","--max-old-space-size=300"],"port":5680,"python":{"externalAllow":[],"stdlibAllow":[]},"resources":{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}},"workerNodeAuthToken":""},"maxConcurrency":5,"mode":"internal","taskHeartbeatInterval":30,"taskTimeout":60}` | Task runners mode. Please follow the documentation for more information: https://docs.n8n.io/hosting/configuration/task-runners/ |
 | taskRunners.broker | object | `{"address":"127.0.0.1","port":5679}` | The address for the broker of the external task runner |
 | taskRunners.broker.address | string | `"127.0.0.1"` | The address for the broker of the external task runner |
 | taskRunners.broker.port | int | `5679` | The port for the broker of the external task runner |
-| taskRunners.external | object | `{"autoShutdownTimeout":15,"mainNodeAuthToken":"","nodeOptions":["--max-semi-space-size=16","--max-old-space-size=300"],"port":5680,"resources":{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}},"workerNodeAuthToken":""}` | The configuration for the external task runner |
+| taskRunners.external | object | `{"autoShutdownTimeout":15,"image":{"repository":"","tag":""},"launcherConfig":{"config":"","existingConfigMap":"","existingSecret":"","key":"n8n-task-runners.json","mountPath":"/etc/n8n-task-runners.json"},"mainNodeAuthToken":"","nodeOptions":["--max-semi-space-size=16","--max-old-space-size=300"],"port":5680,"python":{"externalAllow":[],"stdlibAllow":[]},"resources":{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}},"workerNodeAuthToken":""}` | The configuration for the external task runner |
 | taskRunners.external.autoShutdownTimeout | int | `15` | The auto shutdown timeout for the external task runner in seconds |
+| taskRunners.external.image | object | `{"repository":"","tag":""}` | Optional image overrides for the external task runner sidecar |
+| taskRunners.external.image.repository | string | `""` | Image repository for the external task runner. Defaults to image.repository when empty. |
+| taskRunners.external.image.tag | string | `""` | Image tag for the external task runner. Defaults to image.tag or Chart AppVersion when empty. |
+| taskRunners.external.launcherConfig | object | `{"config":"","existingConfigMap":"","existingSecret":"","key":"n8n-task-runners.json","mountPath":"/etc/n8n-task-runners.json"}` | Optional launcher config file for the external task runner. |
+| taskRunners.external.launcherConfig.existingConfigMap | string | `""` | Existing ConfigMap containing the launcher config file. |
+| taskRunners.external.launcherConfig.existingSecret | string | `""` | Existing Secret containing the launcher config file. |
+| taskRunners.external.launcherConfig.config | string | `""` | Inline launcher config file contents. If set, the chart creates a ConfigMap. |
+| taskRunners.external.launcherConfig.key | string | `"n8n-task-runners.json"` | Key name for the launcher config file inside the ConfigMap/Secret. |
+| taskRunners.external.launcherConfig.mountPath | string | `"/etc/n8n-task-runners.json"` | Mount path for the launcher config file inside the runner container. |
 | taskRunners.external.mainNodeAuthToken | string | `""` | The auth token for the main node |
 | taskRunners.external.nodeOptions | list | `["--max-semi-space-size=16","--max-old-space-size=300"]` | The node options for the external task runner |
 | taskRunners.external.port | int | `5680` | The port for the external task runner |
+| taskRunners.external.python | object | `{"externalAllow":[],"stdlibAllow":[]}` | Optional Python runner allowlists for external mode. |
+| taskRunners.external.python.stdlibAllow | list | `[]` | List of allowed Python standard library modules. |
+| taskRunners.external.python.externalAllow | list | `[]` | List of allowed external Python packages. |
 | taskRunners.external.resources | object | `{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}}` | The resources for the external task runner |
 | taskRunners.external.resources.limits | object | `{"cpu":"2000m","memory":"512Mi"}` | The limits for the external task runner |
 | taskRunners.external.resources.limits.cpu | string | `"2000m"` | The CPU limit for the external task runner |
