@@ -56,6 +56,11 @@ annotations:
       description: Add Python allowlist values for external task runners.
     - kind: changed
       description: Allow overriding the external task runner image repository and tag.
+    - kind: changed
+      description: Update n8nio/n8n image version to 2.4.5
+      links:
+        - name: Upstream Project
+          url: https://github.com/n8n-io/n8n
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:2.4.5
