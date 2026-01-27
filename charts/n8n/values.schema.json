@@ -4101,6 +4101,18 @@
               "title": "launcherConfig",
               "type": "object"
             },
+            "runnerTypes": {
+              "default": [
+                "javascript"
+              ],
+              "description": "Runner types to launch in external mode.",
+              "required": [],
+              "title": "runnerTypes",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
             "python": {
               "additionalProperties": false,
               "properties": {

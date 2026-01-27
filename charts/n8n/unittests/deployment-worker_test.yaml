@@ -1355,6 +1355,20 @@ tests:
               name: n8n-task-runners-configmap
         template: deployment-worker.yaml
 
+  - it: should set task runner args when runnerTypes is set
+    set:
+      taskRunners:
+        mode: external
+        external:
+          runnerTypes:
+            - javascript
+            - python
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].args
+          value: ["javascript", "python"]
+        template: deployment-worker.yaml
+
   - it: should include task runners configmap when python external allowlists are set
     set:
       taskRunners:

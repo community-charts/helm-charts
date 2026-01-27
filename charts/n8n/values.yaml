@@ -835,6 +835,9 @@ taskRunners:
       key: "n8n-task-runners.json"
       # -- Mount path for the launcher config file inside the runner container.
       mountPath: "/etc/n8n-task-runners.json"
+    # -- Runner types to launch in external mode.
+    runnerTypes:
+      - "javascript"
     # -- Optional Python runner allowlists for external mode.
     python:
       # -- List of allowed Python standard library modules.
