@@ -489,6 +489,55 @@ spec:
       {{- with .Values.extraContainers }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.oauth2Proxy.enabled }}
+        - name: oauth2-proxy
+          image: "{{ .Values.oauth2Proxy.image.repository }}:{{ .Values.oauth2Proxy.image.tag }}"
+          imagePullPolicy: {{ .Values.oauth2Proxy.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.oauth2Proxy.listenPort }}
+              name: oauth2-proxy
+          args:
+            - --http-address=0.0.0.0:{{ .Values.oauth2Proxy.listenPort }}
+            - --upstream=http://127.0.0.1:{{ .Values.service.containerPort }}
+            - --provider={{ .Values.oauth2Proxy.provider.name | default "keycloak" }}
+            {{- if .Values.oauth2Proxy.provider.issuerURL }}
+            - --oidc-issuer-url={{ .Values.oauth2Proxy.provider.issuerURL }}
+            {{- end }}
+            {{- if .Values.oauth2Proxy.provider.redirectURL }}
+            - --redirect-url={{ .Values.oauth2Proxy.provider.redirectURL }}
+            {{- end }}
+            {{- if .Values.oauth2Proxy.extraArgs }}
+            {{- toYaml .Values.oauth2Proxy.extraArgs | nindent 12 }}
+            {{- end }}
+          env:
+            - name: OAUTH2_PROXY_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ if .Values.oauth2Proxy.existingSecret }}{{ .Values.oauth2Proxy.existingSecret }}{{ else }}{{ printf "%s-oauth2-proxy" (include "mlflow.fullname" .) }}{{ end }}
+                  key: {{ .Values.oauth2Proxy.clientIDKey }}
+            - name: OAUTH2_PROXY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ if .Values.oauth2Proxy.existingSecret }}{{ .Values.oauth2Proxy.existingSecret }}{{ else }}{{ printf "%s-oauth2-proxy" (include "mlflow.fullname" .) }}{{ end }}
+                  key: {{ .Values.oauth2Proxy.clientSecretKey }}
+            - name: OAUTH2_PROXY_COOKIE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ if .Values.oauth2Proxy.existingSecret }}{{ .Values.oauth2Proxy.existingSecret }}{{ else }}{{ printf "%s-oauth2-proxy" (include "mlflow.fullname" .) }}{{ end }}
+                  key: cookie-secret
+          resources:
+            {{- toYaml .Values.oauth2Proxy.resources | nindent 12 }}
+          {{- with .Values.oauth2Proxy.extraEnv }}
+            {{- range $key, $val := . }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+          {{- end }}
+          volumeMounts:
+            - name: oauth2-proxy-cookie
+              mountPath: /etc/oauth2-proxy
+              readOnly: true
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -525,6 +574,11 @@ spec:
           secret:
             secretName: {{ default (printf "%s-trusted-ca-cert-secret" (include "mlflow.fullname" .)) .Values.ldapAuth.externalSecretForTrustedCACertificate }}
           {{- end }}
+        {{- end }}
+        {{- if .Values.oauth2Proxy.enabled }}
+        - name: oauth2-proxy-cookie
+          secret:
+            secretName: {{- if .Values.oauth2Proxy.existingSecret }}{{ .Values.oauth2Proxy.existingSecret }}{{- else }}{{ printf "%s-oauth2-proxy" (include "mlflow.fullname" .) }}{{- end }}
         {{- end }}
       {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}
