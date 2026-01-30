@@ -245,6 +245,12 @@ data:
   N8N_RUNNERS_LAUNCHER_HEALTH_CHECK_PORT: {{ .Values.taskRunners.external.port | quote }}
   NODE_OPTIONS: {{ .Values.taskRunners.external.nodeOptions | join " " | quote }}
   GENERIC_TIMEZONE: {{ .Values.timezone | quote }}
+  {{- if .Values.taskRunners.external.python.stdlibAllow }}
+  N8N_RUNNERS_STDLIB_ALLOW: {{ .Values.taskRunners.external.python.stdlibAllow | join "," | quote }}
+  {{- end }}
+  {{- if .Values.taskRunners.external.python.externalAllow }}
+  N8N_RUNNERS_EXTERNAL_ALLOW: {{ .Values.taskRunners.external.python.externalAllow | join "," | quote }}
+  {{- end }}
 {{- if .Values.sentry.enabled }}
   SENTRY_DSN: {{ .Values.sentry.externalTaskRunnersDsn | quote }}
   N8N_VERSION: {{ default .Chart.AppVersion .Values.image.tag | quote }}
@@ -253,6 +259,21 @@ data:
 {{- else }}
   SENTRY_DSN: ""
 {{- end }}
+{{- end }}
+{{- if and (eq .Values.taskRunners.mode "external") .Values.taskRunners.external.launcherConfig.config }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "n8n.taskRunners.fullname" . }}-launcher-configmap
+  labels:
+    app: {{ include "n8n.name" . }}
+    chart: {{ include "n8n.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  {{ .Values.taskRunners.external.launcherConfig.key | quote }}: |
+{{ .Values.taskRunners.external.launcherConfig.config | nindent 4 }}
 {{- end }}
 {{- if .Values.license.enabled }}
 ---

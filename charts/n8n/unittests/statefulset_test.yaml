@@ -1221,6 +1221,38 @@ tests:
               name: n8n-task-runners-configmap
         template: statefulset.yaml
 
+  - it: should set task runner args when runnerTypes is set
+    set:
+      taskRunners:
+        mode: external
+        external:
+          runnerTypes:
+            - javascript
+            - python
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].args
+          value: ["javascript", "python"]
+        template: statefulset.yaml
+
+  - it: should include task runners configmap when python external allowlists are set
+    set:
+      taskRunners:
+        mode: external
+        external:
+          python:
+            stdlibAllow:
+              - asyncio
+            externalAllow:
+              - pandas
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].envFrom
+          content:
+            configMapRef:
+              name: n8n-task-runners-configmap
+        template: statefulset.yaml
+
   - it: should add license info command when license.enabled is true and license.activationKey is set
     set:
       license:

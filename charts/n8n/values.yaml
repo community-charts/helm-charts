@@ -817,6 +817,33 @@ taskRunners:
 
   # -- The configuration for the external task runner
   external:
+    # -- Optional image overrides for the external task runner sidecar
+    image:
+      # -- Image repository for the external task runner. Defaults to image.repository when empty.
+      repository: ""
+      # -- Image tag for the external task runner. Defaults to image.tag or Chart AppVersion when empty.
+      tag: ""
+    # -- Optional launcher config file for the external task runner.
+    launcherConfig:
+      # -- Existing ConfigMap containing the launcher config file.
+      existingConfigMap: ""
+      # -- Existing Secret containing the launcher config file.
+      existingSecret: ""
+      # -- Inline launcher config file contents. If set, the chart creates a ConfigMap.
+      config: ""
+      # -- Key name for the launcher config file inside the ConfigMap/Secret.
+      key: "n8n-task-runners.json"
+      # -- Mount path for the launcher config file inside the runner container.
+      mountPath: "/etc/n8n-task-runners.json"
+    # -- Runner types to launch in external mode.
+    runnerTypes:
+      - "javascript"
+    # -- Optional Python runner allowlists for external mode.
+    python:
+      # -- List of allowed Python standard library modules.
+      stdlibAllow: []
+      # -- List of allowed external Python packages.
+      externalAllow: []
     # -- The auth token for the main node
     mainNodeAuthToken: ""
     # -- The auth token for the worker node

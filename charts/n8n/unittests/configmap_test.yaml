@@ -1025,6 +1025,40 @@ tests:
           path: data.NODE_OPTIONS
           value: "--option1 --option2"
 
+  - it: should set python stdlib allowlist when taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+        external:
+          python:
+            stdlibAllow:
+              - asyncio
+              - datetime
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-runners-configmap
+    asserts:
+      - equal:
+          path: data.N8N_RUNNERS_STDLIB_ALLOW
+          value: "asyncio,datetime"
+
+  - it: should set python external allowlist when taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+        external:
+          python:
+            externalAllow:
+              - pandas
+              - requests
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-runners-configmap
+    asserts:
+      - equal:
+          path: data.N8N_RUNNERS_EXTERNAL_ALLOW
+          value: "pandas,requests"
+
   - it: should set timezone when taskRunners.mode is external
     set:
       timezone: "America/New_York"
