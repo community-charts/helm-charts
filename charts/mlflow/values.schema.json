@@ -1625,7 +1625,7 @@
           "required": [],
           "title": "defaultPermission",
           "type": "string",
-          "enum": ["READ", "EDIT", "MANAGE", "NO_PERMISSIONS"]
+          "enum": ["READ", "USE", "EDIT", "MANAGE", "NO_PERMISSIONS"]
         },
         "appName": {
           "default": "basic-auth",
