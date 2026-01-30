@@ -48,6 +48,21 @@ tests:
           path: metadata.annotations.key
           value: value
 
+  - it: should set labels when file storage mode is local and persistence is enabled and existing claim is not set and labels are set
+    set:
+      fileStorage:
+        mode: local
+        local:
+          persistence:
+            enabled: true
+            existingClaim: ""
+            labels:
+              key: value
+    asserts:
+      - equal:
+          path: metadata.labels.key
+          value: value
+
   - it: should set access modes when file storage mode is local and persistence is enabled and existing claim is not set and access modes are set
     set:
       fileStorage:
