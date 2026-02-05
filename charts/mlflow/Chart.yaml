@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.8.1
+version: 1.8.1-instadeep.1
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -61,6 +61,11 @@ annotations:
       links:
         - name: ArtifactHub
           url: https://artifacthub.io/packages/helm/bitnami/postgresql
+    - kind: fixed
+      description: Render custom initContainers before built-in ones to support sidecar init containers
+      links:
+        - name: GitHub PR
+          url: https://github.com/instadeepai/helm-charts/pull/1
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.7.0

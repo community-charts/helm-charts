@@ -66,6 +66,9 @@ spec:
       {{- end }}
     {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) (or .Values.backendStore.databaseConnectionCheck .Values.backendStore.databaseMigration) ) .Values.auth.enabled .Values.ldapAuth.enabled .Values.initContainers }}
       initContainers:
+      {{- with .Values.initContainers }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     {{- end }}
       {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
         - name: dbchecker
@@ -283,9 +286,6 @@ spec:
               readOnly: true
             - name: ini-file
               mountPath: /config
-      {{- end }}
-      {{- with .Values.initContainers }}
-        {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
