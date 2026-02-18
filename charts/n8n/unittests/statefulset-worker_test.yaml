@@ -1214,7 +1214,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].image
-          value: n8nio/n8n:1.0.0
+          value: n8nio/runners:1.0.0
         template: statefulset-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].imagePullPolicy
@@ -1226,7 +1226,7 @@ tests:
         template: statefulset-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].args
-          value: ["javascript"]
+          value: ["javascript", "python"]
         template: statefulset-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].ports[0].containerPort
