@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.16.28
+version: 1.17.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -50,6 +50,12 @@ annotations:
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
+    - kind: added
+      description: Add external task runner launcher config mount support.
+    - kind: added
+      description: Add Python allowlist values for external task runners.
+    - kind: changed
+      description: Allow overriding the external task runner image repository and tag.
     - kind: changed
       description: Update n8nio/n8n image version to 2.6.3
       links:

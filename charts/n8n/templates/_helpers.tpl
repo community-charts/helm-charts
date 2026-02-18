@@ -460,7 +460,7 @@ Check if volumes should be included to main. If the context is not provided, res
 */}}
 {{- define "n8n.main.hasVolumes" -}}
 {{- $hasVolumes := false -}}
-{{- if or .Values.volumes .Values.main.volumes .Values.nodes.external.packages .Values.npmRegistry.enabled (eq (include "n8n.postgres.ssl.hasFileInternal" .) "true") -}}
+{{- if or .Values.volumes .Values.main.volumes .Values.nodes.external.packages .Values.npmRegistry.enabled (eq (include "n8n.postgres.ssl.hasFileInternal" .) "true") (and (eq .Values.taskRunners.mode "external") (or .Values.taskRunners.external.launcherConfig.existingConfigMap .Values.taskRunners.external.launcherConfig.existingSecret .Values.taskRunners.external.launcherConfig.config)) -}}
   {{- $hasVolumes = true -}}
 {{- end -}}
 {{- $hasVolumes -}}
@@ -482,7 +482,7 @@ Check if volumes should be included to worker. If the context is not provided, r
 */}}
 {{- define "n8n.worker.hasVolumes" -}}
 {{- $hasVolumes := false -}}
-{{- if or .Values.volumes .Values.worker.volumes .Values.nodes.external.packages .Values.npmRegistry.enabled (eq (include "n8n.postgres.ssl.hasFileInternal" .) "true") -}}
+{{- if or .Values.volumes .Values.worker.volumes .Values.nodes.external.packages .Values.npmRegistry.enabled (eq (include "n8n.postgres.ssl.hasFileInternal" .) "true") (and (eq .Values.taskRunners.mode "external") (or .Values.taskRunners.external.launcherConfig.existingConfigMap .Values.taskRunners.external.launcherConfig.existingSecret .Values.taskRunners.external.launcherConfig.config)) -}}
   {{- $hasVolumes = true -}}
 {{- end -}}
 {{- $hasVolumes -}}

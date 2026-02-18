@@ -307,10 +307,10 @@ spec:
           {{- end }}
       {{- if eq .Values.taskRunners.mode "external" }}
         - name: {{ template "n8n.taskRunners.name" . }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ default .Values.image.repository .Values.taskRunners.external.image.repository }}:{{ default (default .Chart.AppVersion .Values.image.tag) .Values.taskRunners.external.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/usr/local/bin/task-runner-launcher"]
-          args: ["javascript"]
+          args: {{ toJson (default (list "javascript") .Values.taskRunners.external.runnerTypes) }}
           ports:
             - name: http
               containerPort: {{ .Values.taskRunners.external.port }}
@@ -349,8 +349,9 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ template "n8n.taskRunners.fullname" . }}-configmap
-          {{- if or .Values.nodes.external.packages .Values.worker.persistence.enabled }}
+          {{- if or .Values.nodes.external.packages .Values.worker.persistence.enabled (and (eq .Values.taskRunners.mode "external") (or .Values.taskRunners.external.launcherConfig.existingConfigMap .Values.taskRunners.external.launcherConfig.existingSecret .Values.taskRunners.external.launcherConfig.config)) }}
           volumeMounts:
+          {{- if or .Values.nodes.external.packages .Values.worker.persistence.enabled }}
             - name: {{ default "node-modules" .Values.worker.persistence.volumeName }}
               mountPath: {{ .Values.worker.persistence.mountPath }}
               {{- if .Values.worker.persistence.subPath }}
@@ -362,6 +363,13 @@ spec:
             - name: community-node-modules
               mountPath: "/home/node/.n8n/nodes"
               readOnly: false
+          {{- end }}
+          {{- if and (eq .Values.taskRunners.mode "external") (or .Values.taskRunners.external.launcherConfig.existingConfigMap .Values.taskRunners.external.launcherConfig.existingSecret .Values.taskRunners.external.launcherConfig.config) }}
+            - name: task-runners-launcher-config
+              mountPath: {{ .Values.taskRunners.external.launcherConfig.mountPath }}
+              subPath: {{ .Values.taskRunners.external.launcherConfig.key }}
+              readOnly: true
+          {{- end }}
           {{- end }}
       {{- end }}
       {{- with .Values.worker.extraContainers }}
@@ -381,6 +389,28 @@ spec:
       {{- if .Values.nodes.external.packages }}
         - name: community-node-modules
           emptyDir: {}
+      {{- end }}
+      {{- if and (eq .Values.taskRunners.mode "external") (or .Values.taskRunners.external.launcherConfig.existingConfigMap .Values.taskRunners.external.launcherConfig.existingSecret .Values.taskRunners.external.launcherConfig.config) }}
+        - name: task-runners-launcher-config
+          {{- if .Values.taskRunners.external.launcherConfig.existingConfigMap }}
+          configMap:
+            name: {{ .Values.taskRunners.external.launcherConfig.existingConfigMap | quote }}
+            items:
+              - key: {{ .Values.taskRunners.external.launcherConfig.key | quote }}
+                path: {{ .Values.taskRunners.external.launcherConfig.key | quote }}
+          {{- else if .Values.taskRunners.external.launcherConfig.existingSecret }}
+          secret:
+            secretName: {{ .Values.taskRunners.external.launcherConfig.existingSecret | quote }}
+            items:
+              - key: {{ .Values.taskRunners.external.launcherConfig.key | quote }}
+                path: {{ .Values.taskRunners.external.launcherConfig.key | quote }}
+          {{- else }}
+          configMap:
+            name: {{ template "n8n.taskRunners.fullname" . }}-launcher-configmap
+            items:
+              - key: {{ .Values.taskRunners.external.launcherConfig.key | quote }}
+                path: {{ .Values.taskRunners.external.launcherConfig.key | quote }}
+          {{- end }}
       {{- end }}
       {{- if .Values.npmRegistry.enabled }}
         - name: npmrc

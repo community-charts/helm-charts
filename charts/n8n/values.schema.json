@@ -4036,6 +4036,111 @@
         "external": {
           "additionalProperties": false,
           "properties": {
+            "image": {
+              "additionalProperties": false,
+              "properties": {
+                "repository": {
+                  "default": "",
+                  "description": "Image repository for the external task runner. Defaults to image.repository when empty.",
+                  "required": [],
+                  "title": "repository",
+                  "type": "string"
+                },
+                "tag": {
+                  "default": "",
+                  "description": "Image tag for the external task runner. Defaults to image.tag or Chart AppVersion when empty.",
+                  "required": [],
+                  "title": "tag",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "image",
+              "type": "object"
+            },
+            "launcherConfig": {
+              "additionalProperties": false,
+              "properties": {
+                "existingConfigMap": {
+                  "default": "",
+                  "description": "Existing ConfigMap containing the launcher config file.",
+                  "required": [],
+                  "title": "existingConfigMap",
+                  "type": "string"
+                },
+                "existingSecret": {
+                  "default": "",
+                  "description": "Existing Secret containing the launcher config file.",
+                  "required": [],
+                  "title": "existingSecret",
+                  "type": "string"
+                },
+                "config": {
+                  "default": "",
+                  "description": "Inline launcher config file contents. If set, the chart creates a ConfigMap.",
+                  "required": [],
+                  "title": "config",
+                  "type": "string"
+                },
+                "key": {
+                  "default": "n8n-task-runners.json",
+                  "description": "Key name for the launcher config file inside the ConfigMap/Secret.",
+                  "required": [],
+                  "title": "key",
+                  "type": "string"
+                },
+                "mountPath": {
+                  "default": "/etc/n8n-task-runners.json",
+                  "description": "Mount path for the launcher config file inside the runner container.",
+                  "required": [],
+                  "title": "mountPath",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "launcherConfig",
+              "type": "object"
+            },
+            "runnerTypes": {
+              "default": [
+                "javascript"
+              ],
+              "description": "Runner types to launch in external mode.",
+              "required": [],
+              "title": "runnerTypes",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "python": {
+              "additionalProperties": false,
+              "properties": {
+                "stdlibAllow": {
+                  "default": [],
+                  "description": "List of allowed Python standard library modules.",
+                  "required": [],
+                  "title": "stdlibAllow",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "externalAllow": {
+                  "default": [],
+                  "description": "List of allowed external Python packages.",
+                  "required": [],
+                  "title": "externalAllow",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [],
+              "title": "python",
+              "type": "object"
+            },
             "mainNodeAuthToken": {
               "default": "",
               "description": "This sets the auth token for the n8n main node of the external task runner",
