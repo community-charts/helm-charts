@@ -4,7 +4,7 @@
 
 A Helm chart for the fastest knowledge base for growing teams. Beautiful, realtime collaborative, feature packed, and markdown compatible.
 
-![Version: 0.7.3](https://img.shields.io/badge/Version-0.7.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.1.0](https://img.shields.io/badge/AppVersion-1.1.0-informational?style=flat-square)
+![Version: 0.8.0](https://img.shields.io/badge/Version-0.8.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.1.0](https://img.shields.io/badge/AppVersion-1.1.0-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -681,14 +681,15 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | extraContainers | list | `[]` | Additional containers (sidecars) on the output Deployment definition. |
 | extraEnvVars | object | `{}` | This is for setting up the extra environment variables. |
 | extraSecretNamesForEnvFrom | list | `[]` | This is for setting up the extra secrets for environment variables. |
-| fileStorage | object | `{"importMaxSize":"","local":{"persistence":{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"existingClaim":"","size":"8Gi","storageClass":"","volumeMode":""},"rootDir":"/var/lib/outline/data"},"mode":"local","s3":{"accelerateUrl":"","accessKeyId":"","accessKeyIdSecretKey":"access-key-id","acl":"private","bucket":"outline","bucketUrl":"","existingSecret":"","forcePathStyle":true,"region":"us-east-1","secretAccessKey":"","secretAccessKeySecretKey":"secret-access-key"},"uploadMaxSize":"262144000","workspaceImportMaxSize":""}` | This is for setting up the file storage. More information about file storage can be found here: https://docs.getoutline.com/s/hosting/doc/file-storage-N4M0T6Ypu7 |
+| fileStorage | object | `{"importMaxSize":"","local":{"persistence":{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"existingClaim":"","labels":{},"size":"8Gi","storageClass":"","volumeMode":""},"rootDir":"/var/lib/outline/data"},"mode":"local","s3":{"accelerateUrl":"","accessKeyId":"","accessKeyIdSecretKey":"access-key-id","acl":"private","bucket":"outline","bucketUrl":"","existingSecret":"","forcePathStyle":true,"region":"us-east-1","secretAccessKey":"","secretAccessKeySecretKey":"secret-access-key"},"uploadMaxSize":"262144000","workspaceImportMaxSize":""}` | This is for setting up the file storage. More information about file storage can be found here: https://docs.getoutline.com/s/hosting/doc/file-storage-N4M0T6Ypu7 |
 | fileStorage.importMaxSize | string | `""` | This is for setting up the file storage import max size. |
-| fileStorage.local | object | `{"persistence":{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"existingClaim":"","size":"8Gi","storageClass":"","volumeMode":""},"rootDir":"/var/lib/outline/data"}` | This is for setting up the local file storage. |
-| fileStorage.local.persistence | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"existingClaim":"","size":"8Gi","storageClass":"","volumeMode":""}` | This is for setting up the local file storage persistence. |
+| fileStorage.local | object | `{"persistence":{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"existingClaim":"","labels":{},"size":"8Gi","storageClass":"","volumeMode":""},"rootDir":"/var/lib/outline/data"}` | This is for setting up the local file storage. |
+| fileStorage.local.persistence | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"existingClaim":"","labels":{},"size":"8Gi","storageClass":"","volumeMode":""}` | This is for setting up the local file storage persistence. |
 | fileStorage.local.persistence.accessModes | list | `["ReadWriteOnce"]` | This is for setting up the local file storage persistence access modes. |
 | fileStorage.local.persistence.annotations | object | `{}` | This is for setting up the local file storage persistence annotations. |
 | fileStorage.local.persistence.enabled | bool | `false` | This is for setting up the local file storage persistence enabled. |
 | fileStorage.local.persistence.existingClaim | string | `""` | This is for setting up the local file storage persistence existing claim. |
+| fileStorage.local.persistence.labels | object | `{}` | This is for setting up the local file storage persistence labels. |
 | fileStorage.local.persistence.size | string | `"8Gi"` | This is for setting up the local file storage persistence size. |
 | fileStorage.local.persistence.storageClass | string | `""` | This is for setting up the local file storage persistence storage class. |
 | fileStorage.local.persistence.volumeMode | string | `""` | This is for setting up the local file storage persistence volume mode. |
