@@ -10,5 +10,5 @@ BASE64_JSON=$(echo -n "$JSON" | base64)
 # Set the REDIS_URL environment variable. You can find more information about REDIS_URL [here](https://docs.getoutline.com/s/hosting/doc/redis-LGM4BFXYp4#h-advanced)
 export REDIS_URL="ioredis://$BASE64_JSON"
 
-# Execute the original command (yarn start)
-exec yarn start
+# Execute the original command (node build/server/index.js)
+exec node build/server/index.js
