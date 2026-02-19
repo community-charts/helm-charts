@@ -15,5 +15,8 @@ spec:
       targetPort: {{ .Values.service.containerPortName }}
       protocol: TCP
       name: {{ .Values.service.name }}
+      {{- if and .Values.service.nodePort (or (eq .Values.service.type "NodePort") (eq .Values.service.type "LoadBalancer")) }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
   selector:
     {{- include "mlflow.selectorLabels" . | nindent 4 }}
