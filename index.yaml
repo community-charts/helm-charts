@@ -36784,6 +36784,61 @@ entries:
   - annotations:
       artifacthub.io/changes: |-
         - kind: changed
+          description: Update pypiserver/pypiserver image version to v2.4.1
+          links:
+            - name: Upstream Project
+              url: https://hub.docker.com/r/pypiserver/pypiserver
+      artifacthub.io/containsSecurityUpdates: "false"
+      artifacthub.io/images: |
+        - name: pypiserver
+          image: pypiserver/pypiserver:v2.4.1
+          platforms:
+            - linux/amd64
+            - linux/arm64
+      artifacthub.io/license: MIT
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/community-charts/helm-charts
+        - name: Chart Usage Page
+          url: https://community-charts.github.io/docs/charts/pypiserver/usage
+        - name: Upstream Project
+          url: https://github.com/pypiserver/pypiserver
+      artifacthub.io/maintainers: |
+        - name: burakince
+          email: burak.ince@linux.org.tr
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/signKey: |
+        fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
+        url: https://keybase.io/communitycharts/pgp_keys.asc
+    apiVersion: v2
+    appVersion: v2.4.1
+    created: "2026-02-21T02:59:25.882827125Z"
+    description: A Helm chart for PyPI Server
+    digest: b4e7272d8daa3127025c073b5409e3f08b19eca9d9786031b75ac959b899cc6c
+    home: https://github.com/pypiserver/pypiserver
+    icon: https://raw.githubusercontent.com/pypiserver/pypiserver/refs/heads/main/docs/__resources__/pypiserver_logo.png
+    keywords:
+    - pypi
+    - self-hosted
+    - package-management
+    - pypi-server
+    kubeVersion: '>=1.13.0-0'
+    maintainers:
+    - email: burak.ince@linux.org.tr
+      name: burakince
+      url: https://www.burakince.com
+    name: pypiserver
+    sources:
+    - https://github.com/community-charts/helm-charts
+    - https://github.com/pypiserver/pypiserver
+    type: application
+    urls:
+    - https://github.com/community-charts/helm-charts/releases/download/pypiserver-0.1.9/pypiserver-0.1.9.tgz
+    version: 0.1.9
+  - annotations:
+      artifacthub.io/changes: |-
+        - kind: changed
           description: Update pypiserver/pypiserver image version to v2.4.0
           links:
             - name: Upstream Project
@@ -37228,4 +37283,4 @@ entries:
     urls:
     - https://github.com/community-charts/helm-charts/releases/download/pypiserver-0.1.0/pypiserver-0.1.0.tgz
     version: 0.1.0
-generated: "2026-02-21T02:53:39.921900367Z"
+generated: "2026-02-21T02:59:25.883920293Z"
