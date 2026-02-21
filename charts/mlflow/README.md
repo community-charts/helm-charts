@@ -761,6 +761,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | postgresql.auth.database | string | `"mlflow"` | The name of the PostgreSQL database. |
 | postgresql.enabled | bool | `false` | Enable postgresql |
 | postgresql.image.repository | string | `"bitnamilegacy/postgresql"` | This is temporary workaround because of bitnami's deprecation until to completely replace it with our solution. |
+| priorityClassName | string | `""` | String to override priority class  |
 | readinessProbe | object | `{"failureThreshold":5,"initialDelaySeconds":10,"periodSeconds":30,"timeoutSeconds":3}` | Readiness probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes). |
 | replicaCount | int | `1` | Numbers of replicas |
 | resources | object | `{}` | This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
