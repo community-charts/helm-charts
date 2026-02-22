@@ -142,15 +142,15 @@ backendStore:
     # -- Specifies if you want to use postgres backend storage
     enabled: false
     # -- Postgres host address. e.g. your RDS or Azure Postgres Service endpoint
-    host: "" # required
+    host: ""  # required
     # -- Postgres service port
-    port: 5432 # required
+    port: 5432  # required
     # -- mlflow database name created before in the postgres instance
-    database: "" # required
+    database: ""  # required
     # -- postgres database user name which can access to mlflow database
-    user: "" # required
+    user: ""  # required
     # -- postgres database user password which can access to mlflow database
-    password: "" # required
+    password: ""  # required
     # -- postgres database connection driver. e.g.: "psycopg2"
     driver: ""
 
@@ -158,15 +158,15 @@ backendStore:
     # -- Specifies if you want to use mysql backend storage
     enabled: false
     # -- MySQL host address. e.g. your Amazon RDS for MySQL
-    host: "" # required
+    host: ""  # required
     # -- MySQL service port
-    port: 3306 # required
+    port: 3306  # required
     # -- mlflow database name created before in the mysql instance
-    database: "" # required
+    database: ""  # required
     # -- mysql database user name which can access to mlflow database
-    user: "" # required
+    user: ""  # required
     # -- mysql database user password which can access to mlflow database
-    password: "" # required
+    password: ""  # required
     # -- mysql database connection driver. e.g.: "pymysql"
     driver: "pymysql"
 
@@ -174,15 +174,15 @@ backendStore:
     # -- Specifies if you want to use mssql backend storage
     enabled: false
     # -- mssql host address
-    host: "" # required
+    host: ""  # required
     # -- mssql service port
-    port: 1433 # required
+    port: 1433  # required
     # -- mlflow database name created before in the mssql instance
-    database: "" # required
+    database: ""  # required
     # -- mssql database user name which can access to mlflow database
-    user: "" # required
+    user: ""  # required
     # -- mssql database user password which can access to mlflow database
-    password: "" # required
+    password: ""  # required
     # -- mssql database connection driver. e.g.: "pymssql"
     driver: "pymssql"
 
@@ -261,28 +261,28 @@ artifactRoot:
     # -- Specifies if you want to use Azure Blob Storage Mlflow Artifact Root
     enabled: false
     # -- Azure blob container name
-    container: "" # required
+    container: ""  # required
     # -- Azure storage account name
-    storageAccount: "" # required
+    storageAccount: ""  # required
     # -- Azure blob container folder. If you want to use root level, please don't set anything.
-    path: "" # optional
+    path: ""  # optional
     # -- Azure Cloud Connection String for the container. Only connectionString or accessKey required
-    connectionString: "" # connectionString or accessKey required
+    connectionString: ""  # connectionString or accessKey required
     # -- Azure Cloud Storage Account Access Key for the container
-    accessKey: "" # connectionString or accessKey required. Only connectionString or accessKey required
+    accessKey: ""  # connectionString or accessKey required. Only connectionString or accessKey required
 
   # -- Specifies if you want to use AWS S3 Mlflow Artifact Root
   s3:
     # -- Specifies if you want to use AWS S3 Mlflow Artifact Root
     enabled: false
     # -- S3 bucket name
-    bucket: "" # required
+    bucket: ""  # required
     # -- S3 bucket folder. If you want to use root level, please don't set anything.
-    path: "" # optional
+    path: ""  # optional
     # -- AWS IAM user AWS_ACCESS_KEY_ID which has attached policy for access to the S3 bucket
-    awsAccessKeyId: "" # (awsAccessKeyId and awsSecretAccessKey) or roleArn serviceaccount annotation required
+    awsAccessKeyId: ""  # (awsAccessKeyId and awsSecretAccessKey) or roleArn serviceaccount annotation required
     # -- AWS IAM user AWS_SECRET_ACCESS_KEY which has attached policy for access to the S3 bucket
-    awsSecretAccessKey: "" # (awsAccessKeyId and awsSecretAccessKey) or roleArn serviceaccount annotation required
+    awsSecretAccessKey: ""  # (awsAccessKeyId and awsSecretAccessKey) or roleArn serviceaccount annotation required
     # -- Existing secret for AWS IAM user AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY secrets.
     existingSecret:
       # -- This is for setting up the AWS IAM user secrets existing secret name.
@@ -297,9 +297,9 @@ artifactRoot:
     # -- Specifies if you want to use Google Cloud Storage Mlflow Artifact Root
     enabled: false
     # -- Google Cloud Storage bucket name
-    bucket: "" # required
+    bucket: ""  # required
     # -- Google Cloud Storage bucket folder. If you want to use root level, please don't set anything.
-    path: "" # optional
+    path: ""  # optional
 
 # -- Mlflow Flask Server Secret Key. Default: Will be auto generated.
 flaskServerSecretKey: ""
@@ -339,15 +339,15 @@ auth:
     # -- Specifies if you want to use postgres auth backend storage
     enabled: false
     # -- Postgres host address. e.g. your RDS or Azure Postgres Service endpoint
-    host: "" # required
+    host: ""  # required
     # -- Postgres service port
-    port: 5432 # required
+    port: 5432  # required
     # -- mlflow authorization database name created before in the postgres instance
-    database: "" # required
+    database: ""  # required
     # -- postgres database user name which can access to mlflow authorization database
-    user: "" # required
+    user: ""  # required
     # -- postgres database user password which can access to mlflow authorization database
-    password: "" # required
+    password: ""  # required
     # -- postgres database connection driver. e.g.: "psycopg2"
     driver: ""
     # -- Specifies if you want to use an existing database secret for auth. If it's set, user and password will be ignored.
