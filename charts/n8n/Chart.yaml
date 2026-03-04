@@ -57,7 +57,7 @@ annotations:
           url: https://github.com/n8n-io/n8n
   artifacthub.io/images: |
     - name: n8n
-      image: n8nio/n8n:2.8.3
+      image: n8nio/n8n:2.10.2
       platforms:
         - linux/amd64
         - linux/arm64
