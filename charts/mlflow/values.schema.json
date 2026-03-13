@@ -1561,6 +1561,15 @@
       "title": "tolerations",
       "type": "array"
     },
+    "topologySpreadConstraints": {
+      "description": "Set the topologySpreadConstraints for the pod.",
+      "items": {
+        "required": []
+      },
+      "required": [],
+      "title": "topologySpreadConstraints",
+      "type": "array"
+    },
     "flaskServerSecretKey": {
       "default": "",
       "description": "Mlflow flask server secret key",

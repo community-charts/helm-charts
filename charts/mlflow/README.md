@@ -791,6 +791,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | telemetry | object | `{"enabled":false}` | Mlflow Usage Tracking settings. More information can be found here: https://mlflow.org/docs/latest/community/usage-tracking/ |
 | telemetry.enabled | bool | `false` | Specifies if you want to enable collecting anonymized usage data about how core features of the platform are used. |
 | tolerations | list | `[]` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/ |
+| topologySpreadConstraints | list | `[]` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/ |
 
 **Homepage:** <https://mlflow.org>
 
