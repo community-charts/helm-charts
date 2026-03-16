@@ -2,7 +2,7 @@ should match snapshot of default values:
   1: |
     apiVersion: v1
     data:
-      config.yaml: "tunnel: unittest\ncredentials-file: /etc/cloudflared/creds/credentials.json\noriginRequest:\n  connectTimeout: 30s\n\ningress: \n  - hostname: example.com\n    service: http://traefik.kube-system.svc.cluster.local:80\n  - service: http_status:404\n\nmetrics: 0.0.0.0:2000\nmetrics-update-freq: 5s\n\nautoupdate-freq: 24h\nno-autoupdate: true\n\ngrace-period: 30s\n\nretries: 5\n\n# auto, http2, h2mux, quic\nprotocol: auto\n\n# info, warn, error, fatal, panic\nloglevel: info\ntransport-loglevel: warn\n"
+      config.yaml: "\ntunnel: unittest\ncredentials-file: /etc/cloudflared/creds/credentials.json\noriginRequest:\n  connectTimeout: 30s\n\ningress: \n  - hostname: example.com\n    service: http://traefik.kube-system.svc.cluster.local:80\n  - service: http_status:404\n\nmetrics: 0.0.0.0:2000\nmetrics-update-freq: 5s\n\nautoupdate-freq: 24h\nno-autoupdate: true\n\ngrace-period: 30s\n\nretries: 5\n\n# auto, http2, h2mux, quic\nprotocol: auto\n\n# info, warn, error, fatal, panic\nloglevel: info\ntransport-loglevel: warn\n"
     kind: ConfigMap
     metadata:
       name: cloudflared
