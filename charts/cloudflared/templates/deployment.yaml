@@ -23,7 +23,9 @@ spec:
   template:
     metadata:
       annotations:
+        {{- if eq .Values.tunnelMode "local" }}
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- end }}
       {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -43,19 +45,43 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- if eq .Values.tunnelMode "local" }}
           args:
             - tunnel
             - --config
             - /etc/cloudflared/config/config.yaml
             - run
+          {{- else }}
+          args:
+            - tunnel
+            - --no-autoupdate
+            - --metrics
+            - 0.0.0.0:2000
+            - run
+          {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: active-con-stat
               containerPort: 2000
               protocol: TCP
           env:
+            {{- if eq .Values.tunnelMode "local" }}
             - name: TUNNEL_ORIGIN_CERT
               value: {{ printf "/etc/cloudflared/creds/%s" (default "cert.pem" .Values.tunnelSecrets.existingPemFileSecret.key) | quote }}
+            {{- else }}
+            - name: TUNNEL_TOKEN
+              {{- if .Values.tunnelToken.existingSecret.name }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.tunnelToken.existingSecret.name }}
+                  key: {{ .Values.tunnelToken.existingSecret.key }}
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cloudflared.fullname" . }}-tunnel-token
+                  key: tunnel-token
+              {{- end }}
+            {{- end }}
           livenessProbe:
             httpGet:
               path: /ready
@@ -63,6 +89,7 @@ spec:
             failureThreshold: 1
             initialDelaySeconds: 10
             periodSeconds: 10
+          {{- if eq .Values.tunnelMode "local" }}
           volumeMounts:
             - name: config
               mountPath: /etc/cloudflared/config
@@ -70,8 +97,10 @@ spec:
             - name: creds
               mountPath: /etc/cloudflared/creds
               readOnly: true
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+      {{- if eq .Values.tunnelMode "local" }}
       volumes:
         - name: creds
           projected:
@@ -94,6 +123,7 @@ spec:
             items:
               - key: config.yaml
                 path: config.yaml
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

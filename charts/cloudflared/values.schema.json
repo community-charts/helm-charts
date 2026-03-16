@@ -62,6 +62,52 @@
       "title": "imagePullSecrets",
       "type": "array"
     },
+    "tunnelMode": {
+      "default": "local",
+      "description": "Tunnel mode: 'local' for locally-managed tunnels (config file + credentials), 'remote' for remotely-managed tunnels (token-based, configured in Cloudflare dashboard)",
+      "required": [],
+      "title": "tunnelMode",
+      "type": "string",
+      "enum": ["local", "remote"]
+    },
+    "tunnelToken": {
+      "additionalProperties": false,
+      "description": "Tunnel token for remote mode. Only used when tunnelMode is 'remote'.",
+      "properties": {
+        "value": {
+          "default": "",
+          "description": "The tunnel token value.",
+          "required": [],
+          "title": "value",
+          "type": "string"
+        },
+        "existingSecret": {
+          "additionalProperties": false,
+          "description": "Use an existing secret containing the tunnel token.",
+          "properties": {
+            "name": {
+              "default": "",
+              "description": "Name of the existing secret.",
+              "required": [],
+              "title": "name",
+              "type": "string"
+            },
+            "key": {
+              "default": "tunnel-token",
+              "description": "Key in the secret containing the tunnel token.",
+              "required": [],
+              "title": "key",
+              "type": "string"
+            }
+          },
+          "required": ["name", "key"],
+          "type": "object"
+        }
+      },
+      "required": [],
+      "title": "tunnelToken",
+      "type": "object"
+    },
     "ingress": {
       "items": {
         "additionalProperties": false,
@@ -711,9 +757,7 @@
     "podLabels",
     "podSecurityContext",
     "securityContext",
-    "tunnelSecrets",
-    "tunnelConfig",
-    "ingress",
+    "tunnelMode",
     "resources",
     "nodeSelector",
     "tolerations",

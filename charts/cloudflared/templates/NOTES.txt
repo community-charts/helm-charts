@@ -1,2 +1,7 @@
+{{- if eq .Values.tunnelMode "remote" }}
+Cloudflared is running in remote tunnel mode.
+Tunnel configuration is managed via the Cloudflare Zero Trust dashboard.
+{{- else }}
 {{- $config := .Values.tunnelSecrets.base64EncodedConfigJsonFile | b64dec | fromJson }}
 Please go to the Cloudflare dashboard, navigate to the DNS tab, and create a CNAME record specifically targeting {{ $config.TunnelID }}.cfargotunnel.com
+{{- end }}

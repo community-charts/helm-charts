@@ -196,3 +196,101 @@ tests:
       appVersion: 1.0.0
     asserts:
       - matchSnapshot: { }
+
+  # Remote tunnel mode tests
+  - it: should use remote args in remote mode
+    set:
+      tunnelMode: remote
+      tunnelToken:
+        value: my-test-token
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "cloudflared")].args
+          content: "run"
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "cloudflared")].args
+          content: "--no-autoupdate"
+        template: deployment.yaml
+
+  - it: should not have volume mounts in remote mode
+    set:
+      tunnelMode: remote
+      tunnelToken:
+        value: my-test-token
+    asserts:
+      - isNull:
+          path: spec.template.spec.containers[?(@.name == "cloudflared")].volumeMounts
+        template: deployment.yaml
+
+  - it: should not have volumes in remote mode
+    set:
+      tunnelMode: remote
+      tunnelToken:
+        value: my-test-token
+    asserts:
+      - isNull:
+          path: spec.template.spec.volumes
+        template: deployment.yaml
+
+  - it: should set TUNNEL_TOKEN env from chart-created secret in remote mode
+    set:
+      tunnelMode: remote
+      tunnelToken:
+        value: my-test-token
+    release:
+      name: cloudflared
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "cloudflared")].env
+          content:
+            name: TUNNEL_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: cloudflared-tunnel-token
+                key: tunnel-token
+        template: deployment.yaml
+
+  - it: should set TUNNEL_TOKEN env from existing secret in remote mode
+    set:
+      tunnelMode: remote
+      tunnelToken:
+        existingSecret:
+          name: my-tunnel-secret
+          key: my-token-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "cloudflared")].env
+          content:
+            name: TUNNEL_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: my-tunnel-secret
+                key: my-token-key
+        template: deployment.yaml
+
+  - it: should use DaemonSet in remote mode when allNodes enabled
+    set:
+      tunnelMode: remote
+      tunnelToken:
+        value: my-test-token
+      replica:
+        allNodes: true
+    asserts:
+      - isKind:
+          of: DaemonSet
+        template: deployment.yaml
+
+  - it: should match snapshot of remote mode
+    set:
+      tunnelMode: remote
+      tunnelToken:
+        value: my-test-token
+    release:
+      name: cloudflared
+      namespace: cloudflare
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }
