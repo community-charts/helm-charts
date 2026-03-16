@@ -4,7 +4,7 @@
 
 A Helm chart for cloudflare tunnel
 
-![Version: 2.2.7](https://img.shields.io/badge/Version-2.2.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.2.0](https://img.shields.io/badge/AppVersion-2026.2.0-informational?style=flat-square)
+![Version: 2.3.0](https://img.shields.io/badge/Version-2.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.2.0](https://img.shields.io/badge/AppVersion-2026.2.0-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -23,20 +23,64 @@ _See [`helm repo`](https://helm.sh/docs/helm/helm_repo/) for command documentati
 
 > **Tip**: The creation of a Cloudflare account and the setup of a Cloudflared tunnel are prerequisites for using this chart. These steps are not included as part of the chart installation process and must be completed beforehand.
 
+This chart supports two tunnel modes:
+
+- **Remote mode** (`tunnelMode: remote`) — The tunnel is configured entirely from the Cloudflare Zero Trust dashboard. You only need a tunnel token. This is the recommended approach for most users.
+- **Local mode** (`tunnelMode: local`, default) — The tunnel is configured locally via a config file, credentials JSON, and certificate PEM. Ingress rules are defined in your Helm values.
+
 ### Prerequisites
 
 1. **Create a Cloudflare Account**
    If you do not yet have a Cloudflare account, please refer to [Cloudflare's official documentation](https://developers.cloudflare.com/fundamentals/setup/account/create-account/) to create one.
 
-2. **Set Up a Cloudflared Tunnel**
-   If you already have a Cloudflare account and have added your domain to it, follow the first three steps in [this guide](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/create-local-tunnel/) to create a Cloudflared tunnel using the CLI.
+2. **Create a Cloudflared Tunnel**
+   Create a tunnel in the [Cloudflare Zero Trust dashboard](https://one.dash.cloudflare.com/) or via the CLI, depending on which mode you plan to use.
 
-3. **Store Tunnel Files**
+### Remote Tunnel Mode (Recommended)
+
+Remote tunnels are created and managed entirely from the Cloudflare Zero Trust dashboard. After creating a tunnel, you will receive a tunnel token.
+
+#### Installing with a token value
+
+```console
+helm upgrade --install [RELEASE_NAME] community-charts/cloudflared -n [NAMESPACE] --create-namespace \
+  --set=tunnelMode=remote \
+  --set=tunnelToken.value=[TUNNEL_TOKEN]
+```
+
+#### Installing with an existing Kubernetes secret
+
+First, create a secret containing your tunnel token:
+
+```console
+kubectl create secret generic cloudflared-tunnel-token -n [NAMESPACE] \
+  --from-literal=tunnel-token=[TUNNEL_TOKEN]
+```
+
+Then install the chart referencing the secret:
+
+```console
+helm upgrade --install [RELEASE_NAME] community-charts/cloudflared -n [NAMESPACE] --create-namespace \
+  --set=tunnelMode=remote \
+  --set=tunnelToken.existingSecret.name=cloudflared-tunnel-token \
+  --set=tunnelToken.existingSecret.key=tunnel-token
+```
+
+### Local Tunnel Mode
+
+Local tunnels require a credentials JSON file and a certificate PEM file, which are created when you set up a tunnel via the Cloudflared CLI.
+
+#### Prerequisites for Local Mode
+
+1. **Set Up a Cloudflared Tunnel via CLI**
+   Follow the first three steps in [this guide](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/create-local-tunnel/) to create a Cloudflared tunnel using the CLI.
+
+2. **Store Tunnel Files**
    After creating your Cloudflared tunnel via CLI, ensure the following files are stored in the `~/.cloudflared` directory under your home directory:
    - Your tunnel credentials JSON file.
    - Your tunnel certificate PEM file.
 
-### Encoding and Configuring Tunnel Files
+#### Encoding and Configuring Tunnel Files
 
 To configure the chart, encode the required tunnel files using the following commands and set their values accordingly:
 
@@ -69,7 +113,7 @@ To configure the chart, encode the required tunnel files using the following com
 3. **Set the Tunnel Name**
    Pass the name of your tunnel, as created earlier via the Cloudflared CLI, to the `tunnelConfig.name` configuration.
 
-### Setting Credentials to Kubernetes Secrets and working with Existing Secrets
+#### Setting Credentials to Kubernetes Secrets and working with Existing Secrets
 
 ```console
 cp ~/.cloudflared/*.json ./credentials.json
@@ -88,7 +132,7 @@ tunnelSecrets:
     name: cert-pem-file-secret
 ```
 
-### Configuring Ingress
+#### Configuring Ingress
 
 The default ingress configuration is shown below. Replace the placeholder values with your domain and server settings. It is recommended to use a separate `values.yaml` file to manage this configuration.
 
@@ -100,7 +144,7 @@ ingress:
   - service: http_status:404
 ```
 
-### Installing the Chart
+#### Installing with Local Mode
 
 Use the following `helm` command to install or upgrade the chart. Replace the placeholders with your specific values:
 
@@ -162,7 +206,7 @@ helm upgrade [RELEASE_NAME] community-charts/cloudflared
 | image.repository | string | `"cloudflare/cloudflared"` | The docker image repository to use |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
-| ingress | list | `[{"hostname":"example.com","service":"http://traefik.kube-system.svc.cluster.local:80"},{"service":"http_status:404"}]` | Cloudflare ingress rules. More information can be found here: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/local-management/configuration-file/#how-traffic-is-matched |
+| ingress | list | `[{"hostname":"example.com","service":"http://traefik.kube-system.svc.cluster.local:80"},{"service":"http_status:404"}]` | Cloudflare ingress rules. Only used when tunnelMode is "local". More information can be found here: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/local-management/configuration-file/#how-traffic-is-matched |
 | nameOverride | string | `""` | This is to override the chart name. |
 | nodeSelector | object | `{"kubernetes.io/os":"linux"}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector |
 | podAnnotations | object | `{}` | This is for setting Kubernetes Annotations to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
@@ -180,9 +224,10 @@ helm upgrade [RELEASE_NAME] community-charts/cloudflared
 | serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
 | terminationGracePeriodSeconds | int | `30` |  |
 | tolerations | list | `[{"effect":"NoSchedule","operator":"Exists"}]` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/ |
-| tunnelConfig | object | `{"autoUpdateFrequency":"24h","connectTimeout":"30s","gracePeriod":"30s","logLevel":"info","metricsUpdateFrequency":"5s","name":"","noAutoUpdate":true,"protocol":"auto","retries":5,"transportLogLevel":"warn","warpRouting":false}` | Please find more configuration from https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/arguments/ |
+| tunnelConfig | object | `{"autoUpdateFrequency":"24h","connectTimeout":"30s","gracePeriod":"30s","logLevel":"info","metricsUpdateFrequency":"5s","name":"","noAutoUpdate":true,"protocol":"auto","retries":5,"transportLogLevel":"warn","warpRouting":false}` | Please find more configuration from https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/arguments/. Only used when tunnelMode is "local". |
 | tunnelConfig.name | string | `""` | cloudflared tunnel name |
-| tunnelSecrets | object | `{"base64EncodedConfigJsonFile":"","base64EncodedPemFile":"","existingConfigJsonFileSecret":{"key":"credentials.json","name":""},"existingPemFileSecret":{"key":"cert.pem","name":""}}` | This is for setting up the cloudflared tunnel secrets. For more information checkout: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/local-management/create-local-tunnel/ |
+| tunnelMode | string | `"local"` | Tunnel mode: "local" for locally-managed tunnels (config file + credentials), "remote" for remotely-managed tunnels (token-based, configured in Cloudflare dashboard) |
+| tunnelSecrets | object | `{"base64EncodedConfigJsonFile":"","base64EncodedPemFile":"","existingConfigJsonFileSecret":{"key":"credentials.json","name":""},"existingPemFileSecret":{"key":"cert.pem","name":""}}` | This is for setting up the cloudflared tunnel secrets. Only used when tunnelMode is "local". For more information checkout: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/local-management/create-local-tunnel/ |
 | tunnelSecrets.base64EncodedConfigJsonFile | string | `""` | This is for cloudflared tunnel configuration JSON file. |
 | tunnelSecrets.base64EncodedPemFile | string | `""` | This is for cloudflared tunnel certificate PEM file. |
 | tunnelSecrets.existingConfigJsonFileSecret | object | `{"key":"credentials.json","name":""}` | This is for setting up the existing secret for the cloudflared tunnel configuration JSON file. If not set, the base64EncodedConfigJsonFile will be used. |
@@ -191,6 +236,11 @@ helm upgrade [RELEASE_NAME] community-charts/cloudflared
 | tunnelSecrets.existingPemFileSecret | object | `{"key":"cert.pem","name":""}` | This is for setting up the existing secret for the cloudflared tunnel certificate PEM file. If not set, the base64EncodedPemFile will be used. |
 | tunnelSecrets.existingPemFileSecret.key | string | `"cert.pem"` | This is the key of the certificate PEM file in the existing secret. |
 | tunnelSecrets.existingPemFileSecret.name | string | `""` | This is the name of the existing secret. |
+| tunnelToken | object | `{"existingSecret":{"key":"tunnel-token","name":""},"value":""}` | Tunnel token for remote mode. Get this from the Cloudflare Zero Trust dashboard. Only used when tunnelMode is "remote". |
+| tunnelToken.existingSecret | object | `{"key":"tunnel-token","name":""}` | Use an existing secret containing the tunnel token. |
+| tunnelToken.existingSecret.key | string | `"tunnel-token"` | Key in the secret containing the tunnel token. |
+| tunnelToken.existingSecret.name | string | `""` | Name of the existing secret. |
+| tunnelToken.value | string | `""` | The tunnel token value. Either set this or use existingSecret. |
 | updateStrategy.rollingUpdate.maxUnavailable | int | `1` |  |
 | updateStrategy.type | string | `"RollingUpdate"` |  |
 
