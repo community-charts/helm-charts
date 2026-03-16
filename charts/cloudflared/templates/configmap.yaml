@@ -1,3 +1,4 @@
+{{- if eq .Values.tunnelMode "local" }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -32,3 +33,4 @@ data:
     # info, warn, error, fatal, panic
     loglevel: {{ .Values.tunnelConfig.logLevel }}
     transport-loglevel: {{ .Values.tunnelConfig.transportLogLevel }}
+{{- end }}
