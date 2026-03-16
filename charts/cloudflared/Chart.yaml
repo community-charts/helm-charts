@@ -52,11 +52,11 @@ annotations:
       url: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Update cloudflare/cloudflared image version to 2026.2.0
+    - kind: added
+      description: Add support for remotely-managed tunnels via tunnelMode and tunnelToken
       links:
-        - name: Upstream Project
-          url: https://hub.docker.com/r/cloudflare/cloudflared
+        - name: Remote Tunnel Documentation
+          url: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/create-remote-tunnel/
   artifacthub.io/images: |
     - name: cloudflared
       image: cloudflare/cloudflared:2026.2.0
