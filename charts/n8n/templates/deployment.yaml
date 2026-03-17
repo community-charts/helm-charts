@@ -304,7 +304,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /healthz
-              port: http
+              port: healthz
           readinessProbe:
             httpGet:
               path: /healthz
