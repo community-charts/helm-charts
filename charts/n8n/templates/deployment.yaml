@@ -308,7 +308,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /healthz
-              port: http
+              port: healthz
           resources:
             {{- toYaml .Values.taskRunners.external.resources | nindent 12 }}
           env:
