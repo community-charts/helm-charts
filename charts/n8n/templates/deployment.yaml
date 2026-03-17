@@ -298,7 +298,7 @@ spec:
           command: ["/usr/local/bin/task-runner-launcher"]
           args: ["javascript", "python"]
           ports:
-            - name: http
+            - name: healthz
               containerPort: {{ .Values.taskRunners.external.port }}
               protocol: TCP
           livenessProbe:
