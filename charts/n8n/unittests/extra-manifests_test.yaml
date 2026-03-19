@@ -1,0 +1,165 @@
+suite: test extra manifests
+
+templates:
+  - extra-manifests.yaml
+
+release:
+  name: n8n
+  namespace: n8n
+
+chart:
+  version: 1.0.0
+  appVersion: 1.0.0
+
+tests:
+  - it: should not render any documents when both extraManifests and extraTemplateManifests are empty
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should render a single object manifest from extraManifests
+    set:
+      extraManifests:
+        - apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: my-extra-config
+          data:
+            key: value
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: apiVersion
+          value: v1
+      - equal:
+          path: kind
+          value: ConfigMap
+      - equal:
+          path: metadata.name
+          value: my-extra-config
+      - equal:
+          path: data.key
+          value: value
+
+  - it: should auto-inject chart labels into extraManifests
+    set:
+      extraManifests:
+        - apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: my-extra-config
+          data:
+            key: value
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: metadata.labels.release
+          value: n8n
+      - equal:
+          path: metadata.labels.heritage
+          value: Helm
+
+  - it: should render multiple object manifests from extraManifests
+    set:
+      extraManifests:
+        - apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: config-one
+          data:
+            key: value1
+        - apiVersion: v1
+          kind: Secret
+          metadata:
+            name: secret-one
+          stringData:
+            password: secret
+    asserts:
+      - hasDocuments:
+          count: 2
+      - equal:
+          path: kind
+          value: ConfigMap
+        documentIndex: 0
+      - equal:
+          path: metadata.name
+          value: config-one
+        documentIndex: 0
+      - equal:
+          path: kind
+          value: Secret
+        documentIndex: 1
+      - equal:
+          path: metadata.name
+          value: secret-one
+        documentIndex: 1
+
+  - it: should render a custom resource from extraManifests
+    set:
+      extraManifests:
+        - apiVersion: postgresql.cnpg.io/v1
+          kind: Cluster
+          metadata:
+            name: postgresql
+          spec:
+            instances: 1
+            storage:
+              size: 5Gi
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: apiVersion
+          value: postgresql.cnpg.io/v1
+      - equal:
+          path: kind
+          value: Cluster
+      - equal:
+          path: spec.instances
+          value: 1
+
+  - it: should render a manifest from extraTemplateManifests with chart labels
+    set:
+      extraTemplateManifests:
+        - |
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: my-template-config
+          data:
+            release: n8n
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: ConfigMap
+      - equal:
+          path: metadata.name
+          value: my-template-config
+      - equal:
+          path: metadata.labels.release
+          value: n8n
+
+  - it: should render manifests from both extraManifests and extraTemplateManifests
+    set:
+      extraManifests:
+        - apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: static-config
+          data:
+            key: value
+      extraTemplateManifests:
+        - |
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: template-config
+          data:
+            key: value
+    asserts:
+      - hasDocuments:
+          count: 2

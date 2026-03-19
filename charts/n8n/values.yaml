@@ -1098,6 +1098,42 @@ externalPostgresql:
   # When it's set, the `externalPostgresql.password` parameter is ignored
   existingSecret: ""
 
+# -- List of extra Kubernetes manifests to deploy alongside n8n.
+# Accepts a list of Kubernetes resource objects or raw YAML strings.
+# Standard chart labels are automatically merged into each manifest's metadata.
+# Example:
+# extraManifests:
+#   - apiVersion: v1
+#     kind: ConfigMap
+#     metadata:
+#       name: my-extra-config
+#     data:
+#       key: value
+#   - |
+#     apiVersion: v1
+#     kind: ConfigMap
+#     metadata:
+#       name: my-string-config
+#     data:
+#       key: value
+extraManifests: []
+
+# -- List of extra Kubernetes manifests with Helm templating support.
+# Each item must be a YAML string (use | block scalar).
+# Supports Helm template functions (e.g., {{ .Release.Namespace }}, {{ .Release.Name }}).
+# Standard chart labels are automatically merged into each manifest's metadata.
+# Example:
+# extraTemplateManifests:
+#   - |
+#     apiVersion: v1
+#     kind: ConfigMap
+#     metadata:
+#       name: my-config
+#       namespace: {{ .Release.Namespace }}
+#     data:
+#       release: {{ .Release.Name }}
+extraTemplateManifests: []
+
 # -- Minio configuration
 minio:
   # -- Enable minio
