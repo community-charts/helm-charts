@@ -55,10 +55,10 @@ tests:
       - hasDocuments:
           count: 1
       - equal:
-          path: metadata.labels.release
+          path: metadata.labels["app.kubernetes.io/instance"]
           value: n8n
       - equal:
-          path: metadata.labels.heritage
+          path: metadata.labels["app.kubernetes.io/managed-by"]
           value: Helm
 
   - it: should render multiple object manifests from extraManifests
@@ -140,7 +140,7 @@ tests:
           path: metadata.name
           value: my-template-config
       - equal:
-          path: metadata.labels.release
+          path: metadata.labels["app.kubernetes.io/instance"]
           value: n8n
 
   - it: should render manifests from both extraManifests and extraTemplateManifests

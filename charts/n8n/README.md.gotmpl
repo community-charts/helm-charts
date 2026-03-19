@@ -812,6 +812,66 @@ binaryData:
     existingSecret: "your-existing-secret"
 ```
 
+## Extra Manifests
+
+The chart supports deploying arbitrary Kubernetes resources alongside n8n using `extraManifests` and `extraTemplateManifests`. Standard chart labels (`helm.sh/chart`, `app.kubernetes.io/*`) are automatically merged into each manifest's `metadata.labels`.
+
+### `extraManifests` — Static Manifests
+
+Accepts a list of Kubernetes resource **objects** or raw **YAML strings**. No Helm templating is evaluated.
+
+#### Object format
+
+```yaml
+extraManifests:
+  - apiVersion: postgresql.cnpg.io/v1
+    kind: Cluster
+    metadata:
+      name: postgresql
+    spec:
+      instances: 1
+      enablePDB: false
+      storage:
+        storageClass: csi-disk
+        size: 5Gi
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: my-extra-config
+    data:
+      key: value
+```
+
+#### String format (supports multi-document YAML with `---`)
+
+```yaml
+extraManifests:
+  - |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: my-string-config
+    data:
+      key: value
+```
+
+### `extraTemplateManifests` — Manifests with Helm Templating
+
+Each item must be a YAML **string** (use `|` block scalar). Helm template functions are evaluated, giving access to `.Release`, `.Values`, `.Chart`, etc.
+
+```yaml
+extraTemplateManifests:
+  - |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: release-info
+      namespace: {{ .Release.Namespace }}
+    data:
+      release: {{ .Release.Name }}
+      chart: {{ .Chart.Version }}
+```
+
 ## Upgrading
 
 This section outlines major updates and breaking changes for each version of the Helm Chart to help you transition smoothly between releases.

@@ -6,10 +6,7 @@ extra-manifests.yaml creates Kubernetes resources from values provided in
 {{- define "extraManifests.metadata" -}}
 metadata:
   labels:
-    app: {{ template "n8n.name" . }}
-    chart: {{ template "n8n.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "n8n.extraManifests.labels" . | nindent 4 }}
 {{- end }}
 
 {{- $metadata := fromYaml (include "extraManifests.metadata" .) -}}
