@@ -348,7 +348,24 @@ tests:
           content: --gunicorn-opts='--log-level=debug'
         template: deployment.yaml
 
-  - it: should set log level to gunicorn when log level is set and gunicornOpts is set with different log level
+  - it: should set log level to waitress when log level is set and waitressOpts is set without log level
+    set:
+      log:
+        enabled: true
+        level: debug
+      extraArgs:
+        waitressOpts: "--workers=4"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --waitress-opts='--log-level=debug --workers=4'
+        template: deployment.yaml
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --gunicorn-opts='--log-level=debug'
+        template: deployment.yaml
+
+  - it: should override log level in gunicornOpts when set with different log level
     set:
       log:
         enabled: true
@@ -359,6 +376,32 @@ tests:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --gunicorn-opts='--log-level=debug --workers=4'
+        template: deployment.yaml
+
+  - it: should override log level in uvicornOpts when set with different log level
+    set:
+      log:
+        enabled: true
+        level: debug
+      extraArgs:
+        uvicornOpts: "--log-level=info --workers=4"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --uvicorn-opts='--log-level=debug --workers=4'
+        template: deployment.yaml
+
+  - it: should override log level in waitressOpts when set with different log level
+    set:
+      log:
+        enabled: true
+        level: debug
+      extraArgs:
+        waitressOpts: "--log-level=info --workers=4"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --waitress-opts='--log-level=debug --workers=4'
         template: deployment.yaml
 
   - it: should show extra arguments when we pass any
