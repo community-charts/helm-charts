@@ -1,0 +1,44 @@
+{{/*
+extra-manifests.yaml creates Kubernetes resources from values provided in
+.Values.extraManifests and .Values.extraTemplateManifests
+*/}}
+
+{{- define "extraManifests.metadata" -}}
+metadata:
+  labels:
+    {{- include "n8n.extraManifests.labels" . | nindent 4 }}
+{{- end }}
+
+{{- $metadata := fromYaml (include "extraManifests.metadata" .) -}}
+
+{{- $resources := list -}}
+{{- range .Values.extraManifests }}
+  {{- if typeIs "string" . }}
+    {{- range . | splitList "---\n" }}
+      {{- with . | fromYaml }}
+        {{- $resources = append $resources . }}
+      {{- end }}
+    {{- end }}
+  {{- else }}
+    {{- $resources = append $resources . }}
+  {{- end }}
+{{- end }}
+
+{{- $templates := list -}}
+{{- range .Values.extraTemplateManifests }}
+  {{- range . | splitList "---\n" }}
+    {{- if . | fromYaml }}
+      {{- $templates = append $templates . }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- range $resources }}
+---
+{{ merge . $metadata | toYaml }}
+{{- end }}
+
+{{- range $templates }}
+---
+{{ merge (tpl . $ | fromYaml) $metadata | toYaml }}
+{{- end }}

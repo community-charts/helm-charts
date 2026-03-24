@@ -712,6 +712,22 @@
       "title": "externalRedis",
       "type": "object"
     },
+    "extraManifests": {
+      "description": "List of extra Kubernetes manifests (objects or YAML strings) to deploy alongside n8n. Chart labels are merged automatically.",
+      "type": "array",
+      "items": {},
+      "default": [],
+      "title": "extraManifests"
+    },
+    "extraTemplateManifests": {
+      "description": "List of extra Kubernetes manifests as YAML strings with Helm templating support. Chart labels are merged automatically.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "title": "extraTemplateManifests"
+    },
     "extraEnvVars": {
       "additionalProperties": true,
       "description": "DEPRECATED: Use main, worker, and webhook blocks extraEnvVars fields instead. This field will be removed in a future release.",

@@ -46,6 +46,19 @@ Create n8n main full name
 {{- end -}}
 
 {{/*
+Labels for extra manifests (no component-specific label)
+*/}}
+{{- define "n8n.extraManifests.labels" -}}
+helm.sh/chart: {{ include "n8n.chart" . }}
+app.kubernetes.io/name: {{ include "n8n.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
 Main labels
 */}}
 {{- define "n8n.main.labels" -}}
