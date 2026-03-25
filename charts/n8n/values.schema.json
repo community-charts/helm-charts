@@ -2094,6 +2094,11 @@
       "title": "tolerations",
       "type": "array"
     },
+    "priorityClassName": {
+      "description": "priorityClassName for the n8n pods",
+      "title": "priorityClassName",
+      "type": "string"
+    },
     "versionNotifications": {
       "additionalProperties": false,
       "properties": {
@@ -4875,6 +4880,7 @@
     "main",
     "nodeSelector",
     "tolerations",
+    "priorityClassName",
     "affinity",
     "dnsPolicy",
     "dnsConfig",
