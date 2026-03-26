@@ -987,6 +987,9 @@ tolerations: []
 # -- DEPRECATED: Use main, worker, and webhook blocks volumes fields instead. This field will be removed in a future release.
 affinity: {}
 
+# -- priorityClassName for the n8n pods
+priorityClassName: ""
+
 # -- For more information checkout: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy
 dnsPolicy: ""
 
