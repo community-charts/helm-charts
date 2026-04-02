@@ -126,6 +126,39 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
+# -- Startup probe configuration for the cloudflared container.
+startupProbe:
+  enabled: true
+  httpGet:
+    path: /ready
+    port: 2000
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 1
+  failureThreshold: 12
+
+# -- Liveness probe configuration for the cloudflared container.
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /ready
+    port: 2000
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 1
+  failureThreshold: 3
+
+# -- Readiness probe configuration for the cloudflared container.
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /ready
+    port: 2000
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 1
+  failureThreshold: 3
+
 # -- For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
 nodeSelector:
   kubernetes.io/os: linux

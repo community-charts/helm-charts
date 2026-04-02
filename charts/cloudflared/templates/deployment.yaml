@@ -56,13 +56,18 @@ spec:
           env:
             - name: TUNNEL_ORIGIN_CERT
               value: {{ printf "/etc/cloudflared/creds/%s" (default "cert.pem" .Values.tunnelSecrets.existingPemFileSecret.key) | quote }}
+          {{- if .Values.startupProbe.enabled }}
+          startupProbe:
+            {{- omit .Values.startupProbe "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.livenessProbe.enabled }}
           livenessProbe:
-            httpGet:
-              path: /ready
-              port: 2000
-            failureThreshold: 1
-            initialDelaySeconds: 10
-            periodSeconds: 10
+            {{- omit .Values.livenessProbe "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: config
               mountPath: /etc/cloudflared/config

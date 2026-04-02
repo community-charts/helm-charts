@@ -62,6 +62,48 @@
       "title": "imagePullSecrets",
       "type": "array"
     },
+    "startupProbe": {
+      "additionalProperties": true,
+      "description": "Startup probe configuration for the cloudflared container.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "enabled",
+          "type": "boolean"
+        }
+      },
+      "required": ["enabled"],
+      "title": "startupProbe",
+      "type": "object"
+    },
+    "livenessProbe": {
+      "additionalProperties": true,
+      "description": "Liveness probe configuration for the cloudflared container.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "enabled",
+          "type": "boolean"
+        }
+      },
+      "required": ["enabled"],
+      "title": "livenessProbe",
+      "type": "object"
+    },
+    "readinessProbe": {
+      "additionalProperties": true,
+      "description": "Readiness probe configuration for the cloudflared container.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "enabled",
+          "type": "boolean"
+        }
+      },
+      "required": ["enabled"],
+      "title": "readinessProbe",
+      "type": "object"
+    },
     "ingress": {
       "items": {
         "additionalProperties": false,
