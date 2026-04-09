@@ -322,13 +322,13 @@ spec:
             - --app-name=basic-auth
           {{- end }}
           {{- if and .Values.log.enabled (not (hasKey .Values.extraArgs "gunicornOpts")) }}
-            - {{ printf "--gunicorn-opts='--log-level=%s'" .Values.log.level }}
+            - {{ printf "--gunicorn-opts=--log-level=%s" .Values.log.level | quote }}
           {{- end }}
           {{- range $key, $value := .Values.extraArgs }}
             {{- if and $.Values.log.enabled (eq $key "gunicornOpts") (contains "--log-level" $value) }}
-            - {{ printf "--gunicorn-opts='%s'" (regexReplaceAll "--log-level=[^\\s]*" $value (printf "--log-level=%s" $.Values.log.level)) }}
+            - {{ printf "--gunicorn-opts=%s" (regexReplaceAll "--log-level=[^\\s]*" $value (printf "--log-level=%s" $.Values.log.level)) | quote }}
             {{- else if and $.Values.log.enabled (eq $key "gunicornOpts") (not (contains "--log-level" $value)) }}
-            - {{ printf "--gunicorn-opts='--log-level=%s %s'" $.Values.log.level $value }}
+            - {{ printf "--gunicorn-opts=--log-level=%s %s" $.Values.log.level $value | quote }}
             {{- else }}
             - {{ printf "--%s=%s" (kebabcase $key) $value }}
             {{- end }}
