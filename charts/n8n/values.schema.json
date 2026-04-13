@@ -2077,6 +2077,12 @@
       "title": "strategy",
       "type": "object"
     },
+    "revisionHistoryLimit": {
+      "default": "",
+      "description": "The number of old ReplicaSets to retain for rollback. More information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy",
+      "title": "revisionHistoryLimit",
+      "type": ["integer", "string"]
+    },
     "timezone": {
       "default": "Europe/Berlin",
       "description": "For instance, the Schedule node uses it to know at what time the workflow should start. Find you timezone from here: https://momentjs.com/timezone/",
