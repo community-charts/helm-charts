@@ -10,6 +10,9 @@ metadata:
   labels:
     {{- include "n8n.webhook.labels" . | nindent 4 }}
 spec:
+  {{- if .Values.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  {{- end }}
   {{- if and .Values.webhook.allNodes (eq .Values.strategy.type "RollingUpdate") }}
   updateStrategy:
     type: RollingUpdate

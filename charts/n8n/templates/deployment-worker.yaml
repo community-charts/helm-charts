@@ -11,6 +11,9 @@ metadata:
   labels:
     {{- include "n8n.worker.labels" . | nindent 4 }}
 spec:
+  {{- if .Values.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  {{- end }}
   {{- if and .Values.worker.allNodes (eq .Values.strategy.type "RollingUpdate") }}
   updateStrategy:
     type: RollingUpdate
