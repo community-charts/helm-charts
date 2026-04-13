@@ -50,7 +50,7 @@ should match snapshot of default values:
       template:
         metadata:
           annotations:
-            checksum/config: 52b4c94af9c3e1eb23b0391ff13115d7b3328cc1271a67be91c19eac87d78e93
+            checksum/config: e64d33fc0d26ff94e6fbec04ebe470993b7f2b781e2f0ac8d54de1b5e23ee347
             checksum/secret: c9f56502fc6d865fa60d33519aa2d0f897bea71d2af7c35aa4b71a1fa9e70e50
           labels:
             app.kubernetes.io/instance: outline
