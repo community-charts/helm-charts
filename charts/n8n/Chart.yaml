@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.16.35
+version: 1.16.36
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "2.14.2"
+appVersion: "2.16.0"
 kubeVersion: ">=1.23.0-0"
 home: https://n8n.io
 maintainers:
@@ -51,13 +51,23 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update n8nio/n8n image version to 2.14.2
+      description: Update n8nio/n8n image version to 2.16.0
       links:
         - name: Upstream Project
           url: https://github.com/n8n-io/n8n
+    - kind: changed
+      description: Update dependency redis from 25.3.9 to 25.3.11
+      links:
+        - name: ArtifactHub
+          url: https://artifacthub.io/packages/helm/bitnami/redis
+    - kind: changed
+      description: Update dependency postgresql from 18.5.14 to 18.5.17
+      links:
+        - name: ArtifactHub
+          url: https://artifacthub.io/packages/helm/bitnami/postgresql
   artifacthub.io/images: |
     - name: n8n
-      image: n8nio/n8n:2.14.2
+      image: n8nio/n8n:2.16.0
       platforms:
         - linux/amd64
         - linux/arm64
@@ -109,11 +119,11 @@ annotations:
     url: https://keybase.io/communitycharts/pgp_keys.asc
 dependencies:
   - name: redis
-    version: 25.3.9
+    version: 25.3.11
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
   - name: postgresql
-    version: 18.5.14
+    version: 18.5.17
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: minio
