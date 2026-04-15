@@ -49,6 +49,8 @@ spec:
       {{- end }}
         {{- if .Values.webhook.waitMainNodeReady.enabled }}
         - name: wait-for-main
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
           image: busybox:1.36
           command: ["/bin/sh", "-c"]
           args:

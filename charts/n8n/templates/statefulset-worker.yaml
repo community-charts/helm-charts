@@ -53,6 +53,8 @@ spec:
       {{- end }}
         {{- if .Values.worker.waitMainNodeReady.enabled }}
         - name: wait-for-main
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
           image: busybox:1.36
           command: ["/bin/sh", "-c"]
           args:
@@ -291,6 +293,8 @@ spec:
           {{- end }}
       {{- if eq .Values.taskRunners.mode "external" }}
         - name: {{ template "n8n.taskRunners.name" . }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/usr/local/bin/task-runner-launcher"]
