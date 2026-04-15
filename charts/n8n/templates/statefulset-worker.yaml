@@ -6,6 +6,9 @@ metadata:
   labels:
     {{- include "n8n.worker.labels" . | nindent 4 }}
 spec:
+  {{- if .Values.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  {{- end }}
   {{- if .Values.service.enabled }}
   serviceName: {{ include "n8n.worker.fullname" . }}-headless
   {{- end }}

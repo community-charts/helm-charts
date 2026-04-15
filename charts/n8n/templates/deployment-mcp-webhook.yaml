@@ -6,6 +6,9 @@ metadata:
   labels:
     {{- include "n8n.mcp-webhook.labels" . | nindent 4 }}
 spec:
+  {{- if .Values.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  {{- end }}
   replicas: 1
   strategy:
     type: {{ .Values.strategy.type }}
