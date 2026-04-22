@@ -315,7 +315,7 @@ tests:
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
-          content: --gunicorn-opts='--log-level=debug'
+          content: --gunicorn-opts=--log-level=debug
         template: deployment.yaml
 
   - it: should set log level to gunicorn when log level is set and gunicornOpts is set without log level
@@ -328,7 +328,7 @@ tests:
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
-          content: --gunicorn-opts='--log-level=debug --workers=4'
+          content: --gunicorn-opts=--log-level=debug --workers=4
         template: deployment.yaml
 
   - it: should set log level to gunicorn when log level is set and gunicornOpts is set with different log level
@@ -341,7 +341,7 @@ tests:
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
-          content: --gunicorn-opts='--log-level=debug --workers=4'
+          content: --gunicorn-opts=--log-level=debug --workers=4
         template: deployment.yaml
 
   - it: should show extra arguments when we pass any
