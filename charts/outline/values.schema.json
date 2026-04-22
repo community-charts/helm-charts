@@ -509,6 +509,14 @@
                   "title": "accessModes",
                   "type": "array"
                 },
+                "labels": {
+                  "additionalProperties": true,
+                  "default": {},
+                  "description": "This is for setting up the local file storage persistence labels.",
+                  "required": [],
+                  "title": "labels",
+                  "type": "object"
+                },
                 "annotations": {
                   "additionalProperties": true,
                   "default": {},
