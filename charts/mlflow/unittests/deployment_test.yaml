@@ -344,6 +344,40 @@ tests:
           content: --gunicorn-opts='--log-level=debug --workers=4'
         template: deployment.yaml
 
+  - it: should not set gunicorn-opts when uvicornOpts is set
+    set:
+      log:
+        enabled: true
+        level: debug
+      extraArgs:
+        uvicornOpts: "--workers=4"
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --gunicorn-opts='--log-level=debug'
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --uvicorn-opts='--log-level=debug --workers=4'
+        template: deployment.yaml
+
+  - it: should set log level to uvicorn when log level is set and uvicornOpts is set with different log level
+    set:
+      log:
+        enabled: true
+        level: debug
+      extraArgs:
+        uvicornOpts: "--log-level=info --workers=4"
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --gunicorn-opts='--log-level=debug'
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --uvicorn-opts='--log-level=debug --workers=4'
+        template: deployment.yaml
+
   - it: should show extra arguments when we pass any
     set:
       extraArgs:
