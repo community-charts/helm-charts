@@ -679,6 +679,25 @@ tests:
                 optional: true
         template: deployment-mcp-webhook.yaml
 
+  - it: should set postgresdb password environment variable from external secret with custom key when externalPostgresql.existingSecretPasswordKey is set
+    set:
+      db:
+        type: postgresdb
+      externalPostgresql:
+        existingSecret: custom-secret
+        existingSecretPasswordKey: custom-postgres-password
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].env
+          content:
+            name: DB_POSTGRESDB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: custom-secret
+                key: custom-postgres-password
+                optional: true
+        template: deployment-mcp-webhook.yaml
+
   - it: should set queue health check active environment variable
     asserts:
       - contains:
@@ -743,6 +762,34 @@ tests:
               secretKeyRef:
                 name: custom-secret
                 key: redis-password
+                optional: true
+        template: deployment-mcp-webhook.yaml
+
+  - it: should set redis username and password environment variables from external secret with custom keys
+    set:
+      externalRedis:
+        existingSecret: custom-secret
+        existingUsernameKey: custom-redis-username
+        existingPasswordKey: custom-redis-password
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].env
+          content:
+            name: QUEUE_BULL_REDIS_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: custom-secret
+                key: custom-redis-username
+                optional: true
+        template: deployment-mcp-webhook.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].env
+          content:
+            name: QUEUE_BULL_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: custom-secret
+                key: custom-redis-password
                 optional: true
         template: deployment-mcp-webhook.yaml
 

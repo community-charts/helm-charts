@@ -139,7 +139,7 @@ spec:
               {{- if .Values.postgresql.auth.username }}
                   key: password
               {{- else }}
-                  key: postgres-password
+                  key: {{ default "postgres-password" .Values.externalPostgresql.existingSecretPasswordKey }}
               {{- end }}
                   optional: true
             - name: QUEUE_HEALTH_CHECK_ACTIVE
@@ -148,13 +148,13 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ default (include "n8n.redis.fullname" .) .Values.externalRedis.existingSecret }}
-                  key: redis-username
+                  key: {{ default "redis-username" .Values.externalRedis.existingUsernameKey }}
                   optional: true
             - name: QUEUE_BULL_REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ default (include "n8n.redis.fullname" .) .Values.externalRedis.existingSecret }}
-                  key: redis-password
+                  key: {{ default "redis-password" .Values.externalRedis.existingPasswordKey }}
                   optional: true
             - name: N8N_RUNNERS_ENABLED
               value: "true"

@@ -569,6 +569,13 @@
           "title": "existingSecret",
           "type": "string"
         },
+        "existingSecretPasswordKey": {
+          "default": "postgres-password",
+          "description": "The key in `externalPostgresql.existingSecret` that stores the PostgreSQL password.",
+          "required": [],
+          "title": "existingSecretPasswordKey",
+          "type": "string"
+        },
         "host": {
           "default": "",
           "description": "External PostgreSQL server host",
@@ -604,7 +611,8 @@
         "password",
         "port",
         "database",
-        "existingSecret"
+        "existingSecret",
+        "existingSecretPasswordKey"
       ],
       "title": "externalPostgresql",
       "type": "object"
@@ -653,6 +661,20 @@
           "description": "The name of an existing secret with Redis (must contain key `redis-password`) and Sentinel credentials.\nWhen it's set, the `externalRedis.password` parameter is ignored",
           "required": [],
           "title": "existingSecret",
+          "type": "string"
+        },
+        "existingUsernameKey": {
+          "default": "redis-username",
+          "description": "The key in `externalRedis.existingSecret` that stores the Redis username.",
+          "required": [],
+          "title": "existingUsernameKey",
+          "type": "string"
+        },
+        "existingPasswordKey": {
+          "default": "redis-password",
+          "description": "The key in `externalRedis.existingSecret` that stores the Redis password.",
+          "required": [],
+          "title": "existingPasswordKey",
           "type": "string"
         },
         "clusterNodes": {
@@ -708,7 +730,7 @@
           "type": "boolean"
         }
       },
-      "required": ["database", "host", "username", "password", "port", "existingSecret", "clusterNodes", "tls", "dualStack"],
+      "required": ["database", "host", "username", "password", "port", "existingSecret", "existingUsernameKey", "existingPasswordKey", "clusterNodes", "tls", "dualStack"],
       "title": "externalRedis",
       "type": "object"
     },

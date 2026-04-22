@@ -161,6 +161,7 @@ externalPostgresql:
   database: "n8n"
 
   existingSecret: "my-k8s-secret-contains-postgres-password-key-and-credential"
+  existingSecretPasswordKey: "my-postgres-password-key"
 ```
 
 ## Queue Mode with Bitnami's Redis
@@ -230,6 +231,8 @@ externalRedis:
   username: "default"
 
   existingSecret: "my-k8s-secret-contains-redis-password-key-and-credential"
+  existingUsernameKey: "my-redis-username-key"
+  existingPasswordKey: "my-redis-password-key"
 ```
 
 ## Webhook Node Deployment
