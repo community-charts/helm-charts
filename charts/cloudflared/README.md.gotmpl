@@ -23,20 +23,64 @@ _See [`helm repo`](https://helm.sh/docs/helm/helm_repo/) for command documentati
 
 > **Tip**: The creation of a Cloudflare account and the setup of a Cloudflared tunnel are prerequisites for using this chart. These steps are not included as part of the chart installation process and must be completed beforehand.
 
+This chart supports two tunnel modes:
+
+- **Remote mode** (`tunnelMode: remote`) — The tunnel is configured entirely from the Cloudflare Zero Trust dashboard. You only need a tunnel token. This is the recommended approach for most users.
+- **Local mode** (`tunnelMode: local`, default) — The tunnel is configured locally via a config file, credentials JSON, and certificate PEM. Ingress rules are defined in your Helm values.
+
 ### Prerequisites
 
 1. **Create a Cloudflare Account**
    If you do not yet have a Cloudflare account, please refer to [Cloudflare's official documentation](https://developers.cloudflare.com/fundamentals/setup/account/create-account/) to create one.
 
-2. **Set Up a Cloudflared Tunnel**
-   If you already have a Cloudflare account and have added your domain to it, follow the first three steps in [this guide](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/create-local-tunnel/) to create a Cloudflared tunnel using the CLI.
+2. **Create a Cloudflared Tunnel**
+   Create a tunnel in the [Cloudflare Zero Trust dashboard](https://one.dash.cloudflare.com/) or via the CLI, depending on which mode you plan to use.
 
-3. **Store Tunnel Files**
+### Remote Tunnel Mode
+
+Remote tunnels are created and managed entirely from the Cloudflare Zero Trust dashboard. After creating a tunnel, you will receive a tunnel token.
+
+#### Installing with a token value
+
+```console
+helm upgrade --install [RELEASE_NAME] community-charts/{{ template "chart.name" . }} -n [NAMESPACE] --create-namespace \
+  --set=tunnelMode=remote \
+  --set=tunnelToken.value=[TUNNEL_TOKEN]
+```
+
+#### Installing with an existing Kubernetes secret
+
+First, create a secret containing your tunnel token:
+
+```console
+kubectl create secret generic cloudflared-tunnel-token -n [NAMESPACE] \
+  --from-literal=tunnel-token=[TUNNEL_TOKEN]
+```
+
+Then install the chart referencing the secret:
+
+```console
+helm upgrade --install [RELEASE_NAME] community-charts/{{ template "chart.name" . }} -n [NAMESPACE] --create-namespace \
+  --set=tunnelMode=remote \
+  --set=tunnelToken.existingSecret.name=cloudflared-tunnel-token \
+  --set=tunnelToken.existingSecret.key=tunnel-token
+```
+
+### Local Tunnel Mode
+
+Local tunnels require a credentials JSON file and a certificate PEM file, which are created when you set up a tunnel via the Cloudflared CLI.
+
+#### Prerequisites for Local Mode
+
+1. **Set Up a Cloudflared Tunnel via CLI**
+   Follow the first three steps in [this guide](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/create-local-tunnel/) to create a Cloudflared tunnel using the CLI.
+
+2. **Store Tunnel Files**
    After creating your Cloudflared tunnel via CLI, ensure the following files are stored in the `~/.cloudflared` directory under your home directory:
    - Your tunnel credentials JSON file.
    - Your tunnel certificate PEM file.
 
-### Encoding and Configuring Tunnel Files
+#### Encoding and Configuring Tunnel Files
 
 To configure the chart, encode the required tunnel files using the following commands and set their values accordingly:
 
@@ -69,7 +113,7 @@ To configure the chart, encode the required tunnel files using the following com
 3. **Set the Tunnel Name**
    Pass the name of your tunnel, as created earlier via the Cloudflared CLI, to the `tunnelConfig.name` configuration.
 
-### Setting Credentials to Kubernetes Secrets and working with Existing Secrets
+#### Setting Credentials to Kubernetes Secrets and working with Existing Secrets
 
 ```console
 cp ~/.cloudflared/*.json ./credentials.json
@@ -88,7 +132,7 @@ tunnelSecrets:
     name: cert-pem-file-secret
 ```
 
-### Configuring Ingress
+#### Configuring Ingress
 
 The default ingress configuration is shown below. Replace the placeholder values with your domain and server settings. It is recommended to use a separate `values.yaml` file to manage this configuration.
 
@@ -100,7 +144,7 @@ ingress:
   - service: http_status:404
 ```
 
-### Installing the Chart
+#### Installing with Local Mode
 
 Use the following `helm` command to install or upgrade the chart. Replace the placeholders with your specific values:
 
