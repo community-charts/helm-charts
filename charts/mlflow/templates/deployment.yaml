@@ -321,14 +321,20 @@ spec:
           {{- else if .Values.ldapAuth.enabled }}
             - --app-name=basic-auth
           {{- end }}
-          {{- if and .Values.log.enabled (not (hasKey .Values.extraArgs "gunicornOpts")) }}
-            - {{ printf "--gunicorn-opts='--log-level=%s'" .Values.log.level }}
+          {{- $serverOptsKey := "gunicornOpts" }}
+          {{- if hasKey .Values.extraArgs "uvicornOpts" }}
+            {{- $serverOptsKey = "uvicornOpts" }}
+          {{- else if hasKey .Values.extraArgs "waitressOpts" }}
+            {{- $serverOptsKey = "waitressOpts" }}
+          {{- end }}
+          {{- if and .Values.log.enabled (not (hasKey .Values.extraArgs $serverOptsKey)) }}
+            - {{ printf "--%s='--log-level=%s'" (kebabcase $serverOptsKey) .Values.log.level }}
           {{- end }}
           {{- range $key, $value := .Values.extraArgs }}
-            {{- if and $.Values.log.enabled (eq $key "gunicornOpts") (contains "--log-level" $value) }}
-            - {{ printf "--gunicorn-opts='%s'" (regexReplaceAll "--log-level=[^\\s]*" $value (printf "--log-level=%s" $.Values.log.level)) }}
-            {{- else if and $.Values.log.enabled (eq $key "gunicornOpts") (not (contains "--log-level" $value)) }}
-            - {{ printf "--gunicorn-opts='--log-level=%s %s'" $.Values.log.level $value }}
+            {{- if and $.Values.log.enabled (eq $key $serverOptsKey) (contains "--log-level" $value) }}
+            - {{ printf "--%s='%s'" (kebabcase $key) (regexReplaceAll "--log-level=[^\\s]*" $value (printf "--log-level=%s" $.Values.log.level)) }}
+            {{- else if and $.Values.log.enabled (eq $key $serverOptsKey) (not (contains "--log-level" $value)) }}
+            - {{ printf "--%s='--log-level=%s %s'" (kebabcase $key) $.Values.log.level $value }}
             {{- else }}
             - {{ printf "--%s=%s" (kebabcase $key) $value }}
             {{- end }}
