@@ -288,7 +288,7 @@ license:
   # -- The name of an existing secret with license activation key. The secret must contain a key with the name N8N_LICENSE_ACTIVATION_KEY.
   existingActivationKeySecret: ""
   # -- The auto new license configuration
-  autoNenew:
+  autoRenew:
     # -- Enables (true) or disables (false) autorenewal for licenses. If disabled, you need to manually renew the license every 10 days by navigating to Settings > Usage and plan, and pressing F5. Failure to renew the license will disable Enterprise features.
     enabled: true
     # -- Time in hours before expiry a license should automatically renew.
