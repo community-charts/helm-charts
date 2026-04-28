@@ -75,6 +75,9 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
+# -- Topology spread constraints for pod assignment
+topologySpreadConstraints: []
+
 # -- Annotations for the pod
 podAnnotations: {}
 
