@@ -1209,7 +1209,7 @@
           "title": "existingActivationKeySecret",
           "type": "string"
         },
-        "autoNenew": {
+        "autoRenew": {
           "description": "The auto new license configuration",
           "properties": {
             "enabled": {
@@ -1228,7 +1228,7 @@
             }
           },
           "required": ["enabled", "offsetInHours"],
-          "title": "autoNenew",
+          "title": "autoRenew",
           "type": "object"
         },
         "serverUrl": {
@@ -1244,7 +1244,7 @@
           "type": "integer"
         }
       },
-      "required": ["enabled", "activationKey", "existingActivationKeySecret", "autoNenew", "serverUrl", "tenantId"],
+      "required": ["enabled", "activationKey", "existingActivationKeySecret", "autoRenew", "serverUrl", "tenantId"],
       "title": "license",
       "type": "object"
     },
