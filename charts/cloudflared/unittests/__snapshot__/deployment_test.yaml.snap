@@ -45,17 +45,26 @@ should match snapshot of default values:
               image: cloudflare/cloudflared:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
-                failureThreshold: 1
+                failureThreshold: 3
                 httpGet:
                   path: /ready
                   port: 2000
                 initialDelaySeconds: 10
                 periodSeconds: 10
+                timeoutSeconds: 1
               name: cloudflared
               ports:
                 - containerPort: 2000
                   name: active-con-stat
                   protocol: TCP
+              readinessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /ready
+                  port: 2000
+                initialDelaySeconds: 5
+                periodSeconds: 5
+                timeoutSeconds: 1
               resources: {}
               securityContext:
                 allowPrivilegeEscalation: false
@@ -68,6 +77,14 @@ should match snapshot of default values:
                 runAsGroup: 65532
                 runAsNonRoot: true
                 runAsUser: 65532
+              startupProbe:
+                failureThreshold: 12
+                httpGet:
+                  path: /ready
+                  port: 2000
+                initialDelaySeconds: 5
+                periodSeconds: 5
+                timeoutSeconds: 1
               volumeMounts:
                 - mountPath: /etc/cloudflared/config
                   name: config

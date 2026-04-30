@@ -4,7 +4,7 @@
 
 A Helm chart for cloudflare tunnel
 
-![Version: 2.2.7](https://img.shields.io/badge/Version-2.2.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.2.0](https://img.shields.io/badge/AppVersion-2026.2.0-informational?style=flat-square)
+![Version: 2.2.8](https://img.shields.io/badge/Version-2.2.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.2.0](https://img.shields.io/badge/AppVersion-2026.2.0-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -163,11 +163,13 @@ helm upgrade [RELEASE_NAME] community-charts/cloudflared
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
 | ingress | list | `[{"hostname":"example.com","service":"http://traefik.kube-system.svc.cluster.local:80"},{"service":"http_status:404"}]` | Cloudflare ingress rules. More information can be found here: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/local-management/configuration-file/#how-traffic-is-matched |
+| livenessProbe | object | `{"enabled":true,"failureThreshold":3,"httpGet":{"path":"/ready","port":2000},"initialDelaySeconds":10,"periodSeconds":10,"timeoutSeconds":1}` | Liveness probe configuration for the cloudflared container. |
 | nameOverride | string | `""` | This is to override the chart name. |
 | nodeSelector | object | `{"kubernetes.io/os":"linux"}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector |
 | podAnnotations | object | `{}` | This is for setting Kubernetes Annotations to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
 | podLabels | object | `{}` | This is for setting Kubernetes Labels to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/ |
 | podSecurityContext | object | `{"fsGroup":65532,"fsGroupChangePolicy":"OnRootMismatch","sysctls":[{"name":"net.ipv4.ping_group_range","value":"0 2147483647"}]}` | This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
+| readinessProbe | object | `{"enabled":true,"failureThreshold":3,"httpGet":{"path":"/ready","port":2000},"initialDelaySeconds":5,"periodSeconds":5,"timeoutSeconds":1}` | Readiness probe configuration for the cloudflared container. |
 | replica | object | `{"allNodes":true,"count":1}` | This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/ |
 | replica.allNodes | bool | `true` | This will use DaemonSet to deploy cloudflared to all nodes |
 | replica.count | int | `1` | If previous flag disabled, this will use Deployment to deploy cloudflared only number of following count |
@@ -178,6 +180,7 @@ helm upgrade [RELEASE_NAME] community-charts/cloudflared
 | serviceAccount.automount | bool | `true` | Automatically mount a ServiceAccount's API credentials? |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
 | serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
+| startupProbe | object | `{"enabled":true,"failureThreshold":12,"httpGet":{"path":"/ready","port":2000},"initialDelaySeconds":5,"periodSeconds":5,"timeoutSeconds":1}` | Startup probe configuration for the cloudflared container. |
 | terminationGracePeriodSeconds | int | `30` |  |
 | tolerations | list | `[{"effect":"NoSchedule","operator":"Exists"}]` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/ |
 | tunnelConfig | object | `{"autoUpdateFrequency":"24h","connectTimeout":"30s","gracePeriod":"30s","logLevel":"info","metricsUpdateFrequency":"5s","name":"","noAutoUpdate":true,"protocol":"auto","retries":5,"transportLogLevel":"warn","warpRouting":false}` | Please find more configuration from https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/arguments/ |

@@ -184,6 +184,61 @@ tests:
             value: /etc/cloudflared/creds/custom.pem
         template: deployment.yaml
 
+  - it: should set default startup, liveness, and readiness probes
+    set:
+      tunnelConfig:
+        name: unittest
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe.httpGet.path
+          value: /ready
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe.httpGet.port
+          value: 2000
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe.failureThreshold
+          value: 12
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.path
+          value: /ready
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.failureThreshold
+          value: 3
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.path
+          value: /ready
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.failureThreshold
+          value: 3
+        template: deployment.yaml
+
+  - it: should allow disabling startup, liveness, and readiness probes
+    set:
+      tunnelConfig:
+        name: unittest
+      startupProbe:
+        enabled: false
+      livenessProbe:
+        enabled: false
+      readinessProbe:
+        enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].startupProbe
+        template: deployment.yaml
+      - notExists:
+          path: spec.template.spec.containers[0].livenessProbe
+        template: deployment.yaml
+      - notExists:
+          path: spec.template.spec.containers[0].readinessProbe
+        template: deployment.yaml
+
   - it: should match snapshot of default values
     set:
       tunnelConfig:
