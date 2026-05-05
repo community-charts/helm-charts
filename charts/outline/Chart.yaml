@@ -19,7 +19,7 @@ version: 0.7.4
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "1.6.1"
+appVersion: "1.7.1"
 kubeVersion: ">=1.23.0-0"
 home: https://www.getoutline.com/
 maintainers:
@@ -53,7 +53,7 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update outlinewiki/outline image version to 1.6.1
+      description: Update outlinewiki/outline image version to 1.7.1
       links:
         - name: Upstream Project
           url: https://hub.docker.com/r/outlinewiki/outline
@@ -64,7 +64,7 @@ annotations:
           url: https://github.com/outline/outline/releases/tag/v1.2.0
   artifacthub.io/images: |
     - name: outline
-      image: outlinewiki/outline:1.6.1
+      image: outlinewiki/outline:1.7.1
       platforms:
         - linux/amd64
         - linux/arm64
