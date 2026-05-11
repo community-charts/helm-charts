@@ -731,6 +731,8 @@ redis:
 
 # -- External Redis parameters
 externalRedis:
+  # -- External Redis URL (e.g., redis://username:password@host:port). If set, overrides other redis connection parameters.
+  url: ""
   # -- External Redis server host
   host: ""
   # -- External Redis username

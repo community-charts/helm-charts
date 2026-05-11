@@ -181,7 +181,10 @@ spec:
             - name: REDIS_PORT
               value: {{ (include "outline.redis.port" .) | quote }}
 
-            {{- if and .Values.redis.enabled (not .Values.redis.auth.enabled) }}
+            {{- if .Values.externalRedis.url }}
+            - name: REDIS_URL
+              value: {{ .Values.externalRedis.url | quote }}
+            {{- else if and .Values.redis.enabled (not .Values.redis.auth.enabled) }}
             - name: REDIS_URL
               value: "redis://$(REDIS_HOST):$(REDIS_PORT)"
             {{- end }}
