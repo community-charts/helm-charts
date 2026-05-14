@@ -55,7 +55,7 @@ should match snapshot of default values:
                 - --port=5000
                 - '--backend-store-uri=sqlite:///:memory:'
                 - --default-artifact-root=./mlruns
-                - --gunicorn-opts='--log-level=info'
+                - --gunicorn-opts=--log-level=info
               command:
                 - mlflow
               env:
@@ -259,7 +259,7 @@ should match snapshot with additional values:
                 - --backend-store-uri=postgresql://
                 - --default-artifact-root=./mlruns
                 - --app-name=basic-auth
-                - --gunicorn-opts='--log-level=info'
+                - --gunicorn-opts=--log-level=info
               command:
                 - mlflow
               env:
@@ -598,7 +598,7 @@ should match snapshot with additional values when auth and auth.postgres are ena
                 - --backend-store-uri=postgresql://
                 - --default-artifact-root=./mlruns
                 - --app-name=basic-auth
-                - --gunicorn-opts='--log-level=info'
+                - --gunicorn-opts=--log-level=info
               command:
                 - mlflow
               env:
@@ -954,7 +954,7 @@ should match snapshot with additional values when bitnami mysql is enabled:
                 - --backend-store-uri=mysql+pymysql://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
                 - --default-artifact-root=./mlruns
                 - --app-name=basic-auth
-                - --gunicorn-opts='--log-level=info'
+                - --gunicorn-opts=--log-level=info
               command:
                 - mlflow
               env:
@@ -1313,7 +1313,7 @@ should match snapshot with additional values when bitnami postgresql is enabled:
                 - --backend-store-uri=postgresql://
                 - --default-artifact-root=./mlruns
                 - --app-name=basic-auth
-                - --gunicorn-opts='--log-level=info'
+                - --gunicorn-opts=--log-level=info
               command:
                 - mlflow
               env:
@@ -1677,7 +1677,7 @@ should match snapshot with additional values when mssql is enabled:
                 - --backend-store-uri=mssql+pymssql://$(MSSQL_USERNAME):$(MSSQL_PWD)@$(MSSQL_HOST):$(MSSQL_TCP_PORT)/$(MSSQL_DATABASE)
                 - --default-artifact-root=./mlruns
                 - --app-name=basic-auth
-                - --gunicorn-opts='--log-level=info'
+                - --gunicorn-opts=--log-level=info
               command:
                 - mlflow
               env:
@@ -2021,7 +2021,7 @@ should match snapshot with additional values when mysql is enabled:
                 - --backend-store-uri=mysql+pymysql://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
                 - --default-artifact-root=./mlruns
                 - --app-name=basic-auth
-                - --gunicorn-opts='--log-level=info'
+                - --gunicorn-opts=--log-level=info
               command:
                 - mlflow
               env:
@@ -2360,7 +2360,7 @@ should match snapshot with additional values when postgresql is enabled:
                 - --backend-store-uri=postgresql://
                 - --default-artifact-root=./mlruns
                 - --app-name=basic-auth
-                - --gunicorn-opts='--log-level=info'
+                - --gunicorn-opts=--log-level=info
               command:
                 - mlflow
               env:
