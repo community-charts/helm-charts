@@ -408,6 +408,16 @@ should match snapshot with additional values:
                 requests:
                   cpu: 100m
                   memory: 128Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -759,6 +769,16 @@ should match snapshot with additional values when auth and auth.postgres are ena
                 requests:
                   cpu: 100m
                   memory: 128Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -1123,6 +1143,16 @@ should match snapshot with additional values when bitnami mysql is enabled:
                 requests:
                   cpu: 100m
                   memory: 128Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -1482,6 +1512,16 @@ should match snapshot with additional values when bitnami postgresql is enabled:
                 requests:
                   cpu: 100m
                   memory: 128Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -1826,6 +1866,16 @@ should match snapshot with additional values when mssql is enabled:
                 requests:
                   cpu: 100m
                   memory: 128Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -2170,6 +2220,16 @@ should match snapshot with additional values when mysql is enabled:
                 requests:
                   cpu: 100m
                   memory: 128Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -2509,6 +2569,16 @@ should match snapshot with additional values when postgresql is enabled:
                 requests:
                   cpu: 100m
                   memory: 128Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
