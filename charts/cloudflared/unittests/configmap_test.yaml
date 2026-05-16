@@ -56,3 +56,12 @@ tests:
       appVersion: 1.0.0
     asserts:
       - matchSnapshot: { }
+
+  - it: should not render configmap in remote mode
+    set:
+      tunnelMode: remote
+      tunnelToken:
+        value: my-test-token
+    asserts:
+      - hasDocuments:
+          count: 0

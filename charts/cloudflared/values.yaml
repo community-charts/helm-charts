@@ -70,7 +70,21 @@ securityContext:
   runAsUser: 65532
   runAsGroup: 65532
 
-# -- This is for setting up the cloudflared tunnel secrets. For more information checkout: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/local-management/create-local-tunnel/
+# -- Tunnel mode: "local" for locally-managed tunnels (config file + credentials), "remote" for remotely-managed tunnels (token-based, configured in Cloudflare dashboard)
+tunnelMode: local
+
+# -- Tunnel token for remote mode. Get this from the Cloudflare Zero Trust dashboard. Only used when tunnelMode is "remote".
+tunnelToken:
+  # -- The tunnel token value. Either set this or use existingSecret.
+  value: ""
+  # -- Use an existing secret containing the tunnel token.
+  existingSecret:
+    # -- Name of the existing secret.
+    name: ""
+    # -- Key in the secret containing the tunnel token.
+    key: "tunnel-token"
+
+# -- This is for setting up the cloudflared tunnel secrets. Only used when tunnelMode is "local". For more information checkout: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/local-management/create-local-tunnel/
 tunnelSecrets:
   # -- This is for cloudflared tunnel certificate PEM file.
   base64EncodedPemFile: ""
@@ -89,7 +103,7 @@ tunnelSecrets:
     # -- This is the key of the configuration JSON file in the existing secret.
     key: "credentials.json"
 
-# -- Please find more configuration from https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/arguments/
+# -- Please find more configuration from https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/arguments/. Only used when tunnelMode is "local".
 tunnelConfig:
   # -- cloudflared tunnel name
   name: ""
@@ -106,7 +120,7 @@ tunnelConfig:
   connectTimeout: 30s
   warpRouting: false
 
-# -- Cloudflare ingress rules. More information can be found here: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/local-management/configuration-file/#how-traffic-is-matched
+# -- Cloudflare ingress rules. Only used when tunnelMode is "local". More information can be found here: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/local-management/configuration-file/#how-traffic-is-matched
 ingress:
   - hostname: example.com # or "*.example.com" but you must define a CNAME record for "*" to your DNS
     service: http://traefik.kube-system.svc.cluster.local:80
