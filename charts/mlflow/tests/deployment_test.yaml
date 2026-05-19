@@ -398,6 +398,46 @@ tests:
             name: MLFLOW_S3_IGNORE_TLS
             value: "true"
         template: deployment.yaml
+
+  - it: should inject oauth2-proxy sidecar when enabled
+    set:
+      oauth2Proxy:
+        enabled: true
+        listenPort: 4180
+    asserts:
+      - isNotNull:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")]
+        template: deployment.yaml
+
+  - it: should reference existing secret for oauth2-proxy when provided
+    set:
+      oauth2Proxy:
+        enabled: true
+        existingSecret: my-oauth2-secret
+        clientIDKey: client-id
+        clientSecretKey: client-secret
+        listenPort: 4180
+      extraEnvVars:
+        AWS_DEFAULT_REGION: eu-central-1
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].env
+          content:
+            name: OAUTH2_PROXY_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: my-oauth2-secret
+                key: client-id
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].env
+          content:
+            name: OAUTH2_PROXY_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: my-oauth2-secret
+                key: client-secret
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].env
           content:

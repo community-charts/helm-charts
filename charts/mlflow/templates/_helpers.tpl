@@ -95,3 +95,20 @@ Create mysql name secret name.
 {{- define "mlflow.mysql.fullname" -}}
 {{- printf "%s-mysql" (include "mlflow.fullname" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+
+{{/*
+Return the port number the Ingress should target. If oauth2-proxy sidecar is enabled
+use its listenPort, otherwise use the service.port value.
+Usage: {{ include "mlflow.servicePort" . }}
+*/}}
+{{- define "mlflow.servicePort" -}}
+{{- if hasKey .Values "oauth2Proxy" }}
+  {{- if and (hasKey .Values.oauth2Proxy "enabled") .Values.oauth2Proxy.enabled }}
+    {{- .Values.oauth2Proxy.listenPort -}}
+  {{- else -}}
+    {{- .Values.service.port -}}
+  {{- end -}}
+{{- else -}}
+  {{- .Values.service.port -}}
+{{- end -}}
+{{- end }}

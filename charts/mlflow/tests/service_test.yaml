@@ -37,3 +37,16 @@ tests:
       appVersion: 1.0.0
     asserts:
       - matchSnapshot: { }
+
+  - it: should expose oauth2-proxy port when oauth2Proxy.enabled is true
+    set:
+      oauth2Proxy:
+        enabled: true
+        listenPort: 4180
+    asserts:
+      - contains:
+          path: spec.ports
+          content:
+            name: oauth2-proxy
+            port: 4180
+          any: true

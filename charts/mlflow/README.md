@@ -397,6 +397,48 @@ auth:
       name: auth-postgres-database-secret
 ```
 
+## OAuth2 Proxy Sidecar (Keycloak example)
+
+This chart can deploy `oauth2-proxy` alongside the `mlflow` container as a sidecar. The proxy will authenticate users against an OIDC provider (Keycloak example below) and forward requests to the local Mlflow server.
+
+Example values to enable the sidecar and use Keycloak:
+
+```yaml
+oauth2Proxy:
+  enabled: true
+  # createSecret: true                   # set to true to create secret from inline values
+  # existingSecret: my-oauth2-secret     # or point to an existing secret
+  image:
+    repository: quay.io/oauth2-proxy/oauth2-proxy
+    tag: v7.4.0
+  listenPort: 4180
+  # Upstream is automatically set to the mlflow container port
+  # (http://127.0.0.1:<service.containerPort>)
+  provider:
+    name: keycloak
+    issuerURL: https://auth.example.com/realms/myrealm
+    redirectURL: https://mlflow.example.com/oauth2/callback
+  # extraArgs can hold additional oauth2-proxy flags
+  extraArgs: {}
+
+# If you prefer to create the client secret using the chart, enable createSecret
+oauth2Proxy:
+  createSecret: true
+  provider:
+    clientID: my-mlflow-client
+    clientSecret: supersecret
+  cookieSecret: "random-32-char-base64"
+```
+
+Secret alternative (kubectl):
+
+```bash
+kubectl create secret generic my-oauth2-secret \
+  --from-literal=client-id=my-mlflow-client \
+  --from-literal=client-secret=supersecret \
+  --from-literal=cookie-secret=$(head -c32 /dev/urandom | base64)
+```
+
 ## Basic Authentication with LDAP Backend
 
 > **Tip**: auth and ldapAuth can not be enabled at same time!
