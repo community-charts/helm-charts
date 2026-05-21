@@ -156,8 +156,6 @@ spec:
                   name: {{ default (include "n8n.redis.fullname" .) .Values.externalRedis.existingSecret }}
                   key: redis-password
                   optional: true
-            - name: N8N_RUNNERS_ENABLED
-              value: "true"
             - name: N8N_RUNNERS_MODE
               value: internal
             - name: N8N_RUNNERS_TASK_TIMEOUT
