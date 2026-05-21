@@ -85,7 +85,6 @@ should match snapshot of default values:
   7: |
     apiVersion: v1
     data:
-      N8N_RUNNERS_ENABLED: "true"
       N8N_RUNNERS_HEARTBEAT_INTERVAL: "30"
       N8N_RUNNERS_MAX_CONCURRENCY: "5"
       N8N_RUNNERS_MODE: internal
@@ -175,7 +174,7 @@ should match snapshot of default values:
       template:
         metadata:
           annotations:
-            checksum/config: ebb640e853e11410aa426741a83e301290fcfa10987f5e8a3e7d2cb8a84eb4c8
+            checksum/config: fc9799ad2ff7266b11a1422e4886d8f41ba893b4e4f24079a667238037ee9667
           labels:
             app.kubernetes.io/component: main
             app.kubernetes.io/instance: n8n
@@ -366,7 +365,6 @@ should match snapshot of postgres ssl certificate values:
   7: |
     apiVersion: v1
     data:
-      N8N_RUNNERS_ENABLED: "true"
       N8N_RUNNERS_HEARTBEAT_INTERVAL: "30"
       N8N_RUNNERS_MAX_CONCURRENCY: "5"
       N8N_RUNNERS_MODE: internal
@@ -469,7 +467,7 @@ should match snapshot of postgres ssl certificate values:
       template:
         metadata:
           annotations:
-            checksum/config: b9968f93f265e5024a55c0d954ae1ab89d083de575b8bb39815245d357f8cc85
+            checksum/config: 4db2178b5cd47bd137334fb0cf833a9cc35ab8b9816f990f7b7b12fc55d0eb3a
           labels:
             app.kubernetes.io/component: main
             app.kubernetes.io/instance: n8n

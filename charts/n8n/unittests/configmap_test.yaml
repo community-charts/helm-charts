@@ -879,9 +879,6 @@ tests:
       value: n8n-task-broker-configmap
     asserts:
       - equal:
-          path: data.N8N_RUNNERS_ENABLED
-          value: "true"
-      - equal:
           path: data.N8N_RUNNERS_MODE
           value: internal
 

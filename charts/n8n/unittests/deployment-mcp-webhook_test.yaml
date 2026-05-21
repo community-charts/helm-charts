@@ -772,15 +772,6 @@ tests:
             value: n8nextraenvvar
         template: deployment-mcp-webhook.yaml
 
-  - it: should set n8n runners enabled environment variable
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].env
-          content:
-            name: N8N_RUNNERS_ENABLED
-            value: "true"
-        template: deployment-mcp-webhook.yaml
-
   - it: should set n8n runners mode environment variable
     asserts:
       - contains:
@@ -1220,15 +1211,6 @@ tests:
             key: fake-key
             operator: fake-operator
             value: fake-value
-        template: deployment-mcp-webhook.yaml
-
-  - it: should set task runner enabled environment variable
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].env
-          content:
-            name: N8N_RUNNERS_ENABLED
-            value: "true"
         template: deployment-mcp-webhook.yaml
 
   - it: should set task runner mode environment variable
