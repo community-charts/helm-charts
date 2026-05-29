@@ -19,7 +19,7 @@ version: 2.3.0
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "2026.2.0"
+appVersion: "2026.5.2"
 kubeVersion: ">=1.21.0-0"
 home: https://github.com/cloudflare/cloudflared
 maintainers:
@@ -59,7 +59,7 @@ annotations:
           url: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/create-remote-tunnel/
   artifacthub.io/images: |
     - name: cloudflared
-      image: cloudflare/cloudflared:2026.2.0
+      image: cloudflare/cloudflared:2026.5.2
       platforms:
         - linux/amd64
         - linux/arm64
