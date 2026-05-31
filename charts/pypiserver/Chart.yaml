@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.1.8
+version: 0.1.9
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "v2.4.0"
+appVersion: "v2.4.1"
 kubeVersion: ">=1.13.0-0"
 home: https://github.com/pypiserver/pypiserver
 maintainers:
@@ -45,13 +45,13 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update pypiserver/pypiserver image version to v2.4.0
+      description: Update pypiserver/pypiserver image version to v2.4.1
       links:
         - name: Upstream Project
           url: https://hub.docker.com/r/pypiserver/pypiserver
   artifacthub.io/images: |
     - name: pypiserver
-      image: pypiserver/pypiserver:v2.4.0
+      image: pypiserver/pypiserver:v2.4.1
       platforms:
         - linux/amd64
         - linux/arm64
