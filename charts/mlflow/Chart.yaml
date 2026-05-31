@@ -51,6 +51,8 @@ annotations:
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
+    - kind: fixed
+      description: Render gunicorn options without literal shell quotes
     - kind: changed
       description: Update burakince/mlflow image version to 3.12.0
       links:
