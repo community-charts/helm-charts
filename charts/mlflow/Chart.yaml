@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.8.4
+version: 1.8.5
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -51,16 +51,8 @@ annotations:
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Update burakince/mlflow image version to 3.13.0
-      links:
-        - name: Upstream Project
-          url: https://hub.docker.com/r/burakince/mlflow
-    - kind: changed
-      description: Update dependency postgresql from 18.6.10 to 18.7.0
-      links:
-        - name: ArtifactHub
-          url: https://artifacthub.io/packages/helm/bitnami/postgresql
+    - kind: fixed
+      description: Fix broken screenshot URL(s) in mlflow chart
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.13.0
@@ -70,7 +62,7 @@ annotations:
       email: burak.ince@linux.org.tr
   artifacthub.io/operator: "false"
   artifacthub.io/prerelease: "false"
-  artifacthub.io/screenshots: |
+  artifacthub.io/screenshots: |-
     - title: Quickstart UI screenshot
       url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/quickstart/quickstart_ui_screenshot.png
     - title: OSS registry 1 register
@@ -89,8 +81,6 @@ annotations:
       url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/oss_registry_5_version.png
     - title: OSS Registry 6 transition
       url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/oss_registry_6_version.png
-    - title: Experiment compare
-      url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/tutorial-compare.png
   artifacthub.io/signKey: |
     fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
     url: https://keybase.io/communitycharts/pgp_keys.asc
