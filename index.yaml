@@ -37026,6 +37026,92 @@ entries:
   - annotations:
       artifacthub.io/changes: |-
         - kind: changed
+          description: Update outlinewiki/outline image version to 1.8.0
+          links:
+            - name: Upstream Project
+              url: https://hub.docker.com/r/outlinewiki/outline
+        - kind: changed
+          description: Update dependency postgresql from 18.6.8 to 18.7.0
+          links:
+            - name: ArtifactHub
+              url: https://artifacthub.io/packages/helm/bitnami/postgresql
+      artifacthub.io/containsSecurityUpdates: "false"
+      artifacthub.io/images: |
+        - name: outline
+          image: outlinewiki/outline:1.8.0
+          platforms:
+            - linux/amd64
+            - linux/arm64
+            - linux/arm/v7
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/community-charts/helm-charts
+        - name: Chart Usage Page
+          url: https://community-charts.github.io/docs/charts/outline/usage
+        - name: Upstream Project
+          url: https://github.com/outline/outline/
+        - name: Official Usage Documentation
+          url: https://docs.getoutline.com/s/guide
+        - name: Official Hosting Documentation
+          url: https://docs.getoutline.com/s/hosting/
+      artifacthub.io/maintainers: |
+        - name: burakince
+          email: burak.ince@linux.org.tr
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/screenshots: |
+        - title: Outline Home Page
+          url: https://user-images.githubusercontent.com/380914/110356468-26374600-7fef-11eb-9f6a-f2cc2c8c6590.png
+      artifacthub.io/signKey: |
+        fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
+        url: https://keybase.io/communitycharts/pgp_keys.asc
+    apiVersion: v2
+    appVersion: 1.8.0
+    created: "2026-06-02T02:56:19.710531136Z"
+    dependencies:
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 25.5.3
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 18.7.0
+    - condition: minio.enabled
+      name: minio
+      repository: https://charts.min.io/
+      version: 5.4.0
+    description: A Helm chart for the fastest knowledge base for growing teams. Beautiful,
+      realtime collaborative, feature packed, and markdown compatible.
+    digest: 15025ff1664fa101b56d4e1d33d078865e7031f326a52c5d8bbc47c6c0581ab0
+    home: https://www.getoutline.com/
+    icon: https://avatars.githubusercontent.com/u/1765001?s=200&v=4
+    keywords:
+    - outline
+    - knowledge base
+    - knowledge
+    - docs
+    - documentation
+    - collaboration
+    - markdown
+    - wiki
+    kubeVersion: '>=1.23.0-0'
+    maintainers:
+    - email: burak.ince@linux.org.tr
+      name: burakince
+      url: https://www.burakince.com
+    name: outline
+    sources:
+    - https://github.com/community-charts/helm-charts
+    - https://github.com/outline/outline/
+    type: application
+    urls:
+    - https://github.com/community-charts/helm-charts/releases/download/outline-0.7.5/outline-0.7.5.tgz
+    version: 0.7.5
+  - annotations:
+      artifacthub.io/changes: |-
+        - kind: changed
           description: Update outlinewiki/outline image version to 1.7.1
           links:
             - name: Upstream Project
@@ -39763,4 +39849,4 @@ entries:
     urls:
     - https://github.com/community-charts/helm-charts/releases/download/pypiserver-0.1.0/pypiserver-0.1.0.tgz
     version: 0.1.0
-generated: "2026-06-02T02:51:32.512287471Z"
+generated: "2026-06-02T02:56:19.711157173Z"
