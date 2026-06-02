@@ -63,11 +63,6 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
-{{- define "mlflow.health" -}}
-{{- $basPath := default "/" .Values.extraArgs.staticPrefix }}
-{{- printf "%s/health" ($basPath | trimSuffix "/" )}}
-{{- end }}
-
 {{/*
 Generate random hex similar to `openssl rand -hex 16` command.
 Usage: {{ include "mlflow.generateRandomHex" 32 }}

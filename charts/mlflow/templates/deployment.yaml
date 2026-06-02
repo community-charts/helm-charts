@@ -342,14 +342,14 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: {{ include "mlflow.health" . }}
+              path: /health
               port: {{ .Values.service.containerPortName }}
           {{- with .Values.livenessProbe }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
           readinessProbe:
             httpGet:
-              path: {{ include "mlflow.health" . }}
+              path: /health
               port: {{ .Values.service.containerPortName }}
           {{- with .Values.readinessProbe }}
             {{- toYaml . | nindent 12 }}
