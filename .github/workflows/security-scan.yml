@@ -44,18 +44,20 @@ jobs:
         with:
           sarif_file: kube-linter-results.sarif
 
-      - name: Run Trivy (Misconfiguration + Vulnerabilities)
+      - name: Run Trivy on changed charts
+        if: steps.changed-charts.outputs.any_changed == 'true'
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: config
-          scan-ref: ./charts
+          scan-ref: ${{ steps.changed-charts.outputs.all_changed_files }}
           severity: HIGH,CRITICAL
           format: sarif
           output: trivy-results.sarif
           exit-code: 1
-          skip-dirs: ".git,charts/*/charts,.claude,.vscode,.github,.agent,docs,tmp,examples,tests"
+          skip-dirs: "charts"
 
       - name: Upload Trivy SARIF
+        if: steps.changed-charts.outputs.any_changed == 'true'
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-results.sarif
