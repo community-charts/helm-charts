@@ -22,7 +22,7 @@ jobs:
 
       - name: Get changed chart directories
         id: changed-charts
-        uses: tj-actions/changed-files@v45
+        uses: tj-actions/changed-files@v47
         with:
           files: charts/**
           dir_names: true
