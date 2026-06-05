@@ -2093,10 +2093,11 @@
       "type": "object"
     },
     "revisionHistoryLimit": {
-      "default": "",
+      "default": null,
       "description": "The number of old ReplicaSets to retain for rollback. More information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy",
+      "minimum": 0,
       "title": "revisionHistoryLimit",
-      "type": ["integer", "string"]
+      "type": ["integer", "null"]
     },
     "timezone": {
       "default": "Europe/Berlin",

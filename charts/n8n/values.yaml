@@ -25,7 +25,7 @@ strategy:
     maxUnavailable: "25%"
 
 # -- The number of old ReplicaSets to retain for rollback. More information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy
-revisionHistoryLimit: ""
+revisionHistoryLimit: ~
 
 # -- This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
 serviceAccount:
