@@ -50,7 +50,7 @@ annotations:
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: added
+    - kind: fixed
       description: Make unhealthyPodEvictionPolicy configurable on PodDisruptionBudgets for main, worker, and webhook nodes (defaults to AlwaysAllow, requires Kubernetes >= 1.26)
   artifacthub.io/images: |
     - name: n8n
