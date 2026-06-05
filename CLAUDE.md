@@ -16,6 +16,9 @@ ct lint --debug --config ./.github/configs/ct-lint.yaml --lint-conf ./.github/co
 
 # Lint with Artifact Hub validator (requires `ah` CLI)
 ah lint -p charts/<chart-name>
+
+# Run KubeLinter against a single chart (requires kube-linter CLI)
+kube-linter lint charts/<chart-name> --config .kube-linter.yaml
 ```
 
 ### Unit Tests
