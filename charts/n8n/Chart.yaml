@@ -55,6 +55,10 @@ annotations:
       links:
         - name: Upstream Project
           url: https://github.com/n8n-io/n8n
+    - kind: added
+      description: Set unhealthyPodEvictionPolicy to AlwaysAllow on PodDisruptionBudgets for main, worker, and webhook nodes
+    - kind: changed
+      description: Switch PDB default from minAvailable 1 to maxUnavailable 1 for main, worker, and webhook nodes
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:2.23.3

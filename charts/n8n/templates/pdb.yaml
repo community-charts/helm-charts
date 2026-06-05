@@ -7,6 +7,7 @@ metadata:
   labels:
     {{- include "n8n.main.labels" . | nindent 4 }}
 spec:
+  unhealthyPodEvictionPolicy: AlwaysAllow
   {{- if .Values.main.pdb.minAvailable }}
   minAvailable: {{ .Values.main.pdb.minAvailable }}
   {{- end }}
@@ -26,6 +27,7 @@ metadata:
   labels:
     {{- include "n8n.webhook.labels" . | nindent 4 }}
 spec:
+  unhealthyPodEvictionPolicy: AlwaysAllow
   {{- if .Values.webhook.pdb.minAvailable }}
   minAvailable: {{ .Values.webhook.pdb.minAvailable }}
   {{- end }}
@@ -45,6 +47,7 @@ metadata:
   labels:
     {{- include "n8n.worker.labels" . | nindent 4 }}
 spec:
+  unhealthyPodEvictionPolicy: AlwaysAllow
   {{- if .Values.worker.pdb.minAvailable }}
   minAvailable: {{ .Values.worker.pdb.minAvailable }}
   {{- end }}

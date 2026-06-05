@@ -1279,8 +1279,8 @@
               "type": "boolean"
             },
             "minAvailable": {
-              "default": 1,
-              "description": "Minimum number of available replicas for the main node",
+              "default": null,
+              "description": "Minimum number of available replicas for the main node. Mutually exclusive with maxUnavailable.",
               "required": [],
               "title": "minAvailable",
               "oneOf": [
@@ -1298,14 +1298,14 @@
               ]
             },
             "maxUnavailable": {
-              "default": null,
-              "description": "Maximum number of unavailable replicas for the main node",
+              "default": 1,
+              "description": "Maximum number of unavailable replicas for the main node. Mutually exclusive with minAvailable.",
               "required": [],
               "title": "maxUnavailable",
               "oneOf": [
                 {
                   "type": "integer",
-                  "minimum": 0
+                  "minimum": 1
                 },
                 {
                   "type": "string",
@@ -2755,8 +2755,8 @@
               "type": "boolean"
             },
             "minAvailable": {
-              "default": 1,
-              "description": "Minimum number of available replicas for the worker node",
+              "default": null,
+              "description": "Minimum number of available replicas for the worker node. Mutually exclusive with maxUnavailable.",
               "required": [],
               "title": "minAvailable",
               "oneOf": [
@@ -2774,14 +2774,14 @@
               ]
             },
             "maxUnavailable": {
-              "default": null,
-              "description": "Maximum number of unavailable replicas for the worker node",
+              "default": 1,
+              "description": "Maximum number of unavailable replicas for the worker node. Mutually exclusive with minAvailable.",
               "required": [],
               "title": "maxUnavailable",
               "oneOf": [
                 {
                   "type": "integer",
-                  "minimum": 0
+                  "minimum": 1
                 },
                 {
                   "type": "string",
@@ -3498,8 +3498,8 @@
               "type": "boolean"
             },
             "minAvailable": {
-              "default": 1,
-              "description": "Minimum number of available replicas for the worker node",
+              "default": null,
+              "description": "Minimum number of available replicas for the worker node. Mutually exclusive with maxUnavailable.",
               "required": [],
               "title": "minAvailable",
               "oneOf": [
@@ -3517,14 +3517,14 @@
               ]
             },
             "maxUnavailable": {
-              "default": null,
-              "description": "Maximum number of unavailable replicas for the worker node",
+              "default": 1,
+              "description": "Maximum number of unavailable replicas for the worker node. Mutually exclusive with minAvailable.",
               "required": [],
               "title": "maxUnavailable",
               "oneOf": [
                 {
                   "type": "integer",
-                  "minimum": 0
+                  "minimum": 1
                 },
                 {
                   "type": "string",
@@ -4365,7 +4365,7 @@
                 "default": "n8n-bucket",
                 "description": "This is for setting up the bucket name.",
                 "required": [],
-                "title": "name", 
+                "title": "name",
                 "type": "string"
               },
               "policy": {
@@ -4613,7 +4613,7 @@
                       },
                       "minItems": 1,
                       "required": [],
-                      "title": "actions", 
+                      "title": "actions",
                       "type": "array"
                     },
                     "resources": {
@@ -4732,7 +4732,7 @@
               "accessKey": {
                 "default": "n8n-user",
                 "required": [],
-                "title": "accessKey", 
+                "title": "accessKey",
                 "type": "string"
               },
               "policy": {
@@ -4752,7 +4752,7 @@
             },
             "required": [
               "accessKey",
-              "secretKey", 
+              "secretKey",
               "policy"
             ],
             "type": "object"

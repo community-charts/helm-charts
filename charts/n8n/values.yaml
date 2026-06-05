@@ -311,9 +311,9 @@ main:
     # -- Whether to enable the PodDisruptionBudget
     enabled: true
     # -- Minimum number of available replicas
-    minAvailable: 1
+    minAvailable: null
     # -- Maximum number of unavailable replicas
-    maxUnavailable: null
+    maxUnavailable: 1
 
   # -- This block is for setting up the resource management for the main pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources: {}
@@ -465,9 +465,9 @@ worker:
     # -- Whether to enable the PodDisruptionBudget
     enabled: true
     # -- Minimum number of available replicas
-    minAvailable: 1
+    minAvailable: null
     # -- Maximum number of unavailable replicas
-    maxUnavailable: null
+    maxUnavailable: 1
 
   # -- This is to setup the wait for the main node to be ready.
   waitMainNodeReady:
@@ -712,9 +712,9 @@ webhook:
     # -- Whether to enable the PodDisruptionBudget
     enabled: true
     # -- Minimum number of available replicas
-    minAvailable: 1
+    minAvailable: null
     # -- Maximum number of unavailable replicas
-    maxUnavailable: null
+    maxUnavailable: 1
 
   # -- This is to setup the wait for the webhook node to be ready.
   waitMainNodeReady:
