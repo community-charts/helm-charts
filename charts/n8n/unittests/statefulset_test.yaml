@@ -1221,6 +1221,28 @@ tests:
               name: n8n-task-runners-configmap
         template: statefulset.yaml
 
+  - it: should set security context on task runner container when taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].securityContext.runAsUser
+          value: 1000
+        template: statefulset.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].securityContext.runAsGroup
+          value: 1000
+        template: statefulset.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].securityContext.runAsNonRoot
+          value: true
+        template: statefulset.yaml
+
   - it: should add license info command when license.enabled is true and license.activationKey is set
     set:
       license:

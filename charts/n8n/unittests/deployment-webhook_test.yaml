@@ -1399,6 +1399,29 @@ tests:
             done
         template: deployment-webhook.yaml
 
+  - it: should set security context on wait-for-main init container when webhook.waitMainNodeReady.enabled is true
+    set:
+      webhook:
+        waitMainNodeReady:
+          enabled: true
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].securityContext.runAsUser
+          value: 1000
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].securityContext.runAsGroup
+          value: 1000
+        template: deployment-webhook.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].securityContext.runAsNonRoot
+          value: true
+        template: deployment-webhook.yaml
+
   - it: should use startupProbe to wait n8n process ready
     asserts:
       - equal:

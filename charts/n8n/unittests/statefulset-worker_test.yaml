@@ -1278,6 +1278,28 @@ tests:
               name: n8n-task-runners-configmap
         template: statefulset-worker.yaml
 
+  - it: should set security context on task runner container when taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].securityContext.runAsUser
+          value: 1000
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].securityContext.runAsGroup
+          value: 1000
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].securityContext.runAsNonRoot
+          value: true
+        template: statefulset-worker.yaml
+
   - it: should use license configmap and secret when license.enabled is true
     set:
       license:
@@ -1840,6 +1862,29 @@ tests:
               echo "Waiting for main node to be ready..."
               sleep 2
             done
+        template: statefulset-worker.yaml
+
+  - it: should set security context on wait-for-main init container when worker.waitMainNodeReady.enabled is true
+    set:
+      worker:
+        waitMainNodeReady:
+          enabled: true
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].securityContext.runAsUser
+          value: 1000
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].securityContext.runAsGroup
+          value: 1000
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].securityContext.runAsNonRoot
+          value: true
         template: statefulset-worker.yaml
 
   - it: should use startupProbe to wait n8n process ready

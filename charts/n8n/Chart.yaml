@@ -51,7 +51,7 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: added
-      description: Add securityContext definitions to init containers
+      description: Add securityContext definitions to wait-for-main init containers and task runner sidecar containers
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:2.23.3
