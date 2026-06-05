@@ -4,6 +4,8 @@ apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: {{ include "n8n.fullname" . }}
+  annotations:
+    ignore-check.kube-linter.io/pdb-unhealthy-pod-eviction-policy: "unhealthyPodEvictionPolicy is conditionally rendered for Kubernetes >= 1.26 only"
   labels:
     {{- include "n8n.main.labels" . | nindent 4 }}
 spec:
@@ -26,6 +28,8 @@ apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: {{ include "n8n.webhook.fullname" . }}
+  annotations:
+    ignore-check.kube-linter.io/pdb-unhealthy-pod-eviction-policy: "unhealthyPodEvictionPolicy is conditionally rendered for Kubernetes >= 1.26 only"
   labels:
     {{- include "n8n.webhook.labels" . | nindent 4 }}
 spec:
@@ -48,6 +52,8 @@ apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: {{ include "n8n.worker.fullname" . }}
+  annotations:
+    ignore-check.kube-linter.io/pdb-unhealthy-pod-eviction-policy: "unhealthyPodEvictionPolicy is conditionally rendered for Kubernetes >= 1.26 only"
   labels:
     {{- include "n8n.worker.labels" . | nindent 4 }}
 spec:

@@ -19,7 +19,6 @@ checks:
     - no-liveness-probe
     - no-readiness-probe
     - read-secret-from-env-var
-    - pdb-unhealthy-pod-eviction-policy
 
   ignorePaths:
     - "charts/kserve/**"
