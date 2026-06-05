@@ -175,6 +175,8 @@ fileStorage:
         - ReadWriteOnce
       # -- This is for setting up the local file storage persistence annotations.
       annotations: {}
+      # -- This is for setting up the local file storage persistence labels.
+      labels: {}
       # -- This is for setting up the local file storage persistence existing claim.
       existingClaim: ""
       # -- This is for setting up the local file storage persistence size.

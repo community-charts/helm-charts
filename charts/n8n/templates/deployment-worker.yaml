@@ -11,6 +11,9 @@ metadata:
   labels:
     {{- include "n8n.worker.labels" . | nindent 4 }}
 spec:
+  {{- if not (kindIs "invalid" .Values.revisionHistoryLimit) }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  {{- end }}
   {{- if and .Values.worker.allNodes (eq .Values.strategy.type "RollingUpdate") }}
   updateStrategy:
     type: RollingUpdate
@@ -191,6 +194,10 @@ spec:
                   name: {{ default (include "n8n.redis.fullname" .) .Values.externalRedis.existingSecret }}
                   key: redis-password
                   optional: true
+          {{- if .Values.webhook.url }}
+            - name: WEBHOOK_URL
+              value: {{ .Values.webhook.url | quote }}
+          {{- end }}
           {{- if eq .Values.taskRunners.mode "external" }}
             - name: N8N_RUNNERS_AUTH_TOKEN
               valueFrom:

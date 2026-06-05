@@ -23,6 +23,12 @@ You can then run `helm search repo community-charts` to see the charts.
 
 [Helm](https://helm.sh) charts can be found on Github: <https://github.com/community-charts/helm-charts/>
 
+To validate a chart locally before submitting a PR, run KubeLinter:
+
+```console
+kube-linter lint charts/<chart-name> --config .kube-linter.yaml
+```
+
 ## Contributors
 
 Community Charts are made with <3 thanks to these wonderful people

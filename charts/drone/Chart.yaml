@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.1.4
+version: 0.1.5
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "2.27.0"
+appVersion: "2.28.2"
 kubeVersion: ">=1.13.0-0"
 home: https://www.drone.io
 maintainers:
@@ -50,13 +50,13 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update drone/drone image version to 2.27.0
+      description: Update drone/drone image version to 2.28.2
       links:
         - name: Upstream Project
           url: https://hub.docker.com/r/drone/drone
   artifacthub.io/images: |
     - name: drone
-      image: drone/drone:2.27.0
+      image: drone/drone:2.28.2
       platforms:
         - linux/amd64
         - linux/arm64
