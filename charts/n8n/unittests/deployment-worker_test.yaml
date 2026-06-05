@@ -1377,6 +1377,19 @@ tests:
           value: true
         template: deployment-worker.yaml
 
+  - it: should mount tmp in task runner container when taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].volumeMounts
+          content:
+            name: tmp
+            mountPath: /tmp
+          any: true
+        template: deployment-worker.yaml
+
   - it: should use license configmap and secret when license.enabled is true
     set:
       license:

@@ -1243,6 +1243,19 @@ tests:
           value: true
         template: statefulset.yaml
 
+  - it: should mount tmp in task runner container when taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].volumeMounts
+          content:
+            name: tmp
+            mountPath: /tmp
+          any: true
+        template: statefulset.yaml
+
   - it: should set seccompProfile RuntimeDefault in pod security context by default
     asserts:
       - equal:
