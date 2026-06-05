@@ -7,7 +7,9 @@ metadata:
   labels:
     {{- include "n8n.main.labels" . | nindent 4 }}
 spec:
-  unhealthyPodEvictionPolicy: AlwaysAllow
+  {{- if and .Values.main.pdb.unhealthyPodEvictionPolicy (semverCompare ">=1.26.0-0" .Capabilities.KubeVersion.GitVersion) }}
+  unhealthyPodEvictionPolicy: {{ .Values.main.pdb.unhealthyPodEvictionPolicy }}
+  {{- end }}
   {{- if .Values.main.pdb.minAvailable }}
   minAvailable: {{ .Values.main.pdb.minAvailable }}
   {{- end }}
@@ -27,7 +29,9 @@ metadata:
   labels:
     {{- include "n8n.webhook.labels" . | nindent 4 }}
 spec:
-  unhealthyPodEvictionPolicy: AlwaysAllow
+  {{- if and .Values.webhook.pdb.unhealthyPodEvictionPolicy (semverCompare ">=1.26.0-0" .Capabilities.KubeVersion.GitVersion) }}
+  unhealthyPodEvictionPolicy: {{ .Values.webhook.pdb.unhealthyPodEvictionPolicy }}
+  {{- end }}
   {{- if .Values.webhook.pdb.minAvailable }}
   minAvailable: {{ .Values.webhook.pdb.minAvailable }}
   {{- end }}
@@ -47,7 +51,9 @@ metadata:
   labels:
     {{- include "n8n.worker.labels" . | nindent 4 }}
 spec:
-  unhealthyPodEvictionPolicy: AlwaysAllow
+  {{- if and .Values.worker.pdb.unhealthyPodEvictionPolicy (semverCompare ">=1.26.0-0" .Capabilities.KubeVersion.GitVersion) }}
+  unhealthyPodEvictionPolicy: {{ .Values.worker.pdb.unhealthyPodEvictionPolicy }}
+  {{- end }}
   {{- if .Values.worker.pdb.minAvailable }}
   minAvailable: {{ .Values.worker.pdb.minAvailable }}
   {{- end }}

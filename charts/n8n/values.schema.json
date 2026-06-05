@@ -1315,6 +1315,21 @@
                   "type": "null"
                 }
               ]
+            },
+            "unhealthyPodEvictionPolicy": {
+              "default": "AlwaysAllow",
+              "description": "Unhealthy pod eviction policy for the main node PodDisruptionBudget. Requires Kubernetes >= 1.26.",
+              "required": [],
+              "title": "unhealthyPodEvictionPolicy",
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": ["IfHealthyBudget", "AlwaysAllow"]
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           },
           "required": ["enabled"],
@@ -2791,6 +2806,21 @@
                   "type": "null"
                 }
               ]
+            },
+            "unhealthyPodEvictionPolicy": {
+              "default": "AlwaysAllow",
+              "description": "Unhealthy pod eviction policy for the worker node PodDisruptionBudget. Requires Kubernetes >= 1.26.",
+              "required": [],
+              "title": "unhealthyPodEvictionPolicy",
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": ["IfHealthyBudget", "AlwaysAllow"]
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           },
           "required": ["enabled"],
@@ -3529,6 +3559,21 @@
                 {
                   "type": "string",
                   "pattern": "^[0-9]+%$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "unhealthyPodEvictionPolicy": {
+              "default": "AlwaysAllow",
+              "description": "Unhealthy pod eviction policy for the worker node PodDisruptionBudget. Requires Kubernetes >= 1.26.",
+              "required": [],
+              "title": "unhealthyPodEvictionPolicy",
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": ["IfHealthyBudget", "AlwaysAllow"]
                 },
                 {
                   "type": "null"
