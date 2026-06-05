@@ -38,6 +38,15 @@ jobs:
           format: sarif
           output-file: kube-linter-results.sarif
 
+      - name: Pretty-print KubeLinter results
+        if: steps.changed-charts.outputs.any_changed == 'true'
+        run: |
+          echo "### KubeLinter Results" >> $GITHUB_STEP_SUMMARY
+          cat kube-linter-results.sarif | jq -r '
+            .runs[0].results[] |
+            "❌ [\(.ruleId)] \(.message.text | split("\n")[0])\n   📄 \(.locations[0].physicalLocation.artifactLocation.uri)"
+          ' >> $GITHUB_STEP_SUMMARY
+
       - name: Upload KubeLinter SARIF
         if: steps.changed-charts.outputs.any_changed == 'true'
         uses: github/codeql-action/upload-sarif@v4
