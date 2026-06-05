@@ -230,14 +230,27 @@ should match snapshot of default values:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1000
                 runAsNonRoot: true
                 runAsUser: 1000
+              volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
+                - mountPath: /home/node/.n8n
+                  name: node-modules
+                  readOnly: false
           securityContext:
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           serviceAccountName: n8n
+          volumes:
+            - emptyDir: {}
+              name: tmp
+            - emptyDir: {}
+              name: node-modules
   11: |
     apiVersion: v1
     data:
@@ -488,19 +501,25 @@ should match snapshot of main persistence:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1000
                 runAsNonRoot: true
                 runAsUser: 1000
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
           securityContext:
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           serviceAccountName: n8n
           volumes:
+            - emptyDir: {}
+              name: tmp
             - name: node-modules
               persistentVolumeClaim:
                 claimName: n8n-main-persistence
@@ -756,19 +775,25 @@ should match snapshot of main persistence with multiple main node and mode read 
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1000
                 runAsNonRoot: true
                 runAsUser: 1000
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
           securityContext:
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           serviceAccountName: n8n
           volumes:
+            - emptyDir: {}
+              name: tmp
             - name: node-modules
               persistentVolumeClaim:
                 claimName: n8n-main-persistence
@@ -1040,11 +1065,16 @@ should match snapshot of postgres ssl certificate values:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1000
                 runAsNonRoot: true
                 runAsUser: 1000
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
+                - mountPath: /home/node/.n8n
+                  name: node-modules
+                  readOnly: false
                 - mountPath: /home/node/certs/ca/ca.crt
                   name: pg-ssl-ca
                   readOnly: true
@@ -1060,8 +1090,14 @@ should match snapshot of postgres ssl certificate values:
           securityContext:
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           serviceAccountName: n8n
           volumes:
+            - emptyDir: {}
+              name: tmp
+            - emptyDir: {}
+              name: node-modules
             - name: pg-ssl-ca
               secret:
                 items:

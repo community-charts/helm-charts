@@ -1704,6 +1704,28 @@
           "title": "fsGroupChangePolicy",
           "type": "string",
           "enum": ["OnRootMismatch", "Always"]
+        },
+        "seccompProfile": {
+          "additionalProperties": false,
+          "description": "Seccomp profile for the pod.",
+          "properties": {
+            "type": {
+              "default": "RuntimeDefault",
+              "enum": ["Localhost", "RuntimeDefault", "Unconfined"],
+              "required": [],
+              "title": "type",
+              "type": "string"
+            },
+            "localhostProfile": {
+              "description": "Path to a seccomp profile file on the node (only for Localhost type).",
+              "required": [],
+              "title": "localhostProfile",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "title": "seccompProfile",
+          "type": "object"
         }
       },
       "required": [],
@@ -1986,6 +2008,63 @@
       },
       "required": [],
       "title": "securityContext",
+      "type": "object"
+    },
+    "waitContainerSecurityContext": {
+      "additionalProperties": true,
+      "description": "Security Context for the wait-for-main busybox init containers.",
+      "properties": {
+        "allowPrivilegeEscalation": {
+          "default": false,
+          "required": [],
+          "title": "allowPrivilegeEscalation",
+          "type": "boolean"
+        },
+        "readOnlyRootFilesystem": {
+          "default": true,
+          "required": [],
+          "title": "readOnlyRootFilesystem",
+          "type": "boolean"
+        },
+        "runAsNonRoot": {
+          "default": true,
+          "required": [],
+          "title": "runAsNonRoot",
+          "type": "boolean"
+        },
+        "runAsUser": {
+          "default": 1000,
+          "required": [],
+          "title": "runAsUser",
+          "type": "integer"
+        },
+        "capabilities": {
+          "additionalProperties": true,
+          "properties": {
+            "drop": {
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "drop",
+              "type": "array"
+            },
+            "add": {
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "add",
+              "type": "array"
+            }
+          },
+          "required": [],
+          "title": "capabilities",
+          "type": "object"
+        }
+      },
+      "required": [],
+      "title": "waitContainerSecurityContext",
       "type": "object"
     },
     "service": {

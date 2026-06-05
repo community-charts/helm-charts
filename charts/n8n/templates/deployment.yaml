@@ -62,11 +62,16 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.nodes.initContainer.image.repository }}:{{ .Values.nodes.initContainer.image.tag }}"
           imagePullPolicy: {{ .Values.nodes.initContainer.image.pullPolicy }}
+          env:
+            - name: NPM_CONFIG_CACHE
+              value: /npmdata/.npm-cache
           command: ["/bin/sh", "-c"]
           args:
             - |
               {{- include "n8n.npmInstallScript" . | nindent 14 }}
           volumeMounts:
+            - name: tmp
+              mountPath: /tmp
             {{- if .Values.npmRegistry.enabled }}
             - name: npmrc
               mountPath: "/home/node/.npmrc"
@@ -257,17 +262,15 @@ spec:
             - secretRef:
                 name: {{ . }}
           {{- end }}
-          {{- if or (eq (include "n8n.main.hasVolumeMounts" .) "true") .Values.main.persistence.enabled }}
           volumeMounts:
-          {{- end }}
-          {{- if and (or .Values.nodes.external.packages .Values.main.persistence.enabled) (eq .Values.taskRunners.mode "internal") }}
+            - name: tmp
+              mountPath: /tmp
             - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
               mountPath: {{ .Values.main.persistence.mountPath }}
               {{- if .Values.main.persistence.subPath }}
               subPath: {{ .Values.main.persistence.subPath }}
               {{- end }}
               readOnly: false
-          {{- end }}
           {{- if and .Values.nodes.external.packages (eq .Values.taskRunners.mode "internal") }}
             - name: community-node-modules
               mountPath: "/home/node/.n8n/nodes"
@@ -340,15 +343,15 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ template "n8n.taskRunners.fullname" . }}-configmap
-          {{- if or .Values.nodes.external.packages .Values.main.persistence.enabled }}
           volumeMounts:
+            - name: tmp
+              mountPath: /tmp
             - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
               mountPath: {{ .Values.main.persistence.mountPath }}
               {{- if .Values.main.persistence.subPath }}
               subPath: {{ .Values.main.persistence.subPath }}
               {{- end }}
               readOnly: false
-          {{- end }}
           {{- if .Values.nodes.external.packages }}
             - name: community-node-modules
               mountPath: "/home/node/.n8n/nodes"
@@ -358,14 +361,14 @@ spec:
       {{- with .Values.main.extraContainers }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if or .Values.main.persistence.enabled (eq (include "n8n.main.hasVolumes" .) "true") }}
       volumes:
-      {{- end }}
+        - name: tmp
+          emptyDir: {}
       {{- if .Values.main.persistence.enabled }}
         - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
           persistentVolumeClaim:
             claimName: {{ default (include "n8n-main.persistence.fullname" .) .Values.main.persistence.existingClaim }}
-      {{- else if .Values.nodes.external.packages }}
+      {{- else }}
         - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
           emptyDir: {}
       {{- end }}

@@ -1404,7 +1404,7 @@ tests:
       webhook:
         waitMainNodeReady:
           enabled: true
-      securityContext:
+      waitContainerSecurityContext:
         runAsUser: 1000
         runAsGroup: 1000
         runAsNonRoot: true
@@ -1420,6 +1420,33 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].securityContext.runAsNonRoot
           value: true
+        template: deployment-webhook.yaml
+
+  - it: should set seccompProfile RuntimeDefault in pod security context by default
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.seccompProfile.type
+          value: RuntimeDefault
+        template: deployment-webhook.yaml
+
+  - it: should always include tmp emptyDir volume
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: tmp
+            emptyDir: {}
+          any: true
+        template: deployment-webhook.yaml
+
+  - it: should always mount tmp in webhook container
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].volumeMounts
+          content:
+            name: tmp
+            mountPath: /tmp
+          any: true
         template: deployment-webhook.yaml
 
   - it: should use startupProbe to wait n8n process ready

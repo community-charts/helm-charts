@@ -52,6 +52,10 @@ annotations:
   artifacthub.io/changes: |-
     - kind: added
       description: Add securityContext definitions to wait-for-main init containers and task runner sidecar containers
+    - kind: security
+      description: Add seccompProfile RuntimeDefault to pod security context (CIS 5.7.2)
+    - kind: security
+      description: Enable readOnlyRootFilesystem for all containers with tmp emptyDir and waitContainerSecurityContext (CIS 5.7.3)
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:2.23.3

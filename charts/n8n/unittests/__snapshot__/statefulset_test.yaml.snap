@@ -246,18 +246,25 @@ should match snapshot of default values:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1000
                 runAsNonRoot: true
                 runAsUser: 1000
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
           securityContext:
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           serviceAccountName: n8n
+          volumes:
+            - emptyDir: {}
+              name: tmp
       updateStrategy:
         type: RollingUpdate
       volumeClaimTemplates:
@@ -548,11 +555,13 @@ should match snapshot of postgres ssl certificate values:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1000
                 runAsNonRoot: true
                 runAsUser: 1000
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
@@ -571,8 +580,12 @@ should match snapshot of postgres ssl certificate values:
           securityContext:
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           serviceAccountName: n8n
           volumes:
+            - emptyDir: {}
+              name: tmp
             - name: pg-ssl-ca
               secret:
                 items:

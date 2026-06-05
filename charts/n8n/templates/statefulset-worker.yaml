@@ -57,7 +57,7 @@ spec:
         {{- if .Values.worker.waitMainNodeReady.enabled }}
         - name: wait-for-main
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+            {{- toYaml .Values.waitContainerSecurityContext | nindent 12 }}
           image: busybox:1.36
           command: ["/bin/sh", "-c"]
           args:
@@ -84,11 +84,16 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.nodes.initContainer.image.repository }}:{{ .Values.nodes.initContainer.image.tag }}"
           imagePullPolicy: {{ .Values.nodes.initContainer.image.pullPolicy }}
+          env:
+            - name: NPM_CONFIG_CACHE
+              value: /npmdata/.npm-cache
           command: ["/bin/sh", "-c"]
           args:
             - |
               {{- include "n8n.npmInstallScript" . | nindent 14 }}
           volumeMounts:
+            - name: tmp
+              mountPath: /tmp
             {{- if .Values.npmRegistry.enabled }}
             - name: npmrc
               mountPath: "/home/node/.npmrc"
@@ -261,17 +266,15 @@ spec:
             - secretRef:
                 name: {{ . }}
           {{- end }}
-          {{- if or (eq (include "n8n.worker.hasVolumeMounts" .) "true") (eq .Values.taskRunners.mode "internal") }}
           volumeMounts:
-          {{- end }}
-          {{- if eq .Values.taskRunners.mode "internal" }}
+            - name: tmp
+              mountPath: /tmp
             - name: {{ default "node-modules" .Values.worker.persistence.volumeName }}
               mountPath: {{ .Values.worker.persistence.mountPath }}
               {{- if .Values.worker.persistence.subPath }}
               subPath: {{ .Values.worker.persistence.subPath }}
               {{- end }}
               readOnly: false
-          {{- end }}
           {{- if and .Values.nodes.external.packages (eq .Values.taskRunners.mode "internal") }}
             - name: community-node-modules
               mountPath: "/home/node/.n8n/nodes"
@@ -345,6 +348,8 @@ spec:
             - configMapRef:
                 name: {{ template "n8n.taskRunners.fullname" . }}-configmap
           volumeMounts:
+            - name: tmp
+              mountPath: /tmp
             - name: {{ default "node-modules" .Values.worker.persistence.volumeName }}
               mountPath: {{ .Values.worker.persistence.mountPath }}
               {{- if .Values.worker.persistence.subPath }}
@@ -360,9 +365,9 @@ spec:
       {{- with .Values.worker.extraContainers }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if eq (include "n8n.worker.hasVolumes" .) "true" }}
       volumes:
-      {{- end }}
+        - name: tmp
+          emptyDir: {}
       {{- if .Values.nodes.external.packages }}
         - name: community-node-modules
           emptyDir: {}

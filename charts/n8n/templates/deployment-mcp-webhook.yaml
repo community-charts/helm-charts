@@ -53,7 +53,7 @@ spec:
         {{- if .Values.webhook.waitMainNodeReady.enabled }}
         - name: wait-for-main
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+            {{- toYaml .Values.waitContainerSecurityContext | nindent 12 }}
           image: busybox:1.36
           command: ["/bin/sh", "-c"]
           args:
@@ -187,9 +187,9 @@ spec:
             - secretRef:
                 name: {{ . }}
           {{- end }}
-          {{- if eq (include "n8n.mcp-webhook.hasVolumeMounts" .) "true" }}
           volumeMounts:
-          {{- end }}
+            - name: tmp
+              mountPath: /tmp
           {{- if eq (include "n8n.postgres.ssl.hasCA" .) "true" }}
             - name: pg-ssl-ca
               mountPath: /home/node/certs/ca/ca.crt
@@ -214,9 +214,9 @@ spec:
       {{- with .Values.webhook.mcp.extraContainers }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if eq (include "n8n.mcp-webhook.hasVolumes" .) "true" }}
       volumes:
-      {{- end }}
+        - name: tmp
+          emptyDir: {}
       {{- if eq (include "n8n.postgres.ssl.hasCA" .) "true" }}
         - name: pg-ssl-ca
           secret:
