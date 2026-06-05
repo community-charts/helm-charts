@@ -8,6 +8,9 @@ metadata:
   {{- end }}
   labels:
     {{- include "outline.labels" . | nindent 4 }}
+    {{- with .Values.fileStorage.local.persistence.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
   name: {{ template "outline.fullname" . }}-data
   namespace: {{ .Release.Namespace }}
 spec:

@@ -311,9 +311,11 @@ main:
     # -- Whether to enable the PodDisruptionBudget
     enabled: true
     # -- Minimum number of available replicas
-    minAvailable: 1
+    minAvailable: null
     # -- Maximum number of unavailable replicas
-    maxUnavailable: null
+    maxUnavailable: 1
+    # -- Unhealty main pod eviction policy
+    unhealthyPodEvictionPolicy: AlwaysAllow
 
   # -- This block is for setting up the resource management for the main pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources: {}
@@ -465,9 +467,11 @@ worker:
     # -- Whether to enable the PodDisruptionBudget
     enabled: true
     # -- Minimum number of available replicas
-    minAvailable: 1
+    minAvailable: null
     # -- Maximum number of unavailable replicas
-    maxUnavailable: null
+    maxUnavailable: 1
+    # -- Unhealty worker pod eviction policy
+    unhealthyPodEvictionPolicy: AlwaysAllow
 
   # -- This is to setup the wait for the main node to be ready.
   waitMainNodeReady:
@@ -712,9 +716,11 @@ webhook:
     # -- Whether to enable the PodDisruptionBudget
     enabled: true
     # -- Minimum number of available replicas
-    minAvailable: 1
+    minAvailable: null
     # -- Maximum number of unavailable replicas
-    maxUnavailable: null
+    maxUnavailable: 1
+    # -- Unhealty webhook pod eviction policy
+    unhealthyPodEvictionPolicy: AlwaysAllow
 
   # -- This is to setup the wait for the webhook node to be ready.
   waitMainNodeReady:
