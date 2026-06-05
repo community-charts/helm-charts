@@ -102,9 +102,20 @@ charts/<name>/
 
 4. **security-scan**: Runs KubeLinter (all built-in checks, `kserve` excluded via `.kube-linter.yaml`) and Trivy misconfiguration/vulnerability scan (HIGH + CRITICAL severity) against chart templates. Both results are uploaded as SARIF to GitHub Security.
 
+For **conditionally-rendered fields** (e.g. gated on `semverCompare`), suppress KubeLinter checks with a per-object annotation rather than a global `.kube-linter.yaml` exclusion:
+```yaml
+metadata:
+  annotations:
+    ignore-check.kube-linter.io/<check-name>: "reason"
+```
+
 ### Unit Test Convention
 
 Tests live in `unittests/` as YAML files using [helm-unittest](https://github.com/helm-unittest/helm-unittest) syntax. Tests assert on rendered template output using `set:` to override values. Snapshot tests use `__snapshot__/` subdirectories.
+
+Always validate field types against the official schema before writing tests:
+`https://raw.githubusercontent.com/helm-unittest/helm-unittest/refs/heads/main/schema/helm-testsuite.json`
+Suite-level `capabilities` can be overridden per-test using the same fields.
 
 ### Values Schema
 
