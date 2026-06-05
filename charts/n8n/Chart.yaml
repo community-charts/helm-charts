@@ -52,6 +52,9 @@ annotations:
   artifacthub.io/changes: |-
     - kind: added
       description: Add missing webhook url to worker
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/406
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:2.23.3
