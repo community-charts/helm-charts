@@ -4,9 +4,14 @@ apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: {{ include "n8n.fullname" . }}
+  annotations:
+    ignore-check.kube-linter.io/pdb-unhealthy-pod-eviction-policy: "unhealthyPodEvictionPolicy is conditionally rendered for Kubernetes >= 1.26 only"
   labels:
     {{- include "n8n.main.labels" . | nindent 4 }}
 spec:
+  {{- if and .Values.main.pdb.unhealthyPodEvictionPolicy (semverCompare ">=1.26.0-0" .Capabilities.KubeVersion.GitVersion) }}
+  unhealthyPodEvictionPolicy: {{ .Values.main.pdb.unhealthyPodEvictionPolicy }}
+  {{- end }}
   {{- if .Values.main.pdb.minAvailable }}
   minAvailable: {{ .Values.main.pdb.minAvailable }}
   {{- end }}
@@ -23,9 +28,14 @@ apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: {{ include "n8n.webhook.fullname" . }}
+  annotations:
+    ignore-check.kube-linter.io/pdb-unhealthy-pod-eviction-policy: "unhealthyPodEvictionPolicy is conditionally rendered for Kubernetes >= 1.26 only"
   labels:
     {{- include "n8n.webhook.labels" . | nindent 4 }}
 spec:
+  {{- if and .Values.webhook.pdb.unhealthyPodEvictionPolicy (semverCompare ">=1.26.0-0" .Capabilities.KubeVersion.GitVersion) }}
+  unhealthyPodEvictionPolicy: {{ .Values.webhook.pdb.unhealthyPodEvictionPolicy }}
+  {{- end }}
   {{- if .Values.webhook.pdb.minAvailable }}
   minAvailable: {{ .Values.webhook.pdb.minAvailable }}
   {{- end }}
@@ -42,9 +52,14 @@ apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: {{ include "n8n.worker.fullname" . }}
+  annotations:
+    ignore-check.kube-linter.io/pdb-unhealthy-pod-eviction-policy: "unhealthyPodEvictionPolicy is conditionally rendered for Kubernetes >= 1.26 only"
   labels:
     {{- include "n8n.worker.labels" . | nindent 4 }}
 spec:
+  {{- if and .Values.worker.pdb.unhealthyPodEvictionPolicy (semverCompare ">=1.26.0-0" .Capabilities.KubeVersion.GitVersion) }}
+  unhealthyPodEvictionPolicy: {{ .Values.worker.pdb.unhealthyPodEvictionPolicy }}
+  {{- end }}
   {{- if .Values.worker.pdb.minAvailable }}
   minAvailable: {{ .Values.worker.pdb.minAvailable }}
   {{- end }}

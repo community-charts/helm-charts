@@ -11,6 +11,10 @@ chart:
   version: 1.0.0
   appVersion: 1.0.0
 
+capabilities:
+  majorVersion: 1
+  minorVersion: 26
+
 set:
   webhook:
     count: 1
@@ -168,3 +172,150 @@ tests:
       - equal:
           path: spec.selector.matchLabels["app.kubernetes.io/component"]
           value: worker
+
+  - it: should render unhealthyPodEvictionPolicy AlwaysAllow for main node by default on Kubernetes >= 1.26
+    documentSelector:
+      path: metadata.name
+      value: n8n
+    asserts:
+      - equal:
+          path: spec.unhealthyPodEvictionPolicy
+          value: AlwaysAllow
+
+  - it: should render unhealthyPodEvictionPolicy AlwaysAllow for webhook node by default on Kubernetes >= 1.26
+    set:
+      db:
+        type: postgresdb
+      webhook:
+        mode: queue
+        count: 2
+        allNodes: false
+    documentSelector:
+      path: metadata.name
+      value: n8n-webhook
+    asserts:
+      - equal:
+          path: spec.unhealthyPodEvictionPolicy
+          value: AlwaysAllow
+
+  - it: should render unhealthyPodEvictionPolicy AlwaysAllow for worker node by default on Kubernetes >= 1.26
+    set:
+      db:
+        type: postgresdb
+      worker:
+        mode: queue
+        count: 2
+        allNodes: false
+    documentSelector:
+      path: metadata.name
+      value: n8n-worker
+    asserts:
+      - equal:
+          path: spec.unhealthyPodEvictionPolicy
+          value: AlwaysAllow
+
+  - it: should not render unhealthyPodEvictionPolicy for main node when set to null
+    set:
+      main:
+        pdb:
+          unhealthyPodEvictionPolicy: null
+    documentSelector:
+      path: metadata.name
+      value: n8n
+    asserts:
+      - notExists:
+          path: spec.unhealthyPodEvictionPolicy
+
+  - it: should render unhealthyPodEvictionPolicy IfHealthyBudget for main node when configured
+    set:
+      main:
+        pdb:
+          unhealthyPodEvictionPolicy: IfHealthyBudget
+    documentSelector:
+      path: metadata.name
+      value: n8n
+    asserts:
+      - equal:
+          path: spec.unhealthyPodEvictionPolicy
+          value: IfHealthyBudget
+
+  - it: should not render unhealthyPodEvictionPolicy for webhook node when set to null
+    set:
+      db:
+        type: postgresdb
+      webhook:
+        mode: queue
+        count: 2
+        allNodes: false
+        pdb:
+          unhealthyPodEvictionPolicy: null
+    documentSelector:
+      path: metadata.name
+      value: n8n-webhook
+    asserts:
+      - notExists:
+          path: spec.unhealthyPodEvictionPolicy
+
+  - it: should not render unhealthyPodEvictionPolicy for worker node when set to null
+    set:
+      db:
+        type: postgresdb
+      worker:
+        mode: queue
+        count: 2
+        allNodes: false
+        pdb:
+          unhealthyPodEvictionPolicy: null
+    documentSelector:
+      path: metadata.name
+      value: n8n-worker
+    asserts:
+      - notExists:
+          path: spec.unhealthyPodEvictionPolicy
+
+  - it: should not render unhealthyPodEvictionPolicy for main node on Kubernetes < 1.26
+    capabilities:
+      majorVersion: 1
+      minorVersion: 25
+    documentSelector:
+      path: metadata.name
+      value: n8n
+    asserts:
+      - notExists:
+          path: spec.unhealthyPodEvictionPolicy
+
+  - it: should not render unhealthyPodEvictionPolicy for webhook node on Kubernetes < 1.26
+    capabilities:
+      majorVersion: 1
+      minorVersion: 25
+    set:
+      db:
+        type: postgresdb
+      webhook:
+        mode: queue
+        count: 2
+        allNodes: false
+    documentSelector:
+      path: metadata.name
+      value: n8n-webhook
+    asserts:
+      - notExists:
+          path: spec.unhealthyPodEvictionPolicy
+
+  - it: should not render unhealthyPodEvictionPolicy for worker node on Kubernetes < 1.26
+    capabilities:
+      majorVersion: 1
+      minorVersion: 25
+    set:
+      db:
+        type: postgresdb
+      worker:
+        mode: queue
+        count: 2
+        allNodes: false
+    documentSelector:
+      path: metadata.name
+      value: n8n-worker
+    asserts:
+      - notExists:
+          path: spec.unhealthyPodEvictionPolicy

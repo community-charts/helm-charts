@@ -1279,8 +1279,8 @@
               "type": "boolean"
             },
             "minAvailable": {
-              "default": 1,
-              "description": "Minimum number of available replicas for the main node",
+              "default": null,
+              "description": "Minimum number of available replicas for the main node. Mutually exclusive with maxUnavailable.",
               "required": [],
               "title": "minAvailable",
               "oneOf": [
@@ -1298,18 +1298,33 @@
               ]
             },
             "maxUnavailable": {
-              "default": null,
-              "description": "Maximum number of unavailable replicas for the main node",
+              "default": 1,
+              "description": "Maximum number of unavailable replicas for the main node. Mutually exclusive with minAvailable.",
               "required": [],
               "title": "maxUnavailable",
               "oneOf": [
                 {
                   "type": "integer",
-                  "minimum": 0
+                  "minimum": 1
                 },
                 {
                   "type": "string",
                   "pattern": "^[0-9]+%$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "unhealthyPodEvictionPolicy": {
+              "default": "AlwaysAllow",
+              "description": "Unhealthy pod eviction policy for the main node PodDisruptionBudget. Requires Kubernetes >= 1.26.",
+              "required": [],
+              "title": "unhealthyPodEvictionPolicy",
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": ["IfHealthyBudget", "AlwaysAllow"]
                 },
                 {
                   "type": "null"
@@ -2077,6 +2092,13 @@
       "title": "strategy",
       "type": "object"
     },
+    "revisionHistoryLimit": {
+      "default": null,
+      "description": "The number of old ReplicaSets to retain for rollback. More information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy",
+      "minimum": 0,
+      "title": "revisionHistoryLimit",
+      "type": ["integer", "null"]
+    },
     "timezone": {
       "default": "Europe/Berlin",
       "description": "For instance, the Schedule node uses it to know at what time the workflow should start. Find you timezone from here: https://momentjs.com/timezone/",
@@ -2755,8 +2777,8 @@
               "type": "boolean"
             },
             "minAvailable": {
-              "default": 1,
-              "description": "Minimum number of available replicas for the worker node",
+              "default": null,
+              "description": "Minimum number of available replicas for the worker node. Mutually exclusive with maxUnavailable.",
               "required": [],
               "title": "minAvailable",
               "oneOf": [
@@ -2774,18 +2796,33 @@
               ]
             },
             "maxUnavailable": {
-              "default": null,
-              "description": "Maximum number of unavailable replicas for the worker node",
+              "default": 1,
+              "description": "Maximum number of unavailable replicas for the worker node. Mutually exclusive with minAvailable.",
               "required": [],
               "title": "maxUnavailable",
               "oneOf": [
                 {
                   "type": "integer",
-                  "minimum": 0
+                  "minimum": 1
                 },
                 {
                   "type": "string",
                   "pattern": "^[0-9]+%$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "unhealthyPodEvictionPolicy": {
+              "default": "AlwaysAllow",
+              "description": "Unhealthy pod eviction policy for the worker node PodDisruptionBudget. Requires Kubernetes >= 1.26.",
+              "required": [],
+              "title": "unhealthyPodEvictionPolicy",
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": ["IfHealthyBudget", "AlwaysAllow"]
                 },
                 {
                   "type": "null"
@@ -3498,8 +3535,8 @@
               "type": "boolean"
             },
             "minAvailable": {
-              "default": 1,
-              "description": "Minimum number of available replicas for the worker node",
+              "default": null,
+              "description": "Minimum number of available replicas for the worker node. Mutually exclusive with maxUnavailable.",
               "required": [],
               "title": "minAvailable",
               "oneOf": [
@@ -3517,18 +3554,33 @@
               ]
             },
             "maxUnavailable": {
-              "default": null,
-              "description": "Maximum number of unavailable replicas for the worker node",
+              "default": 1,
+              "description": "Maximum number of unavailable replicas for the worker node. Mutually exclusive with minAvailable.",
               "required": [],
               "title": "maxUnavailable",
               "oneOf": [
                 {
                   "type": "integer",
-                  "minimum": 0
+                  "minimum": 1
                 },
                 {
                   "type": "string",
                   "pattern": "^[0-9]+%$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "unhealthyPodEvictionPolicy": {
+              "default": "AlwaysAllow",
+              "description": "Unhealthy pod eviction policy for the worker node PodDisruptionBudget. Requires Kubernetes >= 1.26.",
+              "required": [],
+              "title": "unhealthyPodEvictionPolicy",
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": ["IfHealthyBudget", "AlwaysAllow"]
                 },
                 {
                   "type": "null"
@@ -4365,7 +4417,7 @@
                 "default": "n8n-bucket",
                 "description": "This is for setting up the bucket name.",
                 "required": [],
-                "title": "name", 
+                "title": "name",
                 "type": "string"
               },
               "policy": {
@@ -4613,7 +4665,7 @@
                       },
                       "minItems": 1,
                       "required": [],
-                      "title": "actions", 
+                      "title": "actions",
                       "type": "array"
                     },
                     "resources": {
@@ -4732,7 +4784,7 @@
               "accessKey": {
                 "default": "n8n-user",
                 "required": [],
-                "title": "accessKey", 
+                "title": "accessKey",
                 "type": "string"
               },
               "policy": {
@@ -4752,7 +4804,7 @@
             },
             "required": [
               "accessKey",
-              "secretKey", 
+              "secretKey",
               "policy"
             ],
             "type": "object"

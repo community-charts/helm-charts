@@ -2116,3 +2116,47 @@ tests:
               key: client.key
     asserts:
       - matchSnapshot: { }
+
+  - it: should set WEBHOOK_URL environment variable for worker when webhook.url is set
+    set:
+      webhook:
+        url: "https://webhook.example.com"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: WEBHOOK_URL
+            value: "https://webhook.example.com"
+        template: statefulset-worker.yaml
+
+  - it: should not set WEBHOOK_URL environment variable for worker when webhook.url is not set
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: WEBHOOK_URL
+        template: statefulset-worker.yaml
+
+  - it: should not set revisionHistoryLimit when revisionHistoryLimit is not set
+    asserts:
+      - notExists:
+          path: spec.revisionHistoryLimit
+        template: statefulset-worker.yaml
+
+  - it: should set revisionHistoryLimit when revisionHistoryLimit is set
+    set:
+      revisionHistoryLimit: 3
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 3
+        template: statefulset-worker.yaml
+
+  - it: should set revisionHistoryLimit to 0 when revisionHistoryLimit is 0
+    set:
+      revisionHistoryLimit: 0
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 0
+        template: statefulset-worker.yaml
