@@ -891,8 +891,8 @@ Kubernetes: `>=1.23.0-0`
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | postgresql | 18.7.0 |
-| https://charts.bitnami.com/bitnami | redis | 27.0.0 |
+| https://charts.bitnami.com/bitnami | postgresql | 18.7.2 |
+| https://charts.bitnami.com/bitnami | redis | 27.0.4 |
 | https://charts.min.io/ | minio | 5.4.0 |
 
 ## Uninstall Helm Chart

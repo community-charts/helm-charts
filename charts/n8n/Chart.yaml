@@ -19,7 +19,7 @@ version: 1.18.0
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "2.23.3"
+appVersion: "2.23.4"
 kubeVersion: ">=1.23.0-0"
 home: https://n8n.io
 maintainers:
@@ -58,7 +58,7 @@ annotations:
       description: Enable readOnlyRootFilesystem for all containers with tmp emptyDir and waitContainerSecurityContext (CIS 5.7.3)
   artifacthub.io/images: |
     - name: n8n
-      image: n8nio/n8n:2.23.3
+      image: n8nio/n8n:2.23.4
       platforms:
         - linux/amd64
         - linux/arm64
@@ -110,11 +110,11 @@ annotations:
     url: https://keybase.io/communitycharts/pgp_keys.asc
 dependencies:
   - name: redis
-    version: 27.0.0
+    version: 27.0.4
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
   - name: postgresql
-    version: 18.7.0
+    version: 18.7.2
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: minio
