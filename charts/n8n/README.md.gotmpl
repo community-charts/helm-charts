@@ -275,9 +275,115 @@ webhook:
 
 Please find more detail about external task runners from [here](https://docs.n8n.io/hosting/securing/hardening-task-runners/).
 
+The external task runner runs as a sidecar container using the dedicated `n8nio/runners` image alongside each worker pod. In queue mode the main pod does **not** receive the sidecar because it does not execute workflows.
+
+### Basic External Task Runner
+
 ```yaml
 taskRunners:
   mode: external
+```
+
+### Pinning the Runner Image Tag
+
+By default the runner image tag matches the chart `appVersion`. Pin an explicit version with `taskRunners.external.image.tag`:
+
+```yaml
+taskRunners:
+  mode: external
+  external:
+    image:
+      repository: n8nio/runners
+      pullPolicy: IfNotPresent
+      tag: "2.23.4"
+```
+
+### External Task Runner with Queue Mode
+
+In queue mode the sidecar is attached to worker pods only — the main pod is excluded automatically because it offloads all workflow execution to workers.
+
+```yaml
+db:
+  type: postgresdb
+
+worker:
+  mode: queue
+
+taskRunners:
+  mode: external
+  external:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+```
+
+## Python Runner Support
+
+The `n8nio/runners` image ships a Python runner alongside the JavaScript runner. Enable it with `taskRunners.python.enabled: true` (requires n8n 1.111.0+). This activates the Python Code node on the main container and starts the Python launcher inside the sidecar.
+
+> **Tip**: Python runner requires `taskRunners.mode: external`.
+
+### Enable Python Runner
+
+```yaml
+taskRunners:
+  mode: external
+  python:
+    enabled: true
+```
+
+### Restrict Python Module Access
+
+Use `stdlibAllow` to allowlist Python standard library modules and `externalAllow` for third-party packages. Set either to `*` to allow all.
+
+```yaml
+taskRunners:
+  mode: external
+  python:
+    enabled: true
+    stdlibAllow: "os,sys,json,math,datetime,re"
+    externalAllow: "numpy,pandas"
+```
+
+### Full Queue Mode + External Runner + Python Example
+
+```yaml
+db:
+  type: postgresdb
+
+worker:
+  mode: queue
+  count: 2
+
+  waitMainNodeReady:
+    enabled: true
+
+externalRedis:
+  host: "redis-instance1.ab012cdefghi.eu-central-1.rds.amazonaws.com"
+  username: "default"
+  password: "Pa33w0rd!"
+
+taskRunners:
+  mode: external
+  python:
+    enabled: true
+    stdlibAllow: "*"
+  external:
+    image:
+      repository: n8nio/runners
+      pullPolicy: IfNotPresent
+      tag: ""
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
 ```
 
 ## Autoscaling Configuration
