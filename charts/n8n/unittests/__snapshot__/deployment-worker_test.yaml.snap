@@ -285,7 +285,7 @@ should match snapshot of default values:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1000
                 runAsNonRoot: true
                 runAsUser: 1000
@@ -298,10 +298,27 @@ should match snapshot of default values:
                 failureThreshold: 30
                 initialDelaySeconds: 10
                 periodSeconds: 5
+              volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
+                - mountPath: /home/node/.cache
+                  name: cache
+                - mountPath: /home/node/.n8n
+                  name: node-modules
+                  readOnly: false
           securityContext:
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           serviceAccountName: n8n
+          volumes:
+            - emptyDir: {}
+              name: tmp
+            - emptyDir: {}
+              name: cache
+            - emptyDir: {}
+              name: node-modules
   12: |
     apiVersion: v1
     data:
@@ -638,7 +655,7 @@ should match snapshot of postgres ssl certificate values:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1000
                 runAsNonRoot: true
                 runAsUser: 1000
@@ -652,6 +669,13 @@ should match snapshot of postgres ssl certificate values:
                 initialDelaySeconds: 10
                 periodSeconds: 5
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
+                - mountPath: /home/node/.cache
+                  name: cache
+                - mountPath: /home/node/.n8n
+                  name: node-modules
+                  readOnly: false
                 - mountPath: /home/node/certs/ca/ca.crt
                   name: pg-ssl-ca
                   readOnly: true
@@ -667,8 +691,16 @@ should match snapshot of postgres ssl certificate values:
           securityContext:
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           serviceAccountName: n8n
           volumes:
+            - emptyDir: {}
+              name: tmp
+            - emptyDir: {}
+              name: cache
+            - emptyDir: {}
+              name: node-modules
             - name: pg-ssl-ca
               secret:
                 items:
@@ -1019,7 +1051,7 @@ should match snapshot of worker persistence:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1000
                 runAsNonRoot: true
                 runAsUser: 1000
@@ -1033,14 +1065,24 @@ should match snapshot of worker persistence:
                 initialDelaySeconds: 10
                 periodSeconds: 5
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
+                - mountPath: /home/node/.cache
+                  name: cache
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
           securityContext:
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           serviceAccountName: n8n
           volumes:
+            - emptyDir: {}
+              name: tmp
+            - emptyDir: {}
+              name: cache
             - name: node-modules
               persistentVolumeClaim:
                 claimName: n8n-worker-persistence

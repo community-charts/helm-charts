@@ -24,6 +24,9 @@
 {{- range $field := $deprecatedFields }}
   {{- $value := get $.Values $field }}
   {{- if and (hasKey $.Values $field) $value }}
-!!! We detected deprecated root level {{ $field }} configuration usage. Please consider using main, worker, and webhook blocks {{ $field }} fields instead. This field will be removed in a future release.
+    {{ printf "WARNING: We detected deprecated root level %s configuration usage. Please consider using main, worker, and webhook blocks %s fields instead. This field will be removed in a future release." $field $field | trimAll " " }}
   {{- end }}
+{{- end }}
+{{- if or (not (kindIs "invalid" .Values.license.autoNenew.enabled)) (not (kindIs "invalid" .Values.license.autoNenew.offsetInHours)) }}
+  {{- printf "WARNING: license.autoNenew is deprecated and has been removed in a future release. Please migrate to license.autoRenew field." | trimAll " " }}
 {{- end }}

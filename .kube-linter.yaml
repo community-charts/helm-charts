@@ -1,0 +1,25 @@
+checks:
+  addAllBuiltIn: true
+
+  exclude:
+    - unset-cpu-requirements
+    - unset-memory-requirements
+    - no-read-only-root-fs
+    - minimum-three-replicas
+    - no-node-affinity
+    - dnsconfig-options
+    - required-annotation-email
+    - required-label-owner
+    - restart-policy
+    - sorted-keys
+    - use-namespace
+    - non-isolated-pod
+
+  ignorePaths:
+    - "charts/kserve/**"
+    - "**/crds/**"
+    - "**/tests/**"
+    - "**/unittests/**"
+    - "**/examples/**"
+    - "**/*.test.yaml"
+    - "charts/*/charts/**"

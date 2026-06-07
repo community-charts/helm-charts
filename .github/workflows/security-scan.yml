@@ -1,0 +1,73 @@
+name: Security Scans (KubeLinter + Trivy)
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'charts/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'charts/**'
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Get changed chart directories
+        id: changed-charts
+        uses: tj-actions/changed-files@v47
+        with:
+          files: charts/**
+          dir_names: true
+          dir_names_max_depth: 2
+          dir_names_exclude_current_dir: true
+
+      - name: Run KubeLinter on changed charts
+        if: steps.changed-charts.outputs.any_changed == 'true'
+        uses: stackrox/kube-linter-action@v1.0.7
+        with:
+          directory: ${{ steps.changed-charts.outputs.all_changed_files }}
+          config: .kube-linter.yaml
+          format: plain
+          output-file: kube-linter-results.txt
+
+      - name: Re-run KubeLinter for SARIF upload
+        if: steps.changed-charts.outputs.any_changed == 'true'
+        uses: stackrox/kube-linter-action@v1.0.7
+        with:
+          directory: ${{ steps.changed-charts.outputs.all_changed_files }}
+          config: .kube-linter.yaml
+          format: sarif
+          output-file: kube-linter-results.sarif
+        continue-on-error: true
+
+      - name: Upload KubeLinter SARIF
+        if: steps.changed-charts.outputs.any_changed == 'true'
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: kube-linter-results.sarif
+
+      - name: Run Trivy on changed charts
+        if: steps.changed-charts.outputs.any_changed == 'true'
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: config
+          scan-ref: ${{ steps.changed-charts.outputs.all_changed_files }}
+          severity: HIGH,CRITICAL
+          format: sarif
+          output: trivy-results.sarif
+          exit-code: 1
+          skip-dirs: "charts"
+
+      - name: Upload Trivy SARIF
+        if: steps.changed-charts.outputs.any_changed == 'true'
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-results.sarif

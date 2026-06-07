@@ -44,3 +44,9 @@ Temporary Items
 *.bak
 **/*.bak
 *.tgz
+
+# Claude Code
+project-plans
+
+# Trivy pre-commit hook cache
+.pre-commit-trivy-cache
