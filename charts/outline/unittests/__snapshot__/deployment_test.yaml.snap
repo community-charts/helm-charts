@@ -29,6 +29,8 @@ should match snapshot of default values:
     apiVersion: apps/v1
     kind: Deployment
     metadata:
+      annotations:
+        ignore-check.kube-linter.io/read-secret-from-env-var: Outline reads secrets via environment variables; the application does not support file-based secret loading
       labels:
         app.kubernetes.io/instance: outline
         app.kubernetes.io/managed-by: Helm

@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.17.1](https://img.shields.io/badge/Version-1.17.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.23.4](https://img.shields.io/badge/AppVersion-2.23.4-informational?style=flat-square)
+![Version: 1.20.0](https://img.shields.io/badge/Version-1.20.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.23.4](https://img.shields.io/badge/AppVersion-2.23.4-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -161,6 +161,7 @@ externalPostgresql:
   database: "n8n"
 
   existingSecret: "my-k8s-secret-contains-postgres-password-key-and-credential"
+  existingSecretPasswordKey: "my-postgres-password-key"
 ```
 
 ## Queue Mode with Bitnami's Redis
@@ -230,6 +231,8 @@ externalRedis:
   username: "default"
 
   existingSecret: "my-k8s-secret-contains-redis-password-key-and-credential"
+  existingUsernameKey: "my-redis-username-key"
+  existingPasswordKey: "my-redis-password-key"
 ```
 
 ## Webhook Node Deployment
@@ -968,18 +971,21 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | dnsPolicy | string | `""` | For more information checkout: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy |
 | encryptionKey | string | `""` | If you install n8n first time, you can keep this empty and it will be auto generated and never change again. If you already have a encryption key generated before, please use it here. |
 | existingEncryptionKeySecret | string | `""` | The name of an existing secret with encryption key. The secret must contain a key with the name N8N_ENCRYPTION_KEY. |
-| externalPostgresql | object | `{"database":"n8n","existingSecret":"","host":"","password":"","port":5432,"username":"postgres"}` | External PostgreSQL parameters |
+| externalPostgresql | object | `{"database":"n8n","existingSecret":"","existingSecretPasswordKey":"","host":"","password":"","port":5432,"username":"postgres"}` | External PostgreSQL parameters |
 | externalPostgresql.database | string | `"n8n"` | The name of the external PostgreSQL database. For more information: https://docs.n8n.io/hosting/configuration/supported-databases-settings/#required-permissions |
 | externalPostgresql.existingSecret | string | `""` | The name of an existing secret with PostgreSQL (must contain key `postgres-password`) and credentials. When it's set, the `externalPostgresql.password` parameter is ignored |
+| externalPostgresql.existingSecretPasswordKey | string | `""` | The key in `externalPostgresql.existingSecret` that stores the PostgreSQL password. |
 | externalPostgresql.host | string | `""` | External PostgreSQL server host |
 | externalPostgresql.password | string | `""` | External PostgreSQL password |
 | externalPostgresql.port | int | `5432` | External PostgreSQL server port |
 | externalPostgresql.username | string | `"postgres"` | External PostgreSQL username |
-| externalRedis | object | `{"clusterNodes":[],"database":0,"dualStack":false,"existingSecret":"","host":"","password":"","port":6379,"tls":{"enabled":false},"username":""}` | External Redis parameters |
+| externalRedis | object | `{"clusterNodes":[],"database":0,"dualStack":false,"existingPasswordKey":"","existingSecret":"","existingUsernameKey":"","host":"","password":"","port":6379,"tls":{"enabled":false},"username":""}` | External Redis parameters |
 | externalRedis.clusterNodes | list | `[]` | List of Redis Cluster nodes. Setting this variable will create a Redis Cluster client instead of a Redis client, and n8n will ignore `externalRedis.host` and `externalRedis.port`. |
 | externalRedis.database | int | `0` | Redis database for Bull queue. |
 | externalRedis.dualStack | bool | `false` | Enable dual-stack support (IPv4 and IPv6) on Redis connections. |
+| externalRedis.existingPasswordKey | string | `""` | The key in `externalRedis.existingSecret` that stores the Redis password. |
 | externalRedis.existingSecret | string | `""` | The name of an existing secret with Redis (must contain key `redis-password`) and Sentinel credentials. When it's set, the `externalRedis.password` parameter is ignored |
+| externalRedis.existingUsernameKey | string | `""` | The key in `externalRedis.existingSecret` that stores the Redis username. |
 | externalRedis.host | string | `""` | External Redis server host |
 | externalRedis.password | string | `""` | External Redis password |
 | externalRedis.port | int | `6379` | External Redis server port |
@@ -1108,7 +1114,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | npmRegistry.url | string | `""` | URL of the private npm registry (e.g., https://registry.npmjs.org/) |
 | podAnnotations | object | `{}` | This is for setting Kubernetes Annotations to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
 | podLabels | object | `{}` | This is for setting Kubernetes Labels to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/ |
-| podSecurityContext | object | `{"fsGroup":1000,"fsGroupChangePolicy":"OnRootMismatch"}` | This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
+| podSecurityContext | object | `{"fsGroup":1000,"fsGroupChangePolicy":"OnRootMismatch","seccompProfile":{"type":"RuntimeDefault"}}` | This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
 | postgresql | object | `{"architecture":"standalone","auth":{"database":"n8n","password":"","username":""},"enabled":false,"image":{"repository":"bitnamilegacy/postgresql"},"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"postgresql":5432}}}}` | Bitnami PostgreSQL configuration |
 | postgresql.architecture | string | `"standalone"` | Enable postgresql architecture. |
 | postgresql.auth | object | `{"database":"n8n","password":"","username":""}` | This is for setting up the auth. |
@@ -1134,7 +1140,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | redis.master.service.ports.redis | int | `6379` | Redis master service port |
 | resources | object | `{}` | DEPRECATED: Use main, worker, and webhook blocks resources fields instead. This field will be removed in a future release. |
 | revisionHistoryLimit | string | `nil` | The number of old ReplicaSets to retain for rollback. More information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy |
-| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":false,"runAsGroup":1000,"runAsNonRoot":true,"runAsUser":1000}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
+| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true,"runAsGroup":1000,"runAsNonRoot":true,"runAsUser":1000}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
 | sentry.backendDsn | string | `""` | Sentry DSN for backend. |
 | sentry.enabled | bool | `false` | Whether sentry is enabled. |
 | sentry.externalTaskRunnersDsn | string | `""` | Sentry DSN for external task runners. |
@@ -1202,6 +1208,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | versionNotifications.infoUrl | string | `"https://docs.n8n.io/hosting/installation/updating/"` | URL for versions panel to page instructing user on how to update n8n instance |
 | volumeMounts | list | `[]` | DEPRECATED: Use main, worker, and webhook blocks volumeMounts fields instead. This field will be removed in a future release. |
 | volumes | list | `[]` | DEPRECATED: Use main, worker, and webhook blocks volumes fields instead. This field will be removed in a future release. |
+| waitContainerSecurityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true,"runAsGroup":1000,"runAsNonRoot":true,"runAsUser":1000}` | Security Context for the wait-for-main busybox init containers. |
 | webhook | object | `{"affinity":{},"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"count":2,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"mcp":{"affinity":{},"enabled":true,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"volumeMounts":[],"volumes":[]},"mode":"regular","pdb":{"enabled":true,"maxUnavailable":1,"minAvailable":null,"unhealthyPodEvictionPolicy":"AlwaysAllow"},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"runtimeClassName":"","startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"url":"","volumeMounts":[],"volumes":[],"waitMainNodeReady":{"additionalParameters":[],"enabled":false,"healthCheckPath":"/healthz","overwriteSchema":"","overwriteUrl":""}}` | Webhook node configurations |
 | webhook.affinity | object | `{}` | Webhook node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
 | webhook.allNodes | bool | `false` | If true, all k8s nodes will deploy exatly one webhook pod |

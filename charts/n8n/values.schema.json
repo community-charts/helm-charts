@@ -569,6 +569,13 @@
           "title": "existingSecret",
           "type": "string"
         },
+        "existingSecretPasswordKey": {
+          "default": "",
+          "description": "The key in `externalPostgresql.existingSecret` that stores the PostgreSQL password.",
+          "required": [],
+          "title": "existingSecretPasswordKey",
+          "type": "string"
+        },
         "host": {
           "default": "",
           "description": "External PostgreSQL server host",
@@ -604,7 +611,8 @@
         "password",
         "port",
         "database",
-        "existingSecret"
+        "existingSecret",
+        "existingSecretPasswordKey"
       ],
       "title": "externalPostgresql",
       "type": "object"
@@ -653,6 +661,20 @@
           "description": "The name of an existing secret with Redis (must contain key `redis-password`) and Sentinel credentials.\nWhen it's set, the `externalRedis.password` parameter is ignored",
           "required": [],
           "title": "existingSecret",
+          "type": "string"
+        },
+        "existingUsernameKey": {
+          "default": "",
+          "description": "The key in `externalRedis.existingSecret` that stores the Redis username.",
+          "required": [],
+          "title": "existingUsernameKey",
+          "type": "string"
+        },
+        "existingPasswordKey": {
+          "default": "",
+          "description": "The key in `externalRedis.existingSecret` that stores the Redis password.",
+          "required": [],
+          "title": "existingPasswordKey",
           "type": "string"
         },
         "clusterNodes": {
@@ -708,7 +730,7 @@
           "type": "boolean"
         }
       },
-      "required": ["database", "host", "username", "password", "port", "existingSecret", "clusterNodes", "tls", "dualStack"],
+      "required": ["database", "host", "username", "password", "port", "existingSecret", "existingUsernameKey", "existingPasswordKey", "clusterNodes", "tls", "dualStack"],
       "title": "externalRedis",
       "type": "object"
     },
@@ -1704,6 +1726,28 @@
           "title": "fsGroupChangePolicy",
           "type": "string",
           "enum": ["OnRootMismatch", "Always"]
+        },
+        "seccompProfile": {
+          "additionalProperties": false,
+          "description": "Seccomp profile for the pod.",
+          "properties": {
+            "type": {
+              "default": "RuntimeDefault",
+              "enum": ["Localhost", "RuntimeDefault", "Unconfined"],
+              "required": [],
+              "title": "type",
+              "type": "string"
+            },
+            "localhostProfile": {
+              "description": "Path to a seccomp profile file on the node (only for Localhost type).",
+              "required": [],
+              "title": "localhostProfile",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "title": "seccompProfile",
+          "type": "object"
         }
       },
       "required": [],
@@ -1986,6 +2030,63 @@
       },
       "required": [],
       "title": "securityContext",
+      "type": "object"
+    },
+    "waitContainerSecurityContext": {
+      "additionalProperties": true,
+      "description": "Security Context for the wait-for-main busybox init containers.",
+      "properties": {
+        "allowPrivilegeEscalation": {
+          "default": false,
+          "required": [],
+          "title": "allowPrivilegeEscalation",
+          "type": "boolean"
+        },
+        "readOnlyRootFilesystem": {
+          "default": true,
+          "required": [],
+          "title": "readOnlyRootFilesystem",
+          "type": "boolean"
+        },
+        "runAsNonRoot": {
+          "default": true,
+          "required": [],
+          "title": "runAsNonRoot",
+          "type": "boolean"
+        },
+        "runAsUser": {
+          "default": 1000,
+          "required": [],
+          "title": "runAsUser",
+          "type": "integer"
+        },
+        "capabilities": {
+          "additionalProperties": true,
+          "properties": {
+            "drop": {
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "drop",
+              "type": "array"
+            },
+            "add": {
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "add",
+              "type": "array"
+            }
+          },
+          "required": [],
+          "title": "capabilities",
+          "type": "object"
+        }
+      },
+      "required": [],
+      "title": "waitContainerSecurityContext",
       "type": "object"
     },
     "service": {
