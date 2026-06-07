@@ -449,6 +449,10 @@ nodes:
       packages:
         - numpy
         - pandas
+    persistence:
+      enabled: true
+      size: 2Gi
+      accessMode: ReadWriteMany  # required for queue-mode workers scaled across nodes
 
 taskRunners:
   mode: external

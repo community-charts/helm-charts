@@ -81,8 +81,6 @@ annotations:
       description: Add nodes.python.external.packages to install Python packages via uv before the runner starts; N8N_RUNNERS_EXTERNAL_ALLOW is derived automatically from the package list
     - kind: added
       description: Add optional PVC persistence for Python installed packages via nodes.python.persistence; ReadWriteMany required when HPA or multi-node Deployment is used
-    - kind: changed
-      description: Move Python Code node config (builtin.modules, external.packages, external.allowAll) from taskRunners.python to nodes.python alongside the JS node config
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:2.23.4
