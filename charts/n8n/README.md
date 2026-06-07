@@ -383,6 +383,8 @@ Packages are stored at `/home/node/.python-packages` inside the runner sidecar. 
 
 For StatefulSet deployments (when `main.count > 1` with `ReadWriteOnce`, or `main.forceToUseStatefulset: true`), each pod receives its own PVC via `volumeClaimTemplates`, so `ReadWriteOnce` works regardless of pod count. For Deployment-mode workers scaled by HPA across multiple nodes, use `accessMode: ReadWriteMany` with a compatible storage class (NFS, CephFS, etc.).
 
+> **Warning**: When `worker.autoscaling.enabled: true`, you **must** set `nodes.python.persistence.accessMode: ReadWriteMany` (or leave persistence disabled). The HPA will not render if python packages persistence is enabled with `ReadWriteOnce`, because scaling workers across nodes would cause PVC mount failures.
+
 To allow all external packages without installing them (e.g. when packages are pre-installed in a custom image), set `allowAll: true`:
 
 ```yaml
