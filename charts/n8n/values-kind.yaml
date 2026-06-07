@@ -46,3 +46,21 @@ postgresql:
   primary:
     persistence:
       enabled: false
+
+taskRunners:
+  mode: external
+  python:
+    enabled: true
+    stdlibAllow: "*"
+  external:
+    image:
+      repository: n8nio/runners
+      pullPolicy: IfNotPresent
+      tag: ""
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi

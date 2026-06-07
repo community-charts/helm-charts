@@ -1389,7 +1389,7 @@ tests:
         template: deployment-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].livenessProbe.httpGet.port
-          value: http
+          value: runner-health
         template: deployment-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].readinessProbe.httpGet.path
@@ -1397,7 +1397,7 @@ tests:
         template: deployment-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].readinessProbe.httpGet.port
-          value: http
+          value: runner-health
         template: deployment-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].resources

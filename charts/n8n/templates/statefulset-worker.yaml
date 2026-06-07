@@ -316,17 +316,17 @@ spec:
             - python
           {{- end }}
           ports:
-            - name: http
+            - name: runner-health
               containerPort: {{ .Values.taskRunners.external.port }}
               protocol: TCP
           livenessProbe:
             httpGet:
               path: /healthz
-              port: http
+              port: runner-health
           readinessProbe:
             httpGet:
               path: /healthz
-              port: http
+              port: runner-health
           resources:
             {{- toYaml .Values.taskRunners.external.resources | nindent 12 }}
           env:
