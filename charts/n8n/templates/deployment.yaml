@@ -305,17 +305,17 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.taskRunners.external.image.repository }}:{{ .Values.taskRunners.external.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.taskRunners.external.image.pullPolicy }}
-          {{- if .Values.taskRunners.python.external.packages }}
+          {{- if .Values.nodes.python.external.packages }}
           command:
             - /bin/sh
             - -c
-            - {{ printf "UV_CACHE_DIR=/tmp/.uv-cache uv pip install --target /tmp/.site-packages %s && export PYTHONPATH=/tmp/.site-packages && exec /usr/local/bin/task-runner-launcher javascript%s" (.Values.taskRunners.python.external.packages | join " ") (ternary " python" "" .Values.taskRunners.python.enabled) | quote }}
+            - {{ printf "UV_CACHE_DIR=/tmp/.uv-cache uv pip install --target /tmp/.site-packages %s && export PYTHONPATH=/tmp/.site-packages && exec /usr/local/bin/task-runner-launcher javascript%s" (.Values.nodes.python.external.packages | join " ") (ternary " python" "" .Values.nodes.python.enabled) | quote }}
           {{- else }}
           command:
             - /usr/local/bin/task-runner-launcher
           args:
             - javascript
-          {{- if .Values.taskRunners.python.enabled }}
+          {{- if .Values.nodes.python.enabled }}
             - python
           {{- end }}
           {{- end }}

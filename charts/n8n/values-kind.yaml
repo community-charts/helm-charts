@@ -47,8 +47,7 @@ postgresql:
     persistence:
       enabled: false
 
-taskRunners:
-  mode: external
+nodes:
   python:
     enabled: true
     builtin:
@@ -58,6 +57,9 @@ taskRunners:
       packages:
         - numpy
         - pandas
+
+taskRunners:
+  mode: external
   external:
     image:
       repository: n8nio/runners

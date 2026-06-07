@@ -323,26 +323,27 @@ taskRunners:
 
 ## Python Runner Support
 
-The `n8nio/runners` image ships a Python runner alongside the JavaScript runner. Enable it with `taskRunners.python.enabled: true` (requires n8n 1.111.0+). This activates the Python Code node on the main container and starts the Python launcher inside the sidecar.
+The `n8nio/runners` image ships a Python runner alongside the JavaScript runner. Enable it with `nodes.python.enabled: true` (requires n8n 1.111.0+). This activates the Python Code node on the main container and starts the Python launcher inside the sidecar.
 
 > **Tip**: Python runner requires `taskRunners.mode: external`.
 
 ### Enable Python Runner
 
 ```yaml
-taskRunners:
-  mode: external
+nodes:
   python:
     enabled: true
+
+taskRunners:
+  mode: external
 ```
 
 ### Install Python Packages
 
-The `n8nio/runners` image ships only a bare Python environment. Use `taskRunners.python.external.packages` to install packages via `uv pip install` before the runner starts. Each listed package is automatically allowed in Code nodes — no separate allowlist entry is needed.
+The `n8nio/runners` image ships only a bare Python environment. Use `nodes.python.external.packages` to install packages via `uv pip install` before the runner starts. Each listed package is automatically allowed in Code nodes — no separate allowlist entry is needed.
 
 ```yaml
-taskRunners:
-  mode: external
+nodes:
   python:
     enabled: true
     external:
@@ -350,6 +351,9 @@ taskRunners:
         - pandas
         - numpy
         - requests
+
+taskRunners:
+  mode: external
 ```
 
 > **Note**: Package installation adds a few seconds to runner startup time.
@@ -357,21 +361,22 @@ taskRunners:
 To allow all external packages without installing them (e.g. when packages are pre-installed in a custom image), set `allowAll: true`:
 
 ```yaml
-taskRunners:
-  mode: external
+nodes:
   python:
     enabled: true
     external:
       allowAll: true
+
+taskRunners:
+  mode: external
 ```
 
 ### Restrict Python Module Access
 
-Use `builtin.modules` to allowlist Python standard library modules. Use `["*"]` to allow all. This setting applies to both the n8n broker (security enforcement) and the runner sidecar.
+Use `nodes.python.builtin.modules` to allowlist Python standard library modules. Use `["*"]` to allow all. This setting applies to both the n8n broker (security enforcement) and the runner sidecar.
 
 ```yaml
-taskRunners:
-  mode: external
+nodes:
   python:
     enabled: true
     builtin:
@@ -384,6 +389,9 @@ taskRunners:
       packages:
         - numpy
         - pandas
+
+taskRunners:
+  mode: external
 ```
 
 ### Full Queue Mode + External Runner + Python Example
@@ -404,8 +412,7 @@ externalRedis:
   username: "default"
   password: "Pa33w0rd!"
 
-taskRunners:
-  mode: external
+nodes:
   python:
     enabled: true
     builtin:
@@ -415,6 +422,9 @@ taskRunners:
       packages:
         - numpy
         - pandas
+
+taskRunners:
+  mode: external
   external:
     image:
       repository: n8nio/runners

@@ -1437,10 +1437,11 @@ tests:
               name: n8n-task-runners-configmap
         template: deployment-worker.yaml
 
-  - it: should add python arg to task runner container when taskRunners.python.enabled is true
+  - it: should add python arg to task runner container when nodes.python.enabled is true
     set:
       taskRunners:
         mode: external
+      nodes:
         python:
           enabled: true
     asserts:
@@ -1449,10 +1450,11 @@ tests:
           content: python
         template: deployment-worker.yaml
 
-  - it: should not add python arg when taskRunners.python.enabled is false
+  - it: should not add python arg when nodes.python.enabled is false
     set:
       taskRunners:
         mode: external
+      nodes:
         python:
           enabled: false
     asserts:
@@ -2525,10 +2527,11 @@ tests:
           value: n8nio/runners:2.0.0
         template: deployment-worker.yaml
 
-  - it: should use uv install command when taskRunners.python.external.packages is set
+  - it: should use uv install command when nodes.python.external.packages is set
     set:
       taskRunners:
         mode: external
+      nodes:
         python:
           enabled: true
           external:
@@ -2541,10 +2544,11 @@ tests:
           value: ["/bin/sh", "-c", "UV_CACHE_DIR=/tmp/.uv-cache uv pip install --target /tmp/.site-packages pandas numpy && export PYTHONPATH=/tmp/.site-packages && exec /usr/local/bin/task-runner-launcher javascript python"]
         template: deployment-worker.yaml
 
-  - it: should use direct launcher command when taskRunners.python.external.packages is empty
+  - it: should use direct launcher command when nodes.python.external.packages is empty
     set:
       taskRunners:
         mode: external
+      nodes:
         python:
           enabled: true
           external:

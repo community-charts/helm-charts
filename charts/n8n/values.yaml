@@ -154,6 +154,23 @@ nodes:
       # limits:
       #   cpu: 500m
       #   memory: 256Mi
+  # -- Python Code node configuration. Requires n8n 1.111.0+ and taskRunners.mode: external.
+  python:
+    # -- Enable Python code execution in the Code node via external task runners.
+    enabled: false
+    # -- Built-in Python module access for the Code node.
+    builtin:
+      # -- Python standard library modules allowed in Code nodes. Use ['*'] to allow all.
+      modules: []
+        # - "*"
+    # -- External Python package access for the Code node.
+    external:
+      # -- Allow all external Python packages in Code nodes. When true, sets N8N_RUNNERS_EXTERNAL_ALLOW=* regardless of packages list.
+      allowAll: false
+      # -- Python packages to install via uv before starting the runner (e.g. ["pandas", "numpy"]). Each listed package is also automatically allowed as an external package in Code nodes.
+      packages: []
+        # - pandas
+        # - numpy
 
 # -- Configuration for private npm registry
 npmRegistry:
@@ -836,24 +853,6 @@ taskRunners:
   taskHeartbeatInterval: 30
   # -- The maximum concurrency for the task
   maxConcurrency: 5
-
-  # -- Python runner configuration. Requires n8n 1.111.0+ and external task runner mode.
-  python:
-    # -- Enable Python code execution in the Code node via external task runners.
-    enabled: false
-    # -- Built-in Python module access for the Code node.
-    builtin:
-      # -- Python standard library modules allowed in Code nodes. Use ['*'] to allow all.
-      modules: []
-        # - "*"
-    # -- External Python package access for the Code node.
-    external:
-      # -- Allow all external Python packages in Code nodes. When true, sets N8N_RUNNERS_EXTERNAL_ALLOW=* regardless of packages list.
-      allowAll: false
-      # -- Python packages to install via uv before starting the runner (e.g. ["pandas", "numpy"]). Each listed package is also automatically allowed as an external package in Code nodes.
-      packages: []
-        # - pandas
-        # - numpy
 
   # -- The address for the broker of the external task runner
   broker:

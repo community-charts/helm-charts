@@ -200,15 +200,15 @@ data:
 {{- else }}
   N8N_RUNNERS_MAX_CONCURRENCY: {{ .Values.taskRunners.maxConcurrency | quote }}
 {{- end }}
-{{- if .Values.taskRunners.python.enabled }}
+{{- if .Values.nodes.python.enabled }}
   N8N_NATIVE_PYTHON_RUNNER: "true"
-{{- if .Values.taskRunners.python.builtin.modules }}
-  N8N_RUNNERS_STDLIB_ALLOW: {{ .Values.taskRunners.python.builtin.modules | join "," | quote }}
+{{- if .Values.nodes.python.builtin.modules }}
+  N8N_RUNNERS_STDLIB_ALLOW: {{ .Values.nodes.python.builtin.modules | join "," | quote }}
 {{- end }}
-{{- if .Values.taskRunners.python.external.allowAll }}
+{{- if .Values.nodes.python.external.allowAll }}
   N8N_RUNNERS_EXTERNAL_ALLOW: "*"
-{{- else if .Values.taskRunners.python.external.packages }}
-  N8N_RUNNERS_EXTERNAL_ALLOW: {{ .Values.taskRunners.python.external.packages | join "," | quote }}
+{{- else if .Values.nodes.python.external.packages }}
+  N8N_RUNNERS_EXTERNAL_ALLOW: {{ .Values.nodes.python.external.packages | join "," | quote }}
 {{- end }}
 {{- end }}
 ---
@@ -263,14 +263,14 @@ data:
 {{- else }}
   SENTRY_DSN: ""
 {{- end }}
-{{- if .Values.taskRunners.python.enabled }}
-{{- if .Values.taskRunners.python.builtin.modules }}
-  N8N_RUNNERS_STDLIB_ALLOW: {{ .Values.taskRunners.python.builtin.modules | join "," | quote }}
+{{- if .Values.nodes.python.enabled }}
+{{- if .Values.nodes.python.builtin.modules }}
+  N8N_RUNNERS_STDLIB_ALLOW: {{ .Values.nodes.python.builtin.modules | join "," | quote }}
 {{- end }}
-{{- if .Values.taskRunners.python.external.allowAll }}
+{{- if .Values.nodes.python.external.allowAll }}
   N8N_RUNNERS_EXTERNAL_ALLOW: "*"
-{{- else if .Values.taskRunners.python.external.packages }}
-  N8N_RUNNERS_EXTERNAL_ALLOW: {{ .Values.taskRunners.python.external.packages | join "," | quote }}
+{{- else if .Values.nodes.python.external.packages }}
+  N8N_RUNNERS_EXTERNAL_ALLOW: {{ .Values.nodes.python.external.packages | join "," | quote }}
 {{- end }}
 {{- end }}
 {{- end }}

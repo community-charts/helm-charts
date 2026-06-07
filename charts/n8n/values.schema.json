@@ -1179,9 +1179,72 @@
           "required": ["image", "resources"],
           "title": "initContainer",
           "type": "object"
+        },
+        "python": {
+          "additionalProperties": false,
+          "description": "Python Code node configuration. Requires n8n 1.111.0+ and taskRunners.mode: external.",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "description": "Enable Python code execution via external task runners (requires n8n 1.111.0+)",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "builtin": {
+              "additionalProperties": false,
+              "description": "Built-in Python module access for the Code node",
+              "properties": {
+                "modules": {
+                  "default": [],
+                  "description": "Python stdlib modules allowed in Code nodes. Use [\"*\"] to allow all.",
+                  "items": {
+                    "type": "string"
+                  },
+                  "uniqueItems": true,
+                  "minItems": 0,
+                  "required": [],
+                  "title": "modules",
+                  "type": "array"
+                }
+              },
+              "required": ["modules"],
+              "title": "builtin",
+              "type": "object"
+            },
+            "external": {
+              "additionalProperties": false,
+              "description": "External Python package access for the Code node",
+              "properties": {
+                "allowAll": {
+                  "default": false,
+                  "description": "Allow all external Python packages in Code nodes. When true, sets N8N_RUNNERS_EXTERNAL_ALLOW=* regardless of packages list.",
+                  "required": [],
+                  "title": "allowAll",
+                  "type": "boolean"
+                },
+                "packages": {
+                  "default": [],
+                  "description": "Python packages to install via uv pip before starting the runner (e.g. [\"pandas\", \"numpy\"]). Each listed package is also automatically allowed as an external package in Code nodes.",
+                  "items": {
+                    "type": "string"
+                  },
+                  "required": [],
+                  "title": "packages",
+                  "type": "array"
+                }
+              },
+              "required": ["allowAll", "packages"],
+              "title": "external",
+              "type": "object"
+            }
+          },
+          "required": ["enabled", "builtin", "external"],
+          "title": "python",
+          "type": "object"
         }
       },
-      "required": ["initContainer"],
+      "required": ["initContainer", "python"],
       "title": "nodes",
       "type": "object"
     },
@@ -4350,72 +4413,9 @@
           "required": ["autoShutdownTimeout", "port", "nodeOptions", "image", "resources"],
           "title": "external",
           "type": "object"
-        },
-        "python": {
-          "additionalProperties": false,
-          "description": "Python runner configuration for external task runners",
-          "properties": {
-            "enabled": {
-              "default": false,
-              "description": "Enable Python code execution via external task runners (requires n8n 1.111.0+)",
-              "required": [],
-              "title": "enabled",
-              "type": "boolean"
-            },
-            "builtin": {
-              "additionalProperties": false,
-              "description": "Built-in Python module access for the Code node",
-              "properties": {
-                "modules": {
-                  "default": [],
-                  "description": "Python stdlib modules allowed in Code nodes. Use [\"*\"] to allow all.",
-                  "items": {
-                    "type": "string"
-                  },
-                  "uniqueItems": true,
-                  "minItems": 0,
-                  "required": [],
-                  "title": "modules",
-                  "type": "array"
-                }
-              },
-              "required": ["modules"],
-              "title": "builtin",
-              "type": "object"
-            },
-            "external": {
-              "additionalProperties": false,
-              "description": "External Python package access for the Code node",
-              "properties": {
-                "allowAll": {
-                  "default": false,
-                  "description": "Allow all external Python packages in Code nodes. When true, sets N8N_RUNNERS_EXTERNAL_ALLOW=* regardless of packages list.",
-                  "required": [],
-                  "title": "allowAll",
-                  "type": "boolean"
-                },
-                "packages": {
-                  "default": [],
-                  "description": "Python packages to install via uv pip before starting the runner (e.g. [\"pandas\", \"numpy\"]). Each listed package is also automatically allowed as an external package in Code nodes.",
-                  "items": {
-                    "type": "string"
-                  },
-                  "required": [],
-                  "title": "packages",
-                  "type": "array"
-                }
-              },
-              "required": ["allowAll", "packages"],
-              "title": "external",
-              "type": "object"
-            }
-          },
-          "required": ["enabled", "builtin", "external"],
-          "title": "python",
-          "type": "object"
         }
       },
-      "required": ["mode", "taskTimeout", "taskHeartbeatInterval", "maxConcurrency", "broker", "python"],
+      "required": ["mode", "taskTimeout", "taskHeartbeatInterval", "maxConcurrency", "broker"],
       "if": {
         "properties": {
           "mode": { "const": "external" }

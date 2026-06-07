@@ -1075,9 +1075,9 @@ tests:
           path: data.SENTRY_DSN
           value: ""
 
-  - it: should set N8N_NATIVE_PYTHON_RUNNER when taskRunners.python.enabled is true
+  - it: should set N8N_NATIVE_PYTHON_RUNNER when nodes.python.enabled is true
     set:
-      taskRunners:
+      nodes:
         python:
           enabled: true
     documentSelector:
@@ -1088,9 +1088,9 @@ tests:
           path: data.N8N_NATIVE_PYTHON_RUNNER
           value: "true"
 
-  - it: should not set N8N_NATIVE_PYTHON_RUNNER when taskRunners.python.enabled is false
+  - it: should not set N8N_NATIVE_PYTHON_RUNNER when nodes.python.enabled is false
     set:
-      taskRunners:
+      nodes:
         python:
           enabled: false
     documentSelector:
@@ -1104,6 +1104,7 @@ tests:
     set:
       taskRunners:
         mode: external
+      nodes:
         python:
           enabled: true
           builtin:
@@ -1122,6 +1123,7 @@ tests:
     set:
       taskRunners:
         mode: external
+      nodes:
         python:
           enabled: true
           external:
@@ -1149,7 +1151,7 @@ tests:
 
   - it: should set N8N_RUNNERS_STDLIB_ALLOW in task-broker-configmap when python.enabled and builtin.modules is set
     set:
-      taskRunners:
+      nodes:
         python:
           enabled: true
           builtin:
@@ -1166,7 +1168,7 @@ tests:
 
   - it: should set N8N_RUNNERS_EXTERNAL_ALLOW in task-broker-configmap from external.packages when python.enabled and packages are set
     set:
-      taskRunners:
+      nodes:
         python:
           enabled: true
           external:
@@ -1183,7 +1185,7 @@ tests:
 
   - it: should not set N8N_RUNNERS_STDLIB_ALLOW in task-broker-configmap when python.enabled is false
     set:
-      taskRunners:
+      nodes:
         python:
           enabled: false
     documentSelector:
@@ -1195,7 +1197,7 @@ tests:
 
   - it: should not set N8N_RUNNERS_EXTERNAL_ALLOW in task-broker-configmap when python.enabled is false
     set:
-      taskRunners:
+      nodes:
         python:
           enabled: false
     documentSelector:
@@ -1209,6 +1211,7 @@ tests:
     set:
       taskRunners:
         mode: external
+      nodes:
         python:
           enabled: false
     documentSelector:
@@ -1222,6 +1225,7 @@ tests:
     set:
       taskRunners:
         mode: external
+      nodes:
         python:
           enabled: false
     documentSelector:
@@ -1235,6 +1239,7 @@ tests:
     set:
       taskRunners:
         mode: external
+      nodes:
         python:
           enabled: true
           external:
@@ -1250,6 +1255,7 @@ tests:
     set:
       taskRunners:
         mode: external
+      nodes:
         python:
           enabled: true
           external:
@@ -1264,7 +1270,7 @@ tests:
 
   - it: should set N8N_RUNNERS_EXTERNAL_ALLOW to * in task-broker-configmap when python.external.allowAll is true
     set:
-      taskRunners:
+      nodes:
         python:
           enabled: true
           external:
