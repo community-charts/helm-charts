@@ -186,6 +186,23 @@ nodes:
       # -- Additional annotations for the PVC.
       annotations: {}
 
+# -- Configuration for private Python package (PyPI) registry. Used by the runner sidecar when nodes.python.external.packages is set.
+pypiRegistry:
+  # -- Enable private PyPI registry support for the runner sidecar.
+  enabled: false
+  # -- URL of the private PyPI index (e.g. https://my.jfrog.io/artifactory/api/pypi/pypi/simple/).
+  # Used when no config file is provided; sets UV_DEFAULT_INDEX in the sidecar.
+  # For authenticated registries embed credentials inline or use customUvConfig/secretName instead.
+  url: ""
+  # -- Name of an existing Kubernetes secret whose data contains a uv.toml config file.
+  # When set, the file is mounted into the runner sidecar and UV_CONFIG_FILE is set.
+  secretName: ""
+  # -- Key within the secret that holds the uv.toml content.
+  secretKey: "uv.toml"
+  # -- Inline uv.toml content. When set and secretName is empty, the chart creates a Secret
+  # from this content (mirrors customNpmrc behaviour). Mutually exclusive with url.
+  customUvConfig: ""
+
 # -- Configuration for private npm registry
 npmRegistry:
   # -- Enable private npm registry

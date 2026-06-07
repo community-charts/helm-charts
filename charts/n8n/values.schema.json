@@ -1300,6 +1300,45 @@
       "title": "nodes",
       "type": "object"
     },
+    "pypiRegistry": {
+      "type": "object",
+      "title": "pypiRegistry",
+      "description": "Configuration for private Python package (PyPI) registry",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "enabled",
+          "description": "Enable private PyPI registry support for the runner sidecar",
+          "default": false
+        },
+        "url": {
+          "type": "string",
+          "title": "url",
+          "description": "URL of the private PyPI index. Sets UV_DEFAULT_INDEX when no config file is provided.",
+          "default": ""
+        },
+        "secretName": {
+          "type": "string",
+          "title": "secretName",
+          "description": "Name of an existing Kubernetes secret containing a uv.toml config file",
+          "default": ""
+        },
+        "secretKey": {
+          "type": "string",
+          "title": "secretKey",
+          "description": "Key within the secret that holds the uv.toml content",
+          "default": "uv.toml"
+        },
+        "customUvConfig": {
+          "type": "string",
+          "title": "customUvConfig",
+          "description": "Inline uv.toml content. When set and secretName is empty, the chart creates a Secret from this content.",
+          "default": ""
+        }
+      },
+      "required": ["enabled", "url", "secretName", "secretKey", "customUvConfig"]
+    },
     "npmRegistry": {
       "type": "object",
       "title": "npmRegistry",
@@ -5205,6 +5244,7 @@
     "service",
     "log",
     "nodes",
+    "pypiRegistry",
     "npmRegistry",
     "binaryData",
     "db",

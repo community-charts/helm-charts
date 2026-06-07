@@ -2574,3 +2574,166 @@ tests:
             name: python-packages
             emptyDir: {}
         template: deployment.yaml
+
+  - it: should set UV_DEFAULT_INDEX when pypiRegistry.enabled and url is set without config file
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: true
+        url: "https://my.registry.com/simple/"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[1].env
+          content:
+            name: UV_DEFAULT_INDEX
+            value: "https://my.registry.com/simple/"
+          any: true
+        template: deployment.yaml
+
+  - it: should set UV_CONFIG_FILE when pypiRegistry.enabled and customUvConfig is set
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: true
+        customUvConfig: "[index]\nurl = \"https://my.registry.com/simple/\""
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[1].env
+          content:
+            name: UV_CONFIG_FILE
+            value: "/home/node/.uv-config/uv.toml"
+          any: true
+        template: deployment.yaml
+
+  - it: should set UV_CONFIG_FILE when pypiRegistry.enabled and secretName is set
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: true
+        secretName: "my-uv-secret"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[1].env
+          content:
+            name: UV_CONFIG_FILE
+            value: "/home/node/.uv-config/uv.toml"
+          any: true
+        template: deployment.yaml
+
+  - it: should set UV_CONFIG_FILE with custom secretKey when pypiRegistry.secretKey is set
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: true
+        secretName: "my-uv-secret"
+        secretKey: "custom.toml"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[1].env
+          content:
+            name: UV_CONFIG_FILE
+            value: "/home/node/.uv-config/custom.toml"
+          any: true
+        template: deployment.yaml
+
+  - it: should mount uv-config volume when pypiRegistry.enabled and customUvConfig is set
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: true
+        customUvConfig: "[index]\nurl = \"https://my.registry.com/simple/\""
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[1].volumeMounts
+          content:
+            name: uv-config
+            mountPath: /home/node/.uv-config
+            readOnly: true
+          any: true
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: uv-config
+            secret:
+              secretName: "n8n-pypi-registry-secret"
+              optional: true
+          any: true
+        template: deployment.yaml
+
+  - it: should use existing secret name for uv-config volume when pypiRegistry.secretName is set
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: true
+        secretName: "my-existing-uv-secret"
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: uv-config
+            secret:
+              secretName: "my-existing-uv-secret"
+              optional: true
+          any: true
+        template: deployment.yaml
+
+  - it: should not add pypiRegistry env vars when pypiRegistry is disabled
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: false
+        url: "https://my.registry.com/simple/"
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[1].env
+          content:
+            name: UV_DEFAULT_INDEX
+            value: "https://my.registry.com/simple/"
+          any: true
+        template: deployment.yaml
+
+  - it: should not add uv-config volume when pypiRegistry is disabled
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: false
+        customUvConfig: "[index]\nurl = \"https://my.registry.com/simple/\""
+    asserts:
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: uv-config
+            secret:
+              secretName: "n8n-pypi-registry-secret"
+              optional: true
+          any: true
+        template: deployment.yaml
+
+  - it: should not add uv-config volume in main Deployment when worker.mode is queue
+    set:
+      taskRunners:
+        mode: external
+      worker:
+        mode: queue
+      pypiRegistry:
+        enabled: true
+        customUvConfig: "[index]\nurl = \"https://my.registry.com/simple/\""
+    asserts:
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: uv-config
+            secret:
+              secretName: "n8n-pypi-registry-secret"
+              optional: true
+          any: true
+        template: deployment.yaml

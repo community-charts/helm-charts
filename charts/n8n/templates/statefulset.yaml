@@ -348,6 +348,15 @@ spec:
             - name: N8N_REINSTALL_MISSING_PACKAGES
               value: "true"
           {{- end }}
+          {{- if .Values.pypiRegistry.enabled }}
+          {{- if or .Values.pypiRegistry.secretName .Values.pypiRegistry.customUvConfig }}
+            - name: UV_CONFIG_FILE
+              value: {{ printf "/home/node/.uv-config/%s" (default "uv.toml" .Values.pypiRegistry.secretKey) | quote }}
+          {{- else if .Values.pypiRegistry.url }}
+            - name: UV_DEFAULT_INDEX
+              value: {{ .Values.pypiRegistry.url | quote }}
+          {{- end }}
+          {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ template "n8n.taskRunners.fullname" . }}-configmap
@@ -358,6 +367,11 @@ spec:
               mountPath: /home/node/.cache
             - name: python-packages
               mountPath: /home/node/.python-packages
+          {{- if and .Values.pypiRegistry.enabled (or .Values.pypiRegistry.secretName .Values.pypiRegistry.customUvConfig) }}
+            - name: uv-config
+              mountPath: /home/node/.uv-config
+              readOnly: true
+          {{- end }}
             - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
               mountPath: {{ .Values.main.persistence.mountPath }}
               {{- if .Values.main.persistence.subPath }}
@@ -391,6 +405,12 @@ spec:
       {{- if .Values.nodes.external.packages }}
         - name: community-node-modules
           emptyDir: {}
+      {{- end }}
+      {{- if and (eq .Values.taskRunners.mode "external") (ne .Values.worker.mode "queue") .Values.pypiRegistry.enabled (or .Values.pypiRegistry.secretName .Values.pypiRegistry.customUvConfig) }}
+        - name: uv-config
+          secret:
+            secretName: {{ default (printf "%s-pypi-registry-secret" (include "n8n.fullname" .)) .Values.pypiRegistry.secretName | quote }}
+            optional: true
       {{- end }}
       {{- if .Values.npmRegistry.enabled }}
         - name: npmrc

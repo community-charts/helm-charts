@@ -398,6 +398,55 @@ taskRunners:
   mode: external
 ```
 
+### Private Python Package Registry
+
+By default, `uv pip install` resolves packages from pypi.org. Use `pypiRegistry` to point the runner sidecar at a private or self-hosted index instead (JFrog Artifactory, AWS CodeArtifact, Nexus, etc.).
+
+#### Simple — URL only (no auth or inline credentials)
+
+```yaml
+pypiRegistry:
+  enabled: true
+  url: "https://my.jfrog.io/artifactory/api/pypi/pypi-virtual/simple/"
+```
+
+This sets `UV_DEFAULT_INDEX` in the sidecar, replacing pypi.org as the default index.
+
+#### Advanced — `uv.toml` config file (authentication or multiple indexes)
+
+For authenticated registries, create a `uv.toml` with your index configuration and let the chart store it in a Kubernetes Secret:
+
+```yaml
+pypiRegistry:
+  enabled: true
+  customUvConfig: |
+    [[index]]
+    name = "private"
+    url = "https://my.jfrog.io/artifactory/api/pypi/pypi-virtual/simple/"
+    default = true
+
+    [index.credentials]
+    username = "ci-user"
+    password = "s3cr3t"
+```
+
+The chart creates a Secret from `customUvConfig`, mounts it into the runner sidecar, and sets `UV_CONFIG_FILE` to the mounted path. The entire file is base64-encoded in the Secret.
+
+> **Note**: Do not use `url` together with `customUvConfig` or `secretName` — when a config file is provided, the index URL belongs inside the `uv.toml`.
+
+#### Advanced — reference an existing Secret
+
+If you manage credentials in an existing Kubernetes Secret, reference it directly:
+
+```yaml
+pypiRegistry:
+  enabled: true
+  secretName: "my-uv-config-secret"
+  secretKey: "uv.toml"
+```
+
+The secret must contain a key matching `secretKey` (default: `uv.toml`) whose value is valid `uv.toml` content.
+
 ### Restrict Python Module Access
 
 Use `nodes.python.builtin.modules` to allowlist Python standard library modules. Use `["*"]` to allow all. This setting applies to both the n8n broker (security enforcement) and the runner sidecar.

@@ -398,6 +398,55 @@ taskRunners:
   mode: external
 ```
 
+### Private Python Package Registry
+
+By default, `uv pip install` resolves packages from pypi.org. Use `pypiRegistry` to point the runner sidecar at a private or self-hosted index instead (JFrog Artifactory, AWS CodeArtifact, Nexus, etc.).
+
+#### Simple — URL only (no auth or inline credentials)
+
+```yaml
+pypiRegistry:
+  enabled: true
+  url: "https://my.jfrog.io/artifactory/api/pypi/pypi-virtual/simple/"
+```
+
+This sets `UV_DEFAULT_INDEX` in the sidecar, replacing pypi.org as the default index.
+
+#### Advanced — `uv.toml` config file (authentication or multiple indexes)
+
+For authenticated registries, create a `uv.toml` with your index configuration and let the chart store it in a Kubernetes Secret:
+
+```yaml
+pypiRegistry:
+  enabled: true
+  customUvConfig: |
+    [[index]]
+    name = "private"
+    url = "https://my.jfrog.io/artifactory/api/pypi/pypi-virtual/simple/"
+    default = true
+
+    [index.credentials]
+    username = "ci-user"
+    password = "s3cr3t"
+```
+
+The chart creates a Secret from `customUvConfig`, mounts it into the runner sidecar, and sets `UV_CONFIG_FILE` to the mounted path. The entire file is base64-encoded in the Secret.
+
+> **Note**: Do not use `url` together with `customUvConfig` or `secretName` — when a config file is provided, the index URL belongs inside the `uv.toml`.
+
+#### Advanced — reference an existing Secret
+
+If you manage credentials in an existing Kubernetes Secret, reference it directly:
+
+```yaml
+pypiRegistry:
+  enabled: true
+  secretName: "my-uv-config-secret"
+  secretKey: "uv.toml"
+```
+
+The secret must contain a key matching `secretKey` (default: `uv.toml`) whose value is valid `uv.toml` content.
+
 ### Restrict Python Module Access
 
 Use `nodes.python.builtin.modules` to allowlist Python standard library modules. Use `["*"]` to allow all. This setting applies to both the n8n broker (security enforcement) and the runner sidecar.
@@ -1425,6 +1474,12 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | postgresql.primary.service | object | `{"ports":{"postgresql":5432}}` | This is for setting up the primary service. |
 | postgresql.primary.service.ports | object | `{"postgresql":5432}` | This is for setting up the service ports. |
 | postgresql.primary.service.ports.postgresql | int | `5432` | This is for setting up the postgresql port. |
+| pypiRegistry | object | `{"customUvConfig":"","enabled":false,"secretKey":"uv.toml","secretName":"","url":""}` | Configuration for private Python package (PyPI) registry. Used by the runner sidecar when nodes.python.external.packages is set. |
+| pypiRegistry.customUvConfig | string | `""` | Inline uv.toml content. When set and secretName is empty, the chart creates a Secret from this content (mirrors customNpmrc behaviour). Mutually exclusive with url. |
+| pypiRegistry.enabled | bool | `false` | Enable private PyPI registry support for the runner sidecar. |
+| pypiRegistry.secretKey | string | `"uv.toml"` | Key within the secret that holds the uv.toml content. |
+| pypiRegistry.secretName | string | `""` | Name of an existing Kubernetes secret whose data contains a uv.toml config file. When set, the file is mounted into the runner sidecar and UV_CONFIG_FILE is set. |
+| pypiRegistry.url | string | `""` | URL of the private PyPI index (e.g. https://my.jfrog.io/artifactory/api/pypi/pypi/simple/). Used when no config file is provided; sets UV_DEFAULT_INDEX in the sidecar. For authenticated registries embed credentials inline or use customUvConfig/secretName instead. |
 | readinessProbe | object | `{}` | @deprecated Use main, worker, and webhook blocks readinessProbe field instead. This field will be removed in a future release. |
 | redis | object | `{"architecture":"standalone","auth":{"enabled":true},"enabled":false,"image":{"repository":"bitnamilegacy/redis"},"master":{"persistence":{"enabled":false},"service":{"ports":{"redis":6379}}}}` | Bitnami Redis configuration |
 | redis.architecture | string | `"standalone"` | Enable redis architecture. |

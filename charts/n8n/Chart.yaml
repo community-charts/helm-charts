@@ -81,6 +81,8 @@ annotations:
       description: Add nodes.python.external.packages to install Python packages via uv before the runner starts; N8N_RUNNERS_EXTERNAL_ALLOW is derived automatically from the package list
     - kind: added
       description: Add optional PVC persistence for Python installed packages via nodes.python.persistence; ReadWriteMany required when HPA or multi-node Deployment is used
+    - kind: added
+      description: Add pypiRegistry support for installing Python packages from a private PyPI index (URL-only via UV_DEFAULT_INDEX or uv.toml config file via UV_CONFIG_FILE; mirrors npmRegistry pattern)
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:2.23.4
