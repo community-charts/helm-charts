@@ -58,6 +58,10 @@ annotations:
       description: Skip external task runner sidecar on main pod when worker.mode is queue
     - kind: added
       description: Add Python runner support via taskRunners.python.enabled flag (requires n8n 1.111.0+)
+    - kind: fixed
+      description: Rename runner sidecar port from http to runner-health to fix duplicate port name warning
+    - kind: changed
+      description: Add unit test coverage for external runner image tag, port name, and Python runner negative cases
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:2.23.4

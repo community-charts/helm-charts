@@ -1130,6 +1130,43 @@ tests:
           path: data.N8N_RUNNERS_EXTERNAL_ALLOW
           value: "numpy,pandas"
 
+  - it: should not set N8N_RUNNERS_ENABLED when taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-broker-configmap
+    asserts:
+      - notExists:
+          path: data.N8N_RUNNERS_ENABLED
+
+  - it: should not set N8N_RUNNERS_STDLIB_ALLOW when python.enabled is false
+    set:
+      taskRunners:
+        mode: external
+        python:
+          enabled: false
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-runners-configmap
+    asserts:
+      - notExists:
+          path: data.N8N_RUNNERS_STDLIB_ALLOW
+
+  - it: should not set N8N_RUNNERS_EXTERNAL_ALLOW when python.enabled is false
+    set:
+      taskRunners:
+        mode: external
+        python:
+          enabled: false
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-runners-configmap
+    asserts:
+      - notExists:
+          path: data.N8N_RUNNERS_EXTERNAL_ALLOW
+
   - it: should set license environment variables when license.enabled is true
     set:
       license:

@@ -2489,3 +2489,26 @@ tests:
           path: spec.revisionHistoryLimit
           value: 0
         template: deployment-worker.yaml
+
+  - it: should set runner-health port name on task runner sidecar container
+    set:
+      taskRunners:
+        mode: external
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].ports[0].name
+          value: runner-health
+        template: deployment-worker.yaml
+
+  - it: should use explicit tag when taskRunners.external.image.tag is set
+    set:
+      taskRunners:
+        mode: external
+        external:
+          image:
+            tag: "2.0.0"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].image
+          value: n8nio/runners:2.0.0
+        template: deployment-worker.yaml
