@@ -2560,3 +2560,17 @@ tests:
             name: python-packages
             emptyDir: {}
         template: deployment.yaml
+
+  - it: should not add python-packages volume in main Deployment when worker.mode is queue
+    set:
+      taskRunners:
+        mode: external
+      worker:
+        mode: queue
+    asserts:
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: python-packages
+            emptyDir: {}
+        template: deployment.yaml

@@ -378,7 +378,7 @@ spec:
           emptyDir: {}
         - name: cache
           emptyDir: {}
-      {{- if eq .Values.taskRunners.mode "external" }}
+      {{- if and (eq .Values.taskRunners.mode "external") (ne .Values.worker.mode "queue") }}
         {{- if not .Values.nodes.python.persistence.enabled }}
         - name: python-packages
           emptyDir: {}
@@ -460,7 +460,7 @@ spec:
         storageClassName: {{ .Values.main.persistence.storageClass | quote }}
           {{- end }}
         {{- end }}
-    {{- if and (eq .Values.taskRunners.mode "external") .Values.nodes.python.persistence.enabled (not .Values.nodes.python.persistence.existingClaim) }}
+    {{- if and (eq .Values.taskRunners.mode "external") (ne .Values.worker.mode "queue") .Values.nodes.python.persistence.enabled (not .Values.nodes.python.persistence.existingClaim) }}
     - metadata:
         name: python-packages
       spec:

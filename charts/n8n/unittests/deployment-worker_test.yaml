@@ -2621,3 +2621,15 @@ tests:
             persistentVolumeClaim:
               claimName: my-existing-pvc
         template: deployment-worker.yaml
+
+  - it: should not add python-packages volume in Deployment worker when taskRunners.mode is internal
+    set:
+      taskRunners:
+        mode: internal
+    asserts:
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: python-packages
+            emptyDir: {}
+        template: deployment-worker.yaml

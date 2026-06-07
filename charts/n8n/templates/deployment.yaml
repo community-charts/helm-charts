@@ -390,7 +390,7 @@ spec:
           emptyDir: {}
         - name: cache
           emptyDir: {}
-      {{- if eq .Values.taskRunners.mode "external" }}
+      {{- if and (eq .Values.taskRunners.mode "external") (ne .Values.worker.mode "queue") }}
         - name: python-packages
           {{- if .Values.nodes.python.persistence.enabled }}
           persistentVolumeClaim:

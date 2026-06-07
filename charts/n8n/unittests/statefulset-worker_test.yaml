@@ -2525,3 +2525,15 @@ tests:
             metadata:
               name: python-packages
         template: statefulset-worker.yaml
+
+  - it: should not add python-packages volume in StatefulSet worker when taskRunners.mode is internal
+    set:
+      taskRunners:
+        mode: internal
+    asserts:
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: python-packages
+            emptyDir: {}
+        template: statefulset-worker.yaml

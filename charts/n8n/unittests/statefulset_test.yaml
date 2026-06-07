@@ -2303,6 +2303,18 @@ tests:
             mountPath: /home/node/.python-packages
         template: statefulset.yaml
 
+  - it: should not add python-packages volume in StatefulSet when taskRunners.mode is internal
+    set:
+      taskRunners:
+        mode: internal
+    asserts:
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: python-packages
+            emptyDir: {}
+        template: statefulset.yaml
+
   - it: should add python-packages emptyDir in StatefulSet volumes when persistence is disabled
     set:
       taskRunners:
@@ -2365,6 +2377,28 @@ tests:
             name: python-packages
             persistentVolumeClaim:
               claimName: my-existing-pvc
+        template: statefulset.yaml
+      - notContains:
+          path: spec.volumeClaimTemplates
+          content:
+            metadata:
+              name: python-packages
+        template: statefulset.yaml
+
+  - it: should not add python-packages volume in main StatefulSet when worker.mode is queue
+    set:
+      taskRunners:
+        mode: external
+      worker:
+        mode: queue
+      main:
+        count: 2
+    asserts:
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: python-packages
+            emptyDir: {}
         template: statefulset.yaml
       - notContains:
           path: spec.volumeClaimTemplates
