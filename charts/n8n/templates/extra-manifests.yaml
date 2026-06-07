@@ -3,13 +3,13 @@ extra-manifests.yaml creates Kubernetes resources from values provided in
 .Values.extraManifests and .Values.extraTemplateManifests
 */}}
 
-{{- define "extraManifests.metadata" -}}
+{{- define "n8n.extraManifests.metadata" -}}
 metadata:
   labels:
     {{- include "n8n.extraManifests.labels" . | nindent 4 }}
 {{- end }}
 
-{{- $metadata := fromYaml (include "extraManifests.metadata" .) -}}
+{{- $metadata := fromYaml (include "n8n.extraManifests.metadata" .) -}}
 
 {{- $resources := list -}}
 {{- range .Values.extraManifests }}

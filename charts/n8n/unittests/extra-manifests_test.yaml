@@ -55,8 +55,17 @@ tests:
       - hasDocuments:
           count: 1
       - equal:
+          path: metadata.labels["helm.sh/chart"]
+          value: n8n-1.0.0
+      - equal:
+          path: metadata.labels["app.kubernetes.io/name"]
+          value: n8n
+      - equal:
           path: metadata.labels["app.kubernetes.io/instance"]
           value: n8n
+      - equal:
+          path: metadata.labels["app.kubernetes.io/version"]
+          value: "1.0.0"
       - equal:
           path: metadata.labels["app.kubernetes.io/managed-by"]
           value: Helm
@@ -310,6 +319,141 @@ tests:
       - equal:
           path: metadata.name
           value: template-after-separator
+
+  - it: should evaluate Helm template functions in extraTemplateManifests
+    set:
+      extraTemplateManifests:
+        - |
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: {{ .Release.Name }}-dynamic
+            namespace: {{ .Release.Namespace }}
+          data:
+            release: {{ .Release.Name }}
+            chart: {{ .Chart.Name }}
+            version: {{ .Chart.AppVersion }}
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: metadata.name
+          value: n8n-dynamic
+      - equal:
+          path: metadata.namespace
+          value: n8n
+      - equal:
+          path: data.release
+          value: n8n
+      - equal:
+          path: data.chart
+          value: n8n
+      - equal:
+          path: data.version
+          value: "1.0.0"
+
+  - it: should preserve user-provided labels alongside injected chart labels
+    set:
+      extraManifests:
+        - apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: labelled-config
+            labels:
+              custom-label: custom-value
+              team: platform
+          data:
+            key: value
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: metadata.labels["custom-label"]
+          value: custom-value
+      - equal:
+          path: metadata.labels["team"]
+          value: platform
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: n8n
+      - equal:
+          path: metadata.labels["helm.sh/chart"]
+          value: n8n-1.0.0
+
+  - it: should handle mixed object and string items in extraManifests
+    set:
+      extraManifests:
+        - apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: object-config
+          data:
+            key: value
+        - |
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: string-secret
+          stringData:
+            password: secret123
+    asserts:
+      - hasDocuments:
+          count: 2
+      - equal:
+          path: kind
+          value: ConfigMap
+        documentIndex: 0
+      - equal:
+          path: metadata.name
+          value: object-config
+        documentIndex: 0
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: n8n
+        documentIndex: 0
+      - equal:
+          path: kind
+          value: Secret
+        documentIndex: 1
+      - equal:
+          path: metadata.name
+          value: string-secret
+        documentIndex: 1
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: n8n
+        documentIndex: 1
+
+  - it: should match snapshot for Helm template functions in extraTemplateManifests
+    set:
+      extraTemplateManifests:
+        - |
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: {{ .Release.Name }}-dynamic
+            namespace: {{ .Release.Namespace }}
+          data:
+            release: {{ .Release.Name }}
+            chart: {{ .Chart.Name }}
+            version: {{ .Chart.AppVersion }}
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should match snapshot for manifest with user-provided labels
+    set:
+      extraManifests:
+        - apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: labelled-config
+            labels:
+              custom-label: custom-value
+              team: platform
+          data:
+            key: value
+    asserts:
+      - matchSnapshot: {}
 
   - it: should match snapshot for multi-document string in extraManifests
     set:

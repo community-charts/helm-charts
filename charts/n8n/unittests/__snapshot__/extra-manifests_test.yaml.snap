@@ -1,3 +1,20 @@
+should match snapshot for Helm template functions in extraTemplateManifests:
+  1: |
+    apiVersion: v1
+    data:
+      chart: n8n
+      release: n8n
+      version: 1.0.0
+    kind: ConfigMap
+    metadata:
+      labels:
+        app.kubernetes.io/instance: n8n
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: n8n
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: n8n-1.0.0
+      name: n8n-dynamic
+      namespace: n8n
 should match snapshot for combined extraManifests and extraTemplateManifests:
   1: |
     apiVersion: v1
@@ -25,6 +42,22 @@ should match snapshot for combined extraManifests and extraTemplateManifests:
         app.kubernetes.io/version: 1.0.0
         helm.sh/chart: n8n-1.0.0
       name: template-config
+should match snapshot for manifest with user-provided labels:
+  1: |
+    apiVersion: v1
+    data:
+      key: value
+    kind: ConfigMap
+    metadata:
+      labels:
+        app.kubernetes.io/instance: n8n
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: n8n
+        app.kubernetes.io/version: 1.0.0
+        custom-label: custom-value
+        helm.sh/chart: n8n-1.0.0
+        team: platform
+      name: labelled-config
 should match snapshot for multi-document string in extraManifests:
   1: |
     apiVersion: v1
