@@ -859,6 +859,15 @@ taskRunners:
       - "--max-semi-space-size=16"
       - "--max-old-space-size=300"
 
+    # -- The image for the external task runner sidecar. Tag must match the n8n appVersion.
+    image:
+      # -- The repository for the external task runner image
+      repository: n8nio/runners
+      # -- This sets the pull policy for images.
+      pullPolicy: IfNotPresent
+      # -- Overrides the image tag whose default is the chart appVersion.
+      tag: ""
+
     # -- The resources for the external task runner
     resources:
       # -- The resources requests for the external task runner

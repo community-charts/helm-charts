@@ -191,7 +191,6 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-  N8N_RUNNERS_ENABLED: "true"
   N8N_RUNNERS_MODE: {{ .Values.taskRunners.mode | quote }}
   N8N_RUNNERS_TASK_TIMEOUT: {{ .Values.taskRunners.taskTimeout | quote }}
   N8N_RUNNERS_HEARTBEAT_INTERVAL: {{ .Values.taskRunners.taskHeartbeatInterval | quote }}

@@ -1361,7 +1361,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].image
-          value: n8nio/n8n:1.0.0
+          value: n8nio/runners:1.0.0
         template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].imagePullPolicy
@@ -1423,6 +1423,21 @@ tests:
           content:
             configMapRef:
               name: n8n-task-runners-configmap
+        template: deployment.yaml
+
+  - it: should not add task runner sidecar on main pod when worker.mode is queue
+    set:
+      taskRunners:
+        mode: external
+      worker:
+        mode: queue
+      db:
+        type: postgresdb
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers
+          content:
+            name: n8n-task-runners
         template: deployment.yaml
 
   - it: should set security context on task runner container when taskRunners.mode is external

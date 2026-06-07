@@ -307,8 +307,8 @@ spec:
         - name: {{ template "n8n.taskRunners.name" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.taskRunners.external.image.repository }}:{{ .Values.taskRunners.external.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.taskRunners.external.image.pullPolicy }}
           command: ["/usr/local/bin/task-runner-launcher"]
           args: ["javascript"]
           ports:

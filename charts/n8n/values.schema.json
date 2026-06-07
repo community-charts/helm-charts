@@ -4279,6 +4279,37 @@
                 "type": "string"
               }
             },
+            "image": {
+              "additionalProperties": false,
+              "description": "Container image for the external task runner sidecar",
+              "properties": {
+                "repository": {
+                  "default": "n8nio/runners",
+                  "description": "The repository for the external task runner image",
+                  "required": [],
+                  "title": "repository",
+                  "type": "string"
+                },
+                "pullPolicy": {
+                  "default": "IfNotPresent",
+                  "description": "The image pull policy for the external task runner",
+                  "required": [],
+                  "title": "pullPolicy",
+                  "type": "string",
+                  "enum": ["Always", "Never", "IfNotPresent"]
+                },
+                "tag": {
+                  "default": "",
+                  "description": "Override the image tag; defaults to chart appVersion",
+                  "required": [],
+                  "title": "tag",
+                  "type": "string"
+                }
+              },
+              "required": ["repository", "pullPolicy", "tag"],
+              "title": "image",
+              "type": "object"
+            },
             "resources": {
               "additionalProperties": false,
               "properties": {
@@ -4316,7 +4347,7 @@
               "type": "object"
             }
           },
-          "required": ["autoShutdownTimeout", "port", "nodeOptions", "resources"],
+          "required": ["autoShutdownTimeout", "port", "nodeOptions", "image", "resources"],
           "title": "external",
           "type": "object"
         }
