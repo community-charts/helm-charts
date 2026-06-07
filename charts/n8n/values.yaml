@@ -845,6 +845,8 @@ taskRunners:
     stdlibAllow: ""
     # -- Third-party Python modules allowed in Code nodes (comma-separated). Use * to allow all.
     externalAllow: ""
+    # -- Python packages to install via uv before starting the runner (e.g. ["pandas", "numpy"]).
+    packages: []
 
   # -- The address for the broker of the external task runner
   broker:

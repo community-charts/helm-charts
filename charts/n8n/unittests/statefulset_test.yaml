@@ -1270,6 +1270,18 @@ tests:
           value: runner-health
         template: statefulset.yaml
       - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].startupProbe.httpGet.path
+          value: /healthz
+        template: statefulset.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].startupProbe.httpGet.port
+          value: runner-health
+        template: statefulset.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].startupProbe.failureThreshold
+          value: 30
+        template: statefulset.yaml
+      - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].resources
           value:
             requests:
@@ -2243,4 +2255,32 @@ tests:
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].image
           value: n8nio/runners:2.0.0
+        template: statefulset.yaml
+
+  - it: should use uv install command when taskRunners.python.packages is set
+    set:
+      taskRunners:
+        mode: external
+        python:
+          enabled: true
+          packages:
+            - pandas
+            - numpy
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].command
+          value: ["/bin/sh", "-c", "UV_CACHE_DIR=/tmp/.uv-cache uv pip install --target /tmp/.site-packages pandas numpy && export PYTHONPATH=/tmp/.site-packages && exec /usr/local/bin/task-runner-launcher javascript python"]
+        template: statefulset.yaml
+
+  - it: should use direct launcher command when taskRunners.python.packages is empty
+    set:
+      taskRunners:
+        mode: external
+        python:
+          enabled: true
+          packages: []
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].command
+          value: ["/usr/local/bin/task-runner-launcher"]
         template: statefulset.yaml

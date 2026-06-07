@@ -1141,6 +1141,58 @@ tests:
       - notExists:
           path: data.N8N_RUNNERS_ENABLED
 
+  - it: should set N8N_RUNNERS_STDLIB_ALLOW in task-broker-configmap when python.enabled and stdlibAllow is set
+    set:
+      taskRunners:
+        python:
+          enabled: true
+          stdlibAllow: "os,sys"
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-broker-configmap
+    asserts:
+      - equal:
+          path: data.N8N_RUNNERS_STDLIB_ALLOW
+          value: "os,sys"
+
+  - it: should set N8N_RUNNERS_EXTERNAL_ALLOW in task-broker-configmap when python.enabled and externalAllow is set
+    set:
+      taskRunners:
+        python:
+          enabled: true
+          externalAllow: "numpy,pandas"
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-broker-configmap
+    asserts:
+      - equal:
+          path: data.N8N_RUNNERS_EXTERNAL_ALLOW
+          value: "numpy,pandas"
+
+  - it: should not set N8N_RUNNERS_STDLIB_ALLOW in task-broker-configmap when python.enabled is false
+    set:
+      taskRunners:
+        python:
+          enabled: false
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-broker-configmap
+    asserts:
+      - notExists:
+          path: data.N8N_RUNNERS_STDLIB_ALLOW
+
+  - it: should not set N8N_RUNNERS_EXTERNAL_ALLOW in task-broker-configmap when python.enabled is false
+    set:
+      taskRunners:
+        python:
+          enabled: false
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-broker-configmap
+    asserts:
+      - notExists:
+          path: data.N8N_RUNNERS_EXTERNAL_ALLOW
+
   - it: should not set N8N_RUNNERS_STDLIB_ALLOW when python.enabled is false
     set:
       taskRunners:

@@ -336,9 +336,26 @@ taskRunners:
     enabled: true
 ```
 
+### Install Python Packages
+
+The `n8nio/runners` image ships only a bare Python environment. Use `taskRunners.python.packages` to install packages via `uv pip install` before the runner starts. List any third-party packages your Code nodes need:
+
+```yaml
+taskRunners:
+  mode: external
+  python:
+    enabled: true
+    packages:
+      - pandas
+      - numpy
+      - requests
+```
+
+> **Note**: Package installation adds a few seconds to runner startup time. Packages must also be listed in `externalAllow` for n8n to permit their use in Code nodes.
+
 ### Restrict Python Module Access
 
-Use `stdlibAllow` to allowlist Python standard library modules and `externalAllow` for third-party packages. Set either to `*` to allow all.
+Use `stdlibAllow` to allowlist Python standard library modules and `externalAllow` for third-party packages. Set either to `*` to allow all. These settings apply to both the n8n broker (security enforcement) and the runner sidecar.
 
 ```yaml
 taskRunners:
@@ -347,6 +364,9 @@ taskRunners:
     enabled: true
     stdlibAllow: "os,sys,json,math,datetime,re"
     externalAllow: "numpy,pandas"
+    packages:
+      - numpy
+      - pandas
 ```
 
 ### Full Queue Mode + External Runner + Python Example
@@ -372,6 +392,10 @@ taskRunners:
   python:
     enabled: true
     stdlibAllow: "*"
+    externalAllow: "numpy,pandas"
+    packages:
+      - numpy
+      - pandas
   external:
     image:
       repository: n8nio/runners

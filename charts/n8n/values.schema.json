@@ -4375,9 +4375,19 @@
               "required": [],
               "title": "externalAllow",
               "type": "string"
+            },
+            "packages": {
+              "default": [],
+              "description": "Python packages to install via uv pip before starting the runner (e.g. [\"pandas\", \"numpy\"])",
+              "items": {
+                "type": "string"
+              },
+              "required": [],
+              "title": "packages",
+              "type": "array"
             }
           },
-          "required": ["enabled", "stdlibAllow", "externalAllow"],
+          "required": ["enabled", "stdlibAllow", "externalAllow", "packages"],
           "title": "python",
           "type": "object"
         }

@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.22.0
+version: 1.22.1
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -62,6 +62,10 @@ annotations:
       description: Rename runner sidecar port from http to runner-health to fix duplicate port name warning
     - kind: changed
       description: Add unit test coverage for external runner image tag, port name, and Python runner negative cases
+    - kind: fixed
+      description: Move N8N_RUNNERS_STDLIB_ALLOW and N8N_RUNNERS_EXTERNAL_ALLOW to broker configmap so n8n enforces the correct Python security policy
+    - kind: added
+      description: Add taskRunners.python.packages to install Python packages via uv before the runner starts
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:2.23.4

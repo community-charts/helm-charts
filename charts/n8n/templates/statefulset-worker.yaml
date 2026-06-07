@@ -309,16 +309,30 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.taskRunners.external.image.repository }}:{{ .Values.taskRunners.external.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.taskRunners.external.image.pullPolicy }}
-          command: ["/usr/local/bin/task-runner-launcher"]
+          {{- if .Values.taskRunners.python.packages }}
+          command:
+            - /bin/sh
+            - -c
+            - {{ printf "UV_CACHE_DIR=/tmp/.uv-cache uv pip install --target /tmp/.site-packages %s && export PYTHONPATH=/tmp/.site-packages && exec /usr/local/bin/task-runner-launcher javascript%s" (.Values.taskRunners.python.packages | join " ") (ternary " python" "" .Values.taskRunners.python.enabled) | quote }}
+          {{- else }}
+          command:
+            - /usr/local/bin/task-runner-launcher
           args:
             - javascript
           {{- if .Values.taskRunners.python.enabled }}
             - python
           {{- end }}
+          {{- end }}
           ports:
             - name: runner-health
               containerPort: {{ .Values.taskRunners.external.port }}
               protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: runner-health
+            failureThreshold: 30
+            periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /healthz

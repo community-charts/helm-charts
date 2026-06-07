@@ -202,6 +202,12 @@ data:
 {{- end }}
 {{- if .Values.taskRunners.python.enabled }}
   N8N_NATIVE_PYTHON_RUNNER: "true"
+{{- if .Values.taskRunners.python.stdlibAllow }}
+  N8N_RUNNERS_STDLIB_ALLOW: {{ .Values.taskRunners.python.stdlibAllow | quote }}
+{{- end }}
+{{- if .Values.taskRunners.python.externalAllow }}
+  N8N_RUNNERS_EXTERNAL_ALLOW: {{ .Values.taskRunners.python.externalAllow | quote }}
+{{- end }}
 {{- end }}
 ---
 apiVersion: v1
