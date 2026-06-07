@@ -307,6 +307,10 @@ should match snapshot of postgres ssl certificate values:
               volumeMounts:
                 - mountPath: /tmp
                   name: tmp
+                - mountPath: /home/node/.cache
+                  name: cache
+                - mountPath: /home/node/.n8n
+                  name: data
                 - mountPath: /home/node/certs/ca/ca.crt
                   name: pg-ssl-ca
                   readOnly: true
@@ -328,6 +332,10 @@ should match snapshot of postgres ssl certificate values:
           volumes:
             - emptyDir: {}
               name: tmp
+            - emptyDir: {}
+              name: cache
+            - emptyDir: {}
+              name: data
             - name: pg-ssl-ca
               secret:
                 items:

@@ -48,14 +48,14 @@ annotations:
       url: https://github.com/n8n-io/n8n
     - name: Official Documentation
       url: https://docs.n8n.io/
-  artifacthub.io/containsSecurityUpdates: "false"
+  artifacthub.io/containsSecurityUpdates: "true"
   artifacthub.io/changes: |-
     - kind: added
       description: Add securityContext definitions to wait-for-main init containers and task runner sidecar containers
     - kind: security
       description: Add seccompProfile RuntimeDefault to pod security context (CIS 5.7.2)
     - kind: security
-      description: Enable readOnlyRootFilesystem for all containers with tmp emptyDir and waitContainerSecurityContext (CIS 5.7.3)
+      description: Enable readOnlyRootFilesystem for all containers with tmp, cache, and data emptyDir volumes and waitContainerSecurityContext (CIS 5.7.3)
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:2.23.4

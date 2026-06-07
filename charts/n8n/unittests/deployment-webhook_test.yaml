@@ -1449,6 +1449,46 @@ tests:
           any: true
         template: deployment-webhook.yaml
 
+  - it: should always include cache emptyDir volume
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: cache
+            emptyDir: {}
+          any: true
+        template: deployment-webhook.yaml
+
+  - it: should always mount cache in webhook container
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].volumeMounts
+          content:
+            name: cache
+            mountPath: /home/node/.cache
+          any: true
+        template: deployment-webhook.yaml
+
+  - it: should always include data emptyDir volume
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: data
+            emptyDir: {}
+          any: true
+        template: deployment-webhook.yaml
+
+  - it: should always mount data in webhook container
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].volumeMounts
+          content:
+            name: data
+            mountPath: /home/node/.n8n
+          any: true
+        template: deployment-webhook.yaml
+
   - it: should use startupProbe to wait n8n process ready
     asserts:
       - equal:

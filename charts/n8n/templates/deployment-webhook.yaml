@@ -203,6 +203,10 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+            - name: cache
+              mountPath: /home/node/.cache
+            - name: data
+              mountPath: /home/node/.n8n
           {{- if eq (include "n8n.postgres.ssl.hasCA" .) "true" }}
             - name: pg-ssl-ca
               mountPath: /home/node/certs/ca/ca.crt
@@ -229,6 +233,10 @@ spec:
       {{- end }}
       volumes:
         - name: tmp
+          emptyDir: {}
+        - name: cache
+          emptyDir: {}
+        - name: data
           emptyDir: {}
       {{- if eq (include "n8n.postgres.ssl.hasCA" .) "true" }}
         - name: pg-ssl-ca

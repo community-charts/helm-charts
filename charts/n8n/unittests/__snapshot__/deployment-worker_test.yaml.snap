@@ -301,6 +301,8 @@ should match snapshot of default values:
               volumeMounts:
                 - mountPath: /tmp
                   name: tmp
+                - mountPath: /home/node/.cache
+                  name: cache
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
@@ -313,6 +315,8 @@ should match snapshot of default values:
           volumes:
             - emptyDir: {}
               name: tmp
+            - emptyDir: {}
+              name: cache
             - emptyDir: {}
               name: node-modules
   12: |
@@ -667,6 +671,8 @@ should match snapshot of postgres ssl certificate values:
               volumeMounts:
                 - mountPath: /tmp
                   name: tmp
+                - mountPath: /home/node/.cache
+                  name: cache
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
@@ -691,6 +697,8 @@ should match snapshot of postgres ssl certificate values:
           volumes:
             - emptyDir: {}
               name: tmp
+            - emptyDir: {}
+              name: cache
             - emptyDir: {}
               name: node-modules
             - name: pg-ssl-ca
@@ -1059,6 +1067,8 @@ should match snapshot of worker persistence:
               volumeMounts:
                 - mountPath: /tmp
                   name: tmp
+                - mountPath: /home/node/.cache
+                  name: cache
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
@@ -1071,6 +1081,8 @@ should match snapshot of worker persistence:
           volumes:
             - emptyDir: {}
               name: tmp
+            - emptyDir: {}
+              name: cache
             - name: node-modules
               persistentVolumeClaim:
                 claimName: n8n-worker-persistence

@@ -1283,6 +1283,26 @@ tests:
           any: true
         template: statefulset.yaml
 
+  - it: should always include cache emptyDir volume
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: cache
+            emptyDir: {}
+          any: true
+        template: statefulset.yaml
+
+  - it: should always mount cache in main container
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
+          content:
+            name: cache
+            mountPath: /home/node/.cache
+          any: true
+        template: statefulset.yaml
+
   - it: should set NPM_CONFIG_CACHE on npm-install init container when packages are set
     set:
       nodes:

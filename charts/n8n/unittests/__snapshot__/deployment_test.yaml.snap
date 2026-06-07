@@ -237,6 +237,8 @@ should match snapshot of default values:
               volumeMounts:
                 - mountPath: /tmp
                   name: tmp
+                - mountPath: /home/node/.cache
+                  name: cache
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
@@ -249,6 +251,8 @@ should match snapshot of default values:
           volumes:
             - emptyDir: {}
               name: tmp
+            - emptyDir: {}
+              name: cache
             - emptyDir: {}
               name: node-modules
   11: |
@@ -508,6 +512,8 @@ should match snapshot of main persistence:
               volumeMounts:
                 - mountPath: /tmp
                   name: tmp
+                - mountPath: /home/node/.cache
+                  name: cache
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
@@ -520,6 +526,8 @@ should match snapshot of main persistence:
           volumes:
             - emptyDir: {}
               name: tmp
+            - emptyDir: {}
+              name: cache
             - name: node-modules
               persistentVolumeClaim:
                 claimName: n8n-main-persistence
@@ -782,6 +790,8 @@ should match snapshot of main persistence with multiple main node and mode read 
               volumeMounts:
                 - mountPath: /tmp
                   name: tmp
+                - mountPath: /home/node/.cache
+                  name: cache
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
@@ -794,6 +804,8 @@ should match snapshot of main persistence with multiple main node and mode read 
           volumes:
             - emptyDir: {}
               name: tmp
+            - emptyDir: {}
+              name: cache
             - name: node-modules
               persistentVolumeClaim:
                 claimName: n8n-main-persistence
@@ -1072,6 +1084,8 @@ should match snapshot of postgres ssl certificate values:
               volumeMounts:
                 - mountPath: /tmp
                   name: tmp
+                - mountPath: /home/node/.cache
+                  name: cache
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
@@ -1096,6 +1110,8 @@ should match snapshot of postgres ssl certificate values:
           volumes:
             - emptyDir: {}
               name: tmp
+            - emptyDir: {}
+              name: cache
             - emptyDir: {}
               name: node-modules
             - name: pg-ssl-ca

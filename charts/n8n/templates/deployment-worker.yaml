@@ -285,6 +285,8 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+            - name: cache
+              mountPath: /home/node/.cache
             - name: {{ default "node-modules" .Values.worker.persistence.volumeName }}
               mountPath: {{ .Values.worker.persistence.mountPath }}
               {{- if .Values.worker.persistence.subPath }}
@@ -366,6 +368,8 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+            - name: cache
+              mountPath: /home/node/.cache
             - name: {{ default "node-modules" .Values.worker.persistence.volumeName }}
               mountPath: {{ .Values.worker.persistence.mountPath }}
               {{- if .Values.worker.persistence.subPath }}
@@ -383,6 +387,8 @@ spec:
       {{- end }}
       volumes:
         - name: tmp
+          emptyDir: {}
+        - name: cache
           emptyDir: {}
       {{- if .Values.worker.persistence.enabled }}
         - name: {{ default "node-modules" .Values.worker.persistence.volumeName }}
