@@ -186,3 +186,61 @@ tests:
     asserts:
       - hasDocuments:
           count: 2
+
+  - it: should match snapshot for object manifest in extraManifests
+    set:
+      extraManifests:
+        - apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: my-extra-config
+          data:
+            key: value
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should match snapshot for string manifest in extraManifests
+    set:
+      extraManifests:
+        - |
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: my-string-config
+          data:
+            key: value
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should match snapshot for template manifest in extraTemplateManifests
+    set:
+      extraTemplateManifests:
+        - |
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: my-template-config
+          data:
+            release: n8n
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should match snapshot for combined extraManifests and extraTemplateManifests
+    set:
+      extraManifests:
+        - apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: static-config
+          data:
+            key: value
+      extraTemplateManifests:
+        - |
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: template-config
+          data:
+            key: value
+    asserts:
+      - matchSnapshot: {}

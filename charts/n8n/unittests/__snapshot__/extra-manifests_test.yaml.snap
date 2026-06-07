@@ -1,0 +1,69 @@
+should match snapshot for combined extraManifests and extraTemplateManifests:
+  1: |
+    apiVersion: v1
+    data:
+      key: value
+    kind: ConfigMap
+    metadata:
+      labels:
+        app.kubernetes.io/instance: n8n
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: n8n
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: n8n-1.0.0
+      name: static-config
+  2: |
+    apiVersion: v1
+    data:
+      key: value
+    kind: ConfigMap
+    metadata:
+      labels:
+        app.kubernetes.io/instance: n8n
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: n8n
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: n8n-1.0.0
+      name: template-config
+should match snapshot for object manifest in extraManifests:
+  1: |
+    apiVersion: v1
+    data:
+      key: value
+    kind: ConfigMap
+    metadata:
+      labels:
+        app.kubernetes.io/instance: n8n
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: n8n
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: n8n-1.0.0
+      name: my-extra-config
+should match snapshot for string manifest in extraManifests:
+  1: |
+    apiVersion: v1
+    data:
+      key: value
+    kind: ConfigMap
+    metadata:
+      labels:
+        app.kubernetes.io/instance: n8n
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: n8n
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: n8n-1.0.0
+      name: my-string-config
+should match snapshot for template manifest in extraTemplateManifests:
+  1: |
+    apiVersion: v1
+    data:
+      release: n8n
+    kind: ConfigMap
+    metadata:
+      labels:
+        app.kubernetes.io/instance: n8n
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: n8n
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: n8n-1.0.0
+      name: my-template-config
