@@ -68,6 +68,8 @@ annotations:
       description: Add taskRunners.python.packages to install Python packages via uv before the runner starts
     - kind: changed
       description: Derive N8N_RUNNERS_EXTERNAL_ALLOW automatically from taskRunners.python.packages, removing the redundant externalAllow field
+    - kind: changed
+      description: Restructure taskRunners.python config to match nodes section pattern (builtin.modules array and external.packages with allowAll flag)
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:2.23.4

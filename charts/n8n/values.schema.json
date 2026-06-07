@@ -4362,25 +4362,55 @@
               "title": "enabled",
               "type": "boolean"
             },
-            "stdlibAllow": {
-              "default": "",
-              "description": "Python standard library modules allowed in Code nodes, comma-separated. Use * to allow all.",
-              "required": [],
-              "title": "stdlibAllow",
-              "type": "string"
-            },
-            "packages": {
-              "default": [],
-              "description": "Python packages to install via uv pip before starting the runner (e.g. [\"pandas\", \"numpy\"])",
-              "items": {
-                "type": "string"
+            "builtin": {
+              "additionalProperties": false,
+              "description": "Built-in Python module access for the Code node",
+              "properties": {
+                "modules": {
+                  "default": [],
+                  "description": "Python stdlib modules allowed in Code nodes. Use [\"*\"] to allow all.",
+                  "items": {
+                    "type": "string"
+                  },
+                  "uniqueItems": true,
+                  "minItems": 0,
+                  "required": [],
+                  "title": "modules",
+                  "type": "array"
+                }
               },
-              "required": [],
-              "title": "packages",
-              "type": "array"
+              "required": ["modules"],
+              "title": "builtin",
+              "type": "object"
+            },
+            "external": {
+              "additionalProperties": false,
+              "description": "External Python package access for the Code node",
+              "properties": {
+                "allowAll": {
+                  "default": false,
+                  "description": "Allow all external Python packages in Code nodes. When true, sets N8N_RUNNERS_EXTERNAL_ALLOW=* regardless of packages list.",
+                  "required": [],
+                  "title": "allowAll",
+                  "type": "boolean"
+                },
+                "packages": {
+                  "default": [],
+                  "description": "Python packages to install via uv pip before starting the runner (e.g. [\"pandas\", \"numpy\"]). Each listed package is also automatically allowed as an external package in Code nodes.",
+                  "items": {
+                    "type": "string"
+                  },
+                  "required": [],
+                  "title": "packages",
+                  "type": "array"
+                }
+              },
+              "required": ["allowAll", "packages"],
+              "title": "external",
+              "type": "object"
             }
           },
-          "required": ["enabled", "stdlibAllow", "packages"],
+          "required": ["enabled", "builtin", "external"],
           "title": "python",
           "type": "object"
         }

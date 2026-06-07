@@ -51,10 +51,13 @@ taskRunners:
   mode: external
   python:
     enabled: true
-    stdlibAllow: "*"
-    packages:
-      - numpy
-      - pandas
+    builtin:
+      modules:
+        - "*"
+    external:
+      packages:
+        - numpy
+        - pandas
   external:
     image:
       repository: n8nio/runners

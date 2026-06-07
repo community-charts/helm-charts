@@ -841,10 +841,19 @@ taskRunners:
   python:
     # -- Enable Python code execution in the Code node via external task runners.
     enabled: false
-    # -- Python standard library modules allowed in Code nodes (comma-separated). Use * to allow all.
-    stdlibAllow: ""
-    # -- Python packages to install via uv before starting the runner (e.g. ["pandas", "numpy"]). Each listed package is also automatically allowed as an external package in Code nodes.
-    packages: []
+    # -- Built-in Python module access for the Code node.
+    builtin:
+      # -- Python standard library modules allowed in Code nodes. Use ['*'] to allow all.
+      modules: []
+        # - "*"
+    # -- External Python package access for the Code node.
+    external:
+      # -- Allow all external Python packages in Code nodes. When true, sets N8N_RUNNERS_EXTERNAL_ALLOW=* regardless of packages list.
+      allowAll: false
+      # -- Python packages to install via uv before starting the runner (e.g. ["pandas", "numpy"]). Each listed package is also automatically allowed as an external package in Code nodes.
+      packages: []
+        # - pandas
+        # - numpy
 
   # -- The address for the broker of the external task runner
   broker:

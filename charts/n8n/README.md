@@ -338,34 +338,52 @@ taskRunners:
 
 ### Install Python Packages
 
-The `n8nio/runners` image ships only a bare Python environment. Use `taskRunners.python.packages` to install packages via `uv pip install` before the runner starts. List any third-party packages your Code nodes need:
+The `n8nio/runners` image ships only a bare Python environment. Use `taskRunners.python.external.packages` to install packages via `uv pip install` before the runner starts. Each listed package is automatically allowed in Code nodes — no separate allowlist entry is needed.
 
 ```yaml
 taskRunners:
   mode: external
   python:
     enabled: true
-    packages:
-      - pandas
-      - numpy
-      - requests
+    external:
+      packages:
+        - pandas
+        - numpy
+        - requests
 ```
 
-> **Note**: Package installation adds a few seconds to runner startup time. Each package listed in `packages` is automatically allowed as an external package in Code nodes — no separate allowlist entry is needed.
+> **Note**: Package installation adds a few seconds to runner startup time.
+
+To allow all external packages without installing them (e.g. when packages are pre-installed in a custom image), set `allowAll: true`:
+
+```yaml
+taskRunners:
+  mode: external
+  python:
+    enabled: true
+    external:
+      allowAll: true
+```
 
 ### Restrict Python Module Access
 
-Use `stdlibAllow` to allowlist Python standard library modules. Set to `*` to allow all. This setting applies to both the n8n broker (security enforcement) and the runner sidecar. External packages listed in `packages` are automatically permitted.
+Use `builtin.modules` to allowlist Python standard library modules. Use `["*"]` to allow all. This setting applies to both the n8n broker (security enforcement) and the runner sidecar.
 
 ```yaml
 taskRunners:
   mode: external
   python:
     enabled: true
-    stdlibAllow: "os,sys,json,math,datetime,re"
-    packages:
-      - numpy
-      - pandas
+    builtin:
+      modules:
+        - os
+        - sys
+        - json
+        - math
+    external:
+      packages:
+        - numpy
+        - pandas
 ```
 
 ### Full Queue Mode + External Runner + Python Example
@@ -390,10 +408,13 @@ taskRunners:
   mode: external
   python:
     enabled: true
-    stdlibAllow: "*"
-    packages:
-      - numpy
-      - pandas
+    builtin:
+      modules:
+        - "*"
+    external:
+      packages:
+        - numpy
+        - pandas
   external:
     image:
       repository: n8nio/runners
@@ -1399,7 +1420,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | serviceMonitor.targetLabels | list | `[]` | Set of labels to transfer on the Kubernetes Service onto the target. |
 | serviceMonitor.timeout | string | `"10s"` | Set timeout for scrape |
 | strategy | object | `{"rollingUpdate":{"maxSurge":"25%","maxUnavailable":"25%"},"type":"RollingUpdate"}` | This will set the deployment strategy more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy |
-| taskRunners | object | `{"broker":{"address":"127.0.0.1","port":5679},"external":{"autoShutdownTimeout":15,"image":{"pullPolicy":"IfNotPresent","repository":"n8nio/runners","tag":""},"mainNodeAuthToken":"","nodeOptions":["--max-semi-space-size=16","--max-old-space-size=300"],"port":5680,"resources":{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}},"workerNodeAuthToken":""},"maxConcurrency":5,"mode":"internal","python":{"enabled":false,"packages":[],"stdlibAllow":""},"taskHeartbeatInterval":30,"taskTimeout":60}` | Task runners mode. Please follow the documentation for more information: https://docs.n8n.io/hosting/configuration/task-runners/ |
+| taskRunners | object | `{"broker":{"address":"127.0.0.1","port":5679},"external":{"autoShutdownTimeout":15,"image":{"pullPolicy":"IfNotPresent","repository":"n8nio/runners","tag":""},"mainNodeAuthToken":"","nodeOptions":["--max-semi-space-size=16","--max-old-space-size=300"],"port":5680,"resources":{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}},"workerNodeAuthToken":""},"maxConcurrency":5,"mode":"internal","python":{"builtin":{"modules":[]},"enabled":false,"external":{"allowAll":false,"packages":[]}},"taskHeartbeatInterval":30,"taskTimeout":60}` | Task runners mode. Please follow the documentation for more information: https://docs.n8n.io/hosting/configuration/task-runners/ |
 | taskRunners.broker | object | `{"address":"127.0.0.1","port":5679}` | The address for the broker of the external task runner |
 | taskRunners.broker.address | string | `"127.0.0.1"` | The address for the broker of the external task runner |
 | taskRunners.broker.port | int | `5679` | The port for the broker of the external task runner |
@@ -1422,10 +1443,13 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | taskRunners.external.workerNodeAuthToken | string | `""` | The auth token for the worker node |
 | taskRunners.maxConcurrency | int | `5` | The maximum concurrency for the task |
 | taskRunners.mode | string | `"internal"` | Use `internal` to use internal task runner, or use `external` to have external sidecar task runner. For more information please follow the documentation: https://docs.n8n.io/hosting/configuration/task-runners/#task-runner-modes |
-| taskRunners.python | object | `{"enabled":false,"packages":[],"stdlibAllow":""}` | Python runner configuration. Requires n8n 1.111.0+ and external task runner mode. |
+| taskRunners.python | object | `{"builtin":{"modules":[]},"enabled":false,"external":{"allowAll":false,"packages":[]}}` | Python runner configuration. Requires n8n 1.111.0+ and external task runner mode. |
+| taskRunners.python.builtin | object | `{"modules":[]}` | Built-in Python module access for the Code node. |
+| taskRunners.python.builtin.modules | list | `[]` | Python standard library modules allowed in Code nodes. Use ['*'] to allow all. |
 | taskRunners.python.enabled | bool | `false` | Enable Python code execution in the Code node via external task runners. |
-| taskRunners.python.packages | list | `[]` | Python packages to install via uv before starting the runner (e.g. ["pandas", "numpy"]). Each listed package is also automatically allowed as an external package in Code nodes. |
-| taskRunners.python.stdlibAllow | string | `""` | Python standard library modules allowed in Code nodes (comma-separated). Use * to allow all. |
+| taskRunners.python.external | object | `{"allowAll":false,"packages":[]}` | External Python package access for the Code node. |
+| taskRunners.python.external.allowAll | bool | `false` | Allow all external Python packages in Code nodes. When true, sets N8N_RUNNERS_EXTERNAL_ALLOW=* regardless of packages list. |
+| taskRunners.python.external.packages | list | `[]` | Python packages to install via uv before starting the runner (e.g. ["pandas", "numpy"]). Each listed package is also automatically allowed as an external package in Code nodes. |
 | taskRunners.taskHeartbeatInterval | int | `30` | The heartbeat interval for the task in seconds |
 | taskRunners.taskTimeout | int | `60` | The timeout for the task in seconds |
 | timezone | string | `"Europe/Berlin"` | For instance, the Schedule node uses it to know at what time the workflow should start. Find you timezone from here: https://momentjs.com/timezone/ |

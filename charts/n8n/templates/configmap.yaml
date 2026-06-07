@@ -202,11 +202,13 @@ data:
 {{- end }}
 {{- if .Values.taskRunners.python.enabled }}
   N8N_NATIVE_PYTHON_RUNNER: "true"
-{{- if .Values.taskRunners.python.stdlibAllow }}
-  N8N_RUNNERS_STDLIB_ALLOW: {{ .Values.taskRunners.python.stdlibAllow | quote }}
+{{- if .Values.taskRunners.python.builtin.modules }}
+  N8N_RUNNERS_STDLIB_ALLOW: {{ .Values.taskRunners.python.builtin.modules | join "," | quote }}
 {{- end }}
-{{- if .Values.taskRunners.python.packages }}
-  N8N_RUNNERS_EXTERNAL_ALLOW: {{ .Values.taskRunners.python.packages | join "," | quote }}
+{{- if .Values.taskRunners.python.external.allowAll }}
+  N8N_RUNNERS_EXTERNAL_ALLOW: "*"
+{{- else if .Values.taskRunners.python.external.packages }}
+  N8N_RUNNERS_EXTERNAL_ALLOW: {{ .Values.taskRunners.python.external.packages | join "," | quote }}
 {{- end }}
 {{- end }}
 ---
@@ -262,11 +264,13 @@ data:
   SENTRY_DSN: ""
 {{- end }}
 {{- if .Values.taskRunners.python.enabled }}
-{{- if .Values.taskRunners.python.stdlibAllow }}
-  N8N_RUNNERS_STDLIB_ALLOW: {{ .Values.taskRunners.python.stdlibAllow | quote }}
+{{- if .Values.taskRunners.python.builtin.modules }}
+  N8N_RUNNERS_STDLIB_ALLOW: {{ .Values.taskRunners.python.builtin.modules | join "," | quote }}
 {{- end }}
-{{- if .Values.taskRunners.python.packages }}
-  N8N_RUNNERS_EXTERNAL_ALLOW: {{ .Values.taskRunners.python.packages | join "," | quote }}
+{{- if .Values.taskRunners.python.external.allowAll }}
+  N8N_RUNNERS_EXTERNAL_ALLOW: "*"
+{{- else if .Values.taskRunners.python.external.packages }}
+  N8N_RUNNERS_EXTERNAL_ALLOW: {{ .Values.taskRunners.python.external.packages | join "," | quote }}
 {{- end }}
 {{- end }}
 {{- end }}

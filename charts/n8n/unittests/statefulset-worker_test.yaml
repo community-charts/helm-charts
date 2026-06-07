@@ -2410,28 +2410,30 @@ tests:
           value: n8nio/runners:2.0.0
         template: statefulset-worker.yaml
 
-  - it: should use uv install command when taskRunners.python.packages is set
+  - it: should use uv install command when taskRunners.python.external.packages is set
     set:
       taskRunners:
         mode: external
         python:
           enabled: true
-          packages:
-            - pandas
-            - numpy
+          external:
+            packages:
+              - pandas
+              - numpy
     asserts:
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].command
           value: ["/bin/sh", "-c", "UV_CACHE_DIR=/tmp/.uv-cache uv pip install --target /tmp/.site-packages pandas numpy && export PYTHONPATH=/tmp/.site-packages && exec /usr/local/bin/task-runner-launcher javascript python"]
         template: statefulset-worker.yaml
 
-  - it: should use direct launcher command when taskRunners.python.packages is empty
+  - it: should use direct launcher command when taskRunners.python.external.packages is empty
     set:
       taskRunners:
         mode: external
         python:
           enabled: true
-          packages: []
+          external:
+            packages: []
     asserts:
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].command

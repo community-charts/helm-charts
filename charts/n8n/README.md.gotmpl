@@ -338,34 +338,52 @@ taskRunners:
 
 ### Install Python Packages
 
-The `n8nio/runners` image ships only a bare Python environment. Use `taskRunners.python.packages` to install packages via `uv pip install` before the runner starts. List any third-party packages your Code nodes need:
+The `n8nio/runners` image ships only a bare Python environment. Use `taskRunners.python.external.packages` to install packages via `uv pip install` before the runner starts. Each listed package is automatically allowed in Code nodes — no separate allowlist entry is needed.
 
 ```yaml
 taskRunners:
   mode: external
   python:
     enabled: true
-    packages:
-      - pandas
-      - numpy
-      - requests
+    external:
+      packages:
+        - pandas
+        - numpy
+        - requests
 ```
 
-> **Note**: Package installation adds a few seconds to runner startup time. Each package listed in `packages` is automatically allowed as an external package in Code nodes — no separate allowlist entry is needed.
+> **Note**: Package installation adds a few seconds to runner startup time.
+
+To allow all external packages without installing them (e.g. when packages are pre-installed in a custom image), set `allowAll: true`:
+
+```yaml
+taskRunners:
+  mode: external
+  python:
+    enabled: true
+    external:
+      allowAll: true
+```
 
 ### Restrict Python Module Access
 
-Use `stdlibAllow` to allowlist Python standard library modules. Set to `*` to allow all. This setting applies to both the n8n broker (security enforcement) and the runner sidecar. External packages listed in `packages` are automatically permitted.
+Use `builtin.modules` to allowlist Python standard library modules. Use `["*"]` to allow all. This setting applies to both the n8n broker (security enforcement) and the runner sidecar.
 
 ```yaml
 taskRunners:
   mode: external
   python:
     enabled: true
-    stdlibAllow: "os,sys,json,math,datetime,re"
-    packages:
-      - numpy
-      - pandas
+    builtin:
+      modules:
+        - os
+        - sys
+        - json
+        - math
+    external:
+      packages:
+        - numpy
+        - pandas
 ```
 
 ### Full Queue Mode + External Runner + Python Example
@@ -390,10 +408,13 @@ taskRunners:
   mode: external
   python:
     enabled: true
-    stdlibAllow: "*"
-    packages:
-      - numpy
-      - pandas
+    builtin:
+      modules:
+        - "*"
+    external:
+      packages:
+        - numpy
+        - pandas
   external:
     image:
       repository: n8nio/runners
