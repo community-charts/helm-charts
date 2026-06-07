@@ -823,6 +823,32 @@ This section outlines major updates and breaking changes for each version of the
 
 ###  Version-Specific Upgrade Notes
 
+#### Upgrading to Version 1.20.0
+
+##### Deprecation Notices
+
+- The `license.autoNenew` field was a typo and is now deprecated in favour of `license.autoRenew`.
+
+##### Action Required
+
+Replace any usage of `license.autoNenew` with `license.autoRenew` in your values:
+
+```yaml
+# Before (deprecated)
+license:
+  autoNenew:
+    enabled: false
+    offsetInHours: 24
+
+# After
+license:
+  autoRenew:
+    enabled: false
+    offsetInHours: 24
+```
+
+The deprecated field still works for now (values are forwarded automatically), but it will be removed in a future release.
+
 #### Upgrading to Version 1.13.1
 
 ##### Action Required
