@@ -124,6 +124,17 @@ Suite-level `capabilities` can be overridden per-test using the same fields.
 
 `values.schema.json` uses JSON Schema draft-07 with `"additionalProperties": false` at the root — every new value added to `values.yaml` must have a corresponding schema entry or chart linting will fail.
 
+### Deprecating Fields
+
+Use `@deprecated` (not `DEPRECATED:`) in `values.yaml` doc comments when deprecating a field:
+
+```yaml
+# -- @deprecated Use newField instead. This field will be removed in a future release.
+oldField: ~
+```
+
+This is consistent with all existing deprecated fields in the repo and renders as plain text in the helm-docs–generated README. The `values.schema.json` description strings may use `DEPRECATED:` since they are not rendered by helm-docs.
+
 ### Pre-commit Hooks
 
 The repo uses three pre-commit hooks (`.pre-commit-config.yaml`). Run `pre-commit install` to activate locally.
