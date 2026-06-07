@@ -313,7 +313,7 @@ spec:
           command:
             - /bin/sh
             - -c
-            - {{ printf "UV_CACHE_DIR=/tmp/.uv-cache uv pip install --target /home/node/.python-packages %s && export PYTHONPATH=/home/node/.python-packages && exec /usr/local/bin/task-runner-launcher javascript%s" (.Values.nodes.python.external.packages | join " ") (ternary " python" "" .Values.nodes.python.enabled) | quote }}
+            - {{ include "n8n.taskRunners.uvInstallCommand" . | quote }}
           {{- else }}
           command:
             - /usr/local/bin/task-runner-launcher
