@@ -25,6 +25,60 @@ should match snapshot for combined extraManifests and extraTemplateManifests:
         app.kubernetes.io/version: 1.0.0
         helm.sh/chart: n8n-1.0.0
       name: template-config
+should match snapshot for multi-document string in extraManifests:
+  1: |
+    apiVersion: v1
+    data:
+      key: value1
+    kind: ConfigMap
+    metadata:
+      labels:
+        app.kubernetes.io/instance: n8n
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: n8n
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: n8n-1.0.0
+      name: config-one
+  2: |
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      labels:
+        app.kubernetes.io/instance: n8n
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: n8n
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: n8n-1.0.0
+      name: secret-one
+    stringData:
+      password: secret
+should match snapshot for multi-document string in extraTemplateManifests:
+  1: |
+    apiVersion: v1
+    data:
+      key: value1
+    kind: ConfigMap
+    metadata:
+      labels:
+        app.kubernetes.io/instance: n8n
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: n8n
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: n8n-1.0.0
+      name: template-config-one
+  2: |
+    apiVersion: v1
+    data:
+      key: value2
+    kind: ConfigMap
+    metadata:
+      labels:
+        app.kubernetes.io/instance: n8n
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: n8n
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: n8n-1.0.0
+      name: template-config-two
 should match snapshot for object manifest in extraManifests:
   1: |
     apiVersion: v1

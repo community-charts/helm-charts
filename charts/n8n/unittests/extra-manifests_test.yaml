@@ -187,6 +187,170 @@ tests:
       - hasDocuments:
           count: 2
 
+  - it: should split a multi-document string in extraManifests into separate resources
+    set:
+      extraManifests:
+        - |
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: config-one
+          data:
+            key: value1
+          ---
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: secret-one
+          stringData:
+            password: secret
+    asserts:
+      - hasDocuments:
+          count: 2
+      - equal:
+          path: kind
+          value: ConfigMap
+        documentIndex: 0
+      - equal:
+          path: metadata.name
+          value: config-one
+        documentIndex: 0
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: n8n
+        documentIndex: 0
+      - equal:
+          path: kind
+          value: Secret
+        documentIndex: 1
+      - equal:
+          path: metadata.name
+          value: secret-one
+        documentIndex: 1
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: n8n
+        documentIndex: 1
+
+  - it: should ignore a leading document separator in an extraManifests string
+    set:
+      extraManifests:
+        - |
+          ---
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: config-after-separator
+          data:
+            key: value
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: ConfigMap
+      - equal:
+          path: metadata.name
+          value: config-after-separator
+
+  - it: should split a multi-document string in extraTemplateManifests into separate resources
+    set:
+      extraTemplateManifests:
+        - |
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: template-config-one
+          data:
+            key: value1
+          ---
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: template-config-two
+          data:
+            key: value2
+    asserts:
+      - hasDocuments:
+          count: 2
+      - equal:
+          path: metadata.name
+          value: template-config-one
+        documentIndex: 0
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: n8n
+        documentIndex: 0
+      - equal:
+          path: metadata.name
+          value: template-config-two
+        documentIndex: 1
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: n8n
+        documentIndex: 1
+
+  - it: should ignore a leading document separator in an extraTemplateManifests string
+    set:
+      extraTemplateManifests:
+        - |
+          ---
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: template-after-separator
+          data:
+            key: value
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: ConfigMap
+      - equal:
+          path: metadata.name
+          value: template-after-separator
+
+  - it: should match snapshot for multi-document string in extraManifests
+    set:
+      extraManifests:
+        - |
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: config-one
+          data:
+            key: value1
+          ---
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: secret-one
+          stringData:
+            password: secret
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should match snapshot for multi-document string in extraTemplateManifests
+    set:
+      extraTemplateManifests:
+        - |
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: template-config-one
+          data:
+            key: value1
+          ---
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: template-config-two
+          data:
+            key: value2
+    asserts:
+      - matchSnapshot: {}
+
   - it: should match snapshot for object manifest in extraManifests
     set:
       extraManifests:
