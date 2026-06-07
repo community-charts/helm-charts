@@ -6,6 +6,9 @@ metadata:
   labels:
     {{- include "n8n.mcp-webhook.labels" . | nindent 4 }}
 spec:
+  {{- if not (kindIs "invalid" .Values.revisionHistoryLimit) }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  {{- end }}
   replicas: 1
   strategy:
     type: {{ .Values.strategy.type }}
@@ -49,6 +52,8 @@ spec:
       {{- end }}
         {{- if .Values.webhook.waitMainNodeReady.enabled }}
         - name: wait-for-main
+          securityContext:
+            {{- toYaml .Values.waitContainerSecurityContext | nindent 12 }}
           image: busybox:1.36
           command: ["/bin/sh", "-c"]
           args:
@@ -182,9 +187,13 @@ spec:
             - secretRef:
                 name: {{ . }}
           {{- end }}
-          {{- if eq (include "n8n.mcp-webhook.hasVolumeMounts" .) "true" }}
           volumeMounts:
-          {{- end }}
+            - name: tmp
+              mountPath: /tmp
+            - name: cache
+              mountPath: /home/node/.cache
+            - name: data
+              mountPath: /home/node/.n8n
           {{- if eq (include "n8n.postgres.ssl.hasCA" .) "true" }}
             - name: pg-ssl-ca
               mountPath: /home/node/certs/ca/ca.crt
@@ -209,9 +218,13 @@ spec:
       {{- with .Values.webhook.mcp.extraContainers }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if eq (include "n8n.mcp-webhook.hasVolumes" .) "true" }}
       volumes:
-      {{- end }}
+        - name: tmp
+          emptyDir: {}
+        - name: cache
+          emptyDir: {}
+        - name: data
+          emptyDir: {}
       {{- if eq (include "n8n.postgres.ssl.hasCA" .) "true" }}
         - name: pg-ssl-ca
           secret:

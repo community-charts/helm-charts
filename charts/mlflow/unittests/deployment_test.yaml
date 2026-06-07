@@ -389,8 +389,8 @@ tests:
   - it: should show extra environment variables when we pass any
     set:
       extraEnvVars:
-         MLFLOW_S3_IGNORE_TLS: true
-         AWS_DEFAULT_REGION: eu-central-1
+        MLFLOW_S3_IGNORE_TLS: true
+        AWS_DEFAULT_REGION: eu-central-1
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].env
@@ -417,18 +417,18 @@ tests:
               name: mysupersecret
         template: deployment.yaml
 
-  - it: should check liveness and rediness with static prefix when we set static prefix from extra arguments
+  - it: should check that liveness and rediness is not affected if static prefix is set
     set:
       extraArgs:
         staticPrefix: /mlflow
     asserts:
       - equal:
           path: spec.template.spec.containers[?(@.name == "mlflow")].livenessProbe.httpGet.path
-          value: /mlflow/health
+          value: /health
         template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "mlflow")].readinessProbe.httpGet.path
-          value: /mlflow/health
+          value: /health
         template: deployment.yaml
 
   - it: should check that the db checker init container is present if enabled with postgres
@@ -1547,7 +1547,7 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: { }
+      - matchSnapshot: {}
 
   - it: should match snapshot with additional values
     set:
@@ -1624,7 +1624,7 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: { }
+      - matchSnapshot: {}
 
   - it: should match snapshot with additional values when postgresql is enabled
     set:
@@ -1701,7 +1701,7 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: { }
+      - matchSnapshot: {}
 
   - it: should match snapshot with additional values when bitnami postgresql is enabled
     set:
@@ -1778,7 +1778,7 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: { }
+      - matchSnapshot: {}
 
   - it: should match snapshot with additional values when mysql is enabled
     set:
@@ -1855,7 +1855,7 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: { }
+      - matchSnapshot: {}
 
   - it: should match snapshot with additional values when bitnami mysql is enabled
     set:
@@ -1932,7 +1932,7 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: { }
+      - matchSnapshot: {}
 
   - it: should match snapshot with additional values when auth and auth.postgres are enabled
     set:
@@ -2017,7 +2017,7 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: { }
+      - matchSnapshot: {}
 
   - it: should match snapshot with additional values when mssql is enabled
     set:
@@ -2094,7 +2094,7 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: { }
+      - matchSnapshot: {}
 
   - it: should set resources for init containers when resources are defined
     set:

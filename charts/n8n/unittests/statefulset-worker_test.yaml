@@ -1325,6 +1325,41 @@ tests:
               name: n8n-task-runners-configmap
         template: statefulset-worker.yaml
 
+  - it: should set security context on task runner container when taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].securityContext.runAsUser
+          value: 1000
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].securityContext.runAsGroup
+          value: 1000
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].securityContext.runAsNonRoot
+          value: true
+        template: statefulset-worker.yaml
+
+  - it: should mount tmp in task runner container when taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].volumeMounts
+          content:
+            name: tmp
+            mountPath: /tmp
+          any: true
+        template: statefulset-worker.yaml
+
   - it: should use license configmap and secret when license.enabled is true
     set:
       license:
@@ -1889,6 +1924,91 @@ tests:
             done
         template: statefulset-worker.yaml
 
+  - it: should set security context on wait-for-main init container when worker.waitMainNodeReady.enabled is true
+    set:
+      worker:
+        waitMainNodeReady:
+          enabled: true
+      waitContainerSecurityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].securityContext.runAsUser
+          value: 1000
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].securityContext.runAsGroup
+          value: 1000
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].securityContext.runAsNonRoot
+          value: true
+        template: statefulset-worker.yaml
+
+  - it: should set seccompProfile RuntimeDefault in pod security context by default
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.seccompProfile.type
+          value: RuntimeDefault
+        template: statefulset-worker.yaml
+
+  - it: should always include tmp emptyDir volume
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: tmp
+            emptyDir: {}
+          any: true
+        template: statefulset-worker.yaml
+
+  - it: should always mount tmp in worker container
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].volumeMounts
+          content:
+            name: tmp
+            mountPath: /tmp
+          any: true
+        template: statefulset-worker.yaml
+
+  - it: should always include cache emptyDir volume
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: cache
+            emptyDir: {}
+          any: true
+        template: statefulset-worker.yaml
+
+  - it: should always mount cache in worker container
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].volumeMounts
+          content:
+            name: cache
+            mountPath: /home/node/.cache
+          any: true
+        template: statefulset-worker.yaml
+
+  - it: should set NPM_CONFIG_CACHE on npm-install init container when packages are set
+    set:
+      nodes:
+        external:
+          packages:
+            - "moment@2.29.4"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].env
+          content:
+            name: NPM_CONFIG_CACHE
+            value: /npmdata/.npm-cache
+          any: true
+        template: statefulset-worker.yaml
+
   - it: should use startupProbe to wait n8n process ready
     asserts:
       - equal:
@@ -2163,3 +2283,47 @@ tests:
               key: client.key
     asserts:
       - matchSnapshot: { }
+
+  - it: should set WEBHOOK_URL environment variable for worker when webhook.url is set
+    set:
+      webhook:
+        url: "https://webhook.example.com"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: WEBHOOK_URL
+            value: "https://webhook.example.com"
+        template: statefulset-worker.yaml
+
+  - it: should not set WEBHOOK_URL environment variable for worker when webhook.url is not set
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: WEBHOOK_URL
+        template: statefulset-worker.yaml
+
+  - it: should not set revisionHistoryLimit when revisionHistoryLimit is not set
+    asserts:
+      - notExists:
+          path: spec.revisionHistoryLimit
+        template: statefulset-worker.yaml
+
+  - it: should set revisionHistoryLimit when revisionHistoryLimit is set
+    set:
+      revisionHistoryLimit: 3
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 3
+        template: statefulset-worker.yaml
+
+  - it: should set revisionHistoryLimit to 0 when revisionHistoryLimit is 0
+    set:
+      revisionHistoryLimit: 0
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 0
+        template: statefulset-worker.yaml
