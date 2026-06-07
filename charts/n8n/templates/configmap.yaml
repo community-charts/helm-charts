@@ -205,8 +205,8 @@ data:
 {{- if .Values.taskRunners.python.stdlibAllow }}
   N8N_RUNNERS_STDLIB_ALLOW: {{ .Values.taskRunners.python.stdlibAllow | quote }}
 {{- end }}
-{{- if .Values.taskRunners.python.externalAllow }}
-  N8N_RUNNERS_EXTERNAL_ALLOW: {{ .Values.taskRunners.python.externalAllow | quote }}
+{{- if .Values.taskRunners.python.packages }}
+  N8N_RUNNERS_EXTERNAL_ALLOW: {{ .Values.taskRunners.python.packages | join "," | quote }}
 {{- end }}
 {{- end }}
 ---
@@ -265,8 +265,8 @@ data:
 {{- if .Values.taskRunners.python.stdlibAllow }}
   N8N_RUNNERS_STDLIB_ALLOW: {{ .Values.taskRunners.python.stdlibAllow | quote }}
 {{- end }}
-{{- if .Values.taskRunners.python.externalAllow }}
-  N8N_RUNNERS_EXTERNAL_ALLOW: {{ .Values.taskRunners.python.externalAllow | quote }}
+{{- if .Values.taskRunners.python.packages }}
+  N8N_RUNNERS_EXTERNAL_ALLOW: {{ .Values.taskRunners.python.packages | join "," | quote }}
 {{- end }}
 {{- end }}
 {{- end }}

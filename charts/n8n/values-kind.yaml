@@ -52,7 +52,6 @@ taskRunners:
   python:
     enabled: true
     stdlibAllow: "*"
-    externalAllow: "numpy,pandas"
     packages:
       - numpy
       - pandas

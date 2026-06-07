@@ -351,11 +351,11 @@ taskRunners:
       - requests
 ```
 
-> **Note**: Package installation adds a few seconds to runner startup time. Packages must also be listed in `externalAllow` for n8n to permit their use in Code nodes.
+> **Note**: Package installation adds a few seconds to runner startup time. Each package listed in `packages` is automatically allowed as an external package in Code nodes — no separate allowlist entry is needed.
 
 ### Restrict Python Module Access
 
-Use `stdlibAllow` to allowlist Python standard library modules and `externalAllow` for third-party packages. Set either to `*` to allow all. These settings apply to both the n8n broker (security enforcement) and the runner sidecar.
+Use `stdlibAllow` to allowlist Python standard library modules. Set to `*` to allow all. This setting applies to both the n8n broker (security enforcement) and the runner sidecar. External packages listed in `packages` are automatically permitted.
 
 ```yaml
 taskRunners:
@@ -363,7 +363,6 @@ taskRunners:
   python:
     enabled: true
     stdlibAllow: "os,sys,json,math,datetime,re"
-    externalAllow: "numpy,pandas"
     packages:
       - numpy
       - pandas
@@ -392,7 +391,6 @@ taskRunners:
   python:
     enabled: true
     stdlibAllow: "*"
-    externalAllow: "numpy,pandas"
     packages:
       - numpy
       - pandas

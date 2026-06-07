@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.22.1](https://img.shields.io/badge/Version-1.22.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.23.4](https://img.shields.io/badge/AppVersion-2.23.4-informational?style=flat-square)
+![Version: 1.22.0](https://img.shields.io/badge/Version-1.22.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.23.4](https://img.shields.io/badge/AppVersion-2.23.4-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -351,11 +351,11 @@ taskRunners:
       - requests
 ```
 
-> **Note**: Package installation adds a few seconds to runner startup time. Packages must also be listed in `externalAllow` for n8n to permit their use in Code nodes.
+> **Note**: Package installation adds a few seconds to runner startup time. Each package listed in `packages` is automatically allowed as an external package in Code nodes — no separate allowlist entry is needed.
 
 ### Restrict Python Module Access
 
-Use `stdlibAllow` to allowlist Python standard library modules and `externalAllow` for third-party packages. Set either to `*` to allow all. These settings apply to both the n8n broker (security enforcement) and the runner sidecar.
+Use `stdlibAllow` to allowlist Python standard library modules. Set to `*` to allow all. This setting applies to both the n8n broker (security enforcement) and the runner sidecar. External packages listed in `packages` are automatically permitted.
 
 ```yaml
 taskRunners:
@@ -363,7 +363,6 @@ taskRunners:
   python:
     enabled: true
     stdlibAllow: "os,sys,json,math,datetime,re"
-    externalAllow: "numpy,pandas"
     packages:
       - numpy
       - pandas
@@ -392,7 +391,6 @@ taskRunners:
   python:
     enabled: true
     stdlibAllow: "*"
-    externalAllow: "numpy,pandas"
     packages:
       - numpy
       - pandas
@@ -1401,7 +1399,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | serviceMonitor.targetLabels | list | `[]` | Set of labels to transfer on the Kubernetes Service onto the target. |
 | serviceMonitor.timeout | string | `"10s"` | Set timeout for scrape |
 | strategy | object | `{"rollingUpdate":{"maxSurge":"25%","maxUnavailable":"25%"},"type":"RollingUpdate"}` | This will set the deployment strategy more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy |
-| taskRunners | object | `{"broker":{"address":"127.0.0.1","port":5679},"external":{"autoShutdownTimeout":15,"image":{"pullPolicy":"IfNotPresent","repository":"n8nio/runners","tag":""},"mainNodeAuthToken":"","nodeOptions":["--max-semi-space-size=16","--max-old-space-size=300"],"port":5680,"resources":{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}},"workerNodeAuthToken":""},"maxConcurrency":5,"mode":"internal","python":{"enabled":false,"externalAllow":"","packages":[],"stdlibAllow":""},"taskHeartbeatInterval":30,"taskTimeout":60}` | Task runners mode. Please follow the documentation for more information: https://docs.n8n.io/hosting/configuration/task-runners/ |
+| taskRunners | object | `{"broker":{"address":"127.0.0.1","port":5679},"external":{"autoShutdownTimeout":15,"image":{"pullPolicy":"IfNotPresent","repository":"n8nio/runners","tag":""},"mainNodeAuthToken":"","nodeOptions":["--max-semi-space-size=16","--max-old-space-size=300"],"port":5680,"resources":{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}},"workerNodeAuthToken":""},"maxConcurrency":5,"mode":"internal","python":{"enabled":false,"packages":[],"stdlibAllow":""},"taskHeartbeatInterval":30,"taskTimeout":60}` | Task runners mode. Please follow the documentation for more information: https://docs.n8n.io/hosting/configuration/task-runners/ |
 | taskRunners.broker | object | `{"address":"127.0.0.1","port":5679}` | The address for the broker of the external task runner |
 | taskRunners.broker.address | string | `"127.0.0.1"` | The address for the broker of the external task runner |
 | taskRunners.broker.port | int | `5679` | The port for the broker of the external task runner |
@@ -1424,10 +1422,9 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | taskRunners.external.workerNodeAuthToken | string | `""` | The auth token for the worker node |
 | taskRunners.maxConcurrency | int | `5` | The maximum concurrency for the task |
 | taskRunners.mode | string | `"internal"` | Use `internal` to use internal task runner, or use `external` to have external sidecar task runner. For more information please follow the documentation: https://docs.n8n.io/hosting/configuration/task-runners/#task-runner-modes |
-| taskRunners.python | object | `{"enabled":false,"externalAllow":"","packages":[],"stdlibAllow":""}` | Python runner configuration. Requires n8n 1.111.0+ and external task runner mode. |
+| taskRunners.python | object | `{"enabled":false,"packages":[],"stdlibAllow":""}` | Python runner configuration. Requires n8n 1.111.0+ and external task runner mode. |
 | taskRunners.python.enabled | bool | `false` | Enable Python code execution in the Code node via external task runners. |
-| taskRunners.python.externalAllow | string | `""` | Third-party Python modules allowed in Code nodes (comma-separated). Use * to allow all. |
-| taskRunners.python.packages | list | `[]` | Python packages to install via uv before starting the runner (e.g. ["pandas", "numpy"]). |
+| taskRunners.python.packages | list | `[]` | Python packages to install via uv before starting the runner (e.g. ["pandas", "numpy"]). Each listed package is also automatically allowed as an external package in Code nodes. |
 | taskRunners.python.stdlibAllow | string | `""` | Python standard library modules allowed in Code nodes (comma-separated). Use * to allow all. |
 | taskRunners.taskHeartbeatInterval | int | `30` | The heartbeat interval for the task in seconds |
 | taskRunners.taskTimeout | int | `60` | The timeout for the task in seconds |

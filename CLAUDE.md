@@ -92,6 +92,7 @@ charts/<name>/
 - `appVersion` tracks the upstream application version.
 - Breaking changes bump MAJOR version and must document manual upgrade steps in `README.md.gotmpl` under an "Upgrading" section.
 - The `artifacthub.io/changes` annotation in `Chart.yaml` is used to auto-generate release notes — always populate it for every change.
+- **Bump `version` only once per branch/PR.** After the first bump, do not bump again for subsequent commits on the same branch — all changes in the PR are released together under the single bumped version.
 
 ### CI Pipeline
 

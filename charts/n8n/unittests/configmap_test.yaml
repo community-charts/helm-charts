@@ -1115,13 +1115,15 @@ tests:
           path: data.N8N_RUNNERS_STDLIB_ALLOW
           value: "os,sys"
 
-  - it: should set N8N_RUNNERS_EXTERNAL_ALLOW when python.enabled and externalAllow is set
+  - it: should set N8N_RUNNERS_EXTERNAL_ALLOW from packages list when python.enabled and packages are set
     set:
       taskRunners:
         mode: external
         python:
           enabled: true
-          externalAllow: "numpy,pandas"
+          packages:
+            - numpy
+            - pandas
     documentSelector:
       path: metadata.name
       value: n8n-task-runners-configmap
@@ -1155,12 +1157,14 @@ tests:
           path: data.N8N_RUNNERS_STDLIB_ALLOW
           value: "os,sys"
 
-  - it: should set N8N_RUNNERS_EXTERNAL_ALLOW in task-broker-configmap when python.enabled and externalAllow is set
+  - it: should set N8N_RUNNERS_EXTERNAL_ALLOW in task-broker-configmap from packages list when python.enabled and packages are set
     set:
       taskRunners:
         python:
           enabled: true
-          externalAllow: "numpy,pandas"
+          packages:
+            - numpy
+            - pandas
     documentSelector:
       path: metadata.name
       value: n8n-task-broker-configmap
@@ -1212,6 +1216,20 @@ tests:
         mode: external
         python:
           enabled: false
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-runners-configmap
+    asserts:
+      - notExists:
+          path: data.N8N_RUNNERS_EXTERNAL_ALLOW
+
+  - it: should not set N8N_RUNNERS_EXTERNAL_ALLOW when python.enabled and packages is empty
+    set:
+      taskRunners:
+        mode: external
+        python:
+          enabled: true
+          packages: []
     documentSelector:
       path: metadata.name
       value: n8n-task-runners-configmap

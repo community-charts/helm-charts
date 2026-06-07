@@ -4369,13 +4369,6 @@
               "title": "stdlibAllow",
               "type": "string"
             },
-            "externalAllow": {
-              "default": "",
-              "description": "Third-party Python modules allowed in Code nodes, comma-separated. Use * to allow all.",
-              "required": [],
-              "title": "externalAllow",
-              "type": "string"
-            },
             "packages": {
               "default": [],
               "description": "Python packages to install via uv pip before starting the runner (e.g. [\"pandas\", \"numpy\"])",
@@ -4387,7 +4380,7 @@
               "type": "array"
             }
           },
-          "required": ["enabled", "stdlibAllow", "externalAllow", "packages"],
+          "required": ["enabled", "stdlibAllow", "packages"],
           "title": "python",
           "type": "object"
         }
