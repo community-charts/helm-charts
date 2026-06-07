@@ -309,7 +309,7 @@ spec:
           command:
             - /bin/sh
             - -c
-            - {{ printf "UV_CACHE_DIR=/tmp/.uv-cache uv pip install --target /tmp/.site-packages %s && export PYTHONPATH=/tmp/.site-packages && exec /usr/local/bin/task-runner-launcher javascript%s" (.Values.nodes.python.external.packages | join " ") (ternary " python" "" .Values.nodes.python.enabled) | quote }}
+            - {{ printf "UV_CACHE_DIR=/tmp/.uv-cache uv pip install --target /home/node/.python-packages %s && export PYTHONPATH=/home/node/.python-packages && exec /usr/local/bin/task-runner-launcher javascript%s" (.Values.nodes.python.external.packages | join " ") (ternary " python" "" .Values.nodes.python.enabled) | quote }}
           {{- else }}
           command:
             - /usr/local/bin/task-runner-launcher
@@ -368,6 +368,8 @@ spec:
               mountPath: /tmp
             - name: cache
               mountPath: /home/node/.cache
+            - name: python-packages
+              mountPath: /home/node/.python-packages
             - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
               mountPath: {{ .Values.main.persistence.mountPath }}
               {{- if .Values.main.persistence.subPath }}
@@ -388,6 +390,15 @@ spec:
           emptyDir: {}
         - name: cache
           emptyDir: {}
+      {{- if eq .Values.taskRunners.mode "external" }}
+        - name: python-packages
+          {{- if .Values.nodes.python.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "n8n-python.packages.fullname" . }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+      {{- end }}
       {{- if .Values.main.persistence.enabled }}
         - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
           persistentVolumeClaim:

@@ -171,6 +171,20 @@ nodes:
       packages: []
         # - pandas
         # - numpy
+    # -- Persistence for Python packages installed by uv. Optional PVC so packages survive pod restarts without re-downloading.
+    persistence:
+      # -- Enable persistence. When false, packages are installed into an emptyDir and lost on pod restart.
+      enabled: false
+      # -- Use an existing PVC instead of creating one. When set, no PVC is created by this chart.
+      existingClaim: ""
+      # -- Storage class for the PVC. Empty string uses the cluster default.
+      storageClass: ""
+      # -- Access mode. Use ReadWriteMany when worker pods may be scheduled on different nodes.
+      accessMode: ReadWriteOnce
+      # -- Size of the PVC.
+      size: 1Gi
+      # -- Additional annotations for the PVC.
+      annotations: {}
 
 # -- Configuration for private npm registry
 npmRegistry:

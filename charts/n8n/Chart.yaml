@@ -72,6 +72,8 @@ annotations:
       description: Restructure taskRunners.python config to match nodes section pattern (builtin.modules array and external.packages with allowAll flag)
     - kind: changed
       description: Move Python Code node config from taskRunners.python to nodes.python, alongside JS config
+    - kind: added
+      description: Add optional PVC persistence for Python installed packages via nodes.python.persistence
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:2.23.4

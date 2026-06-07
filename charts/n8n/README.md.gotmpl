@@ -356,7 +356,32 @@ taskRunners:
   mode: external
 ```
 
-> **Note**: Package installation adds a few seconds to runner startup time.
+> **Note**: Package installation adds a few seconds to runner startup time on the first start. To avoid re-downloading packages on every pod restart, enable persistence (see below).
+
+#### Persist Python Packages
+
+Enable `nodes.python.persistence` to store installed packages on a PVC. When enabled, `uv pip install` detects existing packages on subsequent starts and skips the download.
+
+```yaml
+nodes:
+  python:
+    enabled: true
+    external:
+      packages:
+        - pandas
+        - numpy
+    persistence:
+      enabled: true
+      size: 2Gi
+      accessMode: ReadWriteOnce  # use ReadWriteMany if workers span multiple nodes
+
+taskRunners:
+  mode: external
+```
+
+Packages are stored at `/home/node/.python-packages` inside the runner sidecar. When `persistence.enabled` is `false` (the default), an `emptyDir` volume is used and packages are re-installed on every pod restart.
+
+For StatefulSet deployments (when `main.count > 1` with `ReadWriteOnce`, or `main.forceToUseStatefulset: true`), each pod receives its own PVC via `volumeClaimTemplates`, so `ReadWriteOnce` works regardless of pod count. For Deployment-mode workers scaled by HPA across multiple nodes, use `accessMode: ReadWriteMany` with a compatible storage class (NFS, CephFS, etc.).
 
 To allow all external packages without installing them (e.g. when packages are pre-installed in a custom image), set `allowAll: true`:
 

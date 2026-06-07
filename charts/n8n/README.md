@@ -356,7 +356,32 @@ taskRunners:
   mode: external
 ```
 
-> **Note**: Package installation adds a few seconds to runner startup time.
+> **Note**: Package installation adds a few seconds to runner startup time on the first start. To avoid re-downloading packages on every pod restart, enable persistence (see below).
+
+#### Persist Python Packages
+
+Enable `nodes.python.persistence` to store installed packages on a PVC. When enabled, `uv pip install` detects existing packages on subsequent starts and skips the download.
+
+```yaml
+nodes:
+  python:
+    enabled: true
+    external:
+      packages:
+        - pandas
+        - numpy
+    persistence:
+      enabled: true
+      size: 2Gi
+      accessMode: ReadWriteOnce  # use ReadWriteMany if workers span multiple nodes
+
+taskRunners:
+  mode: external
+```
+
+Packages are stored at `/home/node/.python-packages` inside the runner sidecar. When `persistence.enabled` is `false` (the default), an `emptyDir` volume is used and packages are re-installed on every pod restart.
+
+For StatefulSet deployments (when `main.count > 1` with `ReadWriteOnce`, or `main.forceToUseStatefulset: true`), each pod receives its own PVC via `volumeClaimTemplates`, so `ReadWriteOnce` works regardless of pod count. For Deployment-mode workers scaled by HPA across multiple nodes, use `accessMode: ReadWriteMany` with a compatible storage class (NFS, CephFS, etc.).
 
 To allow all external packages without installing them (e.g. when packages are pre-installed in a custom image), set `allowAll: true`:
 
@@ -1342,7 +1367,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | minio.users[0].secretKey | string | `"Change_Me"` | n8n user secret key |
 | nameOverride | string | `""` | This is to override the chart name. |
 | nodeSelector | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector |
-| nodes | object | `{"builtin":{"enabled":false,"modules":[]},"external":{"allowAll":false,"packages":[],"reinstallMissingPackages":false},"initContainer":{"image":{"pullPolicy":"IfNotPresent","repository":"node","tag":"20-alpine"},"resources":{}},"python":{"builtin":{"modules":[]},"enabled":false,"external":{"allowAll":false,"packages":[]}}}` | Node configurations for built-in and external npm packages |
+| nodes | object | `{"builtin":{"enabled":false,"modules":[]},"external":{"allowAll":false,"packages":[],"reinstallMissingPackages":false},"initContainer":{"image":{"pullPolicy":"IfNotPresent","repository":"node","tag":"20-alpine"},"resources":{}},"python":{"builtin":{"modules":[]},"enabled":false,"external":{"allowAll":false,"packages":[]},"persistence":{"accessMode":"ReadWriteOnce","annotations":{},"enabled":false,"existingClaim":"","size":"1Gi","storageClass":""}}}` | Node configurations for built-in and external npm packages |
 | nodes.builtin | object | `{"enabled":false,"modules":[]}` | Enable built-in node functions (e.g., HTTP Request, Code Node, etc.) |
 | nodes.builtin.enabled | bool | `false` | Enable built-in modules for the Code node |
 | nodes.builtin.modules | list | `[]` | List of built-in Node.js modules to allow in the Code node (e.g., crypto, fs). Use '*' to allow all. |
@@ -1356,13 +1381,20 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | nodes.initContainer.image.repository | string | `"node"` | Repository for the init container to install npm packages |
 | nodes.initContainer.image.tag | string | `"20-alpine"` | Tag for the init container to install npm packages |
 | nodes.initContainer.resources | object | `{}` | Resources for the init container |
-| nodes.python | object | `{"builtin":{"modules":[]},"enabled":false,"external":{"allowAll":false,"packages":[]}}` | Python Code node configuration. Requires n8n 1.111.0+ and taskRunners.mode: external. |
+| nodes.python | object | `{"builtin":{"modules":[]},"enabled":false,"external":{"allowAll":false,"packages":[]},"persistence":{"accessMode":"ReadWriteOnce","annotations":{},"enabled":false,"existingClaim":"","size":"1Gi","storageClass":""}}` | Python Code node configuration. Requires n8n 1.111.0+ and taskRunners.mode: external. |
 | nodes.python.builtin | object | `{"modules":[]}` | Built-in Python module access for the Code node. |
 | nodes.python.builtin.modules | list | `[]` | Python standard library modules allowed in Code nodes. Use ['*'] to allow all. |
 | nodes.python.enabled | bool | `false` | Enable Python code execution in the Code node via external task runners. |
 | nodes.python.external | object | `{"allowAll":false,"packages":[]}` | External Python package access for the Code node. |
 | nodes.python.external.allowAll | bool | `false` | Allow all external Python packages in Code nodes. When true, sets N8N_RUNNERS_EXTERNAL_ALLOW=* regardless of packages list. |
 | nodes.python.external.packages | list | `[]` | Python packages to install via uv before starting the runner (e.g. ["pandas", "numpy"]). Each listed package is also automatically allowed as an external package in Code nodes. |
+| nodes.python.persistence | object | `{"accessMode":"ReadWriteOnce","annotations":{},"enabled":false,"existingClaim":"","size":"1Gi","storageClass":""}` | Persistence for Python packages installed by uv. Optional PVC so packages survive pod restarts without re-downloading. |
+| nodes.python.persistence.accessMode | string | `"ReadWriteOnce"` | Access mode. Use ReadWriteMany when worker pods may be scheduled on different nodes. |
+| nodes.python.persistence.annotations | object | `{}` | Additional annotations for the PVC. |
+| nodes.python.persistence.enabled | bool | `false` | Enable persistence. When false, packages are installed into an emptyDir and lost on pod restart. |
+| nodes.python.persistence.existingClaim | string | `""` | Use an existing PVC instead of creating one. When set, no PVC is created by this chart. |
+| nodes.python.persistence.size | string | `"1Gi"` | Size of the PVC. |
+| nodes.python.persistence.storageClass | string | `""` | Storage class for the PVC. Empty string uses the cluster default. |
 | npmRegistry | object | `{"customNpmrc":"","enabled":false,"secretKey":"npmrc","secretName":"","url":""}` | Configuration for private npm registry |
 | npmRegistry.customNpmrc | string | `""` | Custom .npmrc content (optional, overrides secret if provided) |
 | npmRegistry.enabled | bool | `false` | Enable private npm registry |

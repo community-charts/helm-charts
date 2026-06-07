@@ -159,3 +159,117 @@ tests:
           enabled: true
     asserts:
       - matchSnapshot: { }
+
+  - it: should not create python-packages PVC when persistence is disabled
+    set:
+      main:
+        persistence:
+          enabled: false
+      worker:
+        persistence:
+          enabled: false
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          persistence:
+            enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should not create python-packages PVC when taskRunners.mode is internal
+    set:
+      main:
+        persistence:
+          enabled: false
+      worker:
+        persistence:
+          enabled: false
+      taskRunners:
+        mode: internal
+      nodes:
+        python:
+          persistence:
+            enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should not create python-packages PVC when existingClaim is set
+    set:
+      main:
+        persistence:
+          enabled: false
+      worker:
+        persistence:
+          enabled: false
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          persistence:
+            enabled: true
+            existingClaim: my-existing-pvc
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create python-packages PVC when persistence is enabled and taskRunners.mode is external
+    set:
+      main:
+        persistence:
+          enabled: false
+      worker:
+        persistence:
+          enabled: false
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          persistence:
+            enabled: true
+            storageClass: fast-ssd
+            accessMode: ReadWriteOnce
+            size: 2Gi
+            annotations:
+              test-key: test-value
+    documentSelector:
+      path: metadata.name
+      value: n8n-python-packages
+    asserts:
+      - equal:
+          path: spec.accessModes[0]
+          value: ReadWriteOnce
+      - equal:
+          path: spec.resources.requests.storage
+          value: 2Gi
+      - equal:
+          path: spec.storageClassName
+          value: fast-ssd
+      - equal:
+          path: metadata.annotations.test-key
+          value: test-value
+
+  - it: should create python-packages PVC with ReadWriteMany access mode
+    set:
+      main:
+        persistence:
+          enabled: false
+      worker:
+        persistence:
+          enabled: false
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          persistence:
+            enabled: true
+            accessMode: ReadWriteMany
+    documentSelector:
+      path: metadata.name
+      value: n8n-python-packages
+    asserts:
+      - equal:
+          path: spec.accessModes[0]
+          value: ReadWriteMany

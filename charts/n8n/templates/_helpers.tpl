@@ -404,6 +404,20 @@ app.kubernetes.io/component: persistence
 {{- end }}
 
 {{/*
+n8n python packages PVC name
+*/}}
+{{- define "n8n-python.packages.name" -}}
+{{- printf "%s-python-packages" (include "n8n.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+
+{{/*
+n8n python packages PVC full name (respects existingClaim)
+*/}}
+{{- define "n8n-python.packages.fullname" -}}
+{{- default (include "n8n-python.packages.name" .) .Values.nodes.python.persistence.existingClaim -}}
+{{- end -}}
+
+{{/*
 n8n npm install script logic
 */}}
 {{- define "n8n.npmInstallScript" -}}

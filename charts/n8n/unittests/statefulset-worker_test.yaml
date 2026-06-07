@@ -2426,7 +2426,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].command
-          value: ["/bin/sh", "-c", "UV_CACHE_DIR=/tmp/.uv-cache uv pip install --target /tmp/.site-packages pandas numpy && export PYTHONPATH=/tmp/.site-packages && exec /usr/local/bin/task-runner-launcher javascript python"]
+          value: ["/bin/sh", "-c", "UV_CACHE_DIR=/tmp/.uv-cache uv pip install --target /home/node/.python-packages pandas numpy && export PYTHONPATH=/home/node/.python-packages && exec /usr/local/bin/task-runner-launcher javascript python"]
         template: statefulset-worker.yaml
 
   - it: should use direct launcher command when nodes.python.external.packages is empty
@@ -2442,4 +2442,86 @@ tests:
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].command
           value: ["/usr/local/bin/task-runner-launcher"]
+        template: statefulset-worker.yaml
+
+  - it: should mount python-packages volume in StatefulSet worker runner sidecar at /home/node/.python-packages
+    set:
+      taskRunners:
+        mode: external
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].volumeMounts
+          content:
+            name: python-packages
+            mountPath: /home/node/.python-packages
+        template: statefulset-worker.yaml
+
+  - it: should add python-packages emptyDir in StatefulSet worker volumes when persistence is disabled
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          persistence:
+            enabled: false
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: python-packages
+            emptyDir: {}
+        template: statefulset-worker.yaml
+
+  - it: should add python-packages to StatefulSet worker volumeClaimTemplates when persistence is enabled
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          persistence:
+            enabled: true
+            accessMode: ReadWriteOnce
+            size: 2Gi
+    asserts:
+      - contains:
+          path: spec.volumeClaimTemplates
+          content:
+            metadata:
+              name: python-packages
+            spec:
+              accessModes:
+                - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 2Gi
+        template: statefulset-worker.yaml
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: python-packages
+            emptyDir: {}
+        template: statefulset-worker.yaml
+
+  - it: should use existingClaim as regular volume in StatefulSet worker when existingClaim is set
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          persistence:
+            enabled: true
+            existingClaim: my-existing-pvc
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: python-packages
+            persistentVolumeClaim:
+              claimName: my-existing-pvc
+        template: statefulset-worker.yaml
+      - notContains:
+          path: spec.volumeClaimTemplates
+          content:
+            metadata:
+              name: python-packages
         template: statefulset-worker.yaml
