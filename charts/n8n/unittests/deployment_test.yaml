@@ -584,6 +584,29 @@ tests:
                 optional: true
         template: deployment.yaml
 
+  - it: should set postgresdb password environment variable from external secret with custom key when db type is postgresdb and postgresql.auth.username is set and existingSecretPasswordKey is set
+    set:
+      db:
+        type: postgresdb
+      postgresql:
+        enabled: true
+        auth:
+          username: n8npostgres
+          password: n8npostgrespassword
+      externalPostgresql:
+        existingSecretPasswordKey: custom-postgres-password
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
+          content:
+            name: DB_POSTGRESDB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: n8n-postgresql
+                key: custom-postgres-password
+                optional: true
+        template: deployment.yaml
+
   - it: should set postgresdb password environment variable from secret with key postgres-password when db type is postgresdb and postgresql.auth.username is not set
     set:
       db:
