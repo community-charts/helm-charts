@@ -51,29 +51,38 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: fixed
-      description: Remove deprecated N8N_RUNNERS_ENABLED environment variable (safe to remove since n8n 1.69+)
+      description: Remove deprecated N8N_RUNNERS_ENABLED environment variable (safe since n8n 1.69+)
+      links:
+        - name: "Issue #412"
+          url: https://github.com/community-charts/helm-charts/issues/412
+        - name: "Issue #436"
+          url: https://github.com/community-charts/helm-charts/issues/436
+        - name: "Issue #474"
+          url: https://github.com/community-charts/helm-charts/issues/474
     - kind: fixed
       description: Use n8nio/runners image for external task runner sidecar instead of n8nio/n8n
+      links:
+        - name: "Issue #329"
+          url: https://github.com/community-charts/helm-charts/issues/329
+        - name: "Issue #434"
+          url: https://github.com/community-charts/helm-charts/issues/434
     - kind: fixed
       description: Skip external task runner sidecar on main pod when worker.mode is queue
-    - kind: added
-      description: Add Python runner support via taskRunners.python.enabled flag (requires n8n 1.111.0+)
+      links:
+        - name: "Issue #414"
+          url: https://github.com/community-charts/helm-charts/issues/414
     - kind: fixed
-      description: Rename runner sidecar port from http to runner-health to fix duplicate port name warning
-    - kind: changed
-      description: Add unit test coverage for external runner image tag, port name, and Python runner negative cases
+      description: Rename runner sidecar port from http to runner-health to eliminate duplicate port name warning
     - kind: fixed
-      description: Move N8N_RUNNERS_STDLIB_ALLOW and N8N_RUNNERS_EXTERNAL_ALLOW to broker configmap so n8n enforces the correct Python security policy
+      description: Move N8N_RUNNERS_STDLIB_ALLOW and N8N_RUNNERS_EXTERNAL_ALLOW to task-broker configmap so n8n enforces the correct Python security policy
     - kind: added
-      description: Add taskRunners.python.packages to install Python packages via uv before the runner starts
-    - kind: changed
-      description: Derive N8N_RUNNERS_EXTERNAL_ALLOW automatically from taskRunners.python.packages, removing the redundant externalAllow field
-    - kind: changed
-      description: Restructure taskRunners.python config to match nodes section pattern (builtin.modules array and external.packages with allowAll flag)
-    - kind: changed
-      description: Move Python Code node config from taskRunners.python to nodes.python, alongside JS config
+      description: Add Python runner support via nodes.python.enabled flag (requires n8n 1.111.0+ and taskRunners.mode=external)
     - kind: added
-      description: Add optional PVC persistence for Python installed packages via nodes.python.persistence
+      description: Add nodes.python.external.packages to install Python packages via uv before the runner starts; N8N_RUNNERS_EXTERNAL_ALLOW is derived automatically from the package list
+    - kind: added
+      description: Add optional PVC persistence for Python installed packages via nodes.python.persistence; ReadWriteMany required when HPA or multi-node Deployment is used
+    - kind: changed
+      description: Move Python Code node config (builtin.modules, external.packages, external.allowAll) from taskRunners.python to nodes.python alongside the JS node config
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:2.23.4
