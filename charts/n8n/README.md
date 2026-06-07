@@ -1079,9 +1079,9 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | externalRedis.tls.enabled | bool | `false` | Enable TLS on Redis connections. |
 | externalRedis.username | string | `""` | External Redis username |
 | extraEnvVars | object | `{}` | @deprecated Use main, worker, and webhook blocks extraEnvVars fields instead. This field will be removed in a future release. |
-| extraManifests | list | `[]` | List of extra Kubernetes manifests to deploy alongside n8n. Accepts a list of Kubernetes resource objects or raw YAML strings. Standard chart labels are automatically merged into each manifest's metadata. Example: extraManifests:   - apiVersion: v1     kind: ConfigMap     metadata:       name: my-extra-config     data:       key: value   - |     apiVersion: v1     kind: ConfigMap     metadata:       name: my-string-config     data:       key: value |
+| extraManifests | list | `[]` | List of extra Kubernetes manifests (objects or YAML strings) to deploy alongside n8n. Chart labels are automatically merged into each manifest's metadata. |
 | extraSecretNamesForEnvFrom | list | `[]` | @deprecated Use main, worker, and webhook blocks extraSecretNamesForEnvFrom fields instead. This field will be removed in a future release. |
-| extraTemplateManifests | list | `[]` | List of extra Kubernetes manifests with Helm templating support. Each item must be a YAML string (use | block scalar). Supports Helm template functions (e.g., {{ .Release.Namespace }}, {{ .Release.Name }}). Standard chart labels are automatically merged into each manifest's metadata. Example: extraTemplateManifests:   - |     apiVersion: v1     kind: ConfigMap     metadata:       name: my-config       namespace: {{ .Release.Namespace }}     data:       release: {{ .Release.Name }} |
+| extraTemplateManifests | list | `[]` | List of extra Kubernetes manifests as Helm template strings to deploy alongside n8n. Chart labels are automatically merged into each manifest's metadata. |
 | fullnameOverride | string | `""` |  |
 | gracefulShutdownTimeout | int | `30` | graceful shutdown timeout in seconds |
 | image | object | `{"pullPolicy":"IfNotPresent","repository":"n8nio/n8n","tag":""}` | This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/ |
