@@ -143,6 +143,29 @@ tests:
           path: metadata.labels["app.kubernetes.io/instance"]
           value: n8n
 
+  - it: should render a string manifest from extraManifests
+    set:
+      extraManifests:
+        - |
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: my-string-config
+          data:
+            key: value
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: ConfigMap
+      - equal:
+          path: metadata.name
+          value: my-string-config
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: n8n
+
   - it: should render manifests from both extraManifests and extraTemplateManifests
     set:
       extraManifests:

@@ -869,10 +869,10 @@ extraTemplateManifests:
     kind: ConfigMap
     metadata:
       name: release-info
-      namespace: {{ .Release.Namespace }}
+      namespace: {{ "{{" }} .Release.Namespace {{ "}}" }}
     data:
-      release: {{ .Release.Name }}
-      chart: {{ .Chart.Version }}
+      release: {{ "{{" }} .Release.Name {{ "}}" }}
+      chart: {{ "{{" }} .Chart.Version {{ "}}" }}
 ```
 
 ## Upgrading
