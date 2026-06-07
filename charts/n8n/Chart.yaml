@@ -56,6 +56,8 @@ annotations:
       description: Use n8nio/runners image for external task runner sidecar instead of n8nio/n8n
     - kind: fixed
       description: Skip external task runner sidecar on main pod when worker.mode is queue
+    - kind: added
+      description: Add Python runner support via taskRunners.python.enabled flag (requires n8n 1.111.0+)
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:2.23.4

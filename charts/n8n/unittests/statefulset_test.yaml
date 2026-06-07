@@ -1312,6 +1312,34 @@ tests:
             name: n8n-task-runners
         template: statefulset.yaml
 
+  - it: should add python arg to task runner container when taskRunners.python.enabled is true
+    set:
+      taskRunners:
+        mode: external
+        python:
+          enabled: true
+      main:
+        forceToUseStatefulset: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].args
+          content: python
+        template: statefulset.yaml
+
+  - it: should not add python arg when taskRunners.python.enabled is false
+    set:
+      taskRunners:
+        mode: external
+        python:
+          enabled: false
+      main:
+        forceToUseStatefulset: true
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].args
+          value: ["javascript"]
+        template: statefulset.yaml
+
   - it: should set security context on task runner container when taskRunners.mode is external
     set:
       taskRunners:

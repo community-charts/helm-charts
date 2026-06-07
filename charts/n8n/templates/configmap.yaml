@@ -200,6 +200,9 @@ data:
 {{- else }}
   N8N_RUNNERS_MAX_CONCURRENCY: {{ .Values.taskRunners.maxConcurrency | quote }}
 {{- end }}
+{{- if .Values.taskRunners.python.enabled }}
+  N8N_NATIVE_PYTHON_RUNNER: "true"
+{{- end }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -251,6 +254,14 @@ data:
   DEPLOYMENT_NAME: {{ .Release.Name | quote }}
 {{- else }}
   SENTRY_DSN: ""
+{{- end }}
+{{- if .Values.taskRunners.python.enabled }}
+{{- if .Values.taskRunners.python.stdlibAllow }}
+  N8N_RUNNERS_STDLIB_ALLOW: {{ .Values.taskRunners.python.stdlibAllow | quote }}
+{{- end }}
+{{- if .Values.taskRunners.python.externalAllow }}
+  N8N_RUNNERS_EXTERNAL_ALLOW: {{ .Values.taskRunners.python.externalAllow | quote }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- if .Values.license.enabled }}

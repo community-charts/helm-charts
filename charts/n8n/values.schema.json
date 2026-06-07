@@ -4350,9 +4350,39 @@
           "required": ["autoShutdownTimeout", "port", "nodeOptions", "image", "resources"],
           "title": "external",
           "type": "object"
+        },
+        "python": {
+          "additionalProperties": false,
+          "description": "Python runner configuration for external task runners",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "description": "Enable Python code execution via external task runners (requires n8n 1.111.0+)",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "stdlibAllow": {
+              "default": "",
+              "description": "Python standard library modules allowed in Code nodes, comma-separated. Use * to allow all.",
+              "required": [],
+              "title": "stdlibAllow",
+              "type": "string"
+            },
+            "externalAllow": {
+              "default": "",
+              "description": "Third-party Python modules allowed in Code nodes, comma-separated. Use * to allow all.",
+              "required": [],
+              "title": "externalAllow",
+              "type": "string"
+            }
+          },
+          "required": ["enabled", "stdlibAllow", "externalAllow"],
+          "title": "python",
+          "type": "object"
         }
       },
-      "required": ["mode", "taskTimeout", "taskHeartbeatInterval", "maxConcurrency", "broker"],
+      "required": ["mode", "taskTimeout", "taskHeartbeatInterval", "maxConcurrency", "broker", "python"],
       "if": {
         "properties": {
           "mode": { "const": "external" }

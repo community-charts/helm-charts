@@ -1271,7 +1271,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | serviceMonitor.targetLabels | list | `[]` | Set of labels to transfer on the Kubernetes Service onto the target. |
 | serviceMonitor.timeout | string | `"10s"` | Set timeout for scrape |
 | strategy | object | `{"rollingUpdate":{"maxSurge":"25%","maxUnavailable":"25%"},"type":"RollingUpdate"}` | This will set the deployment strategy more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy |
-| taskRunners | object | `{"broker":{"address":"127.0.0.1","port":5679},"external":{"autoShutdownTimeout":15,"image":{"pullPolicy":"IfNotPresent","repository":"n8nio/runners","tag":""},"mainNodeAuthToken":"","nodeOptions":["--max-semi-space-size=16","--max-old-space-size=300"],"port":5680,"resources":{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}},"workerNodeAuthToken":""},"maxConcurrency":5,"mode":"internal","taskHeartbeatInterval":30,"taskTimeout":60}` | Task runners mode. Please follow the documentation for more information: https://docs.n8n.io/hosting/configuration/task-runners/ |
+| taskRunners | object | `{"broker":{"address":"127.0.0.1","port":5679},"external":{"autoShutdownTimeout":15,"image":{"pullPolicy":"IfNotPresent","repository":"n8nio/runners","tag":""},"mainNodeAuthToken":"","nodeOptions":["--max-semi-space-size=16","--max-old-space-size=300"],"port":5680,"resources":{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}},"workerNodeAuthToken":""},"maxConcurrency":5,"mode":"internal","python":{"enabled":false,"externalAllow":"","stdlibAllow":""},"taskHeartbeatInterval":30,"taskTimeout":60}` | Task runners mode. Please follow the documentation for more information: https://docs.n8n.io/hosting/configuration/task-runners/ |
 | taskRunners.broker | object | `{"address":"127.0.0.1","port":5679}` | The address for the broker of the external task runner |
 | taskRunners.broker.address | string | `"127.0.0.1"` | The address for the broker of the external task runner |
 | taskRunners.broker.port | int | `5679` | The port for the broker of the external task runner |
@@ -1294,6 +1294,10 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | taskRunners.external.workerNodeAuthToken | string | `""` | The auth token for the worker node |
 | taskRunners.maxConcurrency | int | `5` | The maximum concurrency for the task |
 | taskRunners.mode | string | `"internal"` | Use `internal` to use internal task runner, or use `external` to have external sidecar task runner. For more information please follow the documentation: https://docs.n8n.io/hosting/configuration/task-runners/#task-runner-modes |
+| taskRunners.python | object | `{"enabled":false,"externalAllow":"","stdlibAllow":""}` | Python runner configuration. Requires n8n 1.111.0+ and external task runner mode. |
+| taskRunners.python.enabled | bool | `false` | Enable Python code execution in the Code node via external task runners. |
+| taskRunners.python.externalAllow | string | `""` | Third-party Python modules allowed in Code nodes (comma-separated). Use * to allow all. |
+| taskRunners.python.stdlibAllow | string | `""` | Python standard library modules allowed in Code nodes (comma-separated). Use * to allow all. |
 | taskRunners.taskHeartbeatInterval | int | `30` | The heartbeat interval for the task in seconds |
 | taskRunners.taskTimeout | int | `60` | The timeout for the task in seconds |
 | timezone | string | `"Europe/Berlin"` | For instance, the Schedule node uses it to know at what time the workflow should start. Find you timezone from here: https://momentjs.com/timezone/ |
