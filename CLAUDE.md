@@ -6,6 +6,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a community Helm chart repository hosting production-grade Kubernetes charts for: `actualbudget`, `cloudflared`, `drone`, `kserve`, `mlflow`, `n8n`, `outline`, and `pypiserver`. Charts are published to GitHub Pages via the `chart-releaser` action.
 
+## External Documentation
+
+### n8n
+
+When working on the `n8n` chart, use `https://docs.n8n.io/llms.txt` as the entry point for official n8n documentation. That file lists available documentation pages — fetch individual pages from it as needed for accurate, up-to-date details on configuration, environment variables, and features.
+
 ## Common Commands
 
 ### Linting
