@@ -51,7 +51,10 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
-      description: Replaced all occurences of autoNenew by autoRenew
+      description: "Deprecated license.autoNenew fields in favor of license.autoRenew with backward compatible fallback"
+      links:
+        - name: Github Issue
+          url: https://github.com/community-charts/helm-charts/issues/294
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:2.23.4

@@ -1102,6 +1102,34 @@ tests:
           path: data.N8N_LICENSE_TENANT_ID
           value: "999"
 
+  - it: should use deprecated license.autoNenew.enabled when set
+    set:
+      license:
+        enabled: true
+        autoNenew:
+          enabled: false
+    documentSelector:
+      path: metadata.name
+      value: n8n-license-configmap
+    asserts:
+      - equal:
+          path: data.N8N_LICENSE_AUTO_RENEW_ENABLED
+          value: "false"
+
+  - it: should use deprecated license.autoNenew.offsetInHours when set
+    set:
+      license:
+        enabled: true
+        autoNenew:
+          offsetInHours: 24
+    documentSelector:
+      path: metadata.name
+      value: n8n-license-configmap
+    asserts:
+      - equal:
+          path: data.N8N_LICENSE_AUTO_RENEW_OFFSET
+          value: "86400"
+
   - it: should set default binary data mode from binaryData.mode
     set:
       binaryData:

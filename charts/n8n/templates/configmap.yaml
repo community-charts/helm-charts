@@ -266,8 +266,16 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-  N8N_LICENSE_AUTO_RENEW_ENABLED: {{ .Values.license.autoRenew.enabled | quote }}
-  N8N_LICENSE_AUTO_RENEW_OFFSET: {{ .Values.license.autoRenew.offsetInHours | mul 3600 | quote }}
+{{- $licenseAutoRenewEnabled := .Values.license.autoRenew.enabled }}
+{{- if not (kindIs "invalid" .Values.license.autoNenew.enabled) }}
+  {{- $licenseAutoRenewEnabled = .Values.license.autoNenew.enabled }}
+{{- end }}
+{{- $licenseAutoRenewOffsetInHours := .Values.license.autoRenew.offsetInHours }}
+{{- if not (kindIs "invalid" .Values.license.autoNenew.offsetInHours) }}
+  {{- $licenseAutoRenewOffsetInHours = .Values.license.autoNenew.offsetInHours }}
+{{- end }}
+  N8N_LICENSE_AUTO_RENEW_ENABLED: {{ $licenseAutoRenewEnabled | quote }}
+  N8N_LICENSE_AUTO_RENEW_OFFSET: {{ $licenseAutoRenewOffsetInHours | mul 3600 | quote }}
   N8N_LICENSE_SERVER_URL: {{ .Values.license.serverUrl | quote }}
   {{- if ne (int .Values.license.tenantId) 1 }}
   N8N_LICENSE_TENANT_ID: {{ .Values.license.tenantId | quote }}
