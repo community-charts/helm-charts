@@ -570,7 +570,7 @@
           "type": "string"
         },
         "existingSecretPasswordKey": {
-          "default": "postgres-password",
+          "default": "",
           "description": "The key in `externalPostgresql.existingSecret` that stores the PostgreSQL password.",
           "required": [],
           "title": "existingSecretPasswordKey",
@@ -664,14 +664,14 @@
           "type": "string"
         },
         "existingUsernameKey": {
-          "default": "redis-username",
+          "default": "",
           "description": "The key in `externalRedis.existingSecret` that stores the Redis username.",
           "required": [],
           "title": "existingUsernameKey",
           "type": "string"
         },
         "existingPasswordKey": {
-          "default": "redis-password",
+          "default": "",
           "description": "The key in `externalRedis.existingSecret` that stores the Redis password.",
           "required": [],
           "title": "existingPasswordKey",

@@ -51,7 +51,7 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: added
-      description: Add support for custom external secret keys
+      description: Add configurable secret key names for external PostgreSQL and Redis existing secrets
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:2.23.4

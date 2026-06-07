@@ -182,7 +182,7 @@ spec:
                 secretKeyRef:
                   name: {{ default (include "n8n.postgresql.fullname" .) .Values.externalPostgresql.existingSecret }}
               {{- if .Values.postgresql.auth.username }}
-                  key: password
+                  key: {{ default "password" .Values.externalPostgresql.existingSecretPasswordKey }}
               {{- else }}
                   key: {{ default "postgres-password" .Values.externalPostgresql.existingSecretPasswordKey }}
               {{- end }}
