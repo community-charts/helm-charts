@@ -421,7 +421,7 @@ n8n python packages PVC full name (respects existingClaim)
 n8n task runner uv install shell command string (unquoted)
 */}}
 {{- define "n8n.taskRunners.uvInstallCommand" -}}
-UV_CACHE_DIR=/tmp/.uv-cache uv pip install --target /home/node/.python-packages {{ .Values.nodes.python.external.packages | join " " }} && export PYTHONPATH=/home/node/.python-packages && exec /usr/local/bin/task-runner-launcher javascript{{ ternary " python" "" .Values.nodes.python.enabled }}
+UV_CACHE_DIR=/tmp/.uv-cache UV_LINK_MODE=copy uv pip install --target /home/node/.python-packages {{ .Values.nodes.python.external.packages | join " " }} && export PYTHONPATH=/home/node/.python-packages && exec /usr/local/bin/task-runner-launcher javascript{{ ternary " python" "" .Values.nodes.python.enabled }}
 {{- end -}}
 
 {{/*

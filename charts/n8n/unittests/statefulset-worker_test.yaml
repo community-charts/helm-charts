@@ -2426,7 +2426,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].command
-          value: ["/bin/sh", "-c", "UV_CACHE_DIR=/tmp/.uv-cache uv pip install --target /home/node/.python-packages pandas numpy && export PYTHONPATH=/home/node/.python-packages && exec /usr/local/bin/task-runner-launcher javascript python"]
+          value: ["/bin/sh", "-c", "UV_CACHE_DIR=/tmp/.uv-cache UV_LINK_MODE=copy uv pip install --target /home/node/.python-packages pandas numpy && export PYTHONPATH=/home/node/.python-packages && exec /usr/local/bin/task-runner-launcher javascript python"]
         template: statefulset-worker.yaml
 
   - it: should use direct launcher command when nodes.python.external.packages is empty
