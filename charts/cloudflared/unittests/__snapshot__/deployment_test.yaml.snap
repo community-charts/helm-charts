@@ -10,6 +10,8 @@ should match snapshot of default values:
     apiVersion: apps/v1
     kind: DaemonSet
     metadata:
+      annotations:
+        ignore-check.kube-linter.io/unsafe-sysctls: net.ipv4.ping_group_range is required for cloudflared ICMP tunneling support
       labels:
         app: cloudflared
         app.kubernetes.io/instance: cloudflared
@@ -56,6 +58,12 @@ should match snapshot of default values:
                 - containerPort: 2000
                   name: active-con-stat
                   protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /ready
+                  port: 2000
+                initialDelaySeconds: 10
+                periodSeconds: 10
               resources: {}
               securityContext:
                 allowPrivilegeEscalation: false

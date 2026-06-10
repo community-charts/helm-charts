@@ -184,6 +184,47 @@ tests:
             value: /etc/cloudflared/creds/custom.pem
         template: deployment.yaml
 
+  - it: should use custom liveness probe when set
+    set:
+      tunnelConfig:
+        name: unittest
+      livenessProbe:
+        httpGet:
+          path: /ready
+          port: 2000
+        failureThreshold: 3
+        initialDelaySeconds: 5
+        periodSeconds: 5
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "cloudflared")].livenessProbe.failureThreshold
+          value: 3
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "cloudflared")].livenessProbe.initialDelaySeconds
+          value: 5
+        template: deployment.yaml
+
+  - it: should use custom readiness probe when set
+    set:
+      tunnelConfig:
+        name: unittest
+      readinessProbe:
+        httpGet:
+          path: /ready
+          port: 2000
+        initialDelaySeconds: 15
+        periodSeconds: 20
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "cloudflared")].readinessProbe.initialDelaySeconds
+          value: 15
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "cloudflared")].readinessProbe.periodSeconds
+          value: 20
+        template: deployment.yaml
+
   - it: should match snapshot of default values
     set:
       tunnelConfig:
