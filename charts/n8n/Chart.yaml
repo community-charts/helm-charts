@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.22.0
+version: 1.22.1
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "2.23.4"
+appVersion: "2.25.6"
 kubeVersion: ">=1.23.0-0"
 home: https://n8n.io
 maintainers:
@@ -50,42 +50,19 @@ annotations:
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: fixed
-      description: Remove deprecated N8N_RUNNERS_ENABLED environment variable (safe since n8n 1.69+)
+    - kind: changed
+      description: Update n8nio/n8n image version to 2.25.6
       links:
-        - name: "Issue #412"
-          url: https://github.com/community-charts/helm-charts/issues/412
-        - name: "Issue #436"
-          url: https://github.com/community-charts/helm-charts/issues/436
-        - name: "Issue #474"
-          url: https://github.com/community-charts/helm-charts/issues/474
-    - kind: fixed
-      description: Use n8nio/runners image for external task runner sidecar instead of n8nio/n8n
+        - name: Upstream Project
+          url: https://github.com/n8n-io/n8n
+    - kind: changed
+      description: Update dependency postgresql from 18.7.2 to 18.7.3
       links:
-        - name: "Issue #329"
-          url: https://github.com/community-charts/helm-charts/issues/329
-        - name: "Issue #434"
-          url: https://github.com/community-charts/helm-charts/issues/434
-    - kind: fixed
-      description: Skip external task runner sidecar on main pod when worker.mode is queue
-      links:
-        - name: "Issue #414"
-          url: https://github.com/community-charts/helm-charts/issues/414
-    - kind: fixed
-      description: Rename runner sidecar port from http to runner-health to eliminate duplicate port name warning
-    - kind: fixed
-      description: Move N8N_RUNNERS_STDLIB_ALLOW and N8N_RUNNERS_EXTERNAL_ALLOW to task-broker configmap so n8n enforces the correct Python security policy
-    - kind: added
-      description: Add Python runner support via nodes.python.enabled flag (requires n8n 1.111.0+ and taskRunners.mode=external)
-    - kind: added
-      description: Add nodes.python.external.packages to install Python packages via uv before the runner starts; N8N_RUNNERS_EXTERNAL_ALLOW is derived automatically from the package list
-    - kind: added
-      description: Add optional PVC persistence for Python installed packages via nodes.python.persistence; ReadWriteMany required when HPA or multi-node Deployment is used
-    - kind: added
-      description: Add pypiRegistry support for installing Python packages from a private PyPI index (URL-only via UV_DEFAULT_INDEX or uv.toml config file via UV_CONFIG_FILE; mirrors npmRegistry pattern)
+        - name: ArtifactHub
+          url: https://artifacthub.io/packages/helm/bitnami/postgresql
   artifacthub.io/images: |
     - name: n8n
-      image: n8nio/n8n:2.23.4
+      image: n8nio/n8n:2.25.6
       platforms:
         - linux/amd64
         - linux/arm64
@@ -146,7 +123,7 @@ dependencies:
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
   - name: postgresql
-    version: 18.7.2
+    version: 18.7.3
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: minio
