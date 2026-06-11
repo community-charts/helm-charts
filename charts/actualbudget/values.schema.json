@@ -343,6 +343,13 @@
           "required": [],
           "title": "tag",
           "type": "string"
+        },
+        "digest": {
+          "default": "",
+          "description": "This sets the digest for the image.",
+          "required": [],
+          "title": "digest",
+          "type": "string"
         }
       },
       "required": ["repository", "pullPolicy", "tag"],

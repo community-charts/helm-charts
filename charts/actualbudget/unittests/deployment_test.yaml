@@ -352,6 +352,25 @@ tests:
                 name: fake-existing-secret
                 key: client-secret
 
+  - it: should use the image tag without modification when digest is not set
+    chart:
+      appVersion: 25.1.0
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].image
+          value: "actualbudget/actual-server:25.1.0"
+
+  - it: should add digest to image tag when digest is set
+    set:
+      image:
+        digest: "sha256:fake-digest"
+    chart:
+      appVersion: 25.1.0
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].image
+          value: "actualbudget/actual-server:25.1.0@sha256:fake-digest"
+
   - it: should match snapshot of default values
     asserts:
       - matchSnapshot: { }

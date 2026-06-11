@@ -60,3 +60,15 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Create the container image string with optional digest
+*/}}
+{{- define "actualbudget.containerImage" -}}
+{{- $image := printf "%s:%s" .Values.image.repository (.Values.image.tag | default .Chart.AppVersion) }}
+{{- if .Values.image.digest }}
+{{- $image }}@{{ .Values.image.digest }}
+{{- else }}
+{{- $image }}
+{{- end }}
+{{- end }}

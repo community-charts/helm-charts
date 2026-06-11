@@ -43,7 +43,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: {{ include "actualbudget.containerImage" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: ACTUAL_PORT
