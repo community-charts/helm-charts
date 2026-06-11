@@ -169,7 +169,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-worker")].image
-          value: fake-image-repository/fake-image:fake-tag
+          value: docker.io/fake-image-repository/fake-image:fake-tag
         template: deployment-worker.yaml
 
   - it: should use default image and chart app version as image tag when tag is not set
@@ -185,7 +185,30 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-worker")].image
-          value: n8nio/n8n:0.81.0
+          value: docker.io/n8nio/n8n:0.81.0
+        template: deployment-worker.yaml
+
+  - it: should use custom image registry when image.registry is set
+    set:
+      image:
+        registry: ghcr.io
+        repository: n8nio/n8n
+        tag: fake-tag
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].image
+          value: ghcr.io/n8nio/n8n:fake-tag
+        template: deployment-worker.yaml
+
+  - it: should omit registry prefix when image.registry is empty
+    set:
+      image:
+        registry: ""
+        tag: fake-tag
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].image
+          value: n8nio/n8n:fake-tag
         template: deployment-worker.yaml
 
   - it: should set image pull policy when imagePullPolicy is set
@@ -1989,8 +2012,39 @@ tests:
           path: spec.template.spec.initContainers
           content:
             name: wait-for-main
-            image: busybox:1.36
+            image: docker.io/library/busybox:stable
+            imagePullPolicy: Always
           any: true
+        template: deployment-worker.yaml
+
+  - it: should use custom wait-for-main image registry when initContainers.waitForMain.image.registry is set
+    set:
+      worker:
+        waitMainNodeReady:
+          enabled: true
+      initContainers:
+        waitForMain:
+          image:
+            registry: ghcr.io
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].image
+          value: ghcr.io/library/busybox:stable
+        template: deployment-worker.yaml
+
+  - it: should omit wait-for-main registry prefix when initContainers.waitForMain.image.registry is empty
+    set:
+      worker:
+        waitMainNodeReady:
+          enabled: true
+      initContainers:
+        waitForMain:
+          image:
+            registry: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].image
+          value: library/busybox:stable
         template: deployment-worker.yaml
 
   - it: should use init container to wait main node ready with http schema when overwriteSchema is not set

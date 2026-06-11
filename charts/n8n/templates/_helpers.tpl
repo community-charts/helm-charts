@@ -32,6 +32,31 @@ Create chart name and version as used by the chart label.
 {{- end }}
 
 {{/*
+Return the full image reference for the n8n main container.
+Omits the registry prefix when image.registry is empty, so that users
+pointing to a mirror without a registry prefix get a valid image string.
+*/}}
+{{- define "n8n.image" -}}
+{{- if .Values.image.registry -}}
+{{- printf "%s/%s:%s" .Values.image.registry .Values.image.repository (.Values.image.tag | default .Chart.AppVersion) -}}
+{{- else -}}
+{{- printf "%s:%s" .Values.image.repository (.Values.image.tag | default .Chart.AppVersion) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the full image reference for the wait-for-main init container.
+Omits the registry prefix when initContainers.waitForMain.image.registry is empty.
+*/}}
+{{- define "n8n.waitForMain.image" -}}
+{{- if .Values.initContainers.waitForMain.image.registry -}}
+{{- printf "%s/%s:%s" .Values.initContainers.waitForMain.image.registry .Values.initContainers.waitForMain.image.repository .Values.initContainers.waitForMain.image.tag -}}
+{{- else -}}
+{{- printf "%s:%s" .Values.initContainers.waitForMain.image.repository .Values.initContainers.waitForMain.image.tag -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Main name
 */}}
 {{- define "n8n.main.name" -}}

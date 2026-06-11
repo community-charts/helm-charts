@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.22.2](https://img.shields.io/badge/Version-1.22.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.25.7](https://img.shields.io/badge/AppVersion-2.25.7-informational?style=flat-square)
+![Version: 1.23.0](https://img.shields.io/badge/Version-1.23.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.25.7](https://img.shields.io/badge/AppVersion-2.25.7-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -1122,6 +1122,38 @@ This section outlines major updates and breaking changes for each version of the
 
 ###  Version-Specific Upgrade Notes
 
+#### Upgrading to Version 1.23.0
+
+##### Action Required
+
+The default rendered image reference now includes an explicit registry prefix. The main n8n container image changes from `n8nio/n8n:tag` to `docker.io/n8nio/n8n:tag`.
+
+Review the following before upgrading:
+
+- **Mirror registries** — clusters that intercept bare `n8nio/n8n` but not `docker.io/n8nio/n8n` may pull from the wrong source or fail to pull after upgrade.
+- **Admission policies** — OPA/Kyverno rules matching on image prefix patterns may deny pods with the new prefix.
+- **imagePullSecrets** — if your pull secret is scoped to a specific registry and you change `image.registry` (e.g. to `ghcr.io`), update the secret to match the new registry.
+
+To restore the previous bare-image behavior, set `image.registry` to an empty string:
+
+```yaml
+image:
+  registry: ""
+  repository: n8nio/n8n
+  pullPolicy: IfNotPresent
+  tag: ""
+```
+
+To use a different registry:
+
+```yaml
+image:
+  registry: ghcr.io
+  repository: n8nio/n8n
+  pullPolicy: IfNotPresent
+  tag: ""
+```
+
 #### Upgrading to Version 1.20.0
 
 ##### Deprecation Notices
@@ -1323,11 +1355,17 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | extraTemplateManifests | list | `[]` | List of extra Kubernetes manifests as Helm template strings to deploy alongside n8n. Chart labels are automatically merged into each manifest's metadata. |
 | fullnameOverride | string | `""` |  |
 | gracefulShutdownTimeout | int | `30` | graceful shutdown timeout in seconds |
-| image | object | `{"pullPolicy":"IfNotPresent","repository":"n8nio/n8n","tag":""}` | This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/ |
+| image | object | `{"pullPolicy":"IfNotPresent","registry":"docker.io","repository":"n8nio/n8n","tag":""}` | This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/ |
 | image.pullPolicy | string | `"IfNotPresent"` | This sets the pull policy for images. |
+| image.registry | string | `"docker.io"` | Registry to use for the n8n image. Set to empty string to omit the registry prefix. |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
 | ingress | object | `{"annotations":{},"className":"","enabled":false,"hosts":[{"host":"n8n.local","paths":[{"path":"/","pathType":"Prefix"}]}],"tls":[]}` | This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/ |
+| initContainers | object | `{"waitForMain":{"image":{"pullPolicy":"Always","registry":"docker.io","repository":"library/busybox","tag":"stable"}}}` | Configuration for init containers |
+| initContainers.waitForMain.image.pullPolicy | string | `"Always"` | Pull policy for the wait-for-main init container image |
+| initContainers.waitForMain.image.registry | string | `"docker.io"` | Registry to use for the wait-for-main init container image. Set to empty string to omit the registry prefix. |
+| initContainers.waitForMain.image.repository | string | `"library/busybox"` | Repository for the wait-for-main init container image |
+| initContainers.waitForMain.image.tag | string | `"stable"` | Tag for the wait-for-main init container image |
 | license | object | `{"activationKey":"","autoNenew":{"enabled":null,"offsetInHours":null},"autoRenew":{"enabled":true,"offsetInHours":72},"enabled":false,"existingActivationKeySecret":"","serverUrl":"https://license.n8n.io/v1","tenantId":1}` | n8n enterprise license configurations |
 | license.activationKey | string | `""` | Activation key to initialize license. Not applicable if the n8n instance was already activated. For more information please refer to the following link: https://docs.n8n.io/enterprise-key/ |
 | license.autoNenew | object | `{"enabled":null,"offsetInHours":null}` | @deprecated Use license.autoRenew fields instead. |

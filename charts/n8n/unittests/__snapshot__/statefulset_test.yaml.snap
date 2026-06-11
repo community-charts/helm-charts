@@ -223,7 +223,7 @@ should match snapshot of default values:
                     name: n8n-binary-data-configmap
                 - secretRef:
                     name: n8n-encryption-key-secret-v2
-              image: n8nio/n8n:1.0.0
+              image: docker.io/n8nio/n8n:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 httpGet:
@@ -535,7 +535,7 @@ should match snapshot of postgres ssl certificate values:
                     name: n8n-binary-data-configmap
                 - secretRef:
                     name: n8n-encryption-key-secret-v2
-              image: n8nio/n8n:1.0.0
+              image: docker.io/n8nio/n8n:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 httpGet:

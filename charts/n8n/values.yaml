@@ -5,11 +5,26 @@
 
 # -- This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
+  # -- Registry to use for the n8n image. Set to empty string to omit the registry prefix.
+  registry: "docker.io"
   repository: n8nio/n8n
   # -- This sets the pull policy for images.
   pullPolicy: IfNotPresent
   # -- Overrides the image tag whose default is the chart appVersion.
   tag: ""
+
+# -- Configuration for init containers
+initContainers:
+  waitForMain:
+    image:
+      # -- Registry to use for the wait-for-main init container image. Set to empty string to omit the registry prefix.
+      registry: "docker.io"
+      # -- Repository for the wait-for-main init container image
+      repository: "library/busybox"
+      # -- Tag for the wait-for-main init container image
+      tag: "stable"
+      # -- Pull policy for the wait-for-main init container image
+      pullPolicy: "Always"
 
 # -- This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []

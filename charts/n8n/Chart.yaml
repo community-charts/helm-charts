@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.22.2
+version: 1.23.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -50,11 +50,14 @@ annotations:
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
+    - kind: added
+      description: Add image.registry value (default docker.io) for CRI-O compatibility and custom registry support
+    - kind: added
+      description: Add initContainers.waitForMain.image values for configurable wait-for-main busybox init container image
     - kind: changed
-      description: Update n8nio/n8n image version to 2.25.7
-      links:
-        - name: Upstream Project
-          url: https://github.com/n8n-io/n8n
+      description: Render main n8n container image with explicit registry prefix (docker.io/n8nio/n8n by default)
+    - kind: changed
+      description: Render wait-for-main init container image from values instead of hardcoded busybox:1.36
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:2.25.7
