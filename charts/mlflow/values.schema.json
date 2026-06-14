@@ -1197,6 +1197,150 @@
       "title": "readinessProbe",
       "type": "object"
     },
+    "oauth2Proxy": {
+      "additionalProperties": false,
+      "description": "Configuration for deploying oauth2-proxy as a sidecar",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "description": "Enable oauth2-proxy sidecar",
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "createSecret": {
+          "default": false,
+          "description": "Create Kubernetes secret for oauth2 client credentials",
+          "required": [],
+          "title": "createSecret",
+          "type": "boolean"
+        },
+        "existingSecret": {
+          "default": "",
+          "description": "Use an existing secret name for oauth2-proxy credentials",
+          "required": [],
+          "title": "existingSecret",
+          "type": "string"
+        },
+        "clientIDKey": {
+          "default": "client-id",
+          "description": "Key name for client id in the secret",
+          "required": [],
+          "title": "clientIDKey",
+          "type": "string"
+        },
+        "clientSecretKey": {
+          "default": "client-secret",
+          "description": "Key name for client secret in the secret",
+          "required": [],
+          "title": "clientSecretKey",
+          "type": "string"
+        },
+        "image": {
+          "additionalProperties": false,
+          "properties": {
+            "repository": {
+              "default": "quay.io/oauth2-proxy/oauth2-proxy",
+              "required": [],
+              "title": "repository",
+              "type": "string"
+            },
+            "tag": {
+              "default": "v7.4.0",
+              "required": [],
+              "title": "tag",
+              "type": "string"
+            },
+            "pullPolicy": {
+              "default": "IfNotPresent",
+              "required": [],
+              "title": "pullPolicy",
+              "type": "string"
+            }
+          },
+          "required": ["repository", "tag", "pullPolicy"],
+          "title": "image",
+          "type": "object"
+        },
+        "listenPort": {
+          "default": 4180,
+          "description": "Port oauth2-proxy listens on inside the pod",
+          "required": [],
+          "title": "listenPort",
+          "type": "integer"
+        },
+        "cookieSecret": {
+          "default": "",
+          "description": "Cookie secret for oauth2-proxy",
+          "required": [],
+          "title": "cookieSecret",
+          "type": "string"
+        },
+        "provider": {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "default": "keycloak",
+              "required": [],
+              "title": "name",
+              "type": "string"
+            },
+            "issuerURL": {
+              "default": "",
+              "required": [],
+              "title": "issuerURL",
+              "type": "string"
+            },
+            "clientID": {
+              "default": "",
+              "required": [],
+              "title": "clientID",
+              "type": "string"
+            },
+            "clientSecret": {
+              "default": "",
+              "required": [],
+              "title": "clientSecret",
+              "type": "string"
+            },
+            "redirectURL": {
+              "default": "",
+              "required": [],
+              "title": "redirectURL",
+              "type": "string"
+            }
+          },
+          "required": ["name", "issuerURL", "clientID", "clientSecret", "redirectURL"],
+          "title": "provider",
+          "type": "object"
+        },
+        "extraArgs": {
+          "additionalProperties": true,
+          "default": ["--cookie-secure=true", "--cookie-samesite=lax"],
+          "description": "Extra args to pass to oauth2-proxy",
+          "required": [],
+          "title": "extraArgs",
+          "type": "array"
+        },
+        "extraEnv": {
+          "additionalProperties": true,
+          "description": "Extra environment variables for oauth2-proxy",
+          "required": [],
+          "title": "extraEnv",
+          "type": "object"
+        },
+        "resources": {
+          "additionalProperties": true,
+          "description": "Resources for the oauth2-proxy container",
+          "required": [],
+          "title": "resources",
+          "type": "object"
+        }
+      },
+      "required": ["enabled", "createSecret", "existingSecret", "clientIDKey", "clientSecretKey", "image", "listenPort", "cookieSecret", "provider", "extraArgs", "extraEnv", "resources"],
+      "title": "oauth2Proxy",
+      "type": "object"
+    },
     "replicaCount": {
       "default": 1,
       "description": "Numbers of replicas",

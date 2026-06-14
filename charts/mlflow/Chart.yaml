@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.8.5
+version: 1.8.6
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -51,8 +51,11 @@ annotations:
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: fixed
-      description: Fix broken screenshot URL(s) in mlflow chart
+    - kind: added
+      description: Add optional oauth2-proxy sidecar for OIDC/OAuth2 authentication in front of MLflow, with configurable provider settings, secret management, and automatic Ingress port forwarding
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/321
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.13.0
