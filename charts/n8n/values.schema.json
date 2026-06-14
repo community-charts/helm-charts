@@ -757,6 +757,15 @@
       "title": "extraEnvVars",
       "type": "object"
     },
+    "extraEnv": {
+      "description": "DEPRECATED: Use main, worker, webhook, and webhook.mcp blocks extraEnv fields instead. This field will be removed in a future release.",
+      "items": {
+        "required": []
+      },
+      "required": [],
+      "title": "extraEnv",
+      "type": "array"
+    },
     "extraSecretNamesForEnvFrom": {
       "description": "DEPRECATED: Use main, worker, and webhook blocks extraSecretNamesForEnvFrom fields instead. This field will be removed in a future release.",
       "items": {
@@ -1833,6 +1842,15 @@
           "title": "extraEnvVars",
           "type": "object"
         },
+        "extraEnv": {
+          "description": "Extra environment variables that support valueFrom (e.g., secretKeyRef, configMapKeyRef, fieldRef).",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "extraEnv",
+          "type": "array"
+        },
         "extraSecretNamesForEnvFrom": {
           "description": "Extra secrets for environment variables",
           "items": {
@@ -1916,7 +1934,7 @@
           "type": "string"
         }
       },
-      "required": ["count", "editorBaseUrl", "resources", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers", "affinity", "hostAliases", "runtimeClassName"],
+      "required": ["count", "editorBaseUrl", "resources", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraEnv", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers", "affinity", "hostAliases", "runtimeClassName"],
       "title": "main",
       "type": "object"
     },
@@ -2714,6 +2732,15 @@
               "title": "extraEnvVars",
               "type": "object"
             },
+            "extraEnv": {
+              "description": "Extra environment variables for the mcp webhook pod that support valueFrom (e.g., secretKeyRef, configMapKeyRef, fieldRef).",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "extraEnv",
+              "type": "array"
+            },
             "extraSecretNamesForEnvFrom": {
               "description": "Extra secrets for environment variables for the mcp webhook pod",
               "items": {
@@ -2791,7 +2818,7 @@
               "type": "array"
             }
           },
-          "required": ["enabled", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "initContainers", "extraContainers", "affinity", "hostAliases"],
+          "required": ["enabled", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraEnv", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "initContainers", "extraContainers", "affinity", "hostAliases"],
           "title": "mcp",
           "type": "object"
         },
@@ -3416,6 +3443,15 @@
           "title": "extraEnvVars",
           "type": "object"
         },
+        "extraEnv": {
+          "description": "Extra environment variables that support valueFrom (e.g., secretKeyRef, configMapKeyRef, fieldRef).",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "extraEnv",
+          "type": "array"
+        },
         "extraSecretNamesForEnvFrom": {
           "description": "Extra secrets for environment variables",
           "items": {
@@ -3499,7 +3535,7 @@
           "type": "string"
         }
       },
-      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases", "mcp", "runtimeClassName"],
+      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraEnv", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases", "mcp", "runtimeClassName"],
       "allOf": [
         {
           "if": {
@@ -4253,6 +4289,15 @@
           "title": "extraEnvVars",
           "type": "object"
         },
+        "extraEnv": {
+          "description": "Extra environment variables that support valueFrom (e.g., secretKeyRef, configMapKeyRef, fieldRef).",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "extraEnv",
+          "type": "array"
+        },
         "extraSecretNamesForEnvFrom": {
           "description": "Extra secrets for environment variables",
           "items": {
@@ -4336,7 +4381,7 @@
           "type": "string"
         }
       },
-      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases", "runtimeClassName"],
+      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraEnv", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases", "runtimeClassName"],
       "allOf": [
         {
           "if": {
