@@ -833,6 +833,45 @@ tests:
             value: n8nextraenvvar
         template: deployment-worker.yaml
 
+  - it: should set valueFrom environment variables when extraEnv is set
+    set:
+      extraEnv:
+        - name: N8N_VALUE_FROM_VAR
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: my-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
+        template: deployment-worker.yaml
+
+  - it: should set valueFrom environment variables when worker.extraEnv is set
+    set:
+      worker:
+        extraEnv:
+          - name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
+        template: deployment-worker.yaml
+
   - it: should set database configurations from database configmap
     asserts:
       - contains:

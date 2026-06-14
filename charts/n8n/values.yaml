@@ -443,6 +443,14 @@ main:
   # -- Extra environment variables
   extraEnvVars: {}
 
+  # -- Extra environment variables that support `valueFrom` (e.g., secretKeyRef, configMapKeyRef). Entries are passed through verbatim and rendered after `extraEnvVars`.
+  extraEnv: []
+  # - name: MY_ENV
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: my-secret
+  #       key: my-key
+
   # -- Extra secrets for environment variables
   extraSecretNamesForEnvFrom: []
 
@@ -621,6 +629,14 @@ worker:
   # -- Extra environment variables
   extraEnvVars: {}
 
+  # -- Extra environment variables that support `valueFrom` (e.g., secretKeyRef, configMapKeyRef). Entries are passed through verbatim and rendered after `extraEnvVars`.
+  extraEnv: []
+  # - name: MY_ENV
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: my-secret
+  #       key: my-key
+
   # -- Extra secrets for environment variables
   extraSecretNamesForEnvFrom: []
 
@@ -696,6 +712,14 @@ webhook:
 
     # -- Extra environment variables for the mcp webhook pod
     extraEnvVars: {}
+
+    # -- Extra environment variables for the mcp webhook pod that support `valueFrom` (e.g., secretKeyRef, configMapKeyRef). Entries are passed through verbatim and rendered after `extraEnvVars`.
+    extraEnv: []
+    # - name: MY_ENV
+    #   valueFrom:
+    #     secretKeyRef:
+    #       name: my-secret
+    #       key: my-key
 
     # -- Extra secrets for environment variables for the mcp webhook pod
     extraSecretNamesForEnvFrom: []
@@ -842,6 +866,14 @@ webhook:
 
   # -- Extra environment variables
   extraEnvVars: {}
+
+  # -- Extra environment variables that support `valueFrom` (e.g., secretKeyRef, configMapKeyRef). Entries are passed through verbatim and rendered after `extraEnvVars`.
+  extraEnv: []
+  # - name: MY_ENV
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: my-secret
+  #       key: my-key
 
   # -- Extra secrets for environment variables
   extraSecretNamesForEnvFrom: []
@@ -1028,6 +1060,14 @@ serviceMonitor:
 
 # -- @deprecated Use main, worker, and webhook blocks extraEnvVars fields instead. This field will be removed in a future release.
 extraEnvVars: {}
+
+# -- @deprecated Use main, worker, webhook, and webhook.mcp blocks extraEnv fields instead. This field will be removed in a future release.
+extraEnv: []
+# - name: MY_ENV
+#   valueFrom:
+#     secretKeyRef:
+#       name: my-secret
+#       key: my-key
 
 # -- @deprecated Use main, worker, and webhook blocks extraSecretNamesForEnvFrom fields instead. This field will be removed in a future release.
 extraSecretNamesForEnvFrom: []
