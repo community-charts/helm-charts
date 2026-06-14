@@ -173,6 +173,9 @@ spec:
             - name: {{ upper $key }}
               value: {{ $value | quote }}
           {{- end }}
+          {{- with (default .Values.extraEnv .Values.webhook.extraEnv) }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ template "n8n.fullname" . }}-database-configmap
