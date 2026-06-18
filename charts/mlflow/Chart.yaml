@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.8.5
+version: 1.8.6
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "3.13.0"
+appVersion: "3.14.0"
 kubeVersion: ">=1.16.0-0"
 home: https://mlflow.org
 maintainers:
@@ -51,11 +51,19 @@ annotations:
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: fixed
-      description: Fix broken screenshot URL(s) in mlflow chart
+    - kind: changed
+      description: Update burakince/mlflow image version to 3.14.0
+      links:
+        - name: Upstream Project
+          url: https://hub.docker.com/r/burakince/mlflow
+    - kind: changed
+      description: Update dependency postgresql from 18.7.0 to 18.7.5
+      links:
+        - name: ArtifactHub
+          url: https://artifacthub.io/packages/helm/bitnami/postgresql
   artifacthub.io/images: |
     - name: mlflow
-      image: burakince/mlflow:3.13.0
+      image: burakince/mlflow:3.14.0
   artifacthub.io/license: MIT
   artifacthub.io/maintainers: |
     - name: burakince
@@ -86,7 +94,7 @@ annotations:
     url: https://keybase.io/communitycharts/pgp_keys.asc
 dependencies:
   - name: postgresql
-    version: 18.7.0
+    version: 18.7.5
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: mysql
