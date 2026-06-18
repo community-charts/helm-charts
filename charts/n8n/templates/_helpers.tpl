@@ -434,10 +434,10 @@ export NON_COMMUNITY_PACKAGES="{{ include "n8n.nonCommunityPackages" . }}"
 echo "$PACKAGES" | sha256sum > /npmdata/packages.hash.new
 if [ ! -f /npmdata/packages.hash ] || ! cmp /npmdata/packages.hash /npmdata/packages.hash.new; then
   if [ -n "$NON_COMMUNITY_PACKAGES" ]; then
-    npm install --loglevel {{ include "n8n.npmLogLevel" .Values.log.level }} --no-save $NON_COMMUNITY_PACKAGES --prefix /npmdata
+    npm install --loglevel {{ include "n8n.npmLogLevel" .Values.log.level }} --no-save --ignore-scripts $NON_COMMUNITY_PACKAGES --prefix /npmdata
   fi
   if [ -n "$COMMUNITY_PACKAGES" ]; then
-    npm install --loglevel {{ include "n8n.npmLogLevel" .Values.log.level }} --no-save $COMMUNITY_PACKAGES --prefix /nodesdata/nodes
+    npm install --loglevel {{ include "n8n.npmLogLevel" .Values.log.level }} --no-save --ignore-scripts $COMMUNITY_PACKAGES --prefix /nodesdata/nodes
   fi
   mv /npmdata/packages.hash.new /npmdata/packages.hash
 else

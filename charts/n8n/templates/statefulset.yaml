@@ -263,7 +263,7 @@ spec:
               subPath: {{ .Values.main.persistence.subPath }}
               {{- end }}
               readOnly: false
-          {{- if and .Values.nodes.external.packages (eq .Values.taskRunners.mode "internal") }}
+          {{- if .Values.nodes.external.packages }}
             - name: community-node-modules
               mountPath: "/home/node/.n8n/nodes"
               readOnly: false
