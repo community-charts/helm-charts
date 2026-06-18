@@ -131,6 +131,8 @@ spec:
               value: {{ .Values.timezone | quote }}
             - name: N8N_GRACEFUL_SHUTDOWN_TIMEOUT
               value: {{ .Values.gracefulShutdownTimeout | quote }}
+            - name: NPM_CONFIG_CACHE
+              value: /home/node/.cache/npm
           {{- if eq .Values.db.type "postgresdb" }}
             - name: DB_POSTGRESDB_USER
               value: {{ include "n8n.postgresql.username" . }}

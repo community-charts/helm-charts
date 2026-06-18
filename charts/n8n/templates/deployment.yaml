@@ -133,6 +133,8 @@ spec:
               value: {{ .Values.timezone | quote }}
             - name: N8N_GRACEFUL_SHUTDOWN_TIMEOUT
               value: {{ .Values.gracefulShutdownTimeout | quote }}
+            - name: NPM_CONFIG_CACHE
+              value: /home/node/.cache/npm
           {{- if .Values.main.editorBaseUrl }}
             - name: N8N_EDITOR_BASE_URL
               value: {{ .Values.main.editorBaseUrl | quote }}

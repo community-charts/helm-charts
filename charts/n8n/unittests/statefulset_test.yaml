@@ -1451,6 +1451,16 @@ tests:
           any: true
         template: statefulset.yaml
 
+  - it: should set NPM_CONFIG_CACHE on main container
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
+          content:
+            name: NPM_CONFIG_CACHE
+            value: /home/node/.cache/npm
+          any: true
+        template: statefulset.yaml
+
   - it: should always mount data dir in main container
     asserts:
       - contains:

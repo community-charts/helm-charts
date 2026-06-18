@@ -200,6 +200,8 @@ should match snapshot of default values:
                   value: Europe/Berlin
                 - name: N8N_GRACEFUL_SHUTDOWN_TIMEOUT
                   value: "30"
+                - name: NPM_CONFIG_CACHE
+                  value: /home/node/.cache/npm
                 - name: N8N_MULTI_MAIN_SETUP_ENABLED
                   value: "true"
               envFrom:
@@ -504,6 +506,8 @@ should match snapshot of postgres ssl certificate values:
                   value: Europe/Berlin
                 - name: N8N_GRACEFUL_SHUTDOWN_TIMEOUT
                   value: "30"
+                - name: NPM_CONFIG_CACHE
+                  value: /home/node/.cache/npm
                 - name: DB_POSTGRESDB_USER
                   value: postgres
                 - name: DB_POSTGRESDB_PASSWORD

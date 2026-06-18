@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.22.4
+version: 1.22.5
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -50,11 +50,11 @@ annotations:
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Update n8nio/n8n image version to 2.26.6
+    - kind: fixed
+      description: Set NPM_CONFIG_CACHE env var in main container to allow community package installation with readOnlyRootFilesystem enabled
       links:
-        - name: Upstream Project
-          url: https://github.com/n8n-io/n8n
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/508
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:2.26.6
