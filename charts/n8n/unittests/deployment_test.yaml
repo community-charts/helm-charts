@@ -2020,13 +2020,13 @@ tests:
       nodes:
         external:
           packages:
-            - "@mycompany/custom-n8n-functions@1.0.0"
+            - "@mycompany/n8n-nodes-test@1.0.0"
     asserts:
       - equal:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].args[0]
           value: |
-            export PACKAGES="@mycompany/custom-n8n-functions@1.0.0"
-            export COMMUNITY_PACKAGES="@mycompany/custom-n8n-functions@1.0.0"
+            export PACKAGES="@mycompany/n8n-nodes-test@1.0.0"
+            export COMMUNITY_PACKAGES="@mycompany/n8n-nodes-test@1.0.0"
             export NON_COMMUNITY_PACKAGES=""
             echo "$PACKAGES" | sha256sum > /npmdata/packages.hash.new
             if [ ! -f /npmdata/packages.hash ] || ! cmp /npmdata/packages.hash /npmdata/packages.hash.new; then
