@@ -79,9 +79,16 @@ spec:
             - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
               mountPath: "/npmdata"
               readOnly: false
+            {{- if eq (include "n8n.main.coversCommunityNodes" .) "true" }}
+            - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
+              mountPath: "/nodesdata/nodes"
+              subPath: nodes
+              readOnly: false
+            {{- else }}
             - name: community-node-modules
               mountPath: "/nodesdata/nodes"
               readOnly: false
+            {{- end }}
           {{- with .Values.nodes.initContainer.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
@@ -263,7 +270,7 @@ spec:
               subPath: {{ .Values.main.persistence.subPath }}
               {{- end }}
               readOnly: false
-          {{- if .Values.nodes.external.packages }}
+          {{- if and .Values.nodes.external.packages (not (eq (include "n8n.main.coversCommunityNodes" .) "true")) }}
             - name: community-node-modules
               mountPath: "/home/node/.n8n/nodes"
               readOnly: false
@@ -380,7 +387,7 @@ spec:
               subPath: {{ .Values.main.persistence.subPath }}
               {{- end }}
               readOnly: false
-          {{- if .Values.nodes.external.packages }}
+          {{- if and .Values.nodes.external.packages (not (eq (include "n8n.main.coversCommunityNodes" .) "true")) }}
             - name: community-node-modules
               mountPath: "/home/node/.n8n/nodes"
               readOnly: false
@@ -404,7 +411,7 @@ spec:
             claimName: {{ include "n8n-python.packages.fullname" . }}
         {{- end }}
       {{- end }}
-      {{- if .Values.nodes.external.packages }}
+      {{- if and .Values.nodes.external.packages (not (eq (include "n8n.main.coversCommunityNodes" .) "true")) }}
         - name: community-node-modules
           {{- if .Values.nodes.external.persistence.enabled }}
           persistentVolumeClaim:

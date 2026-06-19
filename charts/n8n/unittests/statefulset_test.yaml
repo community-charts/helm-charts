@@ -1701,8 +1701,9 @@ tests:
       - contains:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
           content:
-            name: community-node-modules
+            name: node-modules
             mountPath: "/nodesdata/nodes"
+            subPath: nodes
             readOnly: false
           any: true
         template: statefulset.yaml
@@ -1777,8 +1778,9 @@ tests:
       - contains:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
           content:
-            name: community-node-modules
+            name: node-modules
             mountPath: "/nodesdata/nodes"
+            subPath: nodes
             readOnly: false
           any: true
         template: statefulset.yaml
@@ -1967,8 +1969,9 @@ tests:
       - contains:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
           content:
-            name: community-node-modules
+            name: node-modules
             mountPath: "/nodesdata/nodes"
+            subPath: nodes
             readOnly: false
           any: true
         template: statefulset.yaml

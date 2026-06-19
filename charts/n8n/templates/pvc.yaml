@@ -56,7 +56,10 @@ spec:
     {{- end }}
   {{- end }}
 {{- end }}
-{{- if and .Values.nodes.external.persistence.enabled (not .Values.nodes.external.persistence.existingClaim) .Values.nodes.external.packages }}
+{{- $mainCoversNodes := eq (include "n8n.main.coversCommunityNodes" .) "true" }}
+{{- $workerCoversNodes := eq (include "n8n.worker.coversCommunityNodes" .) "true" }}
+{{- $pvcNeeded := or (not $mainCoversNodes) (and (eq .Values.worker.mode "queue") (not $workerCoversNodes)) }}
+{{- if and .Values.nodes.external.persistence.enabled (not .Values.nodes.external.persistence.existingClaim) .Values.nodes.external.packages $pvcNeeded }}
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1

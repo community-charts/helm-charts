@@ -387,3 +387,48 @@ tests:
           path: spec.accessModes[0]
           value: ReadWriteMany
 
+  - it: should not create community-packages PVC when main.persistence covers community nodes
+    set:
+      main:
+        persistence:
+          enabled: true
+          existingClaim: my-n8n-pvc
+      worker:
+        persistence:
+          enabled: false
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create community-packages PVC when main.persistence enabled but worker queue mode has no worker persistence
+    set:
+      main:
+        persistence:
+          enabled: true
+          existingClaim: my-n8n-pvc
+      worker:
+        mode: queue
+        persistence:
+          enabled: false
+      db:
+        type: postgresdb
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: true
+    documentSelector:
+      path: metadata.name
+      value: n8n-community-packages
+    asserts:
+      - equal:
+          path: spec.accessModes[0]
+          value: ReadWriteOnce
+

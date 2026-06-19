@@ -866,7 +866,11 @@ By setting `nodes.external.allowAll` to `true`, the chart bypasses the Node.js T
 
 #### Persist Community Node Packages
 
-Enable `nodes.external.persistence` to store pre-installed community packages on a PVC so they survive pod restarts. When enabled, the init container skips re-downloading packages that are already present on the volume.
+Community node packages are stored at `/home/node/.n8n/nodes` inside the container. The chart routes package storage automatically based on whether `main.persistence` (or `worker.persistence` for queue-mode workers) is already enabled:
+
+- **When `main.persistence.enabled: true`** (default `mountPath: /home/node/.n8n`): community packages are written directly into the main PVC's `nodes/` subdirectory by the init container. No separate PVC is created and `nodes.external.persistence` is ignored for the main pod. Packages persist as long as the main PVC exists.
+
+- **When `main.persistence.enabled: false`** (the default): enable `nodes.external.persistence` to store packages on a dedicated PVC. Without it, an `emptyDir` volume is used and packages are re-downloaded on every pod restart.
 
 ```yaml
 nodes:
@@ -880,11 +884,11 @@ nodes:
       accessMode: ReadWriteOnce  # use ReadWriteMany if workers span multiple nodes
 ```
 
-Packages are stored at `/home/node/.n8n/nodes` inside the container. When `persistence.enabled` is `false` (the default), an `emptyDir` volume is used and packages are re-downloaded on every pod restart.
+The same logic applies to queue-mode workers: when `worker.persistence.enabled: true`, the worker PVC stores community packages; otherwise the dedicated PVC (or emptyDir) is used.
 
-> **Note**: When running workers in queue mode (`worker.mode: queue`), the main n8n pod and worker pods each mount the same community packages PVC. Use `accessMode: ReadWriteMany` with a compatible storage class (NFS, CephFS, etc.) if those pods are scheduled on different nodes.
+> **Note**: When `worker.mode: queue` is set and workers do not have their own persistence, the community packages PVC is shared between the main pod and worker pods. Use `accessMode: ReadWriteMany` with a compatible storage class (NFS, CephFS, etc.) if those pods are scheduled on different nodes.
 
-> **Warning**: When `worker.autoscaling.enabled: true`, you **must** set `nodes.external.persistence.accessMode: ReadWriteMany` (or leave persistence disabled), because scaling workers across nodes with `ReadWriteOnce` will cause PVC mount failures.
+> **Warning**: When `worker.autoscaling.enabled: true`, you **must** either enable `worker.persistence` (which provides per-pod storage via StatefulSet), set `nodes.external.persistence.accessMode: ReadWriteMany`, or leave persistence disabled — scaling workers across nodes with a `ReadWriteOnce` shared PVC will cause mount failures.
 
 ### Using Private NPM Packages
 

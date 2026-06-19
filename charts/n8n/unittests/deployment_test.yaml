@@ -2174,6 +2174,102 @@ tests:
           any: true
         template: deployment.yaml
 
+  - it: should use main persistence volume with subPath nodes in init container when main.persistence covers community nodes
+    set:
+      main:
+        persistence:
+          enabled: true
+          existingClaim: my-n8n-pvc
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
+          content:
+            name: node-modules
+            mountPath: "/nodesdata/nodes"
+            subPath: nodes
+            readOnly: false
+          any: true
+        template: deployment.yaml
+      - notContains:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
+          content:
+            name: community-node-modules
+            mountPath: "/nodesdata/nodes"
+            readOnly: false
+          any: true
+        template: deployment.yaml
+
+  - it: should not mount community-node-modules in main container when main.persistence covers community nodes
+    set:
+      main:
+        persistence:
+          enabled: true
+          existingClaim: my-n8n-pvc
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
+          content:
+            name: community-node-modules
+            mountPath: "/home/node/.n8n/nodes"
+            readOnly: false
+          any: true
+        template: deployment.yaml
+
+  - it: should not define community-node-modules volume when main.persistence covers community nodes
+    set:
+      main:
+        persistence:
+          enabled: true
+          existingClaim: my-n8n-pvc
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+    asserts:
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            emptyDir: {}
+          any: true
+        template: deployment.yaml
+
+  - it: should still use community-node-modules when main.persistence has custom subPath set
+    set:
+      main:
+        persistence:
+          enabled: true
+          existingClaim: my-n8n-pvc
+          subPath: "n8n-data"
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
+          content:
+            name: community-node-modules
+            mountPath: "/nodesdata/nodes"
+            readOnly: false
+          any: true
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            emptyDir: {}
+          any: true
+        template: deployment.yaml
+
   - it: should add init container to main pod when main.initContainers is defined
     set:
       main:

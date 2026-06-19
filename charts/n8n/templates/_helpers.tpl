@@ -432,6 +432,27 @@ n8n community packages PVC full name (respects existingClaim)
 {{- end -}}
 
 {{/*
+Returns "true" when main.persistence already covers /home/node/.n8n/nodes,
+making a separate community-node-modules volume redundant.
+Only true when persistence is enabled, mountPath is the default, and no subPath
+is redirecting the mount to a subdirectory of the PVC.
+*/}}
+{{- define "n8n.main.coversCommunityNodes" -}}
+{{- if and .Values.main.persistence.enabled (not .Values.main.persistence.subPath) (eq .Values.main.persistence.mountPath "/home/node/.n8n") -}}
+true
+{{- end -}}
+{{- end -}}
+
+{{/*
+Same check as n8n.main.coversCommunityNodes but for the worker persistence volume.
+*/}}
+{{- define "n8n.worker.coversCommunityNodes" -}}
+{{- if and .Values.worker.persistence.enabled (not .Values.worker.persistence.subPath) (eq .Values.worker.persistence.mountPath "/home/node/.n8n") -}}
+true
+{{- end -}}
+{{- end -}}
+
+{{/*
 n8n task runner uv install shell command string (unquoted)
 */}}
 {{- define "n8n.taskRunners.uvInstallCommand" -}}
