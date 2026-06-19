@@ -2003,7 +2003,7 @@ tests:
             export NON_COMMUNITY_PACKAGES=""
             echo "$PACKAGES" | sha256sum > /npmdata/packages.hash.new
             if [ ! -f /npmdata/packages.hash ] || ! cmp /npmdata/packages.hash /npmdata/packages.hash.new; then
-              if [ -n "$NON_COMMUNITY_PACK  AGES" ]; then
+              if [ -n "$NON_COMMUNITY_PACKAGES" ]; then
                 npm install --loglevel info --no-save --ignore-scripts $NON_COMMUNITY_PACKAGES --prefix /npmdata
               fi
               if [ -n "$COMMUNITY_PACKAGES" ]; then
