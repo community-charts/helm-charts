@@ -136,6 +136,20 @@ nodes:
     packages: []
       # - "moment@2.29.4"
       # - "lodash@4.17.21"
+    # -- Persistence for community node packages installed by the init container. Optional PVC so packages survive pod restarts without re-downloading.
+    persistence:
+      # -- Enable persistence. When false, packages are installed into an emptyDir and lost on pod restart.
+      enabled: false
+      # -- Use an existing PVC instead of creating one. When set, no PVC is created by this chart.
+      existingClaim: ""
+      # -- Storage class for the PVC. Empty string uses the cluster default.
+      storageClass: ""
+      # -- Access mode. Use ReadWriteMany when worker pods may be scheduled on different nodes.
+      accessMode: ReadWriteOnce
+      # -- Size of the PVC.
+      size: 1Gi
+      # -- Additional annotations for the PVC.
+      annotations: {}
   # -- Image for the init container to install npm packages
   initContainer:
     # -- Image for the init container to install npm packages

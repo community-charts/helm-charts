@@ -57,6 +57,10 @@ annotations:
           url: https://github.com/community-charts/helm-charts/issues/508
         - name: GitHub Issue
           url: https://github.com/community-charts/community-charts.github.io/issues/102
+    - kind: fixed
+      description: Fix community node packages not available to n8n process in external task runner mode and add --ignore-scripts to prevent postinstall script failures
+    - kind: added
+      description: Add optional PVC persistence for community node packages via nodes.external.persistence
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:2.26.6

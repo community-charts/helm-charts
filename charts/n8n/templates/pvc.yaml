@@ -56,6 +56,30 @@ spec:
     {{- end }}
   {{- end }}
 {{- end }}
+{{- if and .Values.nodes.external.persistence.enabled (not .Values.nodes.external.persistence.existingClaim) .Values.nodes.external.packages }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "n8n-community.packages.fullname" . }}
+  {{- with .Values.nodes.external.persistence.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    - {{ .Values.nodes.external.persistence.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.nodes.external.persistence.size }}
+  {{- if .Values.nodes.external.persistence.storageClass }}
+    {{- if (eq "-" .Values.nodes.external.persistence.storageClass) }}
+  storageClassName: ""
+    {{- else }}
+  storageClassName: {{ .Values.nodes.external.persistence.storageClass | quote }}
+    {{- end }}
+  {{- end }}
+{{- end }}
 {{- if and .Values.nodes.python.persistence.enabled (not .Values.nodes.python.persistence.existingClaim) (eq .Values.taskRunners.mode "external") }}
 ---
 kind: PersistentVolumeClaim

@@ -864,6 +864,28 @@ nodes:
 
 By setting `nodes.external.allowAll` to `true`, the chart bypasses the Node.js Task Runner's limitations for scoped packages, ensuring smooth installation of all listed packages. You can include both scoped (e.g., `@stdlib/math`) and non-scoped packages in the `nodes.external.packages` list, with or without specific versions.
 
+#### Persist Community Node Packages
+
+Enable `nodes.external.persistence` to store pre-installed community packages on a PVC so they survive pod restarts. When enabled, the init container skips re-downloading packages that are already present on the volume.
+
+```yaml
+nodes:
+  external:
+    packages:
+      - "n8n-nodes-evolution-api"
+      - "n8n-nodes-chatwoot@0.1.40"
+    persistence:
+      enabled: true
+      size: 1Gi
+      accessMode: ReadWriteOnce  # use ReadWriteMany if workers span multiple nodes
+```
+
+Packages are stored at `/home/node/.n8n/nodes` inside the container. When `persistence.enabled` is `false` (the default), an `emptyDir` volume is used and packages are re-downloaded on every pod restart.
+
+> **Note**: When running workers in queue mode (`worker.mode: queue`), the main n8n pod and worker pods each mount the same community packages PVC. Use `accessMode: ReadWriteMany` with a compatible storage class (NFS, CephFS, etc.) if those pods are scheduled on different nodes.
+
+> **Warning**: When `worker.autoscaling.enabled: true`, you **must** set `nodes.external.persistence.accessMode: ReadWriteMany` (or leave persistence disabled), because scaling workers across nodes with `ReadWriteOnce` will cause PVC mount failures.
+
 ### Using Private NPM Packages
 
 For packages hosted in a private NPM registry, configure access by providing a valid `.npmrc` file. You can either reference an existing Kubernetes secret containing the `.npmrc` content or define custom `.npmrc` content directly in the chart values.

@@ -2138,6 +2138,42 @@ tests:
           any: true
         template: deployment.yaml
 
+  - it: should use PVC for community-node-modules volume when persistence is enabled
+    set:
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: true
+            existingClaim: my-community-pvc
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            persistentVolumeClaim:
+              claimName: my-community-pvc
+          any: true
+        template: deployment.yaml
+
+  - it: should use emptyDir for community-node-modules volume when persistence is disabled
+    set:
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: false
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            emptyDir: {}
+          any: true
+        template: deployment.yaml
+
   - it: should add init container to main pod when main.initContainers is defined
     set:
       main:

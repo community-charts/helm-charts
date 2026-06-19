@@ -418,6 +418,20 @@ n8n python packages PVC full name (respects existingClaim)
 {{- end -}}
 
 {{/*
+n8n community packages PVC name
+*/}}
+{{- define "n8n-community.packages.name" -}}
+{{- printf "%s-community-packages" (include "n8n.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+
+{{/*
+n8n community packages PVC full name (respects existingClaim)
+*/}}
+{{- define "n8n-community.packages.fullname" -}}
+{{- default (include "n8n-community.packages.name" .) .Values.nodes.external.persistence.existingClaim -}}
+{{- end -}}
+
+{{/*
 n8n task runner uv install shell command string (unquoted)
 */}}
 {{- define "n8n.taskRunners.uvInstallCommand" -}}

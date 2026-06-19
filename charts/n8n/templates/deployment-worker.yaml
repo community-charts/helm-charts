@@ -443,7 +443,12 @@ spec:
       {{- end }}
       {{- if .Values.nodes.external.packages }}
         - name: community-node-modules
+          {{- if .Values.nodes.external.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "n8n-community.packages.fullname" . }}
+          {{- else }}
           emptyDir: {}
+          {{- end }}
       {{- end }}
       {{- if and (eq .Values.taskRunners.mode "external") .Values.pypiRegistry.enabled (or .Values.pypiRegistry.secretName .Values.pypiRegistry.customUvConfig) }}
         - name: uv-config

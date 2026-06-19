@@ -1080,9 +1080,61 @@
               "required": [],
               "title": "packages",
               "type": "array"
+            },
+            "persistence": {
+              "additionalProperties": false,
+              "description": "Persistence for community node packages installed by the init container. Optional PVC so packages survive pod restarts without re-downloading.",
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "description": "Enable persistence. When false, packages are installed into an emptyDir and lost on pod restart.",
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "existingClaim": {
+                  "default": "",
+                  "description": "Use an existing PVC instead of creating one. When set, no PVC is created by this chart.",
+                  "required": [],
+                  "title": "existingClaim",
+                  "type": "string"
+                },
+                "storageClass": {
+                  "default": "",
+                  "description": "Storage class for the PVC. Empty string uses the cluster default.",
+                  "required": [],
+                  "title": "storageClass",
+                  "type": "string"
+                },
+                "accessMode": {
+                  "default": "ReadWriteOnce",
+                  "description": "Access mode. Use ReadWriteMany when worker pods may be scheduled on different nodes.",
+                  "enum": ["ReadWriteOnce", "ReadWriteMany"],
+                  "required": [],
+                  "title": "accessMode",
+                  "type": "string"
+                },
+                "size": {
+                  "default": "1Gi",
+                  "description": "Size of the PVC.",
+                  "required": [],
+                  "title": "size",
+                  "type": "string"
+                },
+                "annotations": {
+                  "additionalProperties": true,
+                  "description": "Additional annotations for the PVC.",
+                  "required": [],
+                  "title": "annotations",
+                  "type": "object"
+                }
+              },
+              "required": ["enabled", "existingClaim", "storageClass", "accessMode", "size", "annotations"],
+              "title": "persistence",
+              "type": "object"
             }
           },
-          "required": ["allowAll", "reinstallMissingPackages", "packages"],
+          "required": ["allowAll", "reinstallMissingPackages", "packages", "persistence"],
           "title": "external",
           "type": "object"
         },
