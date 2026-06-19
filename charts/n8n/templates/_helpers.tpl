@@ -280,6 +280,20 @@ app.kubernetes.io/component: task-runners
 {{- end }}
 
 {{/*
+Extract package names from a list of strings
+*/}}
+{{- define "n8n.packageNames" -}}
+{{- $packageNames := list -}}
+{{- range . -}}
+  {{- $matches := regexFindAll "^@?[^@]+" . 1 -}}
+  {{- if and $matches (not (hasPrefix "n8n-nodes-" (index $matches 0))) -}}
+    {{- $packageNames = append $packageNames (index $matches 0) -}}
+  {{- end -}}
+{{- end -}}
+{{- join "," $packageNames -}}
+{{- end -}}
+
+{{/*
 Return a non-empty string if the package is a community package.
 */}}
 {{- define "n8n.isCommunityPackage" -}}
