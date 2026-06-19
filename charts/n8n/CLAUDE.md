@@ -49,6 +49,37 @@ The `nodes.external.persistence` PVC is only created when the `community-node-mo
 
 Python packages are only relevant when `taskRunners.mode: external`. The `python-packages` volume uses `nodes.python.persistence` (same PVC/emptyDir toggle pattern as community packages).
 
+## PVC Lifecycle Rules
+
+Three non-obvious invariants govern how PVCs are created and must stay in sync across templates:
+
+### Worker PVC condition must mirror `deployment-worker.yaml`
+
+`pvc.yaml` creates the worker PVC only when `deployment-worker.yaml` renders AND persistence is needed. The condition **must** be kept in sync:
+
+```
+worker.persistence.enabled AND NOT existingClaim AND NOT forceToUseStatefulset
+  AND ( (count==1 AND NOT autoscaling) OR accessMode==ReadWriteMany )
+```
+
+If `deployment-worker.yaml`'s render gate ever changes, update `pvc.yaml` to match. Divergence means pods reference a PVC that doesn't exist.
+
+### `forceToUseStatefulset` guard in `pvc.yaml`
+
+Any PVC created in `pvc.yaml` **must** include `(not .Values.X.forceToUseStatefulset)`. When `forceToUseStatefulset: true`, the StatefulSet's `volumeClaimTemplates` creates per-pod PVCs — if `pvc.yaml` also creates one (same logical name, different physical name), the shared PVC is orphaned and wastes storage.
+
+### Community packages follow the python-packages pattern in StatefulSets
+
+In `statefulset.yaml` and `statefulset-worker.yaml`, the `community-node-modules` volume uses the **same three-way split** as `python-packages`:
+
+| Condition | Where the volume lives |
+|---|---|
+| `persistence.enabled: false` | `volumes:` as `emptyDir` |
+| `persistence.existingClaim` set | `volumes:` as `persistentVolumeClaim` |
+| `persistence.enabled: true` AND no `existingClaim` | `volumeClaimTemplates` (per-pod PVC) |
+
+This means `volumes:` never holds a dynamically-provisioned PVC in StatefulSet context. Keep these two templates identical in structure for community packages and python packages.
+
 ## Key Values Interactions
 
 - `nodes.external.persistence` is only meaningful when `main.persistence` (and `worker.persistence` in queue mode) does **not** cover `/home/node/.n8n`. If main persistence is already enabled, community packages persist via the main PVC automatically.
