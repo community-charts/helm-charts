@@ -27,7 +27,7 @@ spec:
     {{- end }}
   {{- end }}
 {{- end }}
-{{- if and .Values.worker.persistence.enabled (not .Values.worker.persistence.existingClaim) (eq (int .Values.worker.count) 1) }}
+{{- if and .Values.worker.persistence.enabled (not .Values.worker.persistence.existingClaim) (not .Values.worker.forceToUseStatefulset) (or (and (eq (int .Values.worker.count) 1) (not .Values.worker.autoscaling.enabled)) (eq .Values.worker.persistence.accessMode "ReadWriteMany")) }}
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -58,7 +58,7 @@ spec:
 {{- end }}
 {{- $mainCoversNodes := eq (include "n8n.main.coversCommunityNodes" .) "true" }}
 {{- $workerCoversNodes := eq (include "n8n.worker.coversCommunityNodes" .) "true" }}
-{{- $pvcNeeded := or (not $mainCoversNodes) (and (eq .Values.worker.mode "queue") (not $workerCoversNodes)) }}
+{{- $pvcNeeded := or (and (not $mainCoversNodes) (not .Values.main.forceToUseStatefulset)) (and (eq .Values.worker.mode "queue") (not $workerCoversNodes) (not .Values.worker.forceToUseStatefulset)) }}
 {{- if and .Values.nodes.external.persistence.enabled (not .Values.nodes.external.persistence.existingClaim) .Values.nodes.external.packages $pvcNeeded }}
 ---
 kind: PersistentVolumeClaim

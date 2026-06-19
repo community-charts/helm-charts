@@ -432,3 +432,54 @@ tests:
           path: spec.accessModes[0]
           value: ReadWriteOnce
 
+  - it: should create worker PVC when worker.count is 3 and accessMode is ReadWriteMany
+    set:
+      main:
+        persistence:
+          enabled: false
+      worker:
+        count: 3
+        persistence:
+          accessMode: ReadWriteMany
+    documentSelector:
+      path: metadata.name
+      value: n8n-worker-persistence
+    asserts:
+      - equal:
+          path: spec.accessModes[0]
+          value: ReadWriteMany
+
+  - it: should not create worker PVC when worker.forceToUseStatefulset is true
+    set:
+      main:
+        persistence:
+          enabled: false
+      worker:
+        count: 1
+        forceToUseStatefulset: true
+        mode: queue
+      db:
+        type: postgresdb
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should not create community-packages PVC when main.forceToUseStatefulset is true and main.persistence is disabled
+    set:
+      main:
+        forceToUseStatefulset: true
+        persistence:
+          enabled: false
+      worker:
+        persistence:
+          enabled: false
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+

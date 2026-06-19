@@ -2581,3 +2581,85 @@ tests:
               optional: true
           any: true
         template: statefulset.yaml
+
+  - it: should add community-node-modules to volumeClaimTemplates when forceToUseStatefulset and community persistence enabled
+    set:
+      main:
+        forceToUseStatefulset: true
+        persistence:
+          enabled: false
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: true
+            accessMode: ReadWriteOnce
+            size: 2Gi
+    asserts:
+      - contains:
+          path: spec.volumeClaimTemplates
+          content:
+            metadata:
+              name: community-node-modules
+            spec:
+              accessModes:
+                - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 2Gi
+        template: statefulset.yaml
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            emptyDir: {}
+        template: statefulset.yaml
+
+  - it: should use existingClaim as regular volume in StatefulSet when community existingClaim is set
+    set:
+      main:
+        forceToUseStatefulset: true
+        persistence:
+          enabled: false
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: true
+            existingClaim: my-existing-community-pvc
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            persistentVolumeClaim:
+              claimName: my-existing-community-pvc
+        template: statefulset.yaml
+      - notContains:
+          path: spec.volumeClaimTemplates
+          content:
+            metadata:
+              name: community-node-modules
+        template: statefulset.yaml
+
+  - it: should add community-node-modules emptyDir in StatefulSet when forceToUseStatefulset and community persistence disabled
+    set:
+      main:
+        forceToUseStatefulset: true
+        persistence:
+          enabled: false
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: false
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            emptyDir: {}
+        template: statefulset.yaml

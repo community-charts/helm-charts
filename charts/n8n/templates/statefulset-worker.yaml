@@ -426,13 +426,14 @@ spec:
         {{- end }}
       {{- end }}
       {{- if and .Values.nodes.external.packages (not (eq (include "n8n.worker.coversCommunityNodes" .) "true")) }}
+        {{- if not .Values.nodes.external.persistence.enabled }}
         - name: community-node-modules
-          {{- if .Values.nodes.external.persistence.enabled }}
+          emptyDir: {}
+        {{- else if .Values.nodes.external.persistence.existingClaim }}
+        - name: community-node-modules
           persistentVolumeClaim:
             claimName: {{ include "n8n-community.packages.fullname" . }}
-          {{- else }}
-          emptyDir: {}
-          {{- end }}
+        {{- end }}
       {{- end }}
       {{- if and (eq .Values.taskRunners.mode "external") .Values.pypiRegistry.enabled (or .Values.pypiRegistry.secretName .Values.pypiRegistry.customUvConfig) }}
         - name: uv-config
@@ -522,6 +523,23 @@ spec:
         storageClassName: ""
           {{- else }}
         storageClassName: {{ .Values.nodes.python.persistence.storageClass | quote }}
+          {{- end }}
+        {{- end }}
+    {{- end }}
+    {{- if and .Values.nodes.external.packages (not (eq (include "n8n.worker.coversCommunityNodes" .) "true")) .Values.nodes.external.persistence.enabled (not .Values.nodes.external.persistence.existingClaim) }}
+    - metadata:
+        name: community-node-modules
+      spec:
+        accessModes:
+          - {{ .Values.nodes.external.persistence.accessMode }}
+        resources:
+          requests:
+            storage: {{ .Values.nodes.external.persistence.size }}
+        {{- if .Values.nodes.external.persistence.storageClass }}
+          {{- if (eq "-" .Values.nodes.external.persistence.storageClass) }}
+        storageClassName: ""
+          {{- else }}
+        storageClassName: {{ .Values.nodes.external.persistence.storageClass | quote }}
           {{- end }}
         {{- end }}
     {{- end }}
