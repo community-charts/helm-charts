@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.22.5
+version: 1.22.6
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "2.26.6"
+appVersion: "2.26.7"
 kubeVersion: ">=1.23.0-0"
 home: https://n8n.io
 maintainers:
@@ -50,26 +50,19 @@ annotations:
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: fixed
-      description: Set NPM_CONFIG_CACHE env var in main container to allow community package installation with readOnlyRootFilesystem enabled
+    - kind: changed
+      description: Update n8nio/n8n image version to 2.26.7
       links:
-        - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/508
-        - name: GitHub Issue
-          url: https://github.com/community-charts/community-charts.github.io/issues/102
-    - kind: fixed
-      description: Fix community node packages not available to n8n process in external task runner mode and add --ignore-scripts to prevent postinstall script failures
-    - kind: added
-      description: Add optional PVC persistence for community node packages via nodes.external.persistence
-    - kind: fixed
-      description: Route community package installs into the main/worker PVC when its mountPath already covers /home/node/.n8n/nodes, eliminating a redundant separate volume
-    - kind: fixed
-      description: Fix worker PVC not created when worker.count > 1 with ReadWriteMany access mode
-    - kind: fixed
-      description: Fix community packages sharing a ReadWriteOnce PVC across StatefulSet replicas when forceToUseStatefulset is true
+        - name: Upstream Project
+          url: https://github.com/n8n-io/n8n
+    - kind: changed
+      description: Update dependency postgresql from 18.7.5 to 18.7.6
+      links:
+        - name: ArtifactHub
+          url: https://artifacthub.io/packages/helm/bitnami/postgresql
   artifacthub.io/images: |
     - name: n8n
-      image: n8nio/n8n:2.26.6
+      image: n8nio/n8n:2.26.7
       platforms:
         - linux/amd64
         - linux/arm64
@@ -130,7 +123,7 @@ dependencies:
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
   - name: postgresql
-    version: 18.7.5
+    version: 18.7.6
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: minio
