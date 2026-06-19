@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.24.0](https://img.shields.io/badge/Version-1.24.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.26.7](https://img.shields.io/badge/AppVersion-2.26.7-informational?style=flat-square)
+![Version: 1.23.0](https://img.shields.io/badge/Version-1.23.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.26.7](https://img.shields.io/badge/AppVersion-2.26.7-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -1139,6 +1139,109 @@ extraTemplateManifests:
       release: {{ .Release.Name }}
       chart: {{ .Chart.Version }}
 ```
+
+## Injecting Environment Variables
+
+Three mechanisms are available for injecting environment variables into n8n pods. Each targets a different use case — pick the one that fits your secret/config structure.
+
+### `extraEnvVars` — Static key/value pairs
+
+Use this when you want to set a plain string value directly in your values. Applies to `main`, `worker`, `webhook`, and `webhook.mcp` blocks.
+
+```yaml
+main:
+  extraEnvVars:
+    N8N_LOG_LEVEL: debug
+    N8N_DEFAULT_LOCALE: en
+
+worker:
+  extraEnvVars:
+    N8N_LOG_LEVEL: info
+```
+
+### `extraSecretNamesForEnvFrom` — Mount an entire Secret as environment variables
+
+Use this when you have a Kubernetes Secret whose **keys already match the n8n environment variable names** (e.g. `N8N_SMTP_HOST`, `N8N_SMTP_PASS`). Every key in the referenced Secret is projected as an environment variable into the container.
+
+```yaml
+main:
+  extraSecretNamesForEnvFrom:
+    - n8n-smtp-credentials
+
+worker:
+  extraSecretNamesForEnvFrom:
+    - n8n-smtp-credentials
+
+webhook:
+  extraSecretNamesForEnvFrom:
+    - n8n-smtp-credentials
+  mcp:
+    extraSecretNamesForEnvFrom:
+      - n8n-smtp-credentials
+```
+
+> **Note:** All keys in the referenced Secret are injected. If the Secret contains keys that do not follow the C identifier naming rule (e.g. `metadata-url`) or if you only want to inject specific keys, use `extraEnv` with `valueFrom` instead.
+
+### `extraEnv` with `valueFrom` — Fine-grained env var sourcing
+
+Use this when:
+
+- The Secret or ConfigMap keys **do not match** n8n's expected environment variable names (e.g. the key is `metadata-url` but n8n expects `N8N_SSO_SAML_METADATA_URL`).
+- You need to project only **specific keys** from a Secret rather than the entire Secret.
+- You need `fieldRef` or `resourceFieldRef` sources.
+
+Entries are passed verbatim as Kubernetes [`EnvVar`](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#environment-variables) objects, so any valid `env` entry is supported.
+
+```yaml
+main:
+  extraEnv:
+    - name: N8N_SSO_SAML_METADATA_URL
+      valueFrom:
+        secretKeyRef:
+          name: n8n-okta-app-saml-config
+          key: metadata-url
+
+worker:
+  extraEnv:
+    - name: N8N_SSO_SAML_METADATA_URL
+      valueFrom:
+        secretKeyRef:
+          name: n8n-okta-app-saml-config
+          key: metadata-url
+
+webhook:
+  extraEnv:
+    - name: N8N_SSO_SAML_METADATA_URL
+      valueFrom:
+        secretKeyRef:
+          name: n8n-okta-app-saml-config
+          key: metadata-url
+  mcp:
+    extraEnv:
+      - name: N8N_SSO_SAML_METADATA_URL
+        valueFrom:
+          secretKeyRef:
+            name: n8n-okta-app-saml-config
+            key: metadata-url
+```
+
+You can also source values from a ConfigMap or from the pod's own fields:
+
+```yaml
+main:
+  extraEnv:
+    - name: MY_CONFIG_VALUE
+      valueFrom:
+        configMapKeyRef:
+          name: my-configmap
+          key: my-key
+    - name: MY_POD_IP
+      valueFrom:
+        fieldRef:
+          fieldPath: status.podIP
+```
+
+---
 
 ## Upgrading
 

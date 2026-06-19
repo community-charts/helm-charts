@@ -80,6 +80,18 @@ In `statefulset.yaml` and `statefulset-worker.yaml`, the `community-node-modules
 
 This means `volumes:` never holds a dynamically-provisioned PVC in StatefulSet context. Keep these two templates identical in structure for community packages and python packages.
 
+## Environment Variable Injection Patterns
+
+Three mechanisms exist for injecting env vars. Pick the right one for the test or template you are working on:
+
+| Mechanism | When to use |
+|---|---|
+| `extraEnvVars` | Plain `string → string` pairs; rendered as `{ name: KEY, value: VALUE }` |
+| `extraSecretNamesForEnvFrom` | Secret keys already match n8n env var names; entire secret is mounted via `envFrom: secretRef:` |
+| `extraEnv` | Any `EnvVar` shape, including `valueFrom`; use when keys don't match env var names or you need selective injection |
+
+All three fields exist on `main`, `worker`, `webhook`, and `webhook.mcp`. Each has a deprecated top-level fallback (same name) that resolves via `default .Values.<field> .Values.<block>.<field>` in the templates.
+
 ## Key Values Interactions
 
 - `nodes.external.persistence` is only meaningful when `main.persistence` (and `worker.persistence` in queue mode) does **not** cover `/home/node/.n8n`. If main persistence is already enabled, community packages persist via the main PVC automatically.
