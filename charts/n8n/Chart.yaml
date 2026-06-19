@@ -74,8 +74,17 @@ annotations:
       email: burak.ince@linux.org.tr
   artifacthub.io/operator: "false"
   artifacthub.io/prerelease: "false"
-  artifacthub.io/screenshots: |-
-    []
+  artifacthub.io/screenshots: |
+    - title: Editor UI
+      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/editor-ui/editor_ui.png
+    - title: AI Chat
+      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/advanced-ai/ai-intro-chat.png
+    - title: AI Credentials
+      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/advanced-ai/ai-tutorial-credentials.png
+    - title: AI Custom Workflow
+      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/advanced-ai/ai-tutorial-outcome.png
+    - title: Filtering
+      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/integrations/creating-nodes/filter.png
   artifacthub.io/signKey: |
     fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
     url: https://keybase.io/communitycharts/pgp_keys.asc
