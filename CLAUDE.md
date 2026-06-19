@@ -113,8 +113,9 @@ Do not apply `.helmignore` changes to deprecated charts (currently: `kserve`).
 **`.github/workflows/release.yml`** (runs on all PRs/pushes):
 
 1. **lint-ah**: Runs `ah lint` on all charts for ArtifactHub compliance.
-2. **lint-test**: Runs `ct lint` (which also calls `helm unittest`) and `ct install` on changed charts only. Charts with a `.skip-kind-test` file skip the `ct install` step.
-3. **release**: On merge to `main`, runs `chart-releaser` to package, GPG-sign, and publish changed charts to GitHub Pages.
+2. **check-helm-docs**: Runs `helm-docs` and fails if any `README.md` differs from what is committed — catches PRs where `README.md.gotmpl` or `values.yaml` doc comments were updated without regenerating the README.
+3. **lint-test**: Runs `ct lint` (which also calls `helm unittest`) and `ct install` on changed charts only. Requires both `lint-ah` and `check-helm-docs` to pass. Charts with a `.skip-kind-test` file skip the `ct install` step.
+4. **release**: On merge to `main`, runs `chart-releaser` to package, GPG-sign, and publish changed charts to GitHub Pages.
 
 **`.github/workflows/security-scan.yml`** (runs on changes to `charts/**`):
 
