@@ -50,7 +50,7 @@ annotations:
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: fix
+    - kind: fixed
       description: Change community node detection to allow scoped community nodes (e.g. @myorg/n8n-nodes-mynode)
   artifacthub.io/images: |
     - name: n8n
