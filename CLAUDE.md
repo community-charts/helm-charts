@@ -119,6 +119,8 @@ metadata:
 
 Tests live in `unittests/` as YAML files using [helm-unittest](https://github.com/helm-unittest/helm-unittest) syntax. Tests assert on rendered template output using `set:` to override values. Snapshot tests use `__snapshot__/` subdirectories.
 
+When asserting a specific value within a larger rendered string (e.g. one line in a multi-line script), use `matchRegex` with a targeted pattern rather than `equal` on the full string — keeps tests focused and resilient to unrelated boilerplate changes. `matchRegex` does substring matching (no anchoring needed); escape regex metacharacters in patterns (e.g. `\.` for literal dots in version strings).
+
 Always validate field types against the official schema before writing tests:
 `https://raw.githubusercontent.com/helm-unittest/helm-unittest/refs/heads/main/schema/helm-testsuite.json`
 Suite-level `capabilities` can be overridden per-test using the same fields.

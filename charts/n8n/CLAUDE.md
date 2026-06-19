@@ -96,3 +96,4 @@ This means `volumes:` never holds a dynamically-provisioned PVC in StatefulSet c
 | `n8n-python.packages.fullname` | Python PVC name (respects `existingClaim`) |
 | `n8n.npmInstallScript` | Full npm install shell script for the init container |
 | `n8n.taskRunners.uvInstallCommand` | uv pip install command for the task runner sidecar |
+| `n8n.isCommunityPackage` | Returns `"true"` if a package (with or without `@version`/`@scope`) has a name starting with `n8n-nodes-`; used by `n8n.communityPackages` and `n8n.nonCommunityPackages` |

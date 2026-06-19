@@ -1995,24 +1995,13 @@ tests:
             - "n8n-nodes-python@0.1.4"
             - "n8n-nodes-chatwoot@0.1.40"
     asserts:
-      - equal:
+      - matchRegex:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].args[0]
-          value: |
-            export PACKAGES="n8n-nodes-python@0.1.4 n8n-nodes-chatwoot@0.1.40"
-            export COMMUNITY_PACKAGES="n8n-nodes-python@0.1.4 n8n-nodes-chatwoot@0.1.40"
-            export NON_COMMUNITY_PACKAGES=""
-            echo "$PACKAGES" | sha256sum > /npmdata/packages.hash.new
-            if [ ! -f /npmdata/packages.hash ] || ! cmp /npmdata/packages.hash /npmdata/packages.hash.new; then
-              if [ -n "$NON_COMMUNITY_PACKAGES" ]; then
-                npm install --loglevel info --no-save --ignore-scripts $NON_COMMUNITY_PACKAGES --prefix /npmdata
-              fi
-              if [ -n "$COMMUNITY_PACKAGES" ]; then
-                npm install --loglevel info --no-save --ignore-scripts $COMMUNITY_PACKAGES --prefix /nodesdata/nodes
-              fi
-              mv /npmdata/packages.hash.new /npmdata/packages.hash
-            else
-              rm /npmdata/packages.hash.new
-            fi
+          pattern: 'export COMMUNITY_PACKAGES="n8n-nodes-python@0\.1\.4 n8n-nodes-chatwoot@0\.1\.40"'
+        template: deployment.yaml
+      - matchRegex:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].args[0]
+          pattern: 'export NON_COMMUNITY_PACKAGES=""'
         template: deployment.yaml
   
   - it: should add scoped community packages to install script
@@ -2022,24 +2011,13 @@ tests:
           packages:
             - "@mycompany/n8n-nodes-test@1.0.0"
     asserts:
-      - equal:
+      - matchRegex:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].args[0]
-          value: |
-            export PACKAGES="@mycompany/n8n-nodes-test@1.0.0"
-            export COMMUNITY_PACKAGES="@mycompany/n8n-nodes-test@1.0.0"
-            export NON_COMMUNITY_PACKAGES=""
-            echo "$PACKAGES" | sha256sum > /npmdata/packages.hash.new
-            if [ ! -f /npmdata/packages.hash ] || ! cmp /npmdata/packages.hash /npmdata/packages.hash.new; then
-              if [ -n "$NON_COMMUNITY_PACKAGES" ]; then
-                npm install --loglevel info --no-save --ignore-scripts $NON_COMMUNITY_PACKAGES --prefix /npmdata
-              fi
-              if [ -n "$COMMUNITY_PACKAGES" ]; then
-                npm install --loglevel info --no-save --ignore-scripts $COMMUNITY_PACKAGES --prefix /nodesdata/nodes
-              fi
-              mv /npmdata/packages.hash.new /npmdata/packages.hash
-            else
-              rm /npmdata/packages.hash.new
-            fi
+          pattern: 'export COMMUNITY_PACKAGES="@mycompany/n8n-nodes-test@1\.0\.0"'
+        template: deployment.yaml
+      - matchRegex:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].args[0]
+          pattern: 'export NON_COMMUNITY_PACKAGES=""'
         template: deployment.yaml
   
   - it: should not add non-node packages to community node installer script
@@ -2050,24 +2028,13 @@ tests:
             - "example@2.29.4"
             - "@scope/example@1.0.0"
     asserts:
-      - equal:
+      - matchRegex:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].args[0]
-          value: |
-            export PACKAGES="example@2.29.4 @scope/example@1.0.0"
-            export COMMUNITY_PACKAGES=""
-            export NON_COMMUNITY_PACKAGES="example@2.29.4 @scope/example@1.0.0"
-            echo "$PACKAGES" | sha256sum > /npmdata/packages.hash.new
-            if [ ! -f /npmdata/packages.hash ] || ! cmp /npmdata/packages.hash /npmdata/packages.hash.new; then
-              if [ -n "$NON_COMMUNITY_PACKAGES" ]; then
-                npm install --loglevel info --no-save --ignore-scripts $NON_COMMUNITY_PACKAGES --prefix /npmdata
-              fi
-              if [ -n "$COMMUNITY_PACKAGES" ]; then
-                npm install --loglevel info --no-save --ignore-scripts $COMMUNITY_PACKAGES --prefix /nodesdata/nodes
-              fi
-              mv /npmdata/packages.hash.new /npmdata/packages.hash
-            else
-              rm /npmdata/packages.hash.new
-            fi
+          pattern: 'export COMMUNITY_PACKAGES=""'
+        template: deployment.yaml
+      - matchRegex:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].args[0]
+          pattern: 'export NON_COMMUNITY_PACKAGES="example@2\.29\.4 @scope/example@1\.0\.0"'
         template: deployment.yaml
 
   - it: should only keep npm packages and not community packages when nodes.external.packages is set and taskRunners.mode is internal
