@@ -67,6 +67,7 @@ Every chart follows this layout:
 charts/<name>/
 ├── Chart.yaml          # Chart metadata, version, appVersion, ArtifactHub annotations
 ├── Chart.lock          # Locked dependency versions
+├── .helmignore         # Excludes dev/test files from the packaged chart tarball
 ├── values.yaml         # Default values
 ├── values.schema.json  # JSON Schema validation for values (additionalProperties: false)
 ├── values-kind.yaml    # Minimal values for kind cluster CI testing
@@ -87,6 +88,17 @@ charts/<name>/
 └── unittests/
     └── *_test.yaml     # helm-unittest test suites (run via `helm unittest`)
 ```
+
+Every non-deprecated chart's `.helmignore` must exclude files that are not needed in the packaged tarball. At minimum it must contain:
+
+```
+README.md.gotmpl
+values-kind.yaml
+CLAUDE.md
+unittests/
+```
+
+Do not apply `.helmignore` changes to deprecated charts (currently: `kserve`).
 
 ### Versioning Rules
 
