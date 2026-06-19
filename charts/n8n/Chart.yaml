@@ -53,7 +53,7 @@ annotations:
     - kind: fixed
       description: Change community node detection to allow scoped community nodes (e.g. @myorg/n8n-nodes-mynode)
       links:
-        - name: Issue
+        - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/241
   artifacthub.io/images: |
     - name: n8n
