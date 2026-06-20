@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 1.9.0](https://img.shields.io/badge/Version-1.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.14.0](https://img.shields.io/badge/AppVersion-3.14.0-informational?style=flat-square)
+![Version: 1.10.0](https://img.shields.io/badge/Version-1.10.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.14.0](https://img.shields.io/badge/AppVersion-3.14.0-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -844,7 +844,8 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | extraVolumes | list | `[]` | Extra Volumes for the pod |
 | flaskServerSecretKey | string | `""` | Mlflow Flask Server Secret Key. Default: Will be auto generated. |
 | fullnameOverride | string | `""` | String to override the default generated fullname |
-| image | object | `{"pullPolicy":"IfNotPresent","repository":"burakince/mlflow","tag":""}` | Image of mlflow |
+| image | object | `{"digest":"","pullPolicy":"IfNotPresent","repository":"burakince/mlflow","tag":""}` | Image of mlflow |
+| image.digest | string | `""` | Image digest in the format sha256:<hex>. When set, overrides the tag for immutable pulls. |
 | image.pullPolicy | string | `"IfNotPresent"` | The docker image pull policy |
 | image.repository | string | `"burakince/mlflow"` | The docker image repository to use |
 | image.tag | string | `""` | The docker image tag to use. Default app version |
@@ -960,7 +961,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | readinessProbe | object | `{"failureThreshold":5,"initialDelaySeconds":10,"periodSeconds":30,"timeoutSeconds":3}` | Readiness probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes). |
 | replicaCount | int | `1` | Numbers of replicas |
 | resources | object | `{}` | This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
-| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":false,"runAsGroup":1001,"runAsNonRoot":true,"runAsUser":1001}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
+| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true,"runAsGroup":1001,"runAsNonRoot":true,"runAsUser":1001}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
 | service | object | `{"annotations":{},"containerPort":5000,"containerPortName":"mlflow","enabled":true,"name":"http","port":80,"type":"ClusterIP"}` | This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/ |
 | service.annotations | object | `{}` | Additional service annotations |
 | service.containerPort | int | `5000` | Default container port |

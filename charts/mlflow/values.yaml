@@ -14,6 +14,8 @@ image:
   pullPolicy: IfNotPresent
   # -- The docker image tag to use. Default app version
   tag: ""
+  # -- Image digest in the format sha256:<hex>. When set, overrides the tag for immutable pulls.
+  digest: ""
 
 # -- mlflow init images
 initImages:
@@ -92,7 +94,7 @@ securityContext:
   capabilities:
     drop:
       - ALL
-  readOnlyRootFilesystem: false
+  readOnlyRootFilesystem: true
   runAsNonRoot: true
   privileged: false
   runAsUser: 1001

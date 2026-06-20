@@ -101,14 +101,20 @@ should match snapshot of default values:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1001
                 runAsNonRoot: true
                 runAsUser: 1001
+              volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
           securityContext:
             fsGroup: 1001
             fsGroupChangePolicy: OnRootMismatch
           serviceAccountName: mlflow
+          volumes:
+            - emptyDir: {}
+              name: tmp
 should match snapshot with additional values:
   1: |
     apiVersion: v1
@@ -322,11 +328,13 @@ should match snapshot with additional values:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1001
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /etc/mlflow/auth/basic_auth.ini
                   name: ini-file
                   readOnly: true
@@ -375,11 +383,13 @@ should match snapshot with additional values:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1001
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /opt/mlflow/migrations.py
                   name: migrations-config
                   readOnly: true
@@ -425,6 +435,8 @@ should match snapshot with additional values:
               key: example-key
               operator: Exists
           volumes:
+            - emptyDir: {}
+              name: tmp
             - configMap:
                 defaultMode: 511
                 name: mlflow-dbchecker
@@ -656,11 +668,13 @@ should match snapshot with additional values when auth and auth.postgres are ena
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1001
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /etc/mlflow/auth/basic_auth.ini
                   name: ini-file
                   readOnly: true
@@ -709,11 +723,13 @@ should match snapshot with additional values when auth and auth.postgres are ena
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1001
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /opt/mlflow/migrations.py
                   name: migrations-config
                   readOnly: true
@@ -771,6 +787,8 @@ should match snapshot with additional values when auth and auth.postgres are ena
               key: example-key
               operator: Exists
           volumes:
+            - emptyDir: {}
+              name: tmp
             - configMap:
                 defaultMode: 511
                 name: mlflow-dbchecker
@@ -1013,11 +1031,13 @@ should match snapshot with additional values when bitnami mysql is enabled:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1001
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /etc/mlflow/auth/basic_auth.ini
                   name: ini-file
                   readOnly: true
@@ -1080,11 +1100,13 @@ should match snapshot with additional values when bitnami mysql is enabled:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1001
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /opt/mlflow/migrations.py
                   name: migrations-config
                   readOnly: true
@@ -1130,6 +1152,8 @@ should match snapshot with additional values when bitnami mysql is enabled:
               key: example-key
               operator: Exists
           volumes:
+            - emptyDir: {}
+              name: tmp
             - configMap:
                 defaultMode: 511
                 name: mlflow-dbchecker
@@ -1367,11 +1391,13 @@ should match snapshot with additional values when bitnami postgresql is enabled:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1001
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /etc/mlflow/auth/basic_auth.ini
                   name: ini-file
                   readOnly: true
@@ -1434,11 +1460,13 @@ should match snapshot with additional values when bitnami postgresql is enabled:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1001
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /opt/mlflow/migrations.py
                   name: migrations-config
                   readOnly: true
@@ -1484,6 +1512,8 @@ should match snapshot with additional values when bitnami postgresql is enabled:
               key: example-key
               operator: Exists
           volumes:
+            - emptyDir: {}
+              name: tmp
             - configMap:
                 defaultMode: 511
                 name: mlflow-dbchecker
@@ -1720,11 +1750,13 @@ should match snapshot with additional values when mssql is enabled:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1001
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /etc/mlflow/auth/basic_auth.ini
                   name: ini-file
                   readOnly: true
@@ -1773,11 +1805,13 @@ should match snapshot with additional values when mssql is enabled:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1001
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /opt/mlflow/migrations.py
                   name: migrations-config
                   readOnly: true
@@ -1823,6 +1857,8 @@ should match snapshot with additional values when mssql is enabled:
               key: example-key
               operator: Exists
           volumes:
+            - emptyDir: {}
+              name: tmp
             - configMap:
                 defaultMode: 511
                 name: mlflow-dbchecker
@@ -2059,11 +2095,13 @@ should match snapshot with additional values when mysql is enabled:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1001
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /etc/mlflow/auth/basic_auth.ini
                   name: ini-file
                   readOnly: true
@@ -2112,11 +2150,13 @@ should match snapshot with additional values when mysql is enabled:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1001
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /opt/mlflow/migrations.py
                   name: migrations-config
                   readOnly: true
@@ -2162,6 +2202,8 @@ should match snapshot with additional values when mysql is enabled:
               key: example-key
               operator: Exists
           volumes:
+            - emptyDir: {}
+              name: tmp
             - configMap:
                 defaultMode: 511
                 name: mlflow-dbchecker
@@ -2393,11 +2435,13 @@ should match snapshot with additional values when postgresql is enabled:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1001
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /etc/mlflow/auth/basic_auth.ini
                   name: ini-file
                   readOnly: true
@@ -2446,11 +2490,13 @@ should match snapshot with additional values when postgresql is enabled:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1001
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /opt/mlflow/migrations.py
                   name: migrations-config
                   readOnly: true
@@ -2496,6 +2542,8 @@ should match snapshot with additional values when postgresql is enabled:
               key: example-key
               operator: Exists
           volumes:
+            - emptyDir: {}
+              name: tmp
             - configMap:
                 defaultMode: 511
                 name: mlflow-dbchecker

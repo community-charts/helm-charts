@@ -2195,3 +2195,34 @@ tests:
       - isNull:
           path: spec.template.spec.initContainers[?(@.name == "dbchecker")].resources
         template: deployment.yaml
+
+  - it: should add digest to image tag when digest is set
+    set:
+      image.digest: "sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].image
+          pattern: "burakince/mlflow:1\\.0\\.0@sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+        template: deployment.yaml
+
+  - it: should not add digest when digest is empty
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].image
+          pattern: "burakince/mlflow:1\\.0\\.0$"
+        template: deployment.yaml
+
+  - it: should always have a tmp emptyDir volume and mount
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: tmp
+            emptyDir: {}
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].volumeMounts
+          content:
+            name: tmp
+            mountPath: /tmp
+        template: deployment.yaml

@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.9.0
+version: 1.10.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -52,15 +52,9 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: added
-      description: Add optional oauth2-proxy sidecar for OIDC/OAuth2 authentication in front of MLflow, with configurable provider settings, secret management, and automatic Ingress port forwarding
-      links:
-        - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/321
-    - kind: added
-      description: Add oidcAuth block for built-in OIDC authentication via mlflow-oidc-auth plugin, with Redis cache and PostgreSQL user-database support
-      links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/328
+      description: Add optional image digest support for immutable image pulls
+    - kind: fixed
+      description: Enable readOnlyRootFilesystem and add built-in tmp emptyDir volume
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.14.0

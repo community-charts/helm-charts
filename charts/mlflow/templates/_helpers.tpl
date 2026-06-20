@@ -119,6 +119,18 @@ Usage: {{ include "mlflow.oidcAuthDbSecretName" . }}
 {{- end -}}
 
 {{/*
+Build the full container image reference, appending digest when set.
+*/}}
+{{- define "mlflow.containerImage" -}}
+{{- $tag := .Values.image.tag | default .Chart.AppVersion -}}
+{{- if .Values.image.digest -}}
+{{- printf "%s:%s@%s" .Values.image.repository $tag .Values.image.digest -}}
+{{- else -}}
+{{- printf "%s:%s" .Values.image.repository $tag -}}
+{{- end -}}
+{{- end }}
+
+{{/*
 Return the port number the Ingress should target. If oauth2-proxy sidecar is enabled
 use its listenPort, otherwise use the service.port value.
 Usage: {{ include "mlflow.servicePort" . }}

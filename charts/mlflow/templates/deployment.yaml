@@ -240,6 +240,8 @@ spec:
           args:
             - /opt/mlflow/migrations.py
           volumeMounts:
+            - name: tmp
+              mountPath: /tmp
             - name: migrations-config
               mountPath: /opt/mlflow/migrations.py
               subPath: migrations.py
@@ -298,7 +300,7 @@ spec:
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: {{ include "mlflow.containerImage" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["mlflow"]
           args:
@@ -542,8 +544,9 @@ spec:
             - secretRef:
                 name: {{ . }}
           {{- end }}
-          {{- if or .Values.extraVolumeMounts .Values.auth.enabled .Values.ldapAuth.enabled }}
           volumeMounts:
+            - name: tmp
+              mountPath: /tmp
             {{- if .Values.auth.enabled }}
             - name: ini-file
               mountPath: {{ printf "%s/%s" (.Values.auth.configPath | trimSuffix "/") (default "basic_auth.ini" (.Values.auth.configFile | trimPrefix "/")) }}
@@ -563,7 +566,6 @@ spec:
             {{- end }}
           {{- with .Values.extraVolumeMounts }}
             {{ toYaml . | nindent 12 }}
-          {{- end }}
           {{- end }}
       {{- with .Values.extraContainers }}
         {{- toYaml . | nindent 8 }}
@@ -625,8 +627,9 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) (or .Values.backendStore.databaseConnectionCheck .Values.backendStore.databaseMigration) ) .Values.extraVolumes .Values.auth.enabled .Values.ldapAuth.enabled }}
       volumes:
+        - name: tmp
+          emptyDir: {}
         {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
         - name: dbchecker
           configMap:
@@ -652,5 +655,4 @@ spec:
         {{- end }}
       {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
       {{- end }}
