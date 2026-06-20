@@ -92,6 +92,33 @@ Create mysql name secret name.
 {{- end -}}
 
 {{/*
+Return the name of the oauth2-proxy secret.
+When existingSecret.name is set the user manages the secret; otherwise the chart creates one.
+Usage: {{ include "mlflow.oauth2ProxySecretName" . }}
+*/}}
+{{- define "mlflow.oauth2ProxySecretName" -}}
+{{- default (printf "%s-oauth2-proxy" (include "mlflow.fullname" .)) .Values.oauth2Proxy.existingSecret.name -}}
+{{- end -}}
+
+{{/*
+Return the name of the OIDC auth client-credentials secret.
+When existingSecret.name is set the user manages the secret; otherwise the chart creates one.
+Usage: {{ include "mlflow.oidcAuthSecretName" . }}
+*/}}
+{{- define "mlflow.oidcAuthSecretName" -}}
+{{- default (printf "%s-oidc-auth-secret" (include "mlflow.fullname" .)) .Values.oidcAuth.existingSecret.name -}}
+{{- end -}}
+
+{{/*
+Return the name of the OIDC auth database credentials secret.
+When existingSecret.name is set the user manages the secret; otherwise the chart creates one.
+Usage: {{ include "mlflow.oidcAuthDbSecretName" . }}
+*/}}
+{{- define "mlflow.oidcAuthDbSecretName" -}}
+{{- default (printf "%s-oidc-auth-db-secret" (include "mlflow.fullname" .)) .Values.oidcAuth.database.postgres.existingSecret.name -}}
+{{- end -}}
+
+{{/*
 Return the port number the Ingress should target. If oauth2-proxy sidecar is enabled
 use its listenPort, otherwise use the service.port value.
 Usage: {{ include "mlflow.servicePort" . }}

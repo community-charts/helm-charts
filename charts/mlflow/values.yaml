@@ -586,11 +586,13 @@ oauth2Proxy:
   enabled: false
   # -- If true the chart will create a Kubernetes secret with the oauth client id/secret
   createSecret: false
-  # -- Secret containing oauth client credentials when not creating a secret
-  existingSecret: ""
-  # -- Keys used in the secret (when using existingSecret)
-  clientIDKey: client-id
-  clientSecretKey: client-secret
+  # -- Reference a pre-existing secret instead of creating one.
+  # All key name fields below are used both when creating and when referencing an existing secret.
+  existingSecret:
+    name: ""
+    clientIDKey: "client-id"
+    clientSecretKey: "client-secret"
+    cookieSecretKey: "cookie-secret"
   # -- OAuth2 Proxy image
   image:
     repository: quay.io/oauth2-proxy/oauth2-proxy
@@ -600,7 +602,7 @@ oauth2Proxy:
   #    The chart will use: http://127.0.0.1:<service.containerPort>
   # -- Port oauth2-proxy listens on inside the pod
   listenPort: 4180
-  # -- Cookie secret for oauth2-proxy. If creating secret this can be provided here; otherwise provide via existingSecret
+  # -- Cookie secret plaintext value — only used when createSecret is true
   cookieSecret: ""
   # -- Provider specific settings (example: keycloak)
   provider:
@@ -617,3 +619,75 @@ oauth2Proxy:
   extraEnv: {}
   # -- Resources for the oauth2-proxy container
   resources: {}
+
+# -- OIDC Authentication via the mlflow-oidc-auth plugin (already bundled in the burakince/mlflow image).
+# Mutually exclusive with auth, ldapAuth, and oauth2Proxy — enable only one auth mechanism.
+oidcAuth:
+  # -- Enable built-in OIDC authentication (adds --app-name oidc-auth to the mlflow server command)
+  enabled: false
+  # -- OIDC discovery URL (env: OIDC_DISCOVERY_URL)
+  # e.g. https://keycloak/realms/mlflow/.well-known/openid-configuration
+  discoveryUrl: ""
+  # -- OIDC client ID (env: OIDC_CLIENT_ID)
+  clientId: ""
+  # -- OIDC client secret — use existingSecret for production (env: OIDC_CLIENT_SECRET)
+  clientSecret: ""
+  # -- Reference a pre-existing secret instead of creating one from clientSecret above
+  existingSecret:
+    name: ""
+    clientSecretKey: "OIDC_CLIENT_SECRET"
+  # -- Optional redirect URI; auto-detected from request headers when empty (env: OIDC_REDIRECT_URI)
+  redirectUri: ""
+  # -- Scopes requested from the OIDC provider (env: OIDC_SCOPE)
+  scope: "openid,email,profile"
+  # -- Optional audience claim validation (env: OIDC_AUDIENCE)
+  audience: ""
+  # -- Display name on the Login button in the MLflow UI (env: OIDC_PROVIDER_DISPLAY_NAME)
+  providerDisplayName: "Login with OIDC"
+  # -- JWT claim that contains group memberships (env: OIDC_GROUPS_ATTRIBUTE)
+  groupsAttribute: "groups"
+  # -- Groups whose members are allowed to access MLflow (env: OIDC_GROUP_NAME)
+  groupName:
+    - mlflow
+  # -- Groups whose members receive admin/MANAGE permission (env: OIDC_ADMIN_GROUP_NAME)
+  adminGroupName:
+    - mlflow-admin
+  # -- Default permission for authenticated users: NO_PERMISSIONS | READ | EDIT | MANAGE
+  # (env: DEFAULT_MLFLOW_PERMISSION)
+  defaultPermission: "MANAGE"
+  # -- Require HTTPS for session cookies; set false only in local/dev environments
+  # (env: SESSION_COOKIE_SECURE)
+  sessionCookieSecure: true
+  # -- SameSite policy for session cookies: lax | strict | none (env: SESSION_COOKIE_SAMESITE)
+  sessionCookieSamesite: "lax"
+  # -- Shared cache backend for multi-replica deployments (requires mlflow-oidc-auth[cache], already in image)
+  cache:
+    # -- Set true to use Redis instead of in-process TTLCache (env: CACHE_BACKEND)
+    enabled: false
+    # -- Redis connection URL (env: CACHE_REDIS_URL)
+    redisUrl: ""
+    # -- Cache key prefix to avoid collisions when sharing a Redis instance (env: CACHE_KEY_PREFIX)
+    keyPrefix: "mlflow_oidc_auth:"
+  # -- OIDC user/permission database — separate from the MLflow tracking store.
+  # Defaults to sqlite:///auth.db when postgres is not enabled and uri is empty.
+  database:
+    # -- Full URI override (env: OIDC_USERS_DB_URI); takes precedence over postgres block when set.
+    # Example: postgresql+psycopg2://user:pass@host:5432/oidc_users
+    uri: ""
+    postgres:
+      # -- Use PostgreSQL for the OIDC user/permission database
+      enabled: false
+      host: ""
+      port: 5432
+      database: ""
+      driver: ""
+      # -- Credentials — prefer existingSecret for production
+      user: ""
+      password: ""
+      existingSecret:
+        name: ""
+        usernameKey: "username"
+        passwordKey: "password"
+  # -- List of trusted proxy IPs/CIDRs (e.g. ingress controller CIDR).
+  # Required when MLflow runs behind an ingress; fixes redirect URI auto-detection. (env: TRUSTED_PROXIES)
+  trustedProxies: []

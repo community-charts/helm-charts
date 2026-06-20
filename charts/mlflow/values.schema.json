@@ -1216,25 +1216,41 @@
           "type": "boolean"
         },
         "existingSecret": {
-          "default": "",
-          "description": "Use an existing secret name for oauth2-proxy credentials",
-          "required": [],
+          "additionalProperties": false,
+          "description": "Reference a pre-existing secret; key name fields apply both when creating and referencing a secret",
+          "properties": {
+            "name": {
+              "default": "",
+              "description": "Name of the existing secret; leave empty to let the chart create one",
+              "required": [],
+              "title": "name",
+              "type": "string"
+            },
+            "clientIDKey": {
+              "default": "client-id",
+              "description": "Key name for the OAuth2 client ID in the secret",
+              "required": [],
+              "title": "clientIDKey",
+              "type": "string"
+            },
+            "clientSecretKey": {
+              "default": "client-secret",
+              "description": "Key name for the OAuth2 client secret in the secret",
+              "required": [],
+              "title": "clientSecretKey",
+              "type": "string"
+            },
+            "cookieSecretKey": {
+              "default": "cookie-secret",
+              "description": "Key name for the cookie secret in the secret",
+              "required": [],
+              "title": "cookieSecretKey",
+              "type": "string"
+            }
+          },
+          "required": ["name", "clientIDKey", "clientSecretKey", "cookieSecretKey"],
           "title": "existingSecret",
-          "type": "string"
-        },
-        "clientIDKey": {
-          "default": "client-id",
-          "description": "Key name for client id in the secret",
-          "required": [],
-          "title": "clientIDKey",
-          "type": "string"
-        },
-        "clientSecretKey": {
-          "default": "client-secret",
-          "description": "Key name for client secret in the secret",
-          "required": [],
-          "title": "clientSecretKey",
-          "type": "string"
+          "type": "object"
         },
         "image": {
           "additionalProperties": false,
@@ -1337,8 +1353,278 @@
           "type": "object"
         }
       },
-      "required": ["enabled", "createSecret", "existingSecret", "clientIDKey", "clientSecretKey", "image", "listenPort", "cookieSecret", "provider", "extraArgs", "extraEnv", "resources"],
+      "required": ["enabled", "createSecret", "existingSecret", "image", "listenPort", "cookieSecret", "provider", "extraArgs", "extraEnv", "resources"],
       "title": "oauth2Proxy",
+      "type": "object"
+    },
+    "oidcAuth": {
+      "additionalProperties": false,
+      "description": "Built-in OIDC authentication via mlflow-oidc-auth plugin (already bundled in burakince/mlflow image). Mutually exclusive with auth, ldapAuth, and oauth2Proxy.",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "description": "Enable built-in OIDC authentication (adds --app-name oidc-auth to mlflow server)",
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "discoveryUrl": {
+          "default": "",
+          "description": "OIDC provider discovery URL (env: OIDC_DISCOVERY_URL)",
+          "required": [],
+          "title": "discoveryUrl",
+          "type": "string"
+        },
+        "clientId": {
+          "default": "",
+          "description": "OIDC client ID (env: OIDC_CLIENT_ID)",
+          "required": [],
+          "title": "clientId",
+          "type": "string"
+        },
+        "clientSecret": {
+          "default": "",
+          "description": "OIDC client secret; use existingSecret for production (env: OIDC_CLIENT_SECRET)",
+          "required": [],
+          "title": "clientSecret",
+          "type": "string"
+        },
+        "existingSecret": {
+          "additionalProperties": false,
+          "description": "Reference a pre-existing secret instead of creating one from clientSecret",
+          "properties": {
+            "name": {
+              "default": "",
+              "required": [],
+              "title": "name",
+              "type": "string"
+            },
+            "clientSecretKey": {
+              "default": "OIDC_CLIENT_SECRET",
+              "required": [],
+              "title": "clientSecretKey",
+              "type": "string"
+            }
+          },
+          "required": ["name", "clientSecretKey"],
+          "title": "existingSecret",
+          "type": "object"
+        },
+        "redirectUri": {
+          "default": "",
+          "description": "Optional redirect URI; auto-detected from request headers when empty (env: OIDC_REDIRECT_URI)",
+          "required": [],
+          "title": "redirectUri",
+          "type": "string"
+        },
+        "scope": {
+          "default": "openid,email,profile",
+          "description": "Scopes requested from the OIDC provider (env: OIDC_SCOPE)",
+          "required": [],
+          "title": "scope",
+          "type": "string"
+        },
+        "audience": {
+          "default": "",
+          "description": "Optional audience claim validation (env: OIDC_AUDIENCE)",
+          "required": [],
+          "title": "audience",
+          "type": "string"
+        },
+        "providerDisplayName": {
+          "default": "Login with OIDC",
+          "description": "Display name on the Login button in the MLflow UI (env: OIDC_PROVIDER_DISPLAY_NAME)",
+          "required": [],
+          "title": "providerDisplayName",
+          "type": "string"
+        },
+        "groupsAttribute": {
+          "default": "groups",
+          "description": "JWT claim that contains group memberships (env: OIDC_GROUPS_ATTRIBUTE)",
+          "required": [],
+          "title": "groupsAttribute",
+          "type": "string"
+        },
+        "groupName": {
+          "default": ["mlflow"],
+          "description": "Groups whose members are allowed to access MLflow (env: OIDC_GROUP_NAME)",
+          "items": {
+            "type": "string"
+          },
+          "required": [],
+          "title": "groupName",
+          "type": "array"
+        },
+        "adminGroupName": {
+          "default": ["mlflow-admin"],
+          "description": "Groups whose members receive admin/MANAGE permission (env: OIDC_ADMIN_GROUP_NAME)",
+          "items": {
+            "type": "string"
+          },
+          "required": [],
+          "title": "adminGroupName",
+          "type": "array"
+        },
+        "defaultPermission": {
+          "default": "MANAGE",
+          "description": "Default permission for authenticated users: NO_PERMISSIONS | READ | EDIT | MANAGE (env: DEFAULT_MLFLOW_PERMISSION)",
+          "enum": ["NO_PERMISSIONS", "READ", "EDIT", "MANAGE"],
+          "required": [],
+          "title": "defaultPermission",
+          "type": "string"
+        },
+        "sessionCookieSecure": {
+          "default": true,
+          "description": "Require HTTPS for session cookies; set false only in local/dev environments (env: SESSION_COOKIE_SECURE)",
+          "required": [],
+          "title": "sessionCookieSecure",
+          "type": "boolean"
+        },
+        "sessionCookieSamesite": {
+          "default": "lax",
+          "description": "SameSite policy for session cookies: lax | strict | none (env: SESSION_COOKIE_SAMESITE)",
+          "enum": ["lax", "strict", "none"],
+          "required": [],
+          "title": "sessionCookieSamesite",
+          "type": "string"
+        },
+        "cache": {
+          "additionalProperties": false,
+          "description": "Shared cache backend for multi-replica deployments (requires mlflow-oidc-auth[cache], already in image)",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "description": "Set true to use Redis instead of in-process TTLCache (env: CACHE_BACKEND)",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "redisUrl": {
+              "default": "",
+              "description": "Redis connection URL (env: CACHE_REDIS_URL)",
+              "required": [],
+              "title": "redisUrl",
+              "type": "string"
+            },
+            "keyPrefix": {
+              "default": "mlflow_oidc_auth:",
+              "description": "Cache key prefix to avoid collisions when sharing a Redis instance (env: CACHE_KEY_PREFIX)",
+              "required": [],
+              "title": "keyPrefix",
+              "type": "string"
+            }
+          },
+          "required": ["enabled", "redisUrl", "keyPrefix"],
+          "title": "cache",
+          "type": "object"
+        },
+        "database": {
+          "additionalProperties": false,
+          "description": "OIDC user/permission database — separate from the MLflow tracking store",
+          "properties": {
+            "uri": {
+              "default": "",
+              "description": "Full URI override (env: OIDC_USERS_DB_URI); takes precedence over postgres block when set",
+              "required": [],
+              "title": "uri",
+              "type": "string"
+            },
+            "postgres": {
+              "additionalProperties": false,
+              "description": "PostgreSQL backend for the OIDC user/permission database",
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "description": "Use PostgreSQL for the OIDC user/permission database",
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "host": {
+                  "default": "",
+                  "required": [],
+                  "title": "host",
+                  "type": "string"
+                },
+                "port": {
+                  "default": 5432,
+                  "required": [],
+                  "title": "port",
+                  "type": "integer"
+                },
+                "database": {
+                  "default": "",
+                  "required": [],
+                  "title": "database",
+                  "type": "string"
+                },
+                "driver": {
+                  "default": "",
+                  "required": [],
+                  "title": "driver",
+                  "type": "string"
+                },
+                "user": {
+                  "default": "",
+                  "required": [],
+                  "title": "user",
+                  "type": "string"
+                },
+                "password": {
+                  "default": "",
+                  "required": [],
+                  "title": "password",
+                  "type": "string"
+                },
+                "existingSecret": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "default": "",
+                      "required": [],
+                      "title": "name",
+                      "type": "string"
+                    },
+                    "usernameKey": {
+                      "default": "username",
+                      "required": [],
+                      "title": "usernameKey",
+                      "type": "string"
+                    },
+                    "passwordKey": {
+                      "default": "password",
+                      "required": [],
+                      "title": "passwordKey",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["name", "usernameKey", "passwordKey"],
+                  "title": "existingSecret",
+                  "type": "object"
+                }
+              },
+              "required": ["enabled", "host", "port", "database", "driver", "user", "password", "existingSecret"],
+              "title": "postgres",
+              "type": "object"
+            }
+          },
+          "required": ["uri", "postgres"],
+          "title": "database",
+          "type": "object"
+        },
+        "trustedProxies": {
+          "default": [],
+          "description": "List of trusted proxy IPs/CIDRs; required when MLflow runs behind an ingress (env: TRUSTED_PROXIES)",
+          "items": {
+            "type": "string"
+          },
+          "required": [],
+          "title": "trustedProxies",
+          "type": "array"
+        }
+      },
+      "required": ["enabled", "discoveryUrl", "clientId", "clientSecret", "existingSecret", "redirectUri", "scope", "audience", "providerDisplayName", "groupsAttribute", "groupName", "adminGroupName", "defaultPermission", "sessionCookieSecure", "sessionCookieSamesite", "cache", "database", "trustedProxies"],
+      "title": "oidcAuth",
       "type": "object"
     },
     "replicaCount": {

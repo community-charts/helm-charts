@@ -343,7 +343,7 @@ ingress:
 
 ## Authentication Example
 
-> **Tip**: auth and ldapAuth can not be enabled at same time!
+> **Tip**: `auth`, `ldapAuth`, and `oidcAuth` are mutually exclusive — enable only one at a time!
 
 ### Authentication with Plain Admin Settings Example
 
@@ -399,7 +399,7 @@ auth:
 
 ## Basic Authentication with LDAP Backend
 
-> **Tip**: auth and ldapAuth can not be enabled at same time!
+> **Tip**: `auth`, `ldapAuth`, and `oidcAuth` are mutually exclusive — enable only one at a time!
 
 ```yaml
 ldapAuth:
@@ -446,6 +446,144 @@ ldapAuth:
   adminGroupDistinguishedName: "cn=test-admin,ou=groups,dc=mlflow,dc=test"
   userGroupDistinguishedName: "cn=test-user,ou=groups,dc=mlflow,dc=test"
   externalSecretForTrustedCACertificate: "external-ca-certificate-secret"
+```
+
+## OIDC Authentication Example
+
+> **Tip**: `oidcAuth`, `auth`, `ldapAuth`, and `oauth2Proxy` are mutually exclusive — enable only one at a time!
+
+The `oidcAuth` block activates the `mlflow-oidc-auth` plugin that is already bundled in the `burakince/mlflow` image. Unlike `oauth2Proxy` (a sidecar proxy), this approach provides native OIDC authentication inside MLflow, mapping OIDC groups to MLflow permissions.
+
+### OIDC Auth with Keycloak (minimal)
+
+```yaml
+oidcAuth:
+  enabled: true
+  discoveryUrl: "https://keycloak.example.com/realms/mlflow/.well-known/openid-configuration"
+  clientId: "mlflow-client"
+  clientSecret: "mlflow-client-secret"
+  groupName:
+    - mlflow-users
+  adminGroupName:
+    - mlflow-admin
+```
+
+### OIDC Auth with Existing Secret
+
+```yaml
+oidcAuth:
+  enabled: true
+  discoveryUrl: "https://keycloak.example.com/realms/mlflow/.well-known/openid-configuration"
+  clientId: "mlflow-client"
+  existingSecret:
+    name: my-oidc-secret
+    clientSecretKey: "OIDC_CLIENT_SECRET"
+  groupName:
+    - mlflow-users
+  adminGroupName:
+    - mlflow-admin
+```
+
+### OIDC Auth with Redis Cache (multi-replica)
+
+```yaml
+oidcAuth:
+  enabled: true
+  discoveryUrl: "https://keycloak.example.com/realms/mlflow/.well-known/openid-configuration"
+  clientId: "mlflow-client"
+  clientSecret: "mlflow-client-secret"
+  groupName:
+    - mlflow-users
+  adminGroupName:
+    - mlflow-admin
+  cache:
+    enabled: true
+    redisUrl: "redis://redis:6379/0"
+```
+
+### OIDC Auth with PostgreSQL User Database
+
+```yaml
+oidcAuth:
+  enabled: true
+  discoveryUrl: "https://keycloak.example.com/realms/mlflow/.well-known/openid-configuration"
+  clientId: "mlflow-client"
+  clientSecret: "mlflow-client-secret"
+  groupName:
+    - mlflow-users
+  adminGroupName:
+    - mlflow-admin
+  database:
+    postgres:
+      enabled: true
+      host: "oidc-users-db.example.com"
+      port: 5432
+      database: "oidc_users"
+      user: "oidcuser"
+      password: "S3cr3t!"
+```
+
+### OIDC Auth with PostgreSQL User Database and Existing Secret
+
+```yaml
+oidcAuth:
+  enabled: true
+  discoveryUrl: "https://keycloak.example.com/realms/mlflow/.well-known/openid-configuration"
+  clientId: "mlflow-client"
+  existingSecret:
+    name: my-oidc-secret
+    clientSecretKey: "OIDC_CLIENT_SECRET"
+  groupName:
+    - mlflow-users
+  adminGroupName:
+    - mlflow-admin
+  database:
+    postgres:
+      enabled: true
+      host: "oidc-users-db.example.com"
+      port: 5432
+      database: "oidc_users"
+      existingSecret:
+        name: oidc-db-secret
+        usernameKey: "username"
+        passwordKey: "password"
+```
+
+## OAuth2 Proxy Example
+
+> **Tip**: `oidcAuth` and `oauth2Proxy` are mutually exclusive. `oauth2Proxy` can coexist with `auth` or `ldapAuth` (proxy in front, MLflow auth behind).
+
+The `oauth2Proxy` block deploys an [oauth2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/) sidecar container in the same pod. All traffic flows through the proxy first (`Ingress → 4180 → 5000`), so MLflow itself requires no auth configuration.
+
+### OAuth2 Proxy with Keycloak (chart-managed secret)
+
+```yaml
+oauth2Proxy:
+  enabled: true
+  createSecret: true
+  cookieSecret: "a-random-32-char-cookie-secret!!"
+  provider:
+    name: keycloak-oidc
+    issuerURL: "https://keycloak.example.com/realms/mlflow"
+    clientID: "mlflow-client"
+    clientSecret: "mlflow-client-secret"
+    redirectURL: "https://mlflow.example.com/oauth2/callback"
+```
+
+### OAuth2 Proxy with Existing Secret
+
+```yaml
+oauth2Proxy:
+  enabled: true
+  existingSecret:
+    name: my-oauth2-proxy-secret
+    clientIDKey: "client-id"
+    clientSecretKey: "client-secret"
+    cookieSecretKey: "cookie-secret"
+  provider:
+    name: keycloak-oidc
+    issuerURL: "https://keycloak.example.com/realms/mlflow"
+    redirectURL: "https://mlflow.example.com/oauth2/callback"
 ```
 
 ## Auto Scaling Example

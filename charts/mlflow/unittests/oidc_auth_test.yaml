@@ -1,0 +1,281 @@
+suite: test oidc auth
+
+templates:
+  - configmap.yaml
+  - deployment.yaml
+
+release:
+  name: mlflow
+  namespace: mlflow
+
+chart:
+  version: 1.0.0
+  appVersion: 1.0.0
+
+tests:
+  - it: should add --app-name=oidc-auth when oidcAuth is enabled
+    set:
+      oidcAuth:
+        enabled: true
+        clientSecret: "test-secret"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --app-name=oidc-auth
+        template: deployment.yaml
+
+  - it: should inject OIDC_DISCOVERY_URL when oidcAuth is enabled
+    set:
+      oidcAuth:
+        enabled: true
+        discoveryUrl: "https://keycloak.example.com/realms/mlflow/.well-known/openid-configuration"
+        clientSecret: "test-secret"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: OIDC_DISCOVERY_URL
+            value: "https://keycloak.example.com/realms/mlflow/.well-known/openid-configuration"
+        template: deployment.yaml
+
+  - it: should inject OIDC_CLIENT_ID when oidcAuth is enabled
+    set:
+      oidcAuth:
+        enabled: true
+        clientId: "mlflow-client"
+        clientSecret: "test-secret"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: OIDC_CLIENT_ID
+            value: "mlflow-client"
+        template: deployment.yaml
+
+  - it: should inject OIDC_CLIENT_SECRET from chart-managed secret when existingSecret is not set
+    set:
+      oidcAuth:
+        enabled: true
+        clientSecret: "test-secret"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: OIDC_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: mlflow-oidc-auth-secret
+                key: OIDC_CLIENT_SECRET
+        template: deployment.yaml
+
+  - it: should inject OIDC_CLIENT_SECRET from existing secret when existingSecret name is set
+    set:
+      oidcAuth:
+        enabled: true
+        existingSecret:
+          name: my-oidc-credentials
+          clientSecretKey: "my-client-secret-key"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: OIDC_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: my-oidc-credentials
+                key: my-client-secret-key
+        template: deployment.yaml
+
+  - it: should inject SECRET_KEY from flask-server-secret-key when oidcAuth is enabled
+    set:
+      oidcAuth:
+        enabled: true
+        clientSecret: "test-secret"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: mlflow-flask-server-secret-key
+                key: MLFLOW_FLASK_SERVER_SECRET_KEY
+        template: deployment.yaml
+
+  - it: should inject group configuration env vars when oidcAuth is enabled
+    set:
+      oidcAuth:
+        enabled: true
+        clientSecret: "test-secret"
+        groupName:
+          - mlflow-users
+          - data-scientists
+        adminGroupName:
+          - mlflow-admin
+        defaultPermission: READ
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: OIDC_GROUP_NAME
+            value: "mlflow-users,data-scientists"
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: OIDC_ADMIN_GROUP_NAME
+            value: "mlflow-admin"
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: DEFAULT_MLFLOW_PERMISSION
+            value: "READ"
+        template: deployment.yaml
+
+  - it: should inject CACHE_BACKEND and CACHE_REDIS_URL when cache is enabled
+    set:
+      oidcAuth:
+        enabled: true
+        clientSecret: "test-secret"
+        cache:
+          enabled: true
+          redisUrl: "redis://redis:6379/0"
+          keyPrefix: "mlflow_oidc_auth:"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: CACHE_BACKEND
+            value: "redis"
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: CACHE_REDIS_URL
+            value: "redis://redis:6379/0"
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: CACHE_KEY_PREFIX
+            value: "mlflow_oidc_auth:"
+        template: deployment.yaml
+
+  - it: should not inject cache env vars when cache is disabled
+    set:
+      oidcAuth:
+        enabled: true
+        clientSecret: "test-secret"
+        cache:
+          enabled: false
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: CACHE_BACKEND
+            value: "redis"
+        template: deployment.yaml
+
+  - it: should inject OIDC_USERS_DB_URI with composed postgres URI when database.postgres is enabled
+    set:
+      oidcAuth:
+        enabled: true
+        clientSecret: "test-secret"
+        database:
+          postgres:
+            enabled: true
+            host: "oidc-db.example.com"
+            port: 5432
+            database: "oidc_users"
+            user: "oidcuser"
+            password: "testpass"
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env[?(@.name == "OIDC_USERS_DB_URI")].value
+          pattern: "postgresql://\\$\\(OIDC_DB_USER\\):\\$\\(OIDC_DB_PASSWORD\\)@oidc-db\\.example\\.com:5432/oidc_users"
+        template: deployment.yaml
+
+  - it: should inject OIDC_USERS_DB_URI as plain value when database.uri is set
+    set:
+      oidcAuth:
+        enabled: true
+        clientSecret: "test-secret"
+        database:
+          uri: "postgresql+psycopg2://user:pass@host:5432/oidc_users"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: OIDC_USERS_DB_URI
+            value: "postgresql+psycopg2://user:pass@host:5432/oidc_users"
+        template: deployment.yaml
+
+  - it: should not inject OIDC_USERS_DB_URI when neither postgres nor uri is set
+    set:
+      oidcAuth:
+        enabled: true
+        clientSecret: "test-secret"
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: OIDC_USERS_DB_URI
+        template: deployment.yaml
+
+  - it: should inject TRUSTED_PROXIES when trustedProxies is set
+    set:
+      oidcAuth:
+        enabled: true
+        clientSecret: "test-secret"
+        trustedProxies:
+          - "10.0.0.0/8"
+          - "172.16.0.0/12"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: TRUSTED_PROXIES
+            value: "10.0.0.0/8,172.16.0.0/12"
+        template: deployment.yaml
+
+  - it: should not inject TRUSTED_PROXIES when trustedProxies is empty
+    set:
+      oidcAuth:
+        enabled: true
+        clientSecret: "test-secret"
+        trustedProxies: []
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: TRUSTED_PROXIES
+        template: deployment.yaml
+
+  - it: should inject OIDC_REDIRECT_URI when redirectUri is set
+    set:
+      oidcAuth:
+        enabled: true
+        clientSecret: "test-secret"
+        redirectUri: "https://mlflow.example.com/oidc/callback"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: OIDC_REDIRECT_URI
+            value: "https://mlflow.example.com/oidc/callback"
+        template: deployment.yaml
+
+  - it: should not inject OIDC_REDIRECT_URI when redirectUri is empty
+    set:
+      oidcAuth:
+        enabled: true
+        clientSecret: "test-secret"
+        redirectUri: ""
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: OIDC_REDIRECT_URI
+        template: deployment.yaml
+

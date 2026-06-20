@@ -413,9 +413,11 @@ tests:
     set:
       oauth2Proxy:
         enabled: true
-        existingSecret: my-oauth2-secret
-        clientIDKey: client-id
-        clientSecretKey: client-secret
+        existingSecret:
+          name: my-oauth2-secret
+          clientIDKey: client-id
+          clientSecretKey: client-secret
+          cookieSecretKey: cookie-secret
         listenPort: 4180
       extraEnvVars:
         AWS_DEFAULT_REGION: eu-central-1

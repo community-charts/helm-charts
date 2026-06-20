@@ -1,3 +1,12 @@
+{{- if and .Values.oidcAuth.enabled .Values.oauth2Proxy.enabled }}
+  {{- fail "oidcAuth and oauth2Proxy are mutually exclusive" }}
+{{- end }}
+{{- if and .Values.oidcAuth.enabled .Values.auth.enabled }}
+  {{- fail "oidcAuth and auth are mutually exclusive" }}
+{{- end }}
+{{- if and .Values.oidcAuth.enabled .Values.ldapAuth.enabled }}
+  {{- fail "oidcAuth and ldapAuth are mutually exclusive" }}
+{{- end }}
 {{- $artifactCommandPrefix := "default-artifact-root" }}
 {{- $artifactCommand := printf "--%s=%s" $artifactCommandPrefix .Values.artifactRoot.defaultArtifactRoot }}
 
@@ -316,7 +325,9 @@ spec:
           {{- if .Values.serviceMonitor.enabled }}
             - --expose-prometheus=/mlflow/metrics
           {{- end }}
-          {{- if .Values.auth.enabled }}
+          {{- if .Values.oidcAuth.enabled }}
+            - --app-name=oidc-auth
+          {{- else if .Values.auth.enabled }}
             - --app-name={{ .Values.auth.appName }}
           {{- else if .Values.ldapAuth.enabled }}
             - --app-name=basic-auth
@@ -368,6 +379,78 @@ spec:
             {{- if or .Values.ldapAuth.encodedTrustedCACertificate .Values.ldapAuth.externalSecretForTrustedCACertificate }}
             - name: LDAP_CA
               value: "/certs/ca.crt"
+            {{- end }}
+          {{- else if .Values.oidcAuth.enabled }}
+            - name: OIDC_DISCOVERY_URL
+              value: {{ .Values.oidcAuth.discoveryUrl | quote }}
+            - name: OIDC_CLIENT_ID
+              value: {{ .Values.oidcAuth.clientId | quote }}
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mlflow.oidcAuthSecretName" . }}
+                  key: {{ .Values.oidcAuth.existingSecret.clientSecretKey }}
+            {{- if .Values.oidcAuth.redirectUri }}
+            - name: OIDC_REDIRECT_URI
+              value: {{ .Values.oidcAuth.redirectUri | quote }}
+            {{- end }}
+            - name: OIDC_SCOPE
+              value: {{ .Values.oidcAuth.scope | quote }}
+            {{- if .Values.oidcAuth.audience }}
+            - name: OIDC_AUDIENCE
+              value: {{ .Values.oidcAuth.audience | quote }}
+            {{- end }}
+            - name: OIDC_PROVIDER_DISPLAY_NAME
+              value: {{ .Values.oidcAuth.providerDisplayName | quote }}
+            - name: OIDC_GROUPS_ATTRIBUTE
+              value: {{ .Values.oidcAuth.groupsAttribute | quote }}
+            - name: OIDC_GROUP_NAME
+              value: {{ .Values.oidcAuth.groupName | join "," | quote }}
+            - name: OIDC_ADMIN_GROUP_NAME
+              value: {{ .Values.oidcAuth.adminGroupName | join "," | quote }}
+            - name: DEFAULT_MLFLOW_PERMISSION
+              value: {{ .Values.oidcAuth.defaultPermission | quote }}
+            - name: SESSION_COOKIE_SECURE
+              value: {{ .Values.oidcAuth.sessionCookieSecure | quote }}
+            - name: SESSION_COOKIE_SAMESITE
+              value: {{ .Values.oidcAuth.sessionCookieSamesite | quote }}
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mlflow.fullname" . }}-flask-server-secret-key
+                  key: MLFLOW_FLASK_SERVER_SECRET_KEY
+            {{- if .Values.oidcAuth.cache.enabled }}
+            - name: CACHE_BACKEND
+              value: "redis"
+            - name: CACHE_REDIS_URL
+              value: {{ .Values.oidcAuth.cache.redisUrl | quote }}
+            - name: CACHE_KEY_PREFIX
+              value: {{ .Values.oidcAuth.cache.keyPrefix | quote }}
+            {{- end }}
+            {{- if .Values.oidcAuth.database.postgres.enabled }}
+            - name: OIDC_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mlflow.oidcAuthDbSecretName" . }}
+                  key: {{ .Values.oidcAuth.database.postgres.existingSecret.usernameKey }}
+            - name: OIDC_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mlflow.oidcAuthDbSecretName" . }}
+                  key: {{ .Values.oidcAuth.database.postgres.existingSecret.passwordKey }}
+            {{- $oidcDbDriver := "" }}
+            {{- if .Values.oidcAuth.database.postgres.driver }}
+              {{- $oidcDbDriver = printf "+%s" .Values.oidcAuth.database.postgres.driver }}
+            {{- end }}
+            - name: OIDC_USERS_DB_URI
+              value: {{ printf "postgresql%s://$(OIDC_DB_USER):$(OIDC_DB_PASSWORD)@%s:%v/%s" $oidcDbDriver (required "oidcAuth.database.postgres.host must be specified" .Values.oidcAuth.database.postgres.host) .Values.oidcAuth.database.postgres.port (required "oidcAuth.database.postgres.database must be specified" .Values.oidcAuth.database.postgres.database) | quote }}
+            {{- else if .Values.oidcAuth.database.uri }}
+            - name: OIDC_USERS_DB_URI
+              value: {{ .Values.oidcAuth.database.uri | quote }}
+            {{- end }}
+            {{- if .Values.oidcAuth.trustedProxies }}
+            - name: TRUSTED_PROXIES
+              value: {{ .Values.oidcAuth.trustedProxies | join "," | quote }}
             {{- end }}
           {{- end }}
           {{- if .Values.postgresql.enabled }}
@@ -513,18 +596,18 @@ spec:
             - name: OAUTH2_PROXY_CLIENT_ID
               valueFrom:
                 secretKeyRef:
-                  name: {{ if .Values.oauth2Proxy.existingSecret }}{{ .Values.oauth2Proxy.existingSecret }}{{ else }}{{ printf "%s-oauth2-proxy" (include "mlflow.fullname" .) }}{{ end }}
-                  key: {{ .Values.oauth2Proxy.clientIDKey }}
+                  name: {{ include "mlflow.oauth2ProxySecretName" . }}
+                  key: {{ .Values.oauth2Proxy.existingSecret.clientIDKey }}
             - name: OAUTH2_PROXY_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ if .Values.oauth2Proxy.existingSecret }}{{ .Values.oauth2Proxy.existingSecret }}{{ else }}{{ printf "%s-oauth2-proxy" (include "mlflow.fullname" .) }}{{ end }}
-                  key: {{ .Values.oauth2Proxy.clientSecretKey }}
+                  name: {{ include "mlflow.oauth2ProxySecretName" . }}
+                  key: {{ .Values.oauth2Proxy.existingSecret.clientSecretKey }}
             - name: OAUTH2_PROXY_COOKIE_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ if .Values.oauth2Proxy.existingSecret }}{{ .Values.oauth2Proxy.existingSecret }}{{ else }}{{ printf "%s-oauth2-proxy" (include "mlflow.fullname" .) }}{{ end }}
-                  key: cookie-secret
+                  name: {{ include "mlflow.oauth2ProxySecretName" . }}
+                  key: {{ .Values.oauth2Proxy.existingSecret.cookieSecretKey }}
           resources:
             {{- toYaml .Values.oauth2Proxy.resources | nindent 12 }}
           {{- with .Values.oauth2Proxy.extraEnv }}
@@ -578,7 +661,7 @@ spec:
         {{- if .Values.oauth2Proxy.enabled }}
         - name: oauth2-proxy-cookie
           secret:
-            secretName: {{- if .Values.oauth2Proxy.existingSecret }}{{ .Values.oauth2Proxy.existingSecret }}{{- else }}{{ printf "%s-oauth2-proxy" (include "mlflow.fullname" .) }}{{- end }}
+            secretName: {{ include "mlflow.oauth2ProxySecretName" . }}
         {{- end }}
       {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}

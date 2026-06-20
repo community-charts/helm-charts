@@ -1,0 +1,46 @@
+suite: test oidc auth conflicts
+
+templates:
+  - deployment.yaml
+
+release:
+  name: mlflow
+  namespace: mlflow
+
+chart:
+  version: 1.0.0
+  appVersion: 1.0.0
+
+tests:
+  - it: should fail when oidcAuth and oauth2Proxy are both enabled
+    set:
+      oidcAuth:
+        enabled: true
+        clientSecret: "test-secret"
+      oauth2Proxy:
+        enabled: true
+    asserts:
+      - failedTemplate:
+          errorMessage: "oidcAuth and oauth2Proxy are mutually exclusive"
+
+  - it: should fail when oidcAuth and auth are both enabled
+    set:
+      oidcAuth:
+        enabled: true
+        clientSecret: "test-secret"
+      auth:
+        enabled: true
+    asserts:
+      - failedTemplate:
+          errorMessage: "oidcAuth and auth are mutually exclusive"
+
+  - it: should fail when oidcAuth and ldapAuth are both enabled
+    set:
+      oidcAuth:
+        enabled: true
+        clientSecret: "test-secret"
+      ldapAuth:
+        enabled: true
+    asserts:
+      - failedTemplate:
+          errorMessage: "oidcAuth and ldapAuth are mutually exclusive"
