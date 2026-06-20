@@ -10,9 +10,12 @@ should match snapshot of default values:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-env-configmap
   2: |
     apiVersion: apps/v1
@@ -42,7 +45,7 @@ should match snapshot of default values:
       template:
         metadata:
           annotations:
-            checksum/config: 6a1114d91915da5454596d7c7d7f7ae694d835f570534869b7d474e0638ca692
+            checksum/config: ef3288010cccf433373bc852c095b7bccbbcb1645c30158e161adea8b0761644
           labels:
             app: mlflow
             app.kubernetes.io/instance: mlflow
@@ -121,9 +124,12 @@ should match snapshot with additional values:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-env-configmap
   2: |
     apiVersion: v1
@@ -137,9 +143,12 @@ should match snapshot with additional values:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-migrations
   3: |
     apiVersion: v1
@@ -193,9 +202,12 @@ should match snapshot with additional values:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-dbchecker
   4: |
     apiVersion: apps/v1
@@ -225,7 +237,7 @@ should match snapshot with additional values:
       template:
         metadata:
           annotations:
-            checksum/config: 6b2e5b79819b41f2fb1616723011efa7695e94d68cb01a3f73683e5800ba3324
+            checksum/config: 62ff65b92504726901590d2570ba7eff5bf4fd0f844c3637d3cd35167ebad8a3
             test-key: test-value
           labels:
             app: mlflow
@@ -332,13 +344,6 @@ should match snapshot with additional values:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -401,13 +406,6 @@ should match snapshot with additional values:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: ini-file-initializer
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -460,9 +458,12 @@ should match snapshot with additional values when auth and auth.postgres are ena
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-env-configmap
   2: |
     apiVersion: v1
@@ -476,9 +477,12 @@ should match snapshot with additional values when auth and auth.postgres are ena
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-migrations
   3: |
     apiVersion: v1
@@ -532,9 +536,12 @@ should match snapshot with additional values when auth and auth.postgres are ena
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-dbchecker
   4: |
     apiVersion: apps/v1
@@ -564,7 +571,7 @@ should match snapshot with additional values when auth and auth.postgres are ena
       template:
         metadata:
           annotations:
-            checksum/config: 6b2e5b79819b41f2fb1616723011efa7695e94d68cb01a3f73683e5800ba3324
+            checksum/config: 62ff65b92504726901590d2570ba7eff5bf4fd0f844c3637d3cd35167ebad8a3
             test-key: test-value
           labels:
             app: mlflow
@@ -671,13 +678,6 @@ should match snapshot with additional values when auth and auth.postgres are ena
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -752,13 +752,6 @@ should match snapshot with additional values when auth and auth.postgres are ena
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: ini-file-initializer
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -811,9 +804,12 @@ should match snapshot with additional values when bitnami mysql is enabled:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-env-configmap
   2: |
     apiVersion: v1
@@ -832,9 +828,12 @@ should match snapshot with additional values when bitnami mysql is enabled:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-migrations
   3: |
     apiVersion: v1
@@ -888,9 +887,12 @@ should match snapshot with additional values when bitnami mysql is enabled:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-dbchecker
   4: |
     apiVersion: apps/v1
@@ -920,7 +922,7 @@ should match snapshot with additional values when bitnami mysql is enabled:
       template:
         metadata:
           annotations:
-            checksum/config: 6065215544154dc24f5f908e4b106efbb173f5cc637a6e3d76ff9eae9b06b28b
+            checksum/config: 52cedde8a54ac4681b31a0a0149c0b3e3be812663d521df9ca0ee0e80bc59e1b
             test-key: test-value
           labels:
             app: mlflow
@@ -1040,13 +1042,6 @@ should match snapshot with additional values when bitnami mysql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -1116,13 +1111,6 @@ should match snapshot with additional values when bitnami mysql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: ini-file-initializer
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -1175,9 +1163,12 @@ should match snapshot with additional values when bitnami postgresql is enabled:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-env-configmap
   2: |
     apiVersion: v1
@@ -1191,9 +1182,12 @@ should match snapshot with additional values when bitnami postgresql is enabled:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-migrations
   3: |
     apiVersion: v1
@@ -1247,9 +1241,12 @@ should match snapshot with additional values when bitnami postgresql is enabled:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-dbchecker
   4: |
     apiVersion: apps/v1
@@ -1279,7 +1276,7 @@ should match snapshot with additional values when bitnami postgresql is enabled:
       template:
         metadata:
           annotations:
-            checksum/config: ee05d6c851b77df0b10835b328e6dbd4d51f118ccebc0a1fe327a8662778281f
+            checksum/config: 58f9d106f4fa6a5789bf0dca8ba3cad928452783219e8c6938fc978abaf5ff01
             test-key: test-value
           labels:
             app: mlflow
@@ -1399,13 +1396,6 @@ should match snapshot with additional values when bitnami postgresql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -1475,13 +1465,6 @@ should match snapshot with additional values when bitnami postgresql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: ini-file-initializer
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -1534,9 +1517,12 @@ should match snapshot with additional values when mssql is enabled:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-env-configmap
   2: |
     apiVersion: v1
@@ -1555,9 +1541,12 @@ should match snapshot with additional values when mssql is enabled:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-migrations
   3: |
     apiVersion: v1
@@ -1611,9 +1600,12 @@ should match snapshot with additional values when mssql is enabled:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-dbchecker
   4: |
     apiVersion: apps/v1
@@ -1643,7 +1635,7 @@ should match snapshot with additional values when mssql is enabled:
       template:
         metadata:
           annotations:
-            checksum/config: 132468a70ffb94392b5ec6c39d6ff0982eb72bae302ed42995dc2a9c5daa21c2
+            checksum/config: 20d098d12fdc99e5acf6c242b108c16cdd3c53954c52b72f120a58ff46974b77
             test-key: test-value
           labels:
             app: mlflow
@@ -1750,13 +1742,6 @@ should match snapshot with additional values when mssql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -1819,13 +1804,6 @@ should match snapshot with additional values when mssql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: ini-file-initializer
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -1878,9 +1856,12 @@ should match snapshot with additional values when mysql is enabled:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-env-configmap
   2: |
     apiVersion: v1
@@ -1899,9 +1880,12 @@ should match snapshot with additional values when mysql is enabled:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-migrations
   3: |
     apiVersion: v1
@@ -1955,9 +1939,12 @@ should match snapshot with additional values when mysql is enabled:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-dbchecker
   4: |
     apiVersion: apps/v1
@@ -1987,7 +1974,7 @@ should match snapshot with additional values when mysql is enabled:
       template:
         metadata:
           annotations:
-            checksum/config: b77fb7a827de95deb339907af313cdec16b823deb6a36360d256a40e24472694
+            checksum/config: 51e777b93a2e7e2179dce362fa1db47bbf69408590930d37bc89e27748470c4a
             test-key: test-value
           labels:
             app: mlflow
@@ -2094,13 +2081,6 @@ should match snapshot with additional values when mysql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -2163,13 +2143,6 @@ should match snapshot with additional values when mysql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: ini-file-initializer
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file
@@ -2222,9 +2195,12 @@ should match snapshot with additional values when postgresql is enabled:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-env-configmap
   2: |
     apiVersion: v1
@@ -2238,9 +2214,12 @@ should match snapshot with additional values when postgresql is enabled:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-migrations
   3: |
     apiVersion: v1
@@ -2294,9 +2273,12 @@ should match snapshot with additional values when postgresql is enabled:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-dbchecker
   4: |
     apiVersion: apps/v1
@@ -2326,7 +2308,7 @@ should match snapshot with additional values when postgresql is enabled:
       template:
         metadata:
           annotations:
-            checksum/config: 6b2e5b79819b41f2fb1616723011efa7695e94d68cb01a3f73683e5800ba3324
+            checksum/config: 62ff65b92504726901590d2570ba7eff5bf4fd0f844c3637d3cd35167ebad8a3
             test-key: test-value
           labels:
             app: mlflow
@@ -2433,13 +2415,6 @@ should match snapshot with additional values when postgresql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -2502,13 +2477,6 @@ should match snapshot with additional values when postgresql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: ini-file-initializer
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 128Mi
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
               volumeMounts:
                 - mountPath: /template
                   name: auth-ini-template-file

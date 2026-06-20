@@ -1,12 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "mlflow.fullname" . }}-env-configmap
+  name: {{ include "mlflow.fullname" . }}-env-configmap
   labels:
-    app: {{ template "mlflow.name" . }}
-    chart: {{ template "mlflow.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "mlflow.labels" . | nindent 4 }}
 data:
 {{- if .Values.backendStore.postgres.enabled }}
   PGHOST: {{ required "postgres host must be specified" .Values.backendStore.postgres.host }}
@@ -14,7 +11,7 @@ data:
   PGDATABASE: {{ required "postgres database must be specified" .Values.backendStore.postgres.database }}
 {{- end }}
 {{- if .Values.postgresql.enabled }}
-  PGHOST: {{ template "mlflow.fullname" . }}-postgresql
+  PGHOST: {{ include "mlflow.fullname" . }}-postgresql
   PGPORT: {{ default "5432" .Values.postgresql.primary.service.ports.postgresql | quote }}
   PGDATABASE: {{ .Values.postgresql.auth.database }}
 {{- end }}
@@ -29,7 +26,7 @@ data:
   MSSQL_DATABASE: {{ required "mssql database must be specified" .Values.backendStore.mssql.database }}
 {{- end }}
 {{- if .Values.mysql.enabled }}
-  MYSQL_HOST: {{ template "mlflow.fullname" . }}-mysql
+  MYSQL_HOST: {{ include "mlflow.fullname" . }}-mysql
   MYSQL_TCP_PORT: {{ default "3306" .Values.mysql.primary.service.ports.mysql | quote }}
   MYSQL_DATABASE: {{ .Values.mysql.auth.database }}
 {{- end }}
@@ -54,12 +51,9 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "mlflow.fullname" . }}-migrations
+  name: {{ include "mlflow.fullname" . }}-migrations
   labels:
-    app: {{ template "mlflow.name" . }}
-    chart: {{ template "mlflow.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "mlflow.labels" . | nindent 4 }}
 data:
   migrations.py: |-
     from mlflow.store.db import utils
@@ -90,12 +84,9 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "mlflow.fullname" . }}-dbchecker
+  name: {{ include "mlflow.fullname" . }}-dbchecker
   labels:
-    app: {{ template "mlflow.name" . }}
-    chart: {{ template "mlflow.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "mlflow.labels" . | nindent 4 }}
 data:
   {{ (.Files.Glob "files/dbchecker.sh").AsConfig | nindent 2 }}
 {{- end }}

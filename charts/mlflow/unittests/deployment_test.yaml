@@ -447,6 +447,37 @@ tests:
             value: eu-central-1
         template: deployment.yaml
 
+  - it: should use oauth2ProxySecretName helper name (no -secret suffix) for env var secret refs
+    set:
+      oauth2Proxy:
+        enabled: true
+        createSecret: true
+        provider:
+          clientID: test-client
+          clientSecret: test-secret
+        cookieSecret: test-cookie
+        listenPort: 4180
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].env
+          content:
+            name: OAUTH2_PROXY_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: mlflow-oauth2-proxy
+                key: client-id
+        template: deployment.yaml
+
+  - it: should not mount oauth2-proxy-cookie volume on the sidecar
+    set:
+      oauth2Proxy:
+        enabled: true
+        listenPort: 4180
+    asserts:
+      - isNull:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].volumeMounts
+        template: deployment.yaml
+
   - it: should show extra secret environment variables from secrets when we pass any
     set:
       extraSecretNamesForEnvFrom:
@@ -2138,12 +2169,11 @@ tests:
     asserts:
       - matchSnapshot: {}
 
-  - it: should set resources for init containers when resources are defined
+  - it: should set resources only on mlflow-db-migration init container, not on busybox init containers
     set:
-      auth:
-        enabled: true
       backendStore:
         databaseConnectionCheck: true
+        databaseMigration: true
       postgresql:
         enabled: true
       resources:
@@ -2155,10 +2185,13 @@ tests:
           memory: 128Mi
     asserts:
       - equal:
-          path: spec.template.spec.initContainers[?(@.name == "dbchecker")].resources.requests.cpu
+          path: spec.template.spec.initContainers[?(@.name == "mlflow-db-migration")].resources.requests.cpu
           value: 100m
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.initContainers[?(@.name == "ini-file-initializer")].resources.limits.memory
+          path: spec.template.spec.initContainers[?(@.name == "mlflow-db-migration")].resources.limits.memory
           value: 128Mi
+        template: deployment.yaml
+      - isNull:
+          path: spec.template.spec.initContainers[?(@.name == "dbchecker")].resources
         template: deployment.yaml

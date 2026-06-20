@@ -175,7 +175,7 @@ When `log.enabled: true`, the template injects `--log-level` into gunicorn opts 
 - `gunicornOpts` present and already contains `--log-level` → replaces the existing value via `regexReplaceAll`
 - `gunicornOpts` present without `--log-level` → prepends `--log-level=<level>` to the existing string
 
-Test cases for all three paths exist in `unittests/log_level_test.yaml`.
+Test cases for all three paths exist in `unittests/deployment_test.yaml`.
 
 ### Proxied Artifact Storage Mode
 
@@ -257,19 +257,20 @@ Test files are in `unittests/`. Each focuses on one configuration axis:
 
 | File | What it covers |
 |---|---|
-| `deployment_test.yaml` | Core deployment defaults and general rendering |
-| `postgres_test.yaml` | PostgreSQL backend (external and subchart) |
-| `mysql_test.yaml` | MySQL backend |
-| `mssql_test.yaml` | MSSQL backend |
-| `s3_test.yaml` | S3 artifact store, IRSA |
-| `azure_blob_test.yaml` | Azure Blob artifact store |
-| `gcs_test.yaml` | GCS artifact store |
-| `auth_test.yaml` | Basic auth, auth Postgres, existing secrets |
-| `ldap_test.yaml` | LDAP auth, TLS modes, CA cert |
+| `deployment_test.yaml` | All deployment rendering: backends (postgres/mysql/mssql/s3/azure/gcs), auth, ldapAuth, oauth2Proxy, oidcAuth, extraEnvVars, HPA conditions, log level, init containers |
+| `auth_admin_secret_test.yaml` | Basic auth admin secret (chart-managed vs existing secret) |
+| `auth_ini_configmap_test.yaml` | INI configmap rendering for basic auth and ldapAuth |
+| `auth_postgres_secret_test.yaml` | Auth Postgres credential secret |
+| `configmap_test.yaml` | Env-configmap and migrations configmap |
 | `hpa_test.yaml` | HPA creation conditions |
-| `log_level_test.yaml` | Log-level merging with gunicorn opts |
-| `oidc_auth_test.yaml` | OIDC auth env vars, secret references, cache, DB URI |
+| `ingress_test.yaml` | Ingress rendering and oauth2Proxy port routing |
+| `oidc_auth_test.yaml` | oidcAuth env vars, secret references, Redis cache, Postgres DB URI |
 | `oidc_auth_conflict_test.yaml` | Mutual exclusivity `fail` guards for oidcAuth |
+| `secret_test.yaml` | Env-secret (db credentials, S3/azure keys, ldap) and oauth2-proxy secret |
+| `service_test.yaml` | Service port and type rendering |
+| `serviceaccount_test.yaml` | ServiceAccount creation |
+| `servicemonitor_test.yaml` | Prometheus ServiceMonitor rendering |
+| `trusted_ca_cert_secret_test.yaml` | LDAP CA certificate secret |
 
 Use `matchRegex` (not `equal`) when asserting a substring within a rendered multi-line arg or command string — the full strings include unrelated boilerplate that would make `equal` brittle.
 
