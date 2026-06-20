@@ -780,7 +780,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | auth.configFile | string | `"basic_auth.ini"` | Mlflow authentication INI file |
 | auth.configPath | string | `"/etc/mlflow/auth/"` | Mlflow authentication INI configuration file path. |
 | auth.defaultPermission | string | `"READ"` | Default permission for all users. More details: https://mlflow.org/docs/latest/auth/index.html#permissions |
-| auth.enabled | bool | `false` | Specifies if you want to enable mlflow authentication. auth and ldapAuth can't be enabled at same time. |
+| auth.enabled | bool | `false` | Specifies if you want to enable mlflow authentication. auth, ldapAuth, and oidcAuth can't be enabled at same time. |
 | auth.existingAdminSecret | object | `{"name":"","passwordKey":"password","usernameKey":"username"}` | Specifies if you want to use an existing admin credentials secret for auth. If it's set, adminUsername and adminPassword will be ignored. |
 | auth.existingAdminSecret.name | string | `""` | The name of the existing admin credentials secret. |
 | auth.existingAdminSecret.passwordKey | string | `"password"` | The key of the admin password in the existing admin credentials secret. |
@@ -872,7 +872,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | initImages.mlflowDbMigration.tag | string | `""` | mlflow-db-migration init container image tag to use. Default app version |
 | ldapAuth | object | `{"adminGroupDistinguishedName":"","enabled":false,"encodedTrustedCACertificate":"","externalSecretForTrustedCACertificate":"","groupAttribute":"dn","groupAttributeKey":"","lookupBind":"","searchBaseDistinguishedName":"","searchFilter":"(&(objectclass=groupOfUniqueNames)(uniquemember=%s))","tlsVerification":"required","uri":"","userGroupDistinguishedName":""}` | Basic Authentication with LDAP backend |
 | ldapAuth.adminGroupDistinguishedName | string | `""` | LDAP DN for the admin group. e.g.: "cn=test-admin,ou=groups,dc=mlflow,dc=test" |
-| ldapAuth.enabled | bool | `false` | Specifies if you want to enable mlflow LDAP authentication. auth and ldapAuth can't be enabled at same time. |
+| ldapAuth.enabled | bool | `false` | Specifies if you want to enable mlflow LDAP authentication. auth, ldapAuth, and oidcAuth can't be enabled at same time. |
 | ldapAuth.encodedTrustedCACertificate | string | `""` | Base64 encoded trusted CA certificate for LDAP server connection. |
 | ldapAuth.externalSecretForTrustedCACertificate | string | `""` | External secret name for trusted CA certificate for LDAP server connection. |
 | ldapAuth.groupAttribute | string | `"dn"` | LDAP group attribute. |
@@ -915,9 +915,10 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | oidcAuth.clientSecret | string | `""` | OIDC client secret — use existingSecret for production (env: OIDC_CLIENT_SECRET) |
 | oidcAuth.database | object | `{"postgres":{"database":"","driver":"","enabled":false,"existingSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"host":"","password":"","port":5432,"user":""},"uri":""}` | OIDC user/permission database — separate from the MLflow tracking store. Defaults to sqlite:///auth.db when postgres is not enabled and uri is empty. |
 | oidcAuth.database.postgres.enabled | bool | `false` | Use PostgreSQL for the OIDC user/permission database |
-| oidcAuth.database.postgres.user | string | `""` | Credentials — prefer existingSecret for production |
+| oidcAuth.database.postgres.password | string | `""` | Postgres password for the OIDC user/permission database — prefer existingSecret for production |
+| oidcAuth.database.postgres.user | string | `""` | Postgres username for the OIDC user/permission database |
 | oidcAuth.database.uri | string | `""` | Full URI override (env: OIDC_USERS_DB_URI); takes precedence over postgres block when set. Example: postgresql+psycopg2://user:pass@host:5432/oidc_users |
-| oidcAuth.defaultPermission | string | `"MANAGE"` | Default permission for authenticated users: NO_PERMISSIONS | READ | EDIT | MANAGE (env: DEFAULT_MLFLOW_PERMISSION) |
+| oidcAuth.defaultPermission | string | `"MANAGE"` | Default permission for authenticated users: NO_PERMISSIONS / READ / EDIT / MANAGE (env: DEFAULT_MLFLOW_PERMISSION) |
 | oidcAuth.discoveryUrl | string | `""` | OIDC discovery URL (env: OIDC_DISCOVERY_URL) e.g. https://keycloak/realms/mlflow/.well-known/openid-configuration |
 | oidcAuth.existingSecret | object | `{"clientSecretKey":"OIDC_CLIENT_SECRET","name":""}` | Reference a pre-existing secret instead of creating one from clientSecret above |
 | oidcAuth.groupName | list | `["mlflow"]` | Groups whose members are allowed to access MLflow (env: OIDC_GROUP_NAME) |
@@ -925,7 +926,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | oidcAuth.providerDisplayName | string | `"Login with OIDC"` | Display name on the Login button in the MLflow UI (env: OIDC_PROVIDER_DISPLAY_NAME) |
 | oidcAuth.redirectUri | string | `""` | Optional redirect URI; auto-detected from request headers when empty (env: OIDC_REDIRECT_URI) |
 | oidcAuth.scope | string | `"openid,email,profile"` | Scopes requested from the OIDC provider (env: OIDC_SCOPE) |
-| oidcAuth.sessionCookieSamesite | string | `"lax"` | SameSite policy for session cookies: lax | strict | none (env: SESSION_COOKIE_SAMESITE) |
+| oidcAuth.sessionCookieSamesite | string | `"lax"` | SameSite policy for session cookies: lax / strict / none (env: SESSION_COOKIE_SAMESITE) |
 | oidcAuth.sessionCookieSecure | bool | `true` | Require HTTPS for session cookies; set false only in local/dev environments (env: SESSION_COOKIE_SECURE) |
 | oidcAuth.trustedProxies | list | `[]` | List of trusted proxy IPs/CIDRs (e.g. ingress controller CIDR). Required when MLflow runs behind an ingress; fixes redirect URI auto-detection. (env: TRUSTED_PROXIES) |
 | podAnnotations | object | `{}` | Annotations for the pod |

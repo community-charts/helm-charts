@@ -306,7 +306,7 @@ flaskServerSecretKey: ""
 
 # -- Mlflow authentication settings
 auth:
-  # -- Specifies if you want to enable mlflow authentication. auth and ldapAuth can't be enabled at same time.
+  # -- Specifies if you want to enable mlflow authentication. auth, ldapAuth, and oidcAuth can't be enabled at same time.
   enabled: false
   # -- Mlflow admin user username
   adminUsername: ""
@@ -361,7 +361,7 @@ auth:
 
 # -- Basic Authentication with LDAP backend
 ldapAuth:
-  # -- Specifies if you want to enable mlflow LDAP authentication. auth and ldapAuth can't be enabled at same time.
+  # -- Specifies if you want to enable mlflow LDAP authentication. auth, ldapAuth, and oidcAuth can't be enabled at same time.
   enabled: false
   # -- LDAP URI. e.g.: "ldap://lldap:3890/dc=mlflow,dc=test"
   uri: ""
@@ -652,13 +652,12 @@ oidcAuth:
   # -- Groups whose members receive admin/MANAGE permission (env: OIDC_ADMIN_GROUP_NAME)
   adminGroupName:
     - mlflow-admin
-  # -- Default permission for authenticated users: NO_PERMISSIONS | READ | EDIT | MANAGE
-  # (env: DEFAULT_MLFLOW_PERMISSION)
+  # -- Default permission for authenticated users: NO_PERMISSIONS / READ / EDIT / MANAGE (env: DEFAULT_MLFLOW_PERMISSION)
   defaultPermission: "MANAGE"
   # -- Require HTTPS for session cookies; set false only in local/dev environments
   # (env: SESSION_COOKIE_SECURE)
   sessionCookieSecure: true
-  # -- SameSite policy for session cookies: lax | strict | none (env: SESSION_COOKIE_SAMESITE)
+  # -- SameSite policy for session cookies: lax / strict / none (env: SESSION_COOKIE_SAMESITE)
   sessionCookieSamesite: "lax"
   # -- Shared cache backend for multi-replica deployments (requires mlflow-oidc-auth[cache], already in image)
   cache:
@@ -681,8 +680,9 @@ oidcAuth:
       port: 5432
       database: ""
       driver: ""
-      # -- Credentials — prefer existingSecret for production
+      # -- Postgres username for the OIDC user/permission database
       user: ""
+      # -- Postgres password for the OIDC user/permission database — prefer existingSecret for production
       password: ""
       existingSecret:
         name: ""
