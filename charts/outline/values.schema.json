@@ -41,12 +41,21 @@
           "required": [],
           "title": "tag",
           "type": "string"
+        },
+        "digest": {
+          "default": "",
+          "description": "Image digest in the format sha256:<hex>. When set, overrides the tag for immutable pulls.",
+          "pattern": "^(sha256:[a-f0-9]{64})?$",
+          "required": [],
+          "title": "digest",
+          "type": "string"
         }
       },
       "required": [
         "repository",
         "pullPolicy",
-        "tag"
+        "tag",
+        "digest"
       ],
       "title": "image",
       "type": "object"
