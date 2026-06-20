@@ -204,6 +204,44 @@ Both mount to `/certs/ca.crt` and set `LDAP_CA=/certs/ca.crt` in the main contai
 
 The pod template carries `checksum/config: {{ include ".../configmap.yaml" . | sha256sum }}` so that any change to the `configmap.yaml` values (env vars) triggers a rolling restart automatically.
 
+## Values Documentation Conventions
+
+These rules go beyond the root `CLAUDE.md` and are specific to patterns already established in this chart:
+
+**Every nested sub-field that should appear in the README table needs its own `# --` comment.** helm-docs only documents fields that carry a `# --` comment — a comment on the parent object alone is not enough. This bites nested `existingSecret.*`, `image.*`, and `provider.*` blocks in particular. Pattern from this chart:
+
+```yaml
+# -- Reference a pre-existing secret
+existingSecret:
+  # -- Name of the secret; leave empty to let the chart create one
+  name: ""
+  # -- Key that holds the client secret value
+  clientSecretKey: "OIDC_CLIENT_SECRET"
+```
+
+**Do not use `|` in description text** — it breaks the generated markdown table (pipe is the column separator). Use `/` as the option delimiter:
+
+```yaml
+# -- Permission level: NO_PERMISSIONS / READ / EDIT / MANAGE  ← correct
+# -- Permission level: NO_PERMISSIONS | READ | EDIT | MANAGE  ← breaks table
+```
+
+**Only one `# --` comment per field.** helm-docs only picks up the last `# --` block above a field. A descriptive `# --` comment followed by another `# --` (the real description) causes the first to be silently dropped — use a plain `#` line for inline notes:
+
+```yaml
+# This is just a code note (no --)
+# -- This is the actual field description picked up by helm-docs
+listenPort: 4180
+```
+
+**Two-line `# --` comments work, but keep them on one line when possible.** helm-docs joins continuation lines but the result can be hard to read in the source and easy to accidentally split:
+
+```yaml
+# -- Require HTTPS for cookies; set false only in dev (env: SESSION_COOKIE_SECURE)  ← prefer
+# -- Require HTTPS for cookies; set false only in dev
+# (env: SESSION_COOKIE_SECURE)  ← works but avoid
+```
+
 ## Subcharts
 
 | Subchart | Version | Condition | Notes |
