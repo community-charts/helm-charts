@@ -641,6 +641,29 @@ tests:
                 optional: true
         template: deployment-mcp-webhook.yaml
 
+  - it: should set postgresdb password environment variable from external secret with custom key when postgresql.auth.username is set and existingSecretPasswordKey is set
+    set:
+      db:
+        type: postgresdb
+      postgresql:
+        enabled: true
+        auth:
+          username: n8npostgres
+          password: n8npostgrespassword
+      externalPostgresql:
+        existingSecretPasswordKey: custom-postgres-password
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].env
+          content:
+            name: DB_POSTGRESDB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: n8n-postgresql
+                key: custom-postgres-password
+                optional: true
+        template: deployment-mcp-webhook.yaml
+
   - it: should set postgresdb password environment variable from secret with key postgres-password when postgresql.auth.username is not set
     set:
       db:
@@ -676,6 +699,25 @@ tests:
               secretKeyRef:
                 name: custom-secret
                 key: postgres-password
+                optional: true
+        template: deployment-mcp-webhook.yaml
+
+  - it: should set postgresdb password environment variable from external secret with custom key when externalPostgresql.existingSecretPasswordKey is set
+    set:
+      db:
+        type: postgresdb
+      externalPostgresql:
+        existingSecret: custom-secret
+        existingSecretPasswordKey: custom-postgres-password
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].env
+          content:
+            name: DB_POSTGRESDB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: custom-secret
+                key: custom-postgres-password
                 optional: true
         template: deployment-mcp-webhook.yaml
 
@@ -746,6 +788,34 @@ tests:
                 optional: true
         template: deployment-mcp-webhook.yaml
 
+  - it: should set redis username and password environment variables from external secret with custom keys
+    set:
+      externalRedis:
+        existingSecret: custom-secret
+        existingUsernameKey: custom-redis-username
+        existingPasswordKey: custom-redis-password
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].env
+          content:
+            name: QUEUE_BULL_REDIS_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: custom-secret
+                key: custom-redis-username
+                optional: true
+        template: deployment-mcp-webhook.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].env
+          content:
+            name: QUEUE_BULL_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: custom-secret
+                key: custom-redis-password
+                optional: true
+        template: deployment-mcp-webhook.yaml
+
   - it: should set extra environment variables when extraEnvVars is set
     set:
       extraEnvVars:
@@ -772,9 +842,49 @@ tests:
             value: n8nextraenvvar
         template: deployment-mcp-webhook.yaml
 
-  - it: should set n8n runners enabled environment variable
+  - it: should set valueFrom environment variables when extraEnv is set
+    set:
+      extraEnv:
+        - name: N8N_VALUE_FROM_VAR
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: my-key
     asserts:
       - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].env
+          content:
+            name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
+        template: deployment-mcp-webhook.yaml
+
+  - it: should set valueFrom environment variables when webhook.mcp.extraEnv is set
+    set:
+      webhook:
+        mcp:
+          extraEnv:
+            - name: N8N_VALUE_FROM_VAR
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: my-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].env
+          content:
+            name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
+        template: deployment-mcp-webhook.yaml
+
+  - it: should not set deprecated N8N_RUNNERS_ENABLED environment variable
+    asserts:
+      - notContains:
           path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].env
           content:
             name: N8N_RUNNERS_ENABLED
@@ -1222,9 +1332,9 @@ tests:
             value: fake-value
         template: deployment-mcp-webhook.yaml
 
-  - it: should set task runner enabled environment variable
+  - it: should not set deprecated N8N_RUNNERS_ENABLED environment variable in task runner section
     asserts:
-      - contains:
+      - notContains:
           path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].env
           content:
             name: N8N_RUNNERS_ENABLED
@@ -1409,6 +1519,96 @@ tests:
             done
         template: deployment-mcp-webhook.yaml
 
+  - it: should set security context on wait-for-main init container when webhook.waitMainNodeReady.enabled is true
+    set:
+      webhook:
+        waitMainNodeReady:
+          enabled: true
+      waitContainerSecurityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].securityContext.runAsUser
+          value: 1000
+        template: deployment-mcp-webhook.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].securityContext.runAsGroup
+          value: 1000
+        template: deployment-mcp-webhook.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].securityContext.runAsNonRoot
+          value: true
+        template: deployment-mcp-webhook.yaml
+
+  - it: should set seccompProfile RuntimeDefault in pod security context by default
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.seccompProfile.type
+          value: RuntimeDefault
+        template: deployment-mcp-webhook.yaml
+
+  - it: should always include tmp emptyDir volume
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: tmp
+            emptyDir: {}
+          any: true
+        template: deployment-mcp-webhook.yaml
+
+  - it: should always mount tmp in mcp-webhook container
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].volumeMounts
+          content:
+            name: tmp
+            mountPath: /tmp
+          any: true
+        template: deployment-mcp-webhook.yaml
+
+  - it: should always include cache emptyDir volume
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: cache
+            emptyDir: {}
+          any: true
+        template: deployment-mcp-webhook.yaml
+
+  - it: should always mount cache in mcp-webhook container
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].volumeMounts
+          content:
+            name: cache
+            mountPath: /home/node/.cache
+          any: true
+        template: deployment-mcp-webhook.yaml
+
+  - it: should always include data emptyDir volume
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: data
+            emptyDir: {}
+          any: true
+        template: deployment-mcp-webhook.yaml
+
+  - it: should always mount data in mcp-webhook container
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].volumeMounts
+          content:
+            name: data
+            mountPath: /home/node/.n8n
+          any: true
+        template: deployment-mcp-webhook.yaml
+
   - it: should use startupProbe to wait n8n process ready
     asserts:
       - equal:
@@ -1590,3 +1790,27 @@ tests:
               key: client.key
     asserts:
       - matchSnapshot: { }
+
+  - it: should not set revisionHistoryLimit when revisionHistoryLimit is not set
+    asserts:
+      - notExists:
+          path: spec.revisionHistoryLimit
+        template: deployment-mcp-webhook.yaml
+
+  - it: should set revisionHistoryLimit when revisionHistoryLimit is set
+    set:
+      revisionHistoryLimit: 3
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 3
+        template: deployment-mcp-webhook.yaml
+
+  - it: should set revisionHistoryLimit to 0 when revisionHistoryLimit is 0
+    set:
+      revisionHistoryLimit: 0
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 0
+        template: deployment-mcp-webhook.yaml

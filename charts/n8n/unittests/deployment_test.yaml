@@ -584,6 +584,29 @@ tests:
                 optional: true
         template: deployment.yaml
 
+  - it: should set postgresdb password environment variable from external secret with custom key when db type is postgresdb and postgresql.auth.username is set and existingSecretPasswordKey is set
+    set:
+      db:
+        type: postgresdb
+      postgresql:
+        enabled: true
+        auth:
+          username: n8npostgres
+          password: n8npostgrespassword
+      externalPostgresql:
+        existingSecretPasswordKey: custom-postgres-password
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
+          content:
+            name: DB_POSTGRESDB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: n8n-postgresql
+                key: custom-postgres-password
+                optional: true
+        template: deployment.yaml
+
   - it: should set postgresdb password environment variable from secret with key postgres-password when db type is postgresdb and postgresql.auth.username is not set
     set:
       db:
@@ -619,6 +642,25 @@ tests:
               secretKeyRef:
                 name: custom-secret
                 key: postgres-password
+                optional: true
+        template: deployment.yaml
+
+  - it: should set postgresdb password environment variable from external secret with custom key when db type is postgresdb and externalPostgresql.existingSecretPasswordKey is set
+    set:
+      db:
+        type: postgresdb
+      externalPostgresql:
+        existingSecret: custom-secret
+        existingSecretPasswordKey: custom-postgres-password
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
+          content:
+            name: DB_POSTGRESDB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: custom-secret
+                key: custom-postgres-password
                 optional: true
         template: deployment.yaml
 
@@ -698,6 +740,38 @@ tests:
                 optional: true
         template: deployment.yaml
 
+  - it: should set redis username and password environment variables from external secret with custom keys when worker mode is queue and db type is postgresdb
+    set:
+      worker:
+        mode: queue
+      db:
+        type: postgresdb
+      externalRedis:
+        existingSecret: custom-secret
+        existingUsernameKey: custom-redis-username
+        existingPasswordKey: custom-redis-password
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
+          content:
+            name: QUEUE_BULL_REDIS_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: custom-secret
+                key: custom-redis-username
+                optional: true
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
+          content:
+            name: QUEUE_BULL_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: custom-secret
+                key: custom-redis-password
+                optional: true
+        template: deployment.yaml
+
   - it: should set webhook url environment variable when webhook.url is set
     set:
       webhook:
@@ -733,6 +807,45 @@ tests:
           content:
             name: N8N_EXTRA_ENV_VAR
             value: n8nextraenvvar
+        template: deployment.yaml
+
+  - it: should set valueFrom environment variables when extraEnv is set
+    set:
+      extraEnv:
+        - name: N8N_VALUE_FROM_VAR
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: my-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
+          content:
+            name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
+        template: deployment.yaml
+
+  - it: should set valueFrom environment variables when main.extraEnv is set
+    set:
+      main:
+        extraEnv:
+          - name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
+          content:
+            name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
         template: deployment.yaml
 
   - it: should set database configurations from database configmap
@@ -1287,7 +1400,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].image
-          value: n8nio/n8n:1.0.0
+          value: n8nio/runners:1.0.0
         template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].imagePullPolicy
@@ -1315,7 +1428,7 @@ tests:
         template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].livenessProbe.httpGet.port
-          value: http
+          value: runner-health
         template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].readinessProbe.httpGet.path
@@ -1323,7 +1436,19 @@ tests:
         template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].readinessProbe.httpGet.port
-          value: http
+          value: runner-health
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].startupProbe.httpGet.path
+          value: /healthz
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].startupProbe.httpGet.port
+          value: runner-health
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].startupProbe.failureThreshold
+          value: 30
         template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].resources
@@ -1349,6 +1474,165 @@ tests:
           content:
             configMapRef:
               name: n8n-task-runners-configmap
+        template: deployment.yaml
+
+  - it: should not add task runner sidecar on main pod when worker.mode is queue
+    set:
+      taskRunners:
+        mode: external
+      worker:
+        mode: queue
+      db:
+        type: postgresdb
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers
+          content:
+            name: n8n-task-runners
+        template: deployment.yaml
+
+  - it: should add python arg to task runner container when nodes.python.enabled is true
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].args
+          content: python
+        template: deployment.yaml
+
+  - it: should not add python arg when nodes.python.enabled is false
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          enabled: false
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].args
+          value: ["javascript"]
+        template: deployment.yaml
+
+  - it: should set security context on task runner container when taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].securityContext.runAsUser
+          value: 1000
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].securityContext.runAsGroup
+          value: 1000
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].securityContext.runAsNonRoot
+          value: true
+        template: deployment.yaml
+
+  - it: should mount tmp in task runner container when taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].volumeMounts
+          content:
+            name: tmp
+            mountPath: /tmp
+          any: true
+        template: deployment.yaml
+
+  - it: should set seccompProfile RuntimeDefault in pod security context by default
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.seccompProfile.type
+          value: RuntimeDefault
+        template: deployment.yaml
+
+  - it: should always include tmp emptyDir volume
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: tmp
+            emptyDir: {}
+          any: true
+        template: deployment.yaml
+
+  - it: should always mount tmp in main container
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
+          content:
+            name: tmp
+            mountPath: /tmp
+          any: true
+        template: deployment.yaml
+
+  - it: should always include cache emptyDir volume
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: cache
+            emptyDir: {}
+          any: true
+        template: deployment.yaml
+
+  - it: should always mount cache in main container
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
+          content:
+            name: cache
+            mountPath: /home/node/.cache
+          any: true
+        template: deployment.yaml
+
+  - it: should set NPM_CONFIG_CACHE on npm-install init container when packages are set
+    set:
+      nodes:
+        external:
+          packages:
+            - "moment@2.29.4"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].env
+          content:
+            name: NPM_CONFIG_CACHE
+            value: /npmdata/.npm-cache
+          any: true
+        template: deployment.yaml
+
+  - it: should set NPM_CONFIG_CACHE on main container
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
+          content:
+            name: NPM_CONFIG_CACHE
+            value: /home/node/.cache/npm
+          any: true
+        template: deployment.yaml
+
+  - it: should always mount data dir in main container even without persistence or external packages
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
+          content:
+            name: node-modules
+            mountPath: /home/node/.n8n
+            readOnly: false
+          any: true
         template: deployment.yaml
 
   - it: should add license info command when license.enabled is true and license.activationKey is set
@@ -1741,6 +2025,56 @@ tests:
             value: "fs,crypto"
           any: true
         template: deployment.yaml
+  
+  - it: should add unscoped community packages to install script
+    set:
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-python@0.1.4"
+            - "n8n-nodes-chatwoot@0.1.40"
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].args[0]
+          pattern: 'export COMMUNITY_PACKAGES="n8n-nodes-python@0\.1\.4 n8n-nodes-chatwoot@0\.1\.40"'
+        template: deployment.yaml
+      - matchRegex:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].args[0]
+          pattern: 'export NON_COMMUNITY_PACKAGES=""'
+        template: deployment.yaml
+  
+  - it: should add scoped community packages to install script
+    set:
+      nodes:
+        external:
+          packages:
+            - "@mycompany/n8n-nodes-test@1.0.0"
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].args[0]
+          pattern: 'export COMMUNITY_PACKAGES="@mycompany/n8n-nodes-test@1\.0\.0"'
+        template: deployment.yaml
+      - matchRegex:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].args[0]
+          pattern: 'export NON_COMMUNITY_PACKAGES=""'
+        template: deployment.yaml
+  
+  - it: should not add non-node packages to community node installer script
+    set:
+      nodes:
+        external:
+          packages:
+            - "example@2.29.4"
+            - "@scope/example@1.0.0"
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].args[0]
+          pattern: 'export COMMUNITY_PACKAGES=""'
+        template: deployment.yaml
+      - matchRegex:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].args[0]
+          pattern: 'export NON_COMMUNITY_PACKAGES="example@2\.29\.4 @scope/example@1\.0\.0"'
+        template: deployment.yaml
 
   - it: should only keep npm packages and not community packages when nodes.external.packages is set and taskRunners.mode is internal
     set:
@@ -1762,10 +2096,10 @@ tests:
             echo "$PACKAGES" | sha256sum > /npmdata/packages.hash.new
             if [ ! -f /npmdata/packages.hash ] || ! cmp /npmdata/packages.hash /npmdata/packages.hash.new; then
               if [ -n "$NON_COMMUNITY_PACKAGES" ]; then
-                npm install --loglevel info --no-save $NON_COMMUNITY_PACKAGES --prefix /npmdata
+                npm install --loglevel info --no-save --ignore-scripts $NON_COMMUNITY_PACKAGES --prefix /npmdata
               fi
               if [ -n "$COMMUNITY_PACKAGES" ]; then
-                npm install --loglevel info --no-save $COMMUNITY_PACKAGES --prefix /nodesdata/nodes
+                npm install --loglevel info --no-save --ignore-scripts $COMMUNITY_PACKAGES --prefix /nodesdata/nodes
               fi
               mv /npmdata/packages.hash.new /npmdata/packages.hash
             else
@@ -1890,6 +2224,138 @@ tests:
             secret:
               optional: true
               secretName: n8n-npm-registry-secret
+          any: true
+        template: deployment.yaml
+
+  - it: should use PVC for community-node-modules volume when persistence is enabled
+    set:
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: true
+            existingClaim: my-community-pvc
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            persistentVolumeClaim:
+              claimName: my-community-pvc
+          any: true
+        template: deployment.yaml
+
+  - it: should use emptyDir for community-node-modules volume when persistence is disabled
+    set:
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: false
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            emptyDir: {}
+          any: true
+        template: deployment.yaml
+
+  - it: should use main persistence volume with subPath nodes in init container when main.persistence covers community nodes
+    set:
+      main:
+        persistence:
+          enabled: true
+          existingClaim: my-n8n-pvc
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
+          content:
+            name: node-modules
+            mountPath: "/nodesdata/nodes"
+            subPath: nodes
+            readOnly: false
+          any: true
+        template: deployment.yaml
+      - notContains:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
+          content:
+            name: community-node-modules
+            mountPath: "/nodesdata/nodes"
+            readOnly: false
+          any: true
+        template: deployment.yaml
+
+  - it: should not mount community-node-modules in main container when main.persistence covers community nodes
+    set:
+      main:
+        persistence:
+          enabled: true
+          existingClaim: my-n8n-pvc
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
+          content:
+            name: community-node-modules
+            mountPath: "/home/node/.n8n/nodes"
+            readOnly: false
+          any: true
+        template: deployment.yaml
+
+  - it: should not define community-node-modules volume when main.persistence covers community nodes
+    set:
+      main:
+        persistence:
+          enabled: true
+          existingClaim: my-n8n-pvc
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+    asserts:
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            emptyDir: {}
+          any: true
+        template: deployment.yaml
+
+  - it: should still use community-node-modules when main.persistence has custom subPath set
+    set:
+      main:
+        persistence:
+          enabled: true
+          existingClaim: my-n8n-pvc
+          subPath: "n8n-data"
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
+          content:
+            name: community-node-modules
+            mountPath: "/nodesdata/nodes"
+            readOnly: false
+          any: true
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            emptyDir: {}
           any: true
         template: deployment.yaml
 
@@ -2101,6 +2567,30 @@ tests:
           value: my-runtime-class
         template: deployment.yaml
 
+  - it: should not set revisionHistoryLimit when revisionHistoryLimit is not set
+    asserts:
+      - notExists:
+          path: spec.revisionHistoryLimit
+        template: deployment.yaml
+
+  - it: should set revisionHistoryLimit when revisionHistoryLimit is set
+    set:
+      revisionHistoryLimit: 3
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 3
+        template: deployment.yaml
+
+  - it: should set revisionHistoryLimit to 0 when revisionHistoryLimit is 0
+    set:
+      revisionHistoryLimit: 0
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 0
+        template: deployment.yaml
+
   - it: should match snapshot of default values
     release:
       name: n8n
@@ -2171,3 +2661,310 @@ tests:
               key: client.key
     asserts:
       - matchSnapshot: { }
+
+  - it: should set runner-health port name on task runner sidecar container
+    set:
+      taskRunners:
+        mode: external
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].ports[0].name
+          value: runner-health
+        template: deployment.yaml
+
+  - it: should use explicit tag when taskRunners.external.image.tag is set
+    set:
+      taskRunners:
+        mode: external
+        external:
+          image:
+            tag: "2.0.0"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].image
+          value: n8nio/runners:2.0.0
+        template: deployment.yaml
+
+  - it: should use uv install command when nodes.python.external.packages is set
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          enabled: true
+          external:
+            packages:
+              - pandas
+              - numpy
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].command
+          value: ["/bin/sh", "-c", "UV_CACHE_DIR=/tmp/.uv-cache UV_LINK_MODE=copy uv pip install --target /home/node/.python-packages pandas numpy && export PYTHONPATH=/home/node/.python-packages && exec /usr/local/bin/task-runner-launcher javascript python"]
+        template: deployment.yaml
+
+  - it: should use direct launcher command when nodes.python.external.packages is empty
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          enabled: true
+          external:
+            packages: []
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].command
+          value: ["/usr/local/bin/task-runner-launcher"]
+        template: deployment.yaml
+
+  - it: should mount python-packages volume in runner sidecar at /home/node/.python-packages
+    set:
+      taskRunners:
+        mode: external
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].volumeMounts
+          content:
+            name: python-packages
+            mountPath: /home/node/.python-packages
+        template: deployment.yaml
+
+  - it: should create python-packages emptyDir volume in Deployment when persistence is disabled
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          persistence:
+            enabled: false
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: python-packages
+            emptyDir: {}
+        template: deployment.yaml
+
+  - it: should create python-packages PVC volume in Deployment when persistence is enabled
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          persistence:
+            enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: python-packages
+            persistentVolumeClaim:
+              claimName: n8n-python-packages
+        template: deployment.yaml
+
+  - it: should use existingClaim name for python-packages volume in Deployment
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          persistence:
+            enabled: true
+            existingClaim: my-existing-pvc
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: python-packages
+            persistentVolumeClaim:
+              claimName: my-existing-pvc
+        template: deployment.yaml
+
+  - it: should not add python-packages volume when taskRunners.mode is internal
+    set:
+      taskRunners:
+        mode: internal
+    asserts:
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: python-packages
+            emptyDir: {}
+        template: deployment.yaml
+
+  - it: should not add python-packages volume in main Deployment when worker.mode is queue
+    set:
+      taskRunners:
+        mode: external
+      worker:
+        mode: queue
+    asserts:
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: python-packages
+            emptyDir: {}
+        template: deployment.yaml
+
+  - it: should set UV_DEFAULT_INDEX when pypiRegistry.enabled and url is set without config file
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: true
+        url: "https://my.registry.com/simple/"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[1].env
+          content:
+            name: UV_DEFAULT_INDEX
+            value: "https://my.registry.com/simple/"
+          any: true
+        template: deployment.yaml
+
+  - it: should set UV_CONFIG_FILE when pypiRegistry.enabled and customUvConfig is set
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: true
+        customUvConfig: "[index]\nurl = \"https://my.registry.com/simple/\""
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[1].env
+          content:
+            name: UV_CONFIG_FILE
+            value: "/home/node/.uv-config/uv.toml"
+          any: true
+        template: deployment.yaml
+
+  - it: should set UV_CONFIG_FILE when pypiRegistry.enabled and secretName is set
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: true
+        secretName: "my-uv-secret"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[1].env
+          content:
+            name: UV_CONFIG_FILE
+            value: "/home/node/.uv-config/uv.toml"
+          any: true
+        template: deployment.yaml
+
+  - it: should set UV_CONFIG_FILE with custom secretKey when pypiRegistry.secretKey is set
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: true
+        secretName: "my-uv-secret"
+        secretKey: "custom.toml"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[1].env
+          content:
+            name: UV_CONFIG_FILE
+            value: "/home/node/.uv-config/custom.toml"
+          any: true
+        template: deployment.yaml
+
+  - it: should mount uv-config volume when pypiRegistry.enabled and customUvConfig is set
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: true
+        customUvConfig: "[index]\nurl = \"https://my.registry.com/simple/\""
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[1].volumeMounts
+          content:
+            name: uv-config
+            mountPath: /home/node/.uv-config
+            readOnly: true
+          any: true
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: uv-config
+            secret:
+              secretName: "n8n-pypi-registry-secret"
+              optional: true
+          any: true
+        template: deployment.yaml
+
+  - it: should use existing secret name for uv-config volume when pypiRegistry.secretName is set
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: true
+        secretName: "my-existing-uv-secret"
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: uv-config
+            secret:
+              secretName: "my-existing-uv-secret"
+              optional: true
+          any: true
+        template: deployment.yaml
+
+  - it: should not add pypiRegistry env vars when pypiRegistry is disabled
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: false
+        url: "https://my.registry.com/simple/"
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[1].env
+          content:
+            name: UV_DEFAULT_INDEX
+            value: "https://my.registry.com/simple/"
+          any: true
+        template: deployment.yaml
+
+  - it: should not add uv-config volume when pypiRegistry is disabled
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: false
+        customUvConfig: "[index]\nurl = \"https://my.registry.com/simple/\""
+    asserts:
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: uv-config
+            secret:
+              secretName: "n8n-pypi-registry-secret"
+              optional: true
+          any: true
+        template: deployment.yaml
+
+  - it: should not add uv-config volume in main Deployment when worker.mode is queue
+    set:
+      taskRunners:
+        mode: external
+      worker:
+        mode: queue
+      pypiRegistry:
+        enabled: true
+        customUvConfig: "[index]\nurl = \"https://my.registry.com/simple/\""
+    asserts:
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: uv-config
+            secret:
+              secretName: "n8n-pypi-registry-secret"
+              optional: true
+          any: true
+        template: deployment.yaml

@@ -14,6 +14,7 @@ on:
 env:
   HELM_VERSION: v3.18.3
   HELM_UNITTEST_VERSION: v0.8.2
+  HELM_DOCS_VERSION: v1.14.2
 
 jobs:
   lint-ah:
@@ -25,7 +26,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -39,8 +40,34 @@ jobs:
           done
           echo "All charts linted successfully."
 
+  check-helm-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Install helm-docs
+        run: |
+          VERSION="${{ env.HELM_DOCS_VERSION }}"
+          VERSION_NUMBER="${VERSION#v}"
+          wget -q -O /tmp/helm-docs.tar.gz \
+            "https://github.com/norwoodj/helm-docs/releases/download/${VERSION}/helm-docs_${VERSION_NUMBER}_Linux_x86_64.tar.gz"
+          tar -xzf /tmp/helm-docs.tar.gz -C /tmp helm-docs
+          sudo mv /tmp/helm-docs /usr/local/bin/helm-docs
+
+      - name: Run helm-docs
+        run: helm-docs --chart-search-root=charts --template-files=README.md.gotmpl
+
+      - name: Check for README drift
+        run: |
+          if ! git diff --exit-code charts/*/README.md; then
+            echo "README.md is out of date — run helm-docs locally and commit the updated file(s)"
+            exit 1
+          fi
+
   lint-test:
-    needs: lint-ah
+    needs: [lint-ah, check-helm-docs]
 
     runs-on: ubuntu-latest
 
@@ -49,7 +76,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -145,7 +172,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 

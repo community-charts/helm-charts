@@ -191,7 +191,6 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-  N8N_RUNNERS_ENABLED: "true"
   N8N_RUNNERS_MODE: {{ .Values.taskRunners.mode | quote }}
   N8N_RUNNERS_TASK_TIMEOUT: {{ .Values.taskRunners.taskTimeout | quote }}
   N8N_RUNNERS_HEARTBEAT_INTERVAL: {{ .Values.taskRunners.taskHeartbeatInterval | quote }}
@@ -200,6 +199,17 @@ data:
   N8N_RUNNERS_BROKER_PORT: {{ .Values.taskRunners.broker.port | quote }}
 {{- else }}
   N8N_RUNNERS_MAX_CONCURRENCY: {{ .Values.taskRunners.maxConcurrency | quote }}
+{{- end }}
+{{- if .Values.nodes.python.enabled }}
+  N8N_NATIVE_PYTHON_RUNNER: "true"
+{{- if .Values.nodes.python.builtin.modules }}
+  N8N_RUNNERS_STDLIB_ALLOW: {{ .Values.nodes.python.builtin.modules | join "," | quote }}
+{{- end }}
+{{- if .Values.nodes.python.external.allowAll }}
+  N8N_RUNNERS_EXTERNAL_ALLOW: "*"
+{{- else if .Values.nodes.python.external.packages }}
+  N8N_RUNNERS_EXTERNAL_ALLOW: {{ .Values.nodes.python.external.packages | join "," | quote }}
+{{- end }}
 {{- end }}
 ---
 apiVersion: v1
@@ -253,6 +263,16 @@ data:
 {{- else }}
   SENTRY_DSN: ""
 {{- end }}
+{{- if .Values.nodes.python.enabled }}
+{{- if .Values.nodes.python.builtin.modules }}
+  N8N_RUNNERS_STDLIB_ALLOW: {{ .Values.nodes.python.builtin.modules | join "," | quote }}
+{{- end }}
+{{- if .Values.nodes.python.external.allowAll }}
+  N8N_RUNNERS_EXTERNAL_ALLOW: "*"
+{{- else if .Values.nodes.python.external.packages }}
+  N8N_RUNNERS_EXTERNAL_ALLOW: {{ .Values.nodes.python.external.packages | join "," | quote }}
+{{- end }}
+{{- end }}
 {{- end }}
 {{- if .Values.license.enabled }}
 ---
@@ -266,8 +286,16 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-  N8N_LICENSE_AUTO_RENEW_ENABLED: {{ .Values.license.autoNenew.enabled | quote }}
-  N8N_LICENSE_AUTO_RENEW_OFFSET: {{ .Values.license.autoNenew.offsetInHours | mul 3600 | quote }}
+{{- $licenseAutoRenewEnabled := .Values.license.autoRenew.enabled }}
+{{- if not (kindIs "invalid" .Values.license.autoNenew.enabled) }}
+  {{- $licenseAutoRenewEnabled = .Values.license.autoNenew.enabled }}
+{{- end }}
+{{- $licenseAutoRenewOffsetInHours := .Values.license.autoRenew.offsetInHours }}
+{{- if not (kindIs "invalid" .Values.license.autoNenew.offsetInHours) }}
+  {{- $licenseAutoRenewOffsetInHours = .Values.license.autoNenew.offsetInHours }}
+{{- end }}
+  N8N_LICENSE_AUTO_RENEW_ENABLED: {{ $licenseAutoRenewEnabled | quote }}
+  N8N_LICENSE_AUTO_RENEW_OFFSET: {{ $licenseAutoRenewOffsetInHours | mul 3600 | quote }}
   N8N_LICENSE_SERVER_URL: {{ .Values.license.serverUrl | quote }}
   {{- if ne (int .Values.license.tenantId) 1 }}
   N8N_LICENSE_TENANT_ID: {{ .Values.license.tenantId | quote }}

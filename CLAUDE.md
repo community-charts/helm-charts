@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a community Helm chart repository hosting production-grade Kubernetes charts for: `actualbudget`, `cloudflared`, `drone`, `kserve`, `mlflow`, `n8n`, `outline`, and `pypiserver`. Charts are published to GitHub Pages via the `chart-releaser` action.
 
+Chart-specific guidance (architecture, external docs, non-obvious patterns) lives in `charts/<name>/CLAUDE.md`. Read that file when working on a specific chart.
+
 ## Common Commands
 
 ### Linting
@@ -16,6 +18,9 @@ ct lint --debug --config ./.github/configs/ct-lint.yaml --lint-conf ./.github/co
 
 # Lint with Artifact Hub validator (requires `ah` CLI)
 ah lint -p charts/<chart-name>
+
+# Run KubeLinter against a single chart (requires kube-linter CLI)
+kube-linter lint charts/<chart-name> --config .kube-linter.yaml
 ```
 
 ### Unit Tests
@@ -62,6 +67,7 @@ Every chart follows this layout:
 charts/<name>/
 ├── Chart.yaml          # Chart metadata, version, appVersion, ArtifactHub annotations
 ├── Chart.lock          # Locked dependency versions
+├── .helmignore         # Excludes dev/test files from the packaged chart tarball
 ├── values.yaml         # Default values
 ├── values.schema.json  # JSON Schema validation for values (additionalProperties: false)
 ├── values-kind.yaml    # Minimal values for kind cluster CI testing
@@ -83,32 +89,74 @@ charts/<name>/
     └── *_test.yaml     # helm-unittest test suites (run via `helm unittest`)
 ```
 
+Every non-deprecated chart's `.helmignore` must exclude files that are not needed in the packaged tarball. At minimum it must contain:
+
+```
+README.md.gotmpl
+values-kind.yaml
+CLAUDE.md
+unittests/
+```
+
+Do not apply `.helmignore` changes to deprecated charts (currently: `kserve`).
+
 ### Versioning Rules
 
 - **Any change** to a chart (including docs) requires a `version` bump in `Chart.yaml` following semver.
 - `appVersion` tracks the upstream application version.
 - Breaking changes bump MAJOR version and must document manual upgrade steps in `README.md.gotmpl` under an "Upgrading" section.
-- The `artifacthub.io/changes` annotation in `Chart.yaml` is used to auto-generate release notes — always populate it for every change.
+- The `artifacthub.io/changes` annotation in `Chart.yaml` is used to auto-generate release notes — always populate it for every change. When linking to a GitHub issue, use `name: GitHub Issue` (not `Issue` or any other variant):
+  ```yaml
+  links:
+    - name: GitHub Issue
+      url: https://github.com/community-charts/helm-charts/issues/<number>
+  ```
+- **Bump `version` only once per branch/PR.** After the first bump, do not bump again for subsequent commits on the same branch — all changes in the PR are released together under the single bumped version.
 
 ### CI Pipeline
 
 **`.github/workflows/release.yml`** (runs on all PRs/pushes):
 
 1. **lint-ah**: Runs `ah lint` on all charts for ArtifactHub compliance.
-2. **lint-test**: Runs `ct lint` (which also calls `helm unittest`) and `ct install` on changed charts only. Charts with a `.skip-kind-test` file skip the `ct install` step.
-3. **release**: On merge to `main`, runs `chart-releaser` to package, GPG-sign, and publish changed charts to GitHub Pages.
+2. **check-helm-docs**: Runs `helm-docs` and fails if any `README.md` differs from what is committed — catches PRs where `README.md.gotmpl` or `values.yaml` doc comments were updated without regenerating the README.
+3. **lint-test**: Runs `ct lint` (which also calls `helm unittest`) and `ct install` on changed charts only. Requires both `lint-ah` and `check-helm-docs` to pass. Charts with a `.skip-kind-test` file skip the `ct install` step.
+4. **release**: On merge to `main`, runs `chart-releaser` to package, GPG-sign, and publish changed charts to GitHub Pages.
 
 **`.github/workflows/security-scan.yml`** (runs on changes to `charts/**`):
 
 4. **security-scan**: Runs KubeLinter (all built-in checks, `kserve` excluded via `.kube-linter.yaml`) and Trivy misconfiguration/vulnerability scan (HIGH + CRITICAL severity) against chart templates. Both results are uploaded as SARIF to GitHub Security.
 
+For **conditionally-rendered fields** (e.g. gated on `semverCompare`), suppress KubeLinter checks with a per-object annotation rather than a global `.kube-linter.yaml` exclusion:
+```yaml
+metadata:
+  annotations:
+    ignore-check.kube-linter.io/<check-name>: "reason"
+```
+
 ### Unit Test Convention
 
 Tests live in `unittests/` as YAML files using [helm-unittest](https://github.com/helm-unittest/helm-unittest) syntax. Tests assert on rendered template output using `set:` to override values. Snapshot tests use `__snapshot__/` subdirectories.
 
+When asserting a specific value within a larger rendered string (e.g. one line in a multi-line script), use `matchRegex` with a targeted pattern rather than `equal` on the full string — keeps tests focused and resilient to unrelated boilerplate changes. `matchRegex` does substring matching (no anchoring needed); escape regex metacharacters in patterns (e.g. `\.` for literal dots in version strings).
+
+Always validate field types against the official schema before writing tests:
+`https://raw.githubusercontent.com/helm-unittest/helm-unittest/refs/heads/main/schema/helm-testsuite.json`
+Suite-level `capabilities` can be overridden per-test using the same fields.
+
 ### Values Schema
 
 `values.schema.json` uses JSON Schema draft-07 with `"additionalProperties": false` at the root — every new value added to `values.yaml` must have a corresponding schema entry or chart linting will fail.
+
+### Deprecating Fields
+
+Use `@deprecated` (not `DEPRECATED:`) in `values.yaml` doc comments when deprecating a field:
+
+```yaml
+# -- @deprecated Use newField instead. This field will be removed in a future release.
+oldField: ~
+```
+
+This is consistent with all existing deprecated fields in the repo and renders as plain text in the helm-docs–generated README. The `values.schema.json` description strings may use `DEPRECATED:` since they are not rendered by helm-docs.
 
 ### Pre-commit Hooks
 

@@ -24,3 +24,5 @@
 
 README.md.gotmpl
 values-kind.yaml
+CLAUDE.md
+unittests/

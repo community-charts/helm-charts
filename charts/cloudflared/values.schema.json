@@ -62,6 +62,312 @@
       "title": "imagePullSecrets",
       "type": "array"
     },
+    "livenessProbe": {
+      "additionalProperties": false,
+      "description": "This is for configuring the liveness probe. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
+      "properties": {
+        "exec": {
+          "additionalProperties": false,
+          "description": "Exec specifies a command to execute in the container.",
+          "properties": {
+            "command": {
+              "description": "Command to execute inside the container.",
+              "items": { "type": "string" },
+              "minItems": 1,
+              "title": "command",
+              "type": "array"
+            }
+          },
+          "required": ["command"],
+          "title": "exec",
+          "type": "object"
+        },
+        "httpGet": {
+          "additionalProperties": false,
+          "description": "HTTPGet specifies an HTTP GET request to perform.",
+          "properties": {
+            "host": {
+              "default": "",
+              "description": "Hostname to connect to, defaults to the pod IP.",
+              "title": "host",
+              "type": "string"
+            },
+            "httpHeaders": {
+              "description": "Custom headers to set in the request.",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "name": { "title": "name", "type": "string" },
+                  "value": { "title": "value", "type": "string" }
+                },
+                "required": ["name", "value"],
+                "type": "object"
+              },
+              "title": "httpHeaders",
+              "type": "array"
+            },
+            "path": {
+              "default": "/",
+              "description": "Path to access on the HTTP server.",
+              "title": "path",
+              "type": "string"
+            },
+            "port": {
+              "description": "Port number or name to access on the container.",
+              "title": "port",
+              "type": ["integer", "string"]
+            },
+            "scheme": {
+              "default": "HTTP",
+              "description": "Scheme to use for connecting to the host.",
+              "enum": ["HTTP", "HTTPS"],
+              "title": "scheme",
+              "type": "string"
+            }
+          },
+          "required": ["path", "port"],
+          "title": "httpGet",
+          "type": "object"
+        },
+        "tcpSocket": {
+          "additionalProperties": false,
+          "description": "TCPSocket specifies a TCP port to connect to.",
+          "properties": {
+            "host": {
+              "default": "",
+              "description": "Hostname to connect to, defaults to the pod IP.",
+              "title": "host",
+              "type": "string"
+            },
+            "port": {
+              "description": "Port number or name to access on the container.",
+              "title": "port",
+              "type": ["integer", "string"]
+            }
+          },
+          "required": ["port"],
+          "title": "tcpSocket",
+          "type": "object"
+        },
+        "grpc": {
+          "additionalProperties": false,
+          "description": "GRPC specifies a gRPC HealthCheckRequest.",
+          "properties": {
+            "port": {
+              "description": "Port number of the gRPC service.",
+              "title": "port",
+              "type": "integer"
+            },
+            "service": {
+              "default": "",
+              "description": "Service is the name of the service to place in the gRPC HealthCheckRequest.",
+              "title": "service",
+              "type": "string"
+            }
+          },
+          "required": ["port"],
+          "title": "grpc",
+          "type": "object"
+        },
+        "initialDelaySeconds": {
+          "default": 0,
+          "description": "Seconds after the container starts before probes are initiated.",
+          "minimum": 0,
+          "title": "initialDelaySeconds",
+          "type": "integer"
+        },
+        "periodSeconds": {
+          "default": 10,
+          "description": "How often (in seconds) to perform the probe.",
+          "minimum": 1,
+          "title": "periodSeconds",
+          "type": "integer"
+        },
+        "timeoutSeconds": {
+          "default": 1,
+          "description": "Seconds after which the probe times out.",
+          "minimum": 1,
+          "title": "timeoutSeconds",
+          "type": "integer"
+        },
+        "successThreshold": {
+          "default": 1,
+          "description": "Minimum consecutive successes for the probe to be considered successful after having failed.",
+          "minimum": 1,
+          "title": "successThreshold",
+          "type": "integer"
+        },
+        "failureThreshold": {
+          "default": 3,
+          "description": "Minimum consecutive failures for the probe to be considered failed after having succeeded.",
+          "minimum": 1,
+          "title": "failureThreshold",
+          "type": "integer"
+        },
+        "terminationGracePeriodSeconds": {
+          "description": "Optional duration in seconds the pod needs to terminate gracefully upon probe failure.",
+          "minimum": 1,
+          "title": "terminationGracePeriodSeconds",
+          "type": "integer"
+        }
+      },
+      "required": [],
+      "title": "livenessProbe",
+      "type": "object"
+    },
+    "readinessProbe": {
+      "additionalProperties": false,
+      "description": "This is for configuring the readiness probe. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
+      "properties": {
+        "exec": {
+          "additionalProperties": false,
+          "description": "Exec specifies a command to execute in the container.",
+          "properties": {
+            "command": {
+              "description": "Command to execute inside the container.",
+              "items": { "type": "string" },
+              "minItems": 1,
+              "title": "command",
+              "type": "array"
+            }
+          },
+          "required": ["command"],
+          "title": "exec",
+          "type": "object"
+        },
+        "httpGet": {
+          "additionalProperties": false,
+          "description": "HTTPGet specifies an HTTP GET request to perform.",
+          "properties": {
+            "host": {
+              "default": "",
+              "description": "Hostname to connect to, defaults to the pod IP.",
+              "title": "host",
+              "type": "string"
+            },
+            "httpHeaders": {
+              "description": "Custom headers to set in the request.",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "name": { "title": "name", "type": "string" },
+                  "value": { "title": "value", "type": "string" }
+                },
+                "required": ["name", "value"],
+                "type": "object"
+              },
+              "title": "httpHeaders",
+              "type": "array"
+            },
+            "path": {
+              "default": "/",
+              "description": "Path to access on the HTTP server.",
+              "title": "path",
+              "type": "string"
+            },
+            "port": {
+              "description": "Port number or name to access on the container.",
+              "title": "port",
+              "type": ["integer", "string"]
+            },
+            "scheme": {
+              "default": "HTTP",
+              "description": "Scheme to use for connecting to the host.",
+              "enum": ["HTTP", "HTTPS"],
+              "title": "scheme",
+              "type": "string"
+            }
+          },
+          "required": ["path", "port"],
+          "title": "httpGet",
+          "type": "object"
+        },
+        "tcpSocket": {
+          "additionalProperties": false,
+          "description": "TCPSocket specifies a TCP port to connect to.",
+          "properties": {
+            "host": {
+              "default": "",
+              "description": "Hostname to connect to, defaults to the pod IP.",
+              "title": "host",
+              "type": "string"
+            },
+            "port": {
+              "description": "Port number or name to access on the container.",
+              "title": "port",
+              "type": ["integer", "string"]
+            }
+          },
+          "required": ["port"],
+          "title": "tcpSocket",
+          "type": "object"
+        },
+        "grpc": {
+          "additionalProperties": false,
+          "description": "GRPC specifies a gRPC HealthCheckRequest.",
+          "properties": {
+            "port": {
+              "description": "Port number of the gRPC service.",
+              "title": "port",
+              "type": "integer"
+            },
+            "service": {
+              "default": "",
+              "description": "Service is the name of the service to place in the gRPC HealthCheckRequest.",
+              "title": "service",
+              "type": "string"
+            }
+          },
+          "required": ["port"],
+          "title": "grpc",
+          "type": "object"
+        },
+        "initialDelaySeconds": {
+          "default": 0,
+          "description": "Seconds after the container starts before probes are initiated.",
+          "minimum": 0,
+          "title": "initialDelaySeconds",
+          "type": "integer"
+        },
+        "periodSeconds": {
+          "default": 10,
+          "description": "How often (in seconds) to perform the probe.",
+          "minimum": 1,
+          "title": "periodSeconds",
+          "type": "integer"
+        },
+        "timeoutSeconds": {
+          "default": 1,
+          "description": "Seconds after which the probe times out.",
+          "minimum": 1,
+          "title": "timeoutSeconds",
+          "type": "integer"
+        },
+        "successThreshold": {
+          "default": 1,
+          "description": "Minimum consecutive successes for the probe to be considered successful after having failed.",
+          "minimum": 1,
+          "title": "successThreshold",
+          "type": "integer"
+        },
+        "failureThreshold": {
+          "default": 3,
+          "description": "Minimum consecutive failures for the probe to be considered failed after having succeeded.",
+          "minimum": 1,
+          "title": "failureThreshold",
+          "type": "integer"
+        },
+        "terminationGracePeriodSeconds": {
+          "description": "Optional duration in seconds the pod needs to terminate gracefully upon probe failure.",
+          "minimum": 1,
+          "title": "terminationGracePeriodSeconds",
+          "type": "integer"
+        }
+      },
+      "required": [],
+      "title": "readinessProbe",
+      "type": "object"
+    },
     "ingress": {
       "items": {
         "additionalProperties": false,
@@ -713,6 +1019,8 @@
     "securityContext",
     "tunnelSecrets",
     "tunnelConfig",
+    "livenessProbe",
+    "readinessProbe",
     "ingress",
     "resources",
     "nodeSelector",

@@ -1,9 +1,9 @@
 dependencies:
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
-  version: 18.7.0
+  version: 18.7.5
 - name: mysql
   repository: https://charts.bitnami.com/bitnami
   version: 14.0.3
-digest: sha256:ebabab8aafa6a866e715ca178185375ca4878ffbe963f8571a81b95d22734f9f
-generated: "2026-06-02T02:44:54.018009745Z"
+digest: sha256:54fd4352d0e616f59b8c15ad767a347a44f8eb330149a1b3b07f80544b2b3399
+generated: "2026-06-18T10:37:11.929057091Z"

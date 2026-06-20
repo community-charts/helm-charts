@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.16.46](https://img.shields.io/badge/Version-1.16.46-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.23.2](https://img.shields.io/badge/AppVersion-2.23.2-informational?style=flat-square)
+![Version: 1.23.1](https://img.shields.io/badge/Version-1.23.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.26.8](https://img.shields.io/badge/AppVersion-2.26.8-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -161,6 +161,7 @@ externalPostgresql:
   database: "n8n"
 
   existingSecret: "my-k8s-secret-contains-postgres-password-key-and-credential"
+  existingSecretPasswordKey: "my-postgres-password-key"
 ```
 
 ## Queue Mode with Bitnami's Redis
@@ -230,6 +231,8 @@ externalRedis:
   username: "default"
 
   existingSecret: "my-k8s-secret-contains-redis-password-key-and-credential"
+  existingUsernameKey: "my-redis-username-key"
+  existingPasswordKey: "my-redis-password-key"
 ```
 
 ## Webhook Node Deployment
@@ -272,9 +275,248 @@ webhook:
 
 Please find more detail about external task runners from [here](https://docs.n8n.io/hosting/securing/hardening-task-runners/).
 
+The external task runner runs as a sidecar container using the dedicated `n8nio/runners` image alongside each worker pod. In queue mode the main pod does **not** receive the sidecar because it does not execute workflows.
+
+### Basic External Task Runner
+
 ```yaml
 taskRunners:
   mode: external
+```
+
+### Pinning the Runner Image Tag
+
+By default the runner image tag matches the chart `appVersion`. Pin an explicit version with `taskRunners.external.image.tag`:
+
+```yaml
+taskRunners:
+  mode: external
+  external:
+    image:
+      repository: n8nio/runners
+      pullPolicy: IfNotPresent
+      tag: "2.23.4"
+```
+
+### External Task Runner with Queue Mode
+
+In queue mode the sidecar is attached to worker pods only — the main pod is excluded automatically because it offloads all workflow execution to workers.
+
+```yaml
+db:
+  type: postgresdb
+
+worker:
+  mode: queue
+
+taskRunners:
+  mode: external
+  external:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+```
+
+## Python Runner Support
+
+The `n8nio/runners` image ships a Python runner alongside the JavaScript runner. Enable it with `nodes.python.enabled: true` (requires n8n 1.111.0+). This activates the Python Code node on the main container and starts the Python launcher inside the sidecar.
+
+> **Tip**: Python runner requires `taskRunners.mode: external`.
+
+### Enable Python Runner
+
+```yaml
+nodes:
+  python:
+    enabled: true
+
+taskRunners:
+  mode: external
+```
+
+### Install Python Packages
+
+The `n8nio/runners` image ships only a bare Python environment. Use `nodes.python.external.packages` to install packages via `uv pip install` before the runner starts. Each listed package is automatically allowed in Code nodes — no separate allowlist entry is needed.
+
+```yaml
+nodes:
+  python:
+    enabled: true
+    external:
+      packages:
+        - pandas
+        - numpy
+        - requests
+
+taskRunners:
+  mode: external
+```
+
+> **Note**: Package installation adds a few seconds to runner startup time on the first start. To avoid re-downloading packages on every pod restart, enable persistence (see below).
+
+#### Persist Python Packages
+
+Enable `nodes.python.persistence` to store installed packages on a PVC. When enabled, `uv pip install` detects existing packages on subsequent starts and skips the download.
+
+```yaml
+nodes:
+  python:
+    enabled: true
+    external:
+      packages:
+        - pandas
+        - numpy
+    persistence:
+      enabled: true
+      size: 2Gi
+      accessMode: ReadWriteOnce  # use ReadWriteMany if workers span multiple nodes
+
+taskRunners:
+  mode: external
+```
+
+Packages are stored at `/home/node/.python-packages` inside the runner sidecar. When `persistence.enabled` is `false` (the default), an `emptyDir` volume is used and packages are re-installed on every pod restart.
+
+For StatefulSet deployments (when `main.count > 1` with `ReadWriteOnce`, or `main.forceToUseStatefulset: true`), each pod receives its own PVC via `volumeClaimTemplates`, so `ReadWriteOnce` works regardless of pod count. For Deployment-mode workers scaled by HPA across multiple nodes, use `accessMode: ReadWriteMany` with a compatible storage class (NFS, CephFS, etc.).
+
+> **Warning**: When `worker.autoscaling.enabled: true`, you **must** set `nodes.python.persistence.accessMode: ReadWriteMany` (or leave persistence disabled). The HPA will not render if python packages persistence is enabled with `ReadWriteOnce`, because scaling workers across nodes would cause PVC mount failures.
+
+To allow all external packages without installing them (e.g. when packages are pre-installed in a custom image), set `allowAll: true`:
+
+```yaml
+nodes:
+  python:
+    enabled: true
+    external:
+      allowAll: true
+
+taskRunners:
+  mode: external
+```
+
+### Private Python Package Registry
+
+By default, `uv pip install` resolves packages from pypi.org. Use `pypiRegistry` to point the runner sidecar at a private or self-hosted index instead (JFrog Artifactory, AWS CodeArtifact, Nexus, etc.).
+
+#### Simple — URL only (no auth or inline credentials)
+
+```yaml
+pypiRegistry:
+  enabled: true
+  url: "https://my.jfrog.io/artifactory/api/pypi/pypi-virtual/simple/"
+```
+
+This sets `UV_DEFAULT_INDEX` in the sidecar, replacing pypi.org as the default index.
+
+#### Advanced — `uv.toml` config file (authentication or multiple indexes)
+
+For authenticated registries, create a `uv.toml` with your index configuration and let the chart store it in a Kubernetes Secret:
+
+```yaml
+pypiRegistry:
+  enabled: true
+  customUvConfig: |
+    [[index]]
+    name = "private"
+    url = "https://my.jfrog.io/artifactory/api/pypi/pypi-virtual/simple/"
+    default = true
+
+    [index.credentials]
+    username = "ci-user"
+    password = "s3cr3t"
+```
+
+The chart creates a Secret from `customUvConfig`, mounts it into the runner sidecar, and sets `UV_CONFIG_FILE` to the mounted path. The entire file is base64-encoded in the Secret.
+
+> **Note**: Do not use `url` together with `customUvConfig` or `secretName` — when a config file is provided, the index URL belongs inside the `uv.toml`.
+
+#### Advanced — reference an existing Secret
+
+If you manage credentials in an existing Kubernetes Secret, reference it directly:
+
+```yaml
+pypiRegistry:
+  enabled: true
+  secretName: "my-uv-config-secret"
+  secretKey: "uv.toml"
+```
+
+The secret must contain a key matching `secretKey` (default: `uv.toml`) whose value is valid `uv.toml` content.
+
+### Restrict Python Module Access
+
+Use `nodes.python.builtin.modules` to allowlist Python standard library modules. Use `["*"]` to allow all. This setting applies to both the n8n broker (security enforcement) and the runner sidecar.
+
+```yaml
+nodes:
+  python:
+    enabled: true
+    builtin:
+      modules:
+        - os
+        - sys
+        - json
+        - math
+    external:
+      packages:
+        - numpy
+        - pandas
+
+taskRunners:
+  mode: external
+```
+
+### Full Queue Mode + External Runner + Python Example
+
+```yaml
+db:
+  type: postgresdb
+
+worker:
+  mode: queue
+  count: 2
+
+  waitMainNodeReady:
+    enabled: true
+
+externalRedis:
+  host: "redis-instance1.ab012cdefghi.eu-central-1.rds.amazonaws.com"
+  username: "default"
+  password: "Pa33w0rd!"
+
+nodes:
+  python:
+    enabled: true
+    builtin:
+      modules:
+        - "*"
+    external:
+      packages:
+        - numpy
+        - pandas
+    persistence:
+      enabled: true
+      size: 2Gi
+      accessMode: ReadWriteMany  # required for queue-mode workers scaled across nodes
+
+taskRunners:
+  mode: external
+  external:
+    image:
+      repository: n8nio/runners
+      pullPolicy: IfNotPresent
+      tag: ""
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
 ```
 
 ## Autoscaling Configuration
@@ -622,6 +864,32 @@ nodes:
 
 By setting `nodes.external.allowAll` to `true`, the chart bypasses the Node.js Task Runner's limitations for scoped packages, ensuring smooth installation of all listed packages. You can include both scoped (e.g., `@stdlib/math`) and non-scoped packages in the `nodes.external.packages` list, with or without specific versions.
 
+#### Persist Community Node Packages
+
+Community node packages are stored at `/home/node/.n8n/nodes` inside the container. The chart routes package storage automatically based on whether `main.persistence` (or `worker.persistence` for queue-mode workers) is already enabled:
+
+- **When `main.persistence.enabled: true`** (default `mountPath: /home/node/.n8n`): community packages are written directly into the main PVC's `nodes/` subdirectory by the init container. No separate PVC is created and `nodes.external.persistence` is ignored for the main pod. Packages persist as long as the main PVC exists.
+
+- **When `main.persistence.enabled: false`** (the default): enable `nodes.external.persistence` to store packages on a dedicated PVC. Without it, an `emptyDir` volume is used and packages are re-downloaded on every pod restart.
+
+```yaml
+nodes:
+  external:
+    packages:
+      - "n8n-nodes-evolution-api"
+      - "n8n-nodes-chatwoot@0.1.40"
+    persistence:
+      enabled: true
+      size: 1Gi
+      accessMode: ReadWriteOnce  # use ReadWriteMany if workers span multiple nodes
+```
+
+The same logic applies to queue-mode workers: when `worker.persistence.enabled: true`, the worker PVC stores community packages; otherwise the dedicated PVC (or emptyDir) is used.
+
+> **Note**: When `worker.mode: queue` is set and workers do not have their own persistence, the community packages PVC is shared between the main pod and worker pods. Use `accessMode: ReadWriteMany` with a compatible storage class (NFS, CephFS, etc.) if those pods are scheduled on different nodes.
+
+> **Warning**: When `worker.autoscaling.enabled: true`, you **must** either enable `worker.persistence` (which provides per-pod storage via StatefulSet), set `nodes.external.persistence.accessMode: ReadWriteMany`, or leave persistence disabled — scaling workers across nodes with a `ReadWriteOnce` shared PVC will cause mount failures.
+
 ### Using Private NPM Packages
 
 For packages hosted in a private NPM registry, configure access by providing a valid `.npmrc` file. You can either reference an existing Kubernetes secret containing the `.npmrc` content or define custom `.npmrc` content directly in the chart values.
@@ -812,6 +1080,169 @@ binaryData:
     existingSecret: "your-existing-secret"
 ```
 
+## Extra Manifests
+
+The chart supports deploying arbitrary Kubernetes resources alongside n8n using `extraManifests` and `extraTemplateManifests`. Standard chart labels (`helm.sh/chart`, `app.kubernetes.io/*`) are automatically merged into each manifest's `metadata.labels`.
+
+### `extraManifests` — Static Manifests
+
+Accepts a list of Kubernetes resource **objects** or raw **YAML strings**. No Helm templating is evaluated.
+
+#### Object format
+
+```yaml
+extraManifests:
+  - apiVersion: postgresql.cnpg.io/v1
+    kind: Cluster
+    metadata:
+      name: postgresql
+    spec:
+      instances: 1
+      enablePDB: false
+      storage:
+        storageClass: csi-disk
+        size: 5Gi
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: my-extra-config
+    data:
+      key: value
+```
+
+#### String format (supports multi-document YAML with `---`)
+
+```yaml
+extraManifests:
+  - |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: my-string-config
+    data:
+      key: value
+```
+
+### `extraTemplateManifests` — Manifests with Helm Templating
+
+Each item must be a YAML **string** (use `|` block scalar). Helm template functions are evaluated, giving access to `.Release`, `.Values`, `.Chart`, etc.
+
+```yaml
+extraTemplateManifests:
+  - |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: release-info
+      namespace: {{ .Release.Namespace }}
+    data:
+      release: {{ .Release.Name }}
+      chart: {{ .Chart.Version }}
+```
+
+## Injecting Environment Variables
+
+Three mechanisms are available for injecting environment variables into n8n pods. Each targets a different use case — pick the one that fits your secret/config structure.
+
+### `extraEnvVars` — Static key/value pairs
+
+Use this when you want to set a plain string value directly in your values. Applies to `main`, `worker`, `webhook`, and `webhook.mcp` blocks.
+
+```yaml
+main:
+  extraEnvVars:
+    N8N_LOG_LEVEL: debug
+    N8N_DEFAULT_LOCALE: en
+
+worker:
+  extraEnvVars:
+    N8N_LOG_LEVEL: info
+```
+
+### `extraSecretNamesForEnvFrom` — Mount an entire Secret as environment variables
+
+Use this when you have a Kubernetes Secret whose **keys already match the n8n environment variable names** (e.g. `N8N_SMTP_HOST`, `N8N_SMTP_PASS`). Every key in the referenced Secret is projected as an environment variable into the container.
+
+```yaml
+main:
+  extraSecretNamesForEnvFrom:
+    - n8n-smtp-credentials
+
+worker:
+  extraSecretNamesForEnvFrom:
+    - n8n-smtp-credentials
+
+webhook:
+  extraSecretNamesForEnvFrom:
+    - n8n-smtp-credentials
+  mcp:
+    extraSecretNamesForEnvFrom:
+      - n8n-smtp-credentials
+```
+
+> **Note:** All keys in the referenced Secret are injected. If the Secret contains keys that do not follow the C identifier naming rule (e.g. `metadata-url`) or if you only want to inject specific keys, use `extraEnv` with `valueFrom` instead.
+
+### `extraEnv` with `valueFrom` — Fine-grained env var sourcing
+
+Use this when:
+
+- The Secret or ConfigMap keys **do not match** n8n's expected environment variable names (e.g. the key is `metadata-url` but n8n expects `N8N_SSO_SAML_METADATA_URL`).
+- You need to project only **specific keys** from a Secret rather than the entire Secret.
+- You need `fieldRef` or `resourceFieldRef` sources.
+
+Entries are passed verbatim as Kubernetes [`EnvVar`](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#environment-variables) objects, so any valid `env` entry is supported.
+
+```yaml
+main:
+  extraEnv:
+    - name: N8N_SSO_SAML_METADATA_URL
+      valueFrom:
+        secretKeyRef:
+          name: n8n-okta-app-saml-config
+          key: metadata-url
+
+worker:
+  extraEnv:
+    - name: N8N_SSO_SAML_METADATA_URL
+      valueFrom:
+        secretKeyRef:
+          name: n8n-okta-app-saml-config
+          key: metadata-url
+
+webhook:
+  extraEnv:
+    - name: N8N_SSO_SAML_METADATA_URL
+      valueFrom:
+        secretKeyRef:
+          name: n8n-okta-app-saml-config
+          key: metadata-url
+  mcp:
+    extraEnv:
+      - name: N8N_SSO_SAML_METADATA_URL
+        valueFrom:
+          secretKeyRef:
+            name: n8n-okta-app-saml-config
+            key: metadata-url
+```
+
+You can also source values from a ConfigMap or from the pod's own fields:
+
+```yaml
+main:
+  extraEnv:
+    - name: MY_CONFIG_VALUE
+      valueFrom:
+        configMapKeyRef:
+          name: my-configmap
+          key: my-key
+    - name: MY_POD_IP
+      valueFrom:
+        fieldRef:
+          fieldPath: status.podIP
+```
+
+---
+
 ## Upgrading
 
 This section outlines major updates and breaking changes for each version of the Helm Chart to help you transition smoothly between releases.
@@ -819,6 +1250,32 @@ This section outlines major updates and breaking changes for each version of the
 ---
 
 ###  Version-Specific Upgrade Notes
+
+#### Upgrading to Version 1.20.0
+
+##### Deprecation Notices
+
+- The `license.autoNenew` field was a typo and is now deprecated in favour of `license.autoRenew`.
+
+##### Action Required
+
+Replace any usage of `license.autoNenew` with `license.autoRenew` in your values:
+
+```yaml
+# Before (deprecated)
+license:
+  autoNenew:
+    enabled: false
+    offsetInHours: 24
+
+# After
+license:
+  autoRenew:
+    enabled: false
+    offsetInHours: 24
+```
+
+The deprecated field still works for now (values are forwarded automatically), but it will be removed in a future release.
 
 #### Upgrading to Version 1.13.1
 
@@ -891,8 +1348,8 @@ Kubernetes: `>=1.23.0-0`
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | postgresql | 18.7.0 |
-| https://charts.bitnami.com/bitnami | redis | 27.0.0 |
+| https://charts.bitnami.com/bitnami | postgresql | 18.7.6 |
+| https://charts.bitnami.com/bitnami | redis | 27.0.10 |
 | https://charts.min.io/ | minio | 5.4.0 |
 
 ## Uninstall Helm Chart
@@ -915,7 +1372,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| affinity | object | `{}` | DEPRECATED: Use main, worker, and webhook blocks volumes fields instead. This field will be removed in a future release. |
+| affinity | object | `{}` | @deprecated Use main, worker, and webhook blocks volumes fields instead. This field will be removed in a future release. |
 | api.enabled | bool | `true` | Whether to enable the Public API |
 | api.path | string | `"api"` | Path segment for the Public API |
 | api.swagger | object | `{"enabled":true}` | Whether to enable the Swagger UI for the Public API |
@@ -968,26 +1425,32 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | dnsPolicy | string | `""` | For more information checkout: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy |
 | encryptionKey | string | `""` | If you install n8n first time, you can keep this empty and it will be auto generated and never change again. If you already have a encryption key generated before, please use it here. |
 | existingEncryptionKeySecret | string | `""` | The name of an existing secret with encryption key. The secret must contain a key with the name N8N_ENCRYPTION_KEY. |
-| externalPostgresql | object | `{"database":"n8n","existingSecret":"","host":"","password":"","port":5432,"username":"postgres"}` | External PostgreSQL parameters |
+| externalPostgresql | object | `{"database":"n8n","existingSecret":"","existingSecretPasswordKey":"","host":"","password":"","port":5432,"username":"postgres"}` | External PostgreSQL parameters |
 | externalPostgresql.database | string | `"n8n"` | The name of the external PostgreSQL database. For more information: https://docs.n8n.io/hosting/configuration/supported-databases-settings/#required-permissions |
 | externalPostgresql.existingSecret | string | `""` | The name of an existing secret with PostgreSQL (must contain key `postgres-password`) and credentials. When it's set, the `externalPostgresql.password` parameter is ignored |
+| externalPostgresql.existingSecretPasswordKey | string | `""` | The key in `externalPostgresql.existingSecret` that stores the PostgreSQL password. |
 | externalPostgresql.host | string | `""` | External PostgreSQL server host |
 | externalPostgresql.password | string | `""` | External PostgreSQL password |
 | externalPostgresql.port | int | `5432` | External PostgreSQL server port |
 | externalPostgresql.username | string | `"postgres"` | External PostgreSQL username |
-| externalRedis | object | `{"clusterNodes":[],"database":0,"dualStack":false,"existingSecret":"","host":"","password":"","port":6379,"tls":{"enabled":false},"username":""}` | External Redis parameters |
+| externalRedis | object | `{"clusterNodes":[],"database":0,"dualStack":false,"existingPasswordKey":"","existingSecret":"","existingUsernameKey":"","host":"","password":"","port":6379,"tls":{"enabled":false},"username":""}` | External Redis parameters |
 | externalRedis.clusterNodes | list | `[]` | List of Redis Cluster nodes. Setting this variable will create a Redis Cluster client instead of a Redis client, and n8n will ignore `externalRedis.host` and `externalRedis.port`. |
 | externalRedis.database | int | `0` | Redis database for Bull queue. |
 | externalRedis.dualStack | bool | `false` | Enable dual-stack support (IPv4 and IPv6) on Redis connections. |
+| externalRedis.existingPasswordKey | string | `""` | The key in `externalRedis.existingSecret` that stores the Redis password. |
 | externalRedis.existingSecret | string | `""` | The name of an existing secret with Redis (must contain key `redis-password`) and Sentinel credentials. When it's set, the `externalRedis.password` parameter is ignored |
+| externalRedis.existingUsernameKey | string | `""` | The key in `externalRedis.existingSecret` that stores the Redis username. |
 | externalRedis.host | string | `""` | External Redis server host |
 | externalRedis.password | string | `""` | External Redis password |
 | externalRedis.port | int | `6379` | External Redis server port |
 | externalRedis.tls | object | `{"enabled":false}` | Placeholder for future Redis TLS certificates |
 | externalRedis.tls.enabled | bool | `false` | Enable TLS on Redis connections. |
 | externalRedis.username | string | `""` | External Redis username |
-| extraEnvVars | object | `{}` | DEPRECATED: Use main, worker, and webhook blocks extraEnvVars fields instead. This field will be removed in a future release. |
-| extraSecretNamesForEnvFrom | list | `[]` | DEPRECATED: Use main, worker, and webhook blocks extraSecretNamesForEnvFrom fields instead. This field will be removed in a future release. |
+| extraEnv | list | `[]` | @deprecated Use main, worker, webhook, and webhook.mcp blocks extraEnv fields instead. This field will be removed in a future release. |
+| extraEnvVars | object | `{}` | @deprecated Use main, worker, and webhook blocks extraEnvVars fields instead. This field will be removed in a future release. |
+| extraManifests | list | `[]` | List of extra Kubernetes manifests (objects or YAML strings) to deploy alongside n8n. Chart labels are automatically merged into each manifest's metadata. |
+| extraSecretNamesForEnvFrom | list | `[]` | @deprecated Use main, worker, and webhook blocks extraSecretNamesForEnvFrom fields instead. This field will be removed in a future release. |
+| extraTemplateManifests | list | `[]` | List of extra Kubernetes manifests as Helm template strings to deploy alongside n8n. Chart labels are automatically merged into each manifest's metadata. |
 | fullnameOverride | string | `""` |  |
 | gracefulShutdownTimeout | int | `30` | graceful shutdown timeout in seconds |
 | image | object | `{"pullPolicy":"IfNotPresent","repository":"n8nio/n8n","tag":""}` | This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/ |
@@ -995,16 +1458,19 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
 | ingress | object | `{"annotations":{},"className":"","enabled":false,"hosts":[{"host":"n8n.local","paths":[{"path":"/","pathType":"Prefix"}]}],"tls":[]}` | This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/ |
-| license | object | `{"activationKey":"","autoNenew":{"enabled":true,"offsetInHours":72},"enabled":false,"existingActivationKeySecret":"","serverUrl":"https://license.n8n.io/v1","tenantId":1}` | n8n enterprise license configurations |
+| license | object | `{"activationKey":"","autoNenew":{"enabled":null,"offsetInHours":null},"autoRenew":{"enabled":true,"offsetInHours":72},"enabled":false,"existingActivationKeySecret":"","serverUrl":"https://license.n8n.io/v1","tenantId":1}` | n8n enterprise license configurations |
 | license.activationKey | string | `""` | Activation key to initialize license. Not applicable if the n8n instance was already activated. For more information please refer to the following link: https://docs.n8n.io/enterprise-key/ |
-| license.autoNenew | object | `{"enabled":true,"offsetInHours":72}` | The auto new license configuration |
-| license.autoNenew.enabled | bool | `true` | Enables (true) or disables (false) autorenewal for licenses. If disabled, you need to manually renew the license every 10 days by navigating to Settings > Usage and plan, and pressing F5. Failure to renew the license will disable Enterprise features. |
-| license.autoNenew.offsetInHours | int | `72` | Time in hours before expiry a license should automatically renew. |
+| license.autoNenew | object | `{"enabled":null,"offsetInHours":null}` | @deprecated Use license.autoRenew fields instead. |
+| license.autoNenew.enabled | string | `nil` | @deprecated Use license.autoRenew.enabled field instead. |
+| license.autoNenew.offsetInHours | string | `nil` | @deprecated Use license.autoRenew.offsetInHours field instead. |
+| license.autoRenew | object | `{"enabled":true,"offsetInHours":72}` | The auto new license configuration |
+| license.autoRenew.enabled | bool | `true` | Enables (true) or disables (false) autorenewal for licenses. If disabled, you need to manually renew the license every 10 days by navigating to Settings > Usage and plan, and pressing F5. Failure to renew the license will disable Enterprise features. |
+| license.autoRenew.offsetInHours | int | `72` | Time in hours before expiry a license should automatically renew. |
 | license.enabled | bool | `false` | Whether to enable the enterprise license |
 | license.existingActivationKeySecret | string | `""` | The name of an existing secret with license activation key. The secret must contain a key with the name N8N_LICENSE_ACTIVATION_KEY. |
 | license.serverUrl | string | `"https://license.n8n.io/v1"` | Server URL to retrieve license. |
 | license.tenantId | int | `1` | Tenant ID associated with the license. Only set this variable if explicitly instructed by n8n. |
-| livenessProbe | object | `{}` | DEPRECATED: Use main, worker, and webhook blocks livenessProbe field instead. This field will be removed in a future release. |
+| livenessProbe | object | `{}` | @deprecated Use main, worker, and webhook blocks livenessProbe field instead. This field will be removed in a future release. |
 | log | object | `{"file":{"location":"logs/n8n.log","maxcount":"100","maxsize":16},"level":"info","output":["console"],"scopes":[]}` | n8n log configurations |
 | log.file.location | string | `"logs/n8n.log"` | Location of the log files inside `~/.n8n`. Only for `file` log output. |
 | log.file.maxcount | string | `"100"` | Max number of log files to keep, or max number of days to keep logs for. Once the limit is reached, the oldest log files will be rotated out. If using days, append a `d` suffix. Only for `file` log output. |
@@ -1012,21 +1478,23 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | log.level | string | `"info"` | The log output level. The available options are (from lowest to highest level) are error, warn, info, and debug. The default value is info. You can learn more about these options [here](https://docs.n8n.io/hosting/logging-monitoring/logging/#log-levels). |
 | log.output | list | `["console"]` | Where to output logs to. Options are: `console` or `file` or both. |
 | log.scopes | list | `[]` | Scopes to filter logs by. Nothing is filtered by default. Supported log scopes: concurrency, external-secrets, license, multi-main-setup, pubsub, redis, scaling, waiting-executions |
-| main | object | `{"affinity":{},"count":1,"editorBaseUrl":"","extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"forceToUseStatefulset":false,"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"persistence":{"accessMode":"ReadWriteOnce","annotations":{"helm.sh/resource-policy":"keep"},"enabled":false,"existingClaim":"","labels":{},"mountPath":"/home/node/.n8n","size":"8Gi","storageClass":"","subPath":"","volumeName":""},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"runtimeClassName":"","volumeMounts":[],"volumes":[]}` | Main node configurations |
+| main | object | `{"affinity":{},"count":1,"editorBaseUrl":"","extraContainers":[],"extraEnv":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"forceToUseStatefulset":false,"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"pdb":{"enabled":true,"maxUnavailable":1,"minAvailable":null,"unhealthyPodEvictionPolicy":"AlwaysAllow"},"persistence":{"accessMode":"ReadWriteOnce","annotations":{"helm.sh/resource-policy":"keep"},"enabled":false,"existingClaim":"","labels":{},"mountPath":"/home/node/.n8n","size":"8Gi","storageClass":"","subPath":"","volumeName":""},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"runtimeClassName":"","volumeMounts":[],"volumes":[]}` | Main node configurations |
 | main.affinity | object | `{}` | Main node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
 | main.count | int | `1` | Number of main nodes. Only enterprise license users can have one leader main node and mutiple follower main nodes. |
 | main.editorBaseUrl | string | `""` | Editor based URL. If it's not defined and ingress definition exists, ingress host will be used. |
 | main.extraContainers | list | `[]` | Additional containers for the main pod |
+| main.extraEnv | list | `[]` | Extra environment variables that support `valueFrom` (e.g., secretKeyRef, configMapKeyRef). Entries are passed through verbatim and rendered after `extraEnvVars`. |
 | main.extraEnvVars | object | `{}` | Extra environment variables |
 | main.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
 | main.forceToUseStatefulset | bool | `false` | Force to use statefulset for the main pod. If true, the main pod will be created as a statefulset. |
 | main.hostAliases | list | `[]` | Host aliases for the main pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases |
 | main.initContainers | list | `[]` | Additional init containers for the main pod |
 | main.livenessProbe | object | `{"httpGet":{"path":"/healthz","port":"http"}}` | This is to setup the liveness probe for the main pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
-| main.pdb | object | `{"enabled":true,"maxUnavailable":null,"minAvailable":1}` | Whether to enable the PodDisruptionBudget for the main pod. |
+| main.pdb | object | `{"enabled":true,"maxUnavailable":1,"minAvailable":null,"unhealthyPodEvictionPolicy":"AlwaysAllow"}` | Whether to enable the PodDisruptionBudget for the main pod. |
 | main.pdb.enabled | bool | `true` | Whether to enable the PodDisruptionBudget |
-| main.pdb.maxUnavailable | string | `nil` | Maximum number of unavailable replicas |
-| main.pdb.minAvailable | int | `1` | Minimum number of available replicas |
+| main.pdb.maxUnavailable | int | `1` | Maximum number of unavailable replicas |
+| main.pdb.minAvailable | string | `nil` | Minimum number of available replicas |
+| main.pdb.unhealthyPodEvictionPolicy | string | `"AlwaysAllow"` | Unhealty main pod eviction policy |
 | main.persistence | object | `{"accessMode":"ReadWriteOnce","annotations":{"helm.sh/resource-policy":"keep"},"enabled":false,"existingClaim":"","labels":{},"mountPath":"/home/node/.n8n","size":"8Gi","storageClass":"","subPath":"","volumeName":""}` | Persistence configuration for the main pod |
 | main.persistence.accessMode | string | `"ReadWriteOnce"` | Access mode for persistence |
 | main.persistence.annotations | object | `{"helm.sh/resource-policy":"keep"}` | Annotations for persistence |
@@ -1085,13 +1553,20 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | minio.users[0].secretKey | string | `"Change_Me"` | n8n user secret key |
 | nameOverride | string | `""` | This is to override the chart name. |
 | nodeSelector | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector |
-| nodes | object | `{"builtin":{"enabled":false,"modules":[]},"external":{"allowAll":false,"packages":[],"reinstallMissingPackages":false},"initContainer":{"image":{"pullPolicy":"IfNotPresent","repository":"node","tag":"20-alpine"},"resources":{}}}` | Node configurations for built-in and external npm packages |
+| nodes | object | `{"builtin":{"enabled":false,"modules":[]},"external":{"allowAll":false,"packages":[],"persistence":{"accessMode":"ReadWriteOnce","annotations":{},"enabled":false,"existingClaim":"","size":"1Gi","storageClass":""},"reinstallMissingPackages":false},"initContainer":{"image":{"pullPolicy":"IfNotPresent","repository":"node","tag":"20-alpine"},"resources":{}},"python":{"builtin":{"modules":[]},"enabled":false,"external":{"allowAll":false,"packages":[]},"persistence":{"accessMode":"ReadWriteOnce","annotations":{},"enabled":false,"existingClaim":"","size":"1Gi","storageClass":""}}}` | Node configurations for built-in and external npm packages |
 | nodes.builtin | object | `{"enabled":false,"modules":[]}` | Enable built-in node functions (e.g., HTTP Request, Code Node, etc.) |
 | nodes.builtin.enabled | bool | `false` | Enable built-in modules for the Code node |
 | nodes.builtin.modules | list | `[]` | List of built-in Node.js modules to allow in the Code node (e.g., crypto, fs). Use '*' to allow all. |
-| nodes.external | object | `{"allowAll":false,"packages":[],"reinstallMissingPackages":false}` | External npm packages to install and allow in the Code node |
+| nodes.external | object | `{"allowAll":false,"packages":[],"persistence":{"accessMode":"ReadWriteOnce","annotations":{},"enabled":false,"existingClaim":"","size":"1Gi","storageClass":""},"reinstallMissingPackages":false}` | External npm packages to install and allow in the Code node |
 | nodes.external.allowAll | bool | `false` | Allow all external npm packages |
 | nodes.external.packages | list | `[]` | List of npm package names and versions (e.g., "package-name@1.0.0") |
+| nodes.external.persistence | object | `{"accessMode":"ReadWriteOnce","annotations":{},"enabled":false,"existingClaim":"","size":"1Gi","storageClass":""}` | Persistence for community node packages installed by the init container. Optional PVC so packages survive pod restarts without re-downloading. |
+| nodes.external.persistence.accessMode | string | `"ReadWriteOnce"` | Access mode. Use ReadWriteMany when worker pods may be scheduled on different nodes. |
+| nodes.external.persistence.annotations | object | `{}` | Additional annotations for the PVC. |
+| nodes.external.persistence.enabled | bool | `false` | Enable persistence. When false, packages are installed into an emptyDir and lost on pod restart. |
+| nodes.external.persistence.existingClaim | string | `""` | Use an existing PVC instead of creating one. When set, no PVC is created by this chart. |
+| nodes.external.persistence.size | string | `"1Gi"` | Size of the PVC. |
+| nodes.external.persistence.storageClass | string | `""` | Storage class for the PVC. Empty string uses the cluster default. |
 | nodes.external.reinstallMissingPackages | bool | `false` | Whether to reinstall missing packages. For more information, see https://docs.n8n.io/integrations/community-nodes/troubleshooting/#error-missing-packages |
 | nodes.initContainer | object | `{"image":{"pullPolicy":"IfNotPresent","repository":"node","tag":"20-alpine"},"resources":{}}` | Image for the init container to install npm packages |
 | nodes.initContainer.image | object | `{"pullPolicy":"IfNotPresent","repository":"node","tag":"20-alpine"}` | Image for the init container to install npm packages |
@@ -1099,6 +1574,20 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | nodes.initContainer.image.repository | string | `"node"` | Repository for the init container to install npm packages |
 | nodes.initContainer.image.tag | string | `"20-alpine"` | Tag for the init container to install npm packages |
 | nodes.initContainer.resources | object | `{}` | Resources for the init container |
+| nodes.python | object | `{"builtin":{"modules":[]},"enabled":false,"external":{"allowAll":false,"packages":[]},"persistence":{"accessMode":"ReadWriteOnce","annotations":{},"enabled":false,"existingClaim":"","size":"1Gi","storageClass":""}}` | Python Code node configuration. Requires n8n 1.111.0+ and taskRunners.mode: external. |
+| nodes.python.builtin | object | `{"modules":[]}` | Built-in Python module access for the Code node. |
+| nodes.python.builtin.modules | list | `[]` | Python standard library modules allowed in Code nodes. Use ['*'] to allow all. |
+| nodes.python.enabled | bool | `false` | Enable Python code execution in the Code node via external task runners. |
+| nodes.python.external | object | `{"allowAll":false,"packages":[]}` | External Python package access for the Code node. |
+| nodes.python.external.allowAll | bool | `false` | Allow all external Python packages in Code nodes. When true, sets N8N_RUNNERS_EXTERNAL_ALLOW=* regardless of packages list. |
+| nodes.python.external.packages | list | `[]` | Python packages to install via uv before starting the runner (e.g. ["pandas", "numpy"]). Each listed package is also automatically allowed as an external package in Code nodes. |
+| nodes.python.persistence | object | `{"accessMode":"ReadWriteOnce","annotations":{},"enabled":false,"existingClaim":"","size":"1Gi","storageClass":""}` | Persistence for Python packages installed by uv. Optional PVC so packages survive pod restarts without re-downloading. |
+| nodes.python.persistence.accessMode | string | `"ReadWriteOnce"` | Access mode. Use ReadWriteMany when worker pods may be scheduled on different nodes. |
+| nodes.python.persistence.annotations | object | `{}` | Additional annotations for the PVC. |
+| nodes.python.persistence.enabled | bool | `false` | Enable persistence. When false, packages are installed into an emptyDir and lost on pod restart. |
+| nodes.python.persistence.existingClaim | string | `""` | Use an existing PVC instead of creating one. When set, no PVC is created by this chart. |
+| nodes.python.persistence.size | string | `"1Gi"` | Size of the PVC. |
+| nodes.python.persistence.storageClass | string | `""` | Storage class for the PVC. Empty string uses the cluster default. |
 | npmRegistry | object | `{"customNpmrc":"","enabled":false,"secretKey":"npmrc","secretName":"","url":""}` | Configuration for private npm registry |
 | npmRegistry.customNpmrc | string | `""` | Custom .npmrc content (optional, overrides secret if provided) |
 | npmRegistry.enabled | bool | `false` | Enable private npm registry |
@@ -1107,7 +1596,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | npmRegistry.url | string | `""` | URL of the private npm registry (e.g., https://registry.npmjs.org/) |
 | podAnnotations | object | `{}` | This is for setting Kubernetes Annotations to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
 | podLabels | object | `{}` | This is for setting Kubernetes Labels to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/ |
-| podSecurityContext | object | `{"fsGroup":1000,"fsGroupChangePolicy":"OnRootMismatch"}` | This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
+| podSecurityContext | object | `{"fsGroup":1000,"fsGroupChangePolicy":"OnRootMismatch","seccompProfile":{"type":"RuntimeDefault"}}` | This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
 | postgresql | object | `{"architecture":"standalone","auth":{"database":"n8n","password":"","username":""},"enabled":false,"image":{"repository":"bitnamilegacy/postgresql"},"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"postgresql":5432}}}}` | Bitnami PostgreSQL configuration |
 | postgresql.architecture | string | `"standalone"` | Enable postgresql architecture. |
 | postgresql.auth | object | `{"database":"n8n","password":"","username":""}` | This is for setting up the auth. |
@@ -1123,7 +1612,13 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | postgresql.primary.service | object | `{"ports":{"postgresql":5432}}` | This is for setting up the primary service. |
 | postgresql.primary.service.ports | object | `{"postgresql":5432}` | This is for setting up the service ports. |
 | postgresql.primary.service.ports.postgresql | int | `5432` | This is for setting up the postgresql port. |
-| readinessProbe | object | `{}` | DEPRECATED: Use main, worker, and webhook blocks readinessProbe field instead. This field will be removed in a future release. |
+| pypiRegistry | object | `{"customUvConfig":"","enabled":false,"secretKey":"uv.toml","secretName":"","url":""}` | Configuration for private Python package (PyPI) registry. Used by the runner sidecar when nodes.python.external.packages is set. |
+| pypiRegistry.customUvConfig | string | `""` | Inline uv.toml content. When set and secretName is empty, the chart creates a Secret from this content (mirrors customNpmrc behaviour). Mutually exclusive with url. |
+| pypiRegistry.enabled | bool | `false` | Enable private PyPI registry support for the runner sidecar. |
+| pypiRegistry.secretKey | string | `"uv.toml"` | Key within the secret that holds the uv.toml content. |
+| pypiRegistry.secretName | string | `""` | Name of an existing Kubernetes secret whose data contains a uv.toml config file. When set, the file is mounted into the runner sidecar and UV_CONFIG_FILE is set. |
+| pypiRegistry.url | string | `""` | URL of the private PyPI index (e.g. https://my.jfrog.io/artifactory/api/pypi/pypi/simple/). Used when no config file is provided; sets UV_DEFAULT_INDEX in the sidecar. For authenticated registries embed credentials inline or use customUvConfig/secretName instead. |
+| readinessProbe | object | `{}` | @deprecated Use main, worker, and webhook blocks readinessProbe field instead. This field will be removed in a future release. |
 | redis | object | `{"architecture":"standalone","auth":{"enabled":true},"enabled":false,"image":{"repository":"bitnamilegacy/redis"},"master":{"persistence":{"enabled":false},"service":{"ports":{"redis":6379}}}}` | Bitnami Redis configuration |
 | redis.architecture | string | `"standalone"` | Enable redis architecture. |
 | redis.auth | object | `{"enabled":true}` | This is for setting up the auth. |
@@ -1131,8 +1626,9 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | redis.enabled | bool | `false` | Enable redis |
 | redis.image.repository | string | `"bitnamilegacy/redis"` | This is temporary workaround because of bitnami's deprecation until to completely replace it with our solution. |
 | redis.master.service.ports.redis | int | `6379` | Redis master service port |
-| resources | object | `{}` | DEPRECATED: Use main, worker, and webhook blocks resources fields instead. This field will be removed in a future release. |
-| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":false,"runAsGroup":1000,"runAsNonRoot":true,"runAsUser":1000}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
+| resources | object | `{}` | @deprecated Use main, worker, and webhook blocks resources fields instead. This field will be removed in a future release. |
+| revisionHistoryLimit | string | `nil` | The number of old ReplicaSets to retain for rollback. More information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy |
+| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true,"runAsGroup":1000,"runAsNonRoot":true,"runAsUser":1000}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
 | sentry.backendDsn | string | `""` | Sentry DSN for backend. |
 | sentry.enabled | bool | `false` | Whether sentry is enabled. |
 | sentry.externalTaskRunnersDsn | string | `""` | Sentry DSN for external task runners. |
@@ -1172,12 +1668,16 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | serviceMonitor.targetLabels | list | `[]` | Set of labels to transfer on the Kubernetes Service onto the target. |
 | serviceMonitor.timeout | string | `"10s"` | Set timeout for scrape |
 | strategy | object | `{"rollingUpdate":{"maxSurge":"25%","maxUnavailable":"25%"},"type":"RollingUpdate"}` | This will set the deployment strategy more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy |
-| taskRunners | object | `{"broker":{"address":"127.0.0.1","port":5679},"external":{"autoShutdownTimeout":15,"mainNodeAuthToken":"","nodeOptions":["--max-semi-space-size=16","--max-old-space-size=300"],"port":5680,"resources":{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}},"workerNodeAuthToken":""},"maxConcurrency":5,"mode":"internal","taskHeartbeatInterval":30,"taskTimeout":60}` | Task runners mode. Please follow the documentation for more information: https://docs.n8n.io/hosting/configuration/task-runners/ |
+| taskRunners | object | `{"broker":{"address":"127.0.0.1","port":5679},"external":{"autoShutdownTimeout":15,"image":{"pullPolicy":"IfNotPresent","repository":"n8nio/runners","tag":""},"mainNodeAuthToken":"","nodeOptions":["--max-semi-space-size=16","--max-old-space-size=300"],"port":5680,"resources":{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}},"workerNodeAuthToken":""},"maxConcurrency":5,"mode":"internal","taskHeartbeatInterval":30,"taskTimeout":60}` | Task runners mode. Please follow the documentation for more information: https://docs.n8n.io/hosting/configuration/task-runners/ |
 | taskRunners.broker | object | `{"address":"127.0.0.1","port":5679}` | The address for the broker of the external task runner |
 | taskRunners.broker.address | string | `"127.0.0.1"` | The address for the broker of the external task runner |
 | taskRunners.broker.port | int | `5679` | The port for the broker of the external task runner |
-| taskRunners.external | object | `{"autoShutdownTimeout":15,"mainNodeAuthToken":"","nodeOptions":["--max-semi-space-size=16","--max-old-space-size=300"],"port":5680,"resources":{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}},"workerNodeAuthToken":""}` | The configuration for the external task runner |
+| taskRunners.external | object | `{"autoShutdownTimeout":15,"image":{"pullPolicy":"IfNotPresent","repository":"n8nio/runners","tag":""},"mainNodeAuthToken":"","nodeOptions":["--max-semi-space-size=16","--max-old-space-size=300"],"port":5680,"resources":{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}},"workerNodeAuthToken":""}` | The configuration for the external task runner |
 | taskRunners.external.autoShutdownTimeout | int | `15` | The auto shutdown timeout for the external task runner in seconds |
+| taskRunners.external.image | object | `{"pullPolicy":"IfNotPresent","repository":"n8nio/runners","tag":""}` | The image for the external task runner sidecar. Tag must match the n8n appVersion. |
+| taskRunners.external.image.pullPolicy | string | `"IfNotPresent"` | This sets the pull policy for images. |
+| taskRunners.external.image.repository | string | `"n8nio/runners"` | The repository for the external task runner image |
+| taskRunners.external.image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | taskRunners.external.mainNodeAuthToken | string | `""` | The auth token for the main node |
 | taskRunners.external.nodeOptions | list | `["--max-semi-space-size=16","--max-old-space-size=300"]` | The node options for the external task runner |
 | taskRunners.external.port | int | `5680` | The port for the external task runner |
@@ -1198,9 +1698,10 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | versionNotifications.enabled | bool | `false` | Whether to request notifications about new n8n versions |
 | versionNotifications.endpoint | string | `"https://api.n8n.io/api/versions/"` | Endpoint to retrieve n8n version information from |
 | versionNotifications.infoUrl | string | `"https://docs.n8n.io/hosting/installation/updating/"` | URL for versions panel to page instructing user on how to update n8n instance |
-| volumeMounts | list | `[]` | DEPRECATED: Use main, worker, and webhook blocks volumeMounts fields instead. This field will be removed in a future release. |
-| volumes | list | `[]` | DEPRECATED: Use main, worker, and webhook blocks volumes fields instead. This field will be removed in a future release. |
-| webhook | object | `{"affinity":{},"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"count":2,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"mcp":{"affinity":{},"enabled":true,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"volumeMounts":[],"volumes":[]},"mode":"regular","pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"runtimeClassName":"","startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"url":"","volumeMounts":[],"volumes":[],"waitMainNodeReady":{"additionalParameters":[],"enabled":false,"healthCheckPath":"/healthz","overwriteSchema":"","overwriteUrl":""}}` | Webhook node configurations |
+| volumeMounts | list | `[]` | @deprecated Use main, worker, and webhook blocks volumeMounts fields instead. This field will be removed in a future release. |
+| volumes | list | `[]` | @deprecated Use main, worker, and webhook blocks volumes fields instead. This field will be removed in a future release. |
+| waitContainerSecurityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true,"runAsGroup":1000,"runAsNonRoot":true,"runAsUser":1000}` | Security Context for the wait-for-main busybox init containers. |
+| webhook | object | `{"affinity":{},"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"count":2,"extraContainers":[],"extraEnv":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"mcp":{"affinity":{},"enabled":true,"extraContainers":[],"extraEnv":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"volumeMounts":[],"volumes":[]},"mode":"regular","pdb":{"enabled":true,"maxUnavailable":1,"minAvailable":null,"unhealthyPodEvictionPolicy":"AlwaysAllow"},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"runtimeClassName":"","startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"url":"","volumeMounts":[],"volumes":[],"waitMainNodeReady":{"additionalParameters":[],"enabled":false,"healthCheckPath":"/healthz","overwriteSchema":"","overwriteUrl":""}}` | Webhook node configurations |
 | webhook.affinity | object | `{}` | Webhook node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
 | webhook.allNodes | bool | `false` | If true, all k8s nodes will deploy exatly one webhook pod |
 | webhook.autoscaling | object | `{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2}` | If true, the number of webhooks will be automatically scaled based on default metrics. On default, it will scale based on CPU. Scale by requests can be done by setting a custom metric. For more information can be found here: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/ |
@@ -1211,15 +1712,17 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | webhook.autoscaling.minReplicas | int | `2` | The minimum number of replicas. |
 | webhook.count | int | `2` | Static number of webhooks. If allNodes or autoscaling is enabled, this value will be ignored. |
 | webhook.extraContainers | list | `[]` | Additional containers for the webhook pod |
+| webhook.extraEnv | list | `[]` | Extra environment variables that support `valueFrom` (e.g., secretKeyRef, configMapKeyRef). Entries are passed through verbatim and rendered after `extraEnvVars`. |
 | webhook.extraEnvVars | object | `{}` | Extra environment variables |
 | webhook.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
 | webhook.hostAliases | list | `[]` | Host aliases for the webhook pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases |
 | webhook.initContainers | list | `[]` | Additional init containers for the webhook pod |
 | webhook.livenessProbe | object | `{"httpGet":{"path":"/healthz","port":"http"}}` | This is to setup the liveness probe for the webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
-| webhook.mcp | object | `{"affinity":{},"enabled":true,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"volumeMounts":[],"volumes":[]}` | MCP webhook configuration. This is only used when the webhook mode is set to `queue` and the database type is set to `postgresdb`. |
+| webhook.mcp | object | `{"affinity":{},"enabled":true,"extraContainers":[],"extraEnv":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"volumeMounts":[],"volumes":[]}` | MCP webhook configuration. This is only used when the webhook mode is set to `queue` and the database type is set to `postgresdb`. |
 | webhook.mcp.affinity | object | `{}` | Webhook node affinity for the mcp webhook pod. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
 | webhook.mcp.enabled | bool | `true` | Whether to enable MCP webhook |
 | webhook.mcp.extraContainers | list | `[]` | Additional containers for the mcp webhook pod |
+| webhook.mcp.extraEnv | list | `[]` | Extra environment variables for the mcp webhook pod that support `valueFrom` (e.g., secretKeyRef, configMapKeyRef). Entries are passed through verbatim and rendered after `extraEnvVars`. |
 | webhook.mcp.extraEnvVars | object | `{}` | Extra environment variables for the mcp webhook pod |
 | webhook.mcp.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables for the mcp webhook pod |
 | webhook.mcp.hostAliases | list | `[]` | Host aliases for the mcp webhook pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases |
@@ -1231,10 +1734,11 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | webhook.mcp.volumeMounts | list | `[]` | Additional volumeMounts on the output Deployment definition for the mcp webhook pod |
 | webhook.mcp.volumes | list | `[]` | Additional volumes on the output Deployment definition for the mcp webhook pod |
 | webhook.mode | string | `"regular"` | Use `regular` to use main node as webhook node, or use `queue` to have webhook nodes |
-| webhook.pdb | object | `{"enabled":true,"maxUnavailable":null,"minAvailable":1}` | Whether to enable the PodDisruptionBudget for the webhook pod |
+| webhook.pdb | object | `{"enabled":true,"maxUnavailable":1,"minAvailable":null,"unhealthyPodEvictionPolicy":"AlwaysAllow"}` | Whether to enable the PodDisruptionBudget for the webhook pod |
 | webhook.pdb.enabled | bool | `true` | Whether to enable the PodDisruptionBudget |
-| webhook.pdb.maxUnavailable | string | `nil` | Maximum number of unavailable replicas |
-| webhook.pdb.minAvailable | int | `1` | Minimum number of available replicas |
+| webhook.pdb.maxUnavailable | int | `1` | Maximum number of unavailable replicas |
+| webhook.pdb.minAvailable | string | `nil` | Minimum number of available replicas |
+| webhook.pdb.unhealthyPodEvictionPolicy | string | `"AlwaysAllow"` | Unhealty webhook pod eviction policy |
 | webhook.readinessProbe | object | `{"httpGet":{"path":"/healthz/readiness","port":"http"}}` | This is to setup the readiness probe for the webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | webhook.resources | object | `{}` | This block is for setting up the resource management for the webhook pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
 | webhook.runtimeClassName | string | `""` | Runtime class name for the webhook pod. For more information checkout: https://kubernetes.io/docs/concepts/containers/runtime-class/ |
@@ -1247,7 +1751,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | webhook.waitMainNodeReady.healthCheckPath | string | `"/healthz"` | The health check path to use for request to the main node. |
 | webhook.waitMainNodeReady.overwriteSchema | string | `""` | The schema to use for request to the main node. On default, it will use identify the schema from the main N8N_PROTOCOL environment variable or use http. |
 | webhook.waitMainNodeReady.overwriteUrl | string | `""` | The URL to use for request to the main node. On default, it will use service name and port. |
-| worker | object | `{"affinity":{},"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"concurrency":10,"count":2,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"forceToUseStatefulset":false,"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"mode":"regular","pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"persistence":{"accessMode":"ReadWriteOnce","annotations":{"helm.sh/resource-policy":"keep"},"enabled":false,"existingClaim":"","labels":{},"mountPath":"/home/node/.n8n","size":"8Gi","storageClass":"","subPath":"","volumeName":""},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"runtimeClassName":"","startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"volumeMounts":[],"volumes":[],"waitMainNodeReady":{"additionalParameters":[],"enabled":false,"healthCheckPath":"/healthz","overwriteSchema":"","overwriteUrl":""}}` | Worker node configurations |
+| worker | object | `{"affinity":{},"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"concurrency":10,"count":2,"extraContainers":[],"extraEnv":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"forceToUseStatefulset":false,"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"mode":"regular","pdb":{"enabled":true,"maxUnavailable":1,"minAvailable":null,"unhealthyPodEvictionPolicy":"AlwaysAllow"},"persistence":{"accessMode":"ReadWriteOnce","annotations":{"helm.sh/resource-policy":"keep"},"enabled":false,"existingClaim":"","labels":{},"mountPath":"/home/node/.n8n","size":"8Gi","storageClass":"","subPath":"","volumeName":""},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"runtimeClassName":"","startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"volumeMounts":[],"volumes":[],"waitMainNodeReady":{"additionalParameters":[],"enabled":false,"healthCheckPath":"/healthz","overwriteSchema":"","overwriteUrl":""}}` | Worker node configurations |
 | worker.affinity | object | `{}` | Worker node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
 | worker.allNodes | bool | `false` | If true, all k8s nodes will deploy exatly one worker pod |
 | worker.autoscaling | object | `{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2}` | If true, the number of workers will be automatically scaled based on default metrics. On default, it will scale based on CPU and memory. For more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/ |
@@ -1259,6 +1763,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | worker.concurrency | int | `10` | number of concurrency for each worker |
 | worker.count | int | `2` | Static number of workers. If allNodes or autoscaling is enabled, this value will be ignored. |
 | worker.extraContainers | list | `[]` | Additional containers for the worker pod |
+| worker.extraEnv | list | `[]` | Extra environment variables that support `valueFrom` (e.g., secretKeyRef, configMapKeyRef). Entries are passed through verbatim and rendered after `extraEnvVars`. |
 | worker.extraEnvVars | object | `{}` | Extra environment variables |
 | worker.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
 | worker.forceToUseStatefulset | bool | `false` | Force to use statefulset for the worker pod. If true, the worker pod will be created as a statefulset. |
@@ -1266,10 +1771,11 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | worker.initContainers | list | `[]` | Additional init containers for the worker pod |
 | worker.livenessProbe | object | `{"httpGet":{"path":"/healthz","port":"http"}}` | This is to setup the liveness probe for the worker pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | worker.mode | string | `"regular"` | Use `regular` to use main node as executer, or use `queue` to have worker nodes |
-| worker.pdb | object | `{"enabled":true,"maxUnavailable":null,"minAvailable":1}` | Whether to enable the PodDisruptionBudget for the worker pod |
+| worker.pdb | object | `{"enabled":true,"maxUnavailable":1,"minAvailable":null,"unhealthyPodEvictionPolicy":"AlwaysAllow"}` | Whether to enable the PodDisruptionBudget for the worker pod |
 | worker.pdb.enabled | bool | `true` | Whether to enable the PodDisruptionBudget |
-| worker.pdb.maxUnavailable | string | `nil` | Maximum number of unavailable replicas |
-| worker.pdb.minAvailable | int | `1` | Minimum number of available replicas |
+| worker.pdb.maxUnavailable | int | `1` | Maximum number of unavailable replicas |
+| worker.pdb.minAvailable | string | `nil` | Minimum number of available replicas |
+| worker.pdb.unhealthyPodEvictionPolicy | string | `"AlwaysAllow"` | Unhealty worker pod eviction policy |
 | worker.persistence | object | `{"accessMode":"ReadWriteOnce","annotations":{"helm.sh/resource-policy":"keep"},"enabled":false,"existingClaim":"","labels":{},"mountPath":"/home/node/.n8n","size":"8Gi","storageClass":"","subPath":"","volumeName":""}` | Persistence configuration for the worker pod |
 | worker.persistence.accessMode | string | `"ReadWriteOnce"` | Access mode for persistence |
 | worker.persistence.annotations | object | `{"helm.sh/resource-policy":"keep"}` | Annotations for persistence |

@@ -2,23 +2,18 @@ checks:
   addAllBuiltIn: true
 
   exclude:
-    - latest-tag
     - unset-cpu-requirements
     - unset-memory-requirements
     - no-read-only-root-fs
     - minimum-three-replicas
     - no-node-affinity
     - dnsconfig-options
-    - no-anti-affinity
     - required-annotation-email
     - required-label-owner
     - restart-policy
     - sorted-keys
     - use-namespace
     - non-isolated-pod
-    - no-liveness-probe
-    - no-readiness-probe
-    - read-secret-from-env-var
 
   ignorePaths:
     - "charts/kserve/**"

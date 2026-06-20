@@ -46,3 +46,29 @@ postgresql:
   primary:
     persistence:
       enabled: false
+
+nodes:
+  python:
+    enabled: true
+    builtin:
+      modules:
+        - "*"
+    external:
+      packages:
+        - numpy
+        - pandas
+
+taskRunners:
+  mode: external
+  external:
+    image:
+      repository: n8nio/runners
+      pullPolicy: IfNotPresent
+      tag: ""
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi

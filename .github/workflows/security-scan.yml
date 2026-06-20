@@ -16,13 +16,13 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Get changed chart directories
         id: changed-charts
-        uses: tj-actions/changed-files@v45
+        uses: tj-actions/changed-files@v47
         with:
           files: charts/**
           dir_names: true
@@ -35,8 +35,18 @@ jobs:
         with:
           directory: ${{ steps.changed-charts.outputs.all_changed_files }}
           config: .kube-linter.yaml
+          format: plain
+          output-file: kube-linter-results.txt
+
+      - name: Re-run KubeLinter for SARIF upload
+        if: steps.changed-charts.outputs.any_changed == 'true'
+        uses: stackrox/kube-linter-action@v1.0.7
+        with:
+          directory: ${{ steps.changed-charts.outputs.all_changed_files }}
+          config: .kube-linter.yaml
           format: sarif
           output-file: kube-linter-results.sarif
+        continue-on-error: true
 
       - name: Upload KubeLinter SARIF
         if: steps.changed-charts.outputs.any_changed == 'true'

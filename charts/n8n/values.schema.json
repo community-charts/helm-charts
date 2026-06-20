@@ -569,6 +569,13 @@
           "title": "existingSecret",
           "type": "string"
         },
+        "existingSecretPasswordKey": {
+          "default": "",
+          "description": "The key in `externalPostgresql.existingSecret` that stores the PostgreSQL password.",
+          "required": [],
+          "title": "existingSecretPasswordKey",
+          "type": "string"
+        },
         "host": {
           "default": "",
           "description": "External PostgreSQL server host",
@@ -604,7 +611,8 @@
         "password",
         "port",
         "database",
-        "existingSecret"
+        "existingSecret",
+        "existingSecretPasswordKey"
       ],
       "title": "externalPostgresql",
       "type": "object"
@@ -653,6 +661,20 @@
           "description": "The name of an existing secret with Redis (must contain key `redis-password`) and Sentinel credentials.\nWhen it's set, the `externalRedis.password` parameter is ignored",
           "required": [],
           "title": "existingSecret",
+          "type": "string"
+        },
+        "existingUsernameKey": {
+          "default": "",
+          "description": "The key in `externalRedis.existingSecret` that stores the Redis username.",
+          "required": [],
+          "title": "existingUsernameKey",
+          "type": "string"
+        },
+        "existingPasswordKey": {
+          "default": "",
+          "description": "The key in `externalRedis.existingSecret` that stores the Redis password.",
+          "required": [],
+          "title": "existingPasswordKey",
           "type": "string"
         },
         "clusterNodes": {
@@ -708,9 +730,25 @@
           "type": "boolean"
         }
       },
-      "required": ["database", "host", "username", "password", "port", "existingSecret", "clusterNodes", "tls", "dualStack"],
+      "required": ["database", "host", "username", "password", "port", "existingSecret", "existingUsernameKey", "existingPasswordKey", "clusterNodes", "tls", "dualStack"],
       "title": "externalRedis",
       "type": "object"
+    },
+    "extraManifests": {
+      "description": "List of extra Kubernetes manifests (objects or YAML strings) to deploy alongside n8n. Chart labels are merged automatically.",
+      "type": "array",
+      "items": {},
+      "default": [],
+      "title": "extraManifests"
+    },
+    "extraTemplateManifests": {
+      "description": "List of extra Kubernetes manifests as YAML strings with Helm templating support. Chart labels are merged automatically.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "title": "extraTemplateManifests"
     },
     "extraEnvVars": {
       "additionalProperties": true,
@@ -718,6 +756,15 @@
       "required": [],
       "title": "extraEnvVars",
       "type": "object"
+    },
+    "extraEnv": {
+      "description": "DEPRECATED: Use main, worker, webhook, and webhook.mcp blocks extraEnv fields instead. This field will be removed in a future release.",
+      "items": {
+        "required": []
+      },
+      "required": [],
+      "title": "extraEnv",
+      "type": "array"
     },
     "extraSecretNamesForEnvFrom": {
       "description": "DEPRECATED: Use main, worker, and webhook blocks extraSecretNamesForEnvFrom fields instead. This field will be removed in a future release.",
@@ -1042,9 +1089,61 @@
               "required": [],
               "title": "packages",
               "type": "array"
+            },
+            "persistence": {
+              "additionalProperties": false,
+              "description": "Persistence for community node packages installed by the init container. Optional PVC so packages survive pod restarts without re-downloading.",
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "description": "Enable persistence. When false, packages are installed into an emptyDir and lost on pod restart.",
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "existingClaim": {
+                  "default": "",
+                  "description": "Use an existing PVC instead of creating one. When set, no PVC is created by this chart.",
+                  "required": [],
+                  "title": "existingClaim",
+                  "type": "string"
+                },
+                "storageClass": {
+                  "default": "",
+                  "description": "Storage class for the PVC. Empty string uses the cluster default.",
+                  "required": [],
+                  "title": "storageClass",
+                  "type": "string"
+                },
+                "accessMode": {
+                  "default": "ReadWriteOnce",
+                  "description": "Access mode. Use ReadWriteMany when worker pods may be scheduled on different nodes.",
+                  "enum": ["ReadWriteOnce", "ReadWriteMany"],
+                  "required": [],
+                  "title": "accessMode",
+                  "type": "string"
+                },
+                "size": {
+                  "default": "1Gi",
+                  "description": "Size of the PVC.",
+                  "required": [],
+                  "title": "size",
+                  "type": "string"
+                },
+                "annotations": {
+                  "additionalProperties": true,
+                  "description": "Additional annotations for the PVC.",
+                  "required": [],
+                  "title": "annotations",
+                  "type": "object"
+                }
+              },
+              "required": ["enabled", "existingClaim", "storageClass", "accessMode", "size", "annotations"],
+              "title": "persistence",
+              "type": "object"
             }
           },
-          "required": ["allowAll", "reinstallMissingPackages", "packages"],
+          "required": ["allowAll", "reinstallMissingPackages", "packages", "persistence"],
           "title": "external",
           "type": "object"
         },
@@ -1141,11 +1240,165 @@
           "required": ["image", "resources"],
           "title": "initContainer",
           "type": "object"
+        },
+        "python": {
+          "additionalProperties": false,
+          "description": "Python Code node configuration. Requires n8n 1.111.0+ and taskRunners.mode: external.",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "description": "Enable Python code execution via external task runners (requires n8n 1.111.0+)",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "builtin": {
+              "additionalProperties": false,
+              "description": "Built-in Python module access for the Code node",
+              "properties": {
+                "modules": {
+                  "default": [],
+                  "description": "Python stdlib modules allowed in Code nodes. Use [\"*\"] to allow all.",
+                  "items": {
+                    "type": "string"
+                  },
+                  "uniqueItems": true,
+                  "minItems": 0,
+                  "required": [],
+                  "title": "modules",
+                  "type": "array"
+                }
+              },
+              "required": ["modules"],
+              "title": "builtin",
+              "type": "object"
+            },
+            "external": {
+              "additionalProperties": false,
+              "description": "External Python package access for the Code node",
+              "properties": {
+                "allowAll": {
+                  "default": false,
+                  "description": "Allow all external Python packages in Code nodes. When true, sets N8N_RUNNERS_EXTERNAL_ALLOW=* regardless of packages list.",
+                  "required": [],
+                  "title": "allowAll",
+                  "type": "boolean"
+                },
+                "packages": {
+                  "default": [],
+                  "description": "Python packages to install via uv pip before starting the runner (e.g. [\"pandas\", \"numpy\"]). Each listed package is also automatically allowed as an external package in Code nodes.",
+                  "items": {
+                    "type": "string"
+                  },
+                  "required": [],
+                  "title": "packages",
+                  "type": "array"
+                }
+              },
+              "required": ["allowAll", "packages"],
+              "title": "external",
+              "type": "object"
+            },
+            "persistence": {
+              "additionalProperties": false,
+              "description": "Persistence for Python packages installed by uv. Optional PVC so packages survive pod restarts without re-downloading.",
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "description": "Enable persistence. When false, packages are installed into an emptyDir and lost on pod restart.",
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "existingClaim": {
+                  "default": "",
+                  "description": "Use an existing PVC instead of creating one. When set, no PVC is created by this chart.",
+                  "required": [],
+                  "title": "existingClaim",
+                  "type": "string"
+                },
+                "storageClass": {
+                  "default": "",
+                  "description": "Storage class for the PVC. Empty string uses the cluster default.",
+                  "required": [],
+                  "title": "storageClass",
+                  "type": "string"
+                },
+                "accessMode": {
+                  "default": "ReadWriteOnce",
+                  "description": "Access mode. Use ReadWriteMany when worker pods may be scheduled on different nodes.",
+                  "enum": ["ReadWriteOnce", "ReadWriteMany"],
+                  "required": [],
+                  "title": "accessMode",
+                  "type": "string"
+                },
+                "size": {
+                  "default": "1Gi",
+                  "description": "Size of the PVC.",
+                  "required": [],
+                  "title": "size",
+                  "type": "string"
+                },
+                "annotations": {
+                  "additionalProperties": true,
+                  "description": "Additional annotations for the PVC.",
+                  "required": [],
+                  "title": "annotations",
+                  "type": "object"
+                }
+              },
+              "required": ["enabled", "existingClaim", "storageClass", "accessMode", "size", "annotations"],
+              "title": "persistence",
+              "type": "object"
+            }
+          },
+          "required": ["enabled", "builtin", "external", "persistence"],
+          "title": "python",
+          "type": "object"
         }
       },
-      "required": ["initContainer"],
+      "required": ["initContainer", "python"],
       "title": "nodes",
       "type": "object"
+    },
+    "pypiRegistry": {
+      "type": "object",
+      "title": "pypiRegistry",
+      "description": "Configuration for private Python package (PyPI) registry",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "enabled",
+          "description": "Enable private PyPI registry support for the runner sidecar",
+          "default": false
+        },
+        "url": {
+          "type": "string",
+          "title": "url",
+          "description": "URL of the private PyPI index. Sets UV_DEFAULT_INDEX when no config file is provided.",
+          "default": ""
+        },
+        "secretName": {
+          "type": "string",
+          "title": "secretName",
+          "description": "Name of an existing Kubernetes secret containing a uv.toml config file",
+          "default": ""
+        },
+        "secretKey": {
+          "type": "string",
+          "title": "secretKey",
+          "description": "Key within the secret that holds the uv.toml content",
+          "default": "uv.toml"
+        },
+        "customUvConfig": {
+          "type": "string",
+          "title": "customUvConfig",
+          "description": "Inline uv.toml content. When set and secretName is empty, the chart creates a Secret from this content.",
+          "default": ""
+        }
+      },
+      "required": ["enabled", "url", "secretName", "secretKey", "customUvConfig"]
     },
     "npmRegistry": {
       "type": "object",
@@ -1210,6 +1463,42 @@
           "type": "string"
         },
         "autoNenew": {
+          "description": "DEPRECATED: Use license.autoRenew fields instead.",
+          "properties": {
+            "enabled": {
+              "default": true,
+              "description": "DEPRECATED: Use license.autoRenew.enabled field instead.",
+              "required": [],
+              "title": "enabled",
+              "oneOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "offsetInHours": {
+              "default": 72,
+              "description": "DEPRECATED: Use license.autoRenew.offsetInHours field instead.",
+              "required": [],
+              "title": "offsetInHours",
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [],
+          "title": "autoNenew",
+          "type": "object"
+        },
+        "autoRenew": {
           "description": "The auto new license configuration",
           "properties": {
             "enabled": {
@@ -1228,7 +1517,7 @@
             }
           },
           "required": ["enabled", "offsetInHours"],
-          "title": "autoNenew",
+          "title": "autoRenew",
           "type": "object"
         },
         "serverUrl": {
@@ -1244,7 +1533,7 @@
           "type": "integer"
         }
       },
-      "required": ["enabled", "activationKey", "existingActivationKeySecret", "autoNenew", "serverUrl", "tenantId"],
+      "required": ["enabled", "activationKey", "existingActivationKeySecret", "autoRenew", "serverUrl", "tenantId"],
       "title": "license",
       "type": "object"
     },
@@ -1279,8 +1568,8 @@
               "type": "boolean"
             },
             "minAvailable": {
-              "default": 1,
-              "description": "Minimum number of available replicas for the main node",
+              "default": null,
+              "description": "Minimum number of available replicas for the main node. Mutually exclusive with maxUnavailable.",
               "required": [],
               "title": "minAvailable",
               "oneOf": [
@@ -1298,18 +1587,33 @@
               ]
             },
             "maxUnavailable": {
-              "default": null,
-              "description": "Maximum number of unavailable replicas for the main node",
+              "default": 1,
+              "description": "Maximum number of unavailable replicas for the main node. Mutually exclusive with minAvailable.",
               "required": [],
               "title": "maxUnavailable",
               "oneOf": [
                 {
                   "type": "integer",
-                  "minimum": 0
+                  "minimum": 1
                 },
                 {
                   "type": "string",
                   "pattern": "^[0-9]+%$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "unhealthyPodEvictionPolicy": {
+              "default": "AlwaysAllow",
+              "description": "Unhealthy pod eviction policy for the main node PodDisruptionBudget. Requires Kubernetes >= 1.26.",
+              "required": [],
+              "title": "unhealthyPodEvictionPolicy",
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": ["IfHealthyBudget", "AlwaysAllow"]
                 },
                 {
                   "type": "null"
@@ -1538,6 +1842,15 @@
           "title": "extraEnvVars",
           "type": "object"
         },
+        "extraEnv": {
+          "description": "Extra environment variables that support valueFrom (e.g., secretKeyRef, configMapKeyRef, fieldRef).",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "extraEnv",
+          "type": "array"
+        },
         "extraSecretNamesForEnvFrom": {
           "description": "Extra secrets for environment variables",
           "items": {
@@ -1621,7 +1934,7 @@
           "type": "string"
         }
       },
-      "required": ["count", "editorBaseUrl", "resources", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers", "affinity", "hostAliases", "runtimeClassName"],
+      "required": ["count", "editorBaseUrl", "resources", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraEnv", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers", "affinity", "hostAliases", "runtimeClassName"],
       "title": "main",
       "type": "object"
     },
@@ -1689,6 +2002,28 @@
           "title": "fsGroupChangePolicy",
           "type": "string",
           "enum": ["OnRootMismatch", "Always"]
+        },
+        "seccompProfile": {
+          "additionalProperties": false,
+          "description": "Seccomp profile for the pod.",
+          "properties": {
+            "type": {
+              "default": "RuntimeDefault",
+              "enum": ["Localhost", "RuntimeDefault", "Unconfined"],
+              "required": [],
+              "title": "type",
+              "type": "string"
+            },
+            "localhostProfile": {
+              "description": "Path to a seccomp profile file on the node (only for Localhost type).",
+              "required": [],
+              "title": "localhostProfile",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "title": "seccompProfile",
+          "type": "object"
         }
       },
       "required": [],
@@ -1973,6 +2308,63 @@
       "title": "securityContext",
       "type": "object"
     },
+    "waitContainerSecurityContext": {
+      "additionalProperties": true,
+      "description": "Security Context for the wait-for-main busybox init containers.",
+      "properties": {
+        "allowPrivilegeEscalation": {
+          "default": false,
+          "required": [],
+          "title": "allowPrivilegeEscalation",
+          "type": "boolean"
+        },
+        "readOnlyRootFilesystem": {
+          "default": true,
+          "required": [],
+          "title": "readOnlyRootFilesystem",
+          "type": "boolean"
+        },
+        "runAsNonRoot": {
+          "default": true,
+          "required": [],
+          "title": "runAsNonRoot",
+          "type": "boolean"
+        },
+        "runAsUser": {
+          "default": 1000,
+          "required": [],
+          "title": "runAsUser",
+          "type": "integer"
+        },
+        "capabilities": {
+          "additionalProperties": true,
+          "properties": {
+            "drop": {
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "drop",
+              "type": "array"
+            },
+            "add": {
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "add",
+              "type": "array"
+            }
+          },
+          "required": [],
+          "title": "capabilities",
+          "type": "object"
+        }
+      },
+      "required": [],
+      "title": "waitContainerSecurityContext",
+      "type": "object"
+    },
     "service": {
       "additionalProperties": false,
       "description": "This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/",
@@ -2076,6 +2468,13 @@
       "required": ["type"],
       "title": "strategy",
       "type": "object"
+    },
+    "revisionHistoryLimit": {
+      "default": null,
+      "description": "The number of old ReplicaSets to retain for rollback. More information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy",
+      "minimum": 0,
+      "title": "revisionHistoryLimit",
+      "type": ["integer", "null"]
     },
     "timezone": {
       "default": "Europe/Berlin",
@@ -2333,6 +2732,15 @@
               "title": "extraEnvVars",
               "type": "object"
             },
+            "extraEnv": {
+              "description": "Extra environment variables for the mcp webhook pod that support valueFrom (e.g., secretKeyRef, configMapKeyRef, fieldRef).",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "extraEnv",
+              "type": "array"
+            },
             "extraSecretNamesForEnvFrom": {
               "description": "Extra secrets for environment variables for the mcp webhook pod",
               "items": {
@@ -2410,7 +2818,7 @@
               "type": "array"
             }
           },
-          "required": ["enabled", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "initContainers", "extraContainers", "affinity", "hostAliases"],
+          "required": ["enabled", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraEnv", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "initContainers", "extraContainers", "affinity", "hostAliases"],
           "title": "mcp",
           "type": "object"
         },
@@ -2755,8 +3163,8 @@
               "type": "boolean"
             },
             "minAvailable": {
-              "default": 1,
-              "description": "Minimum number of available replicas for the worker node",
+              "default": null,
+              "description": "Minimum number of available replicas for the worker node. Mutually exclusive with maxUnavailable.",
               "required": [],
               "title": "minAvailable",
               "oneOf": [
@@ -2774,18 +3182,33 @@
               ]
             },
             "maxUnavailable": {
-              "default": null,
-              "description": "Maximum number of unavailable replicas for the worker node",
+              "default": 1,
+              "description": "Maximum number of unavailable replicas for the worker node. Mutually exclusive with minAvailable.",
               "required": [],
               "title": "maxUnavailable",
               "oneOf": [
                 {
                   "type": "integer",
-                  "minimum": 0
+                  "minimum": 1
                 },
                 {
                   "type": "string",
                   "pattern": "^[0-9]+%$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "unhealthyPodEvictionPolicy": {
+              "default": "AlwaysAllow",
+              "description": "Unhealthy pod eviction policy for the worker node PodDisruptionBudget. Requires Kubernetes >= 1.26.",
+              "required": [],
+              "title": "unhealthyPodEvictionPolicy",
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": ["IfHealthyBudget", "AlwaysAllow"]
                 },
                 {
                   "type": "null"
@@ -3020,6 +3443,15 @@
           "title": "extraEnvVars",
           "type": "object"
         },
+        "extraEnv": {
+          "description": "Extra environment variables that support valueFrom (e.g., secretKeyRef, configMapKeyRef, fieldRef).",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "extraEnv",
+          "type": "array"
+        },
         "extraSecretNamesForEnvFrom": {
           "description": "Extra secrets for environment variables",
           "items": {
@@ -3103,7 +3535,7 @@
           "type": "string"
         }
       },
-      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases", "mcp", "runtimeClassName"],
+      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraEnv", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases", "mcp", "runtimeClassName"],
       "allOf": [
         {
           "if": {
@@ -3498,8 +3930,8 @@
               "type": "boolean"
             },
             "minAvailable": {
-              "default": 1,
-              "description": "Minimum number of available replicas for the worker node",
+              "default": null,
+              "description": "Minimum number of available replicas for the worker node. Mutually exclusive with maxUnavailable.",
               "required": [],
               "title": "minAvailable",
               "oneOf": [
@@ -3517,18 +3949,33 @@
               ]
             },
             "maxUnavailable": {
-              "default": null,
-              "description": "Maximum number of unavailable replicas for the worker node",
+              "default": 1,
+              "description": "Maximum number of unavailable replicas for the worker node. Mutually exclusive with minAvailable.",
               "required": [],
               "title": "maxUnavailable",
               "oneOf": [
                 {
                   "type": "integer",
-                  "minimum": 0
+                  "minimum": 1
                 },
                 {
                   "type": "string",
                   "pattern": "^[0-9]+%$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "unhealthyPodEvictionPolicy": {
+              "default": "AlwaysAllow",
+              "description": "Unhealthy pod eviction policy for the worker node PodDisruptionBudget. Requires Kubernetes >= 1.26.",
+              "required": [],
+              "title": "unhealthyPodEvictionPolicy",
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": ["IfHealthyBudget", "AlwaysAllow"]
                 },
                 {
                   "type": "null"
@@ -3842,6 +4289,15 @@
           "title": "extraEnvVars",
           "type": "object"
         },
+        "extraEnv": {
+          "description": "Extra environment variables that support valueFrom (e.g., secretKeyRef, configMapKeyRef, fieldRef).",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "extraEnv",
+          "type": "array"
+        },
         "extraSecretNamesForEnvFrom": {
           "description": "Extra secrets for environment variables",
           "items": {
@@ -3925,7 +4381,7 @@
           "type": "string"
         }
       },
-      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases", "runtimeClassName"],
+      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraEnv", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases", "runtimeClassName"],
       "allOf": [
         {
           "if": {
@@ -4074,6 +4530,37 @@
                 "type": "string"
               }
             },
+            "image": {
+              "additionalProperties": false,
+              "description": "Container image for the external task runner sidecar",
+              "properties": {
+                "repository": {
+                  "default": "n8nio/runners",
+                  "description": "The repository for the external task runner image",
+                  "required": [],
+                  "title": "repository",
+                  "type": "string"
+                },
+                "pullPolicy": {
+                  "default": "IfNotPresent",
+                  "description": "The image pull policy for the external task runner",
+                  "required": [],
+                  "title": "pullPolicy",
+                  "type": "string",
+                  "enum": ["Always", "Never", "IfNotPresent"]
+                },
+                "tag": {
+                  "default": "",
+                  "description": "Override the image tag; defaults to chart appVersion",
+                  "required": [],
+                  "title": "tag",
+                  "type": "string"
+                }
+              },
+              "required": ["repository", "pullPolicy", "tag"],
+              "title": "image",
+              "type": "object"
+            },
             "resources": {
               "additionalProperties": false,
               "properties": {
@@ -4111,7 +4598,7 @@
               "type": "object"
             }
           },
-          "required": ["autoShutdownTimeout", "port", "nodeOptions", "resources"],
+          "required": ["autoShutdownTimeout", "port", "nodeOptions", "image", "resources"],
           "title": "external",
           "type": "object"
         }
@@ -4365,7 +4852,7 @@
                 "default": "n8n-bucket",
                 "description": "This is for setting up the bucket name.",
                 "required": [],
-                "title": "name", 
+                "title": "name",
                 "type": "string"
               },
               "policy": {
@@ -4613,7 +5100,7 @@
                       },
                       "minItems": 1,
                       "required": [],
-                      "title": "actions", 
+                      "title": "actions",
                       "type": "array"
                     },
                     "resources": {
@@ -4732,7 +5219,7 @@
               "accessKey": {
                 "default": "n8n-user",
                 "required": [],
-                "title": "accessKey", 
+                "title": "accessKey",
                 "type": "string"
               },
               "policy": {
@@ -4752,7 +5239,7 @@
             },
             "required": [
               "accessKey",
-              "secretKey", 
+              "secretKey",
               "policy"
             ],
             "type": "object"
@@ -4854,6 +5341,7 @@
     "service",
     "log",
     "nodes",
+    "pypiRegistry",
     "npmRegistry",
     "binaryData",
     "db",

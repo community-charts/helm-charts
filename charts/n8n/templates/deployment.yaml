@@ -6,6 +6,9 @@ metadata:
   labels:
     {{- include "n8n.main.labels" . | nindent 4 }}
 spec:
+  {{- if not (kindIs "invalid" .Values.revisionHistoryLimit) }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  {{- end }}
   replicas: {{ .Values.main.count }}
   strategy:
     type: {{ .Values.strategy.type }}
@@ -59,11 +62,16 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.nodes.initContainer.image.repository }}:{{ .Values.nodes.initContainer.image.tag }}"
           imagePullPolicy: {{ .Values.nodes.initContainer.image.pullPolicy }}
+          env:
+            - name: NPM_CONFIG_CACHE
+              value: /npmdata/.npm-cache
           command: ["/bin/sh", "-c"]
           args:
             - |
               {{- include "n8n.npmInstallScript" . | nindent 14 }}
           volumeMounts:
+            - name: tmp
+              mountPath: /tmp
             {{- if .Values.npmRegistry.enabled }}
             - name: npmrc
               mountPath: "/home/node/.npmrc"
@@ -73,9 +81,16 @@ spec:
             - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
               mountPath: "/npmdata"
               readOnly: false
+            {{- if eq (include "n8n.main.coversCommunityNodes" .) "true" }}
+            - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
+              mountPath: "/nodesdata/nodes"
+              subPath: nodes
+              readOnly: false
+            {{- else }}
             - name: community-node-modules
               mountPath: "/nodesdata/nodes"
               readOnly: false
+            {{- end }}
           {{- with .Values.nodes.initContainer.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
@@ -125,6 +140,8 @@ spec:
               value: {{ .Values.timezone | quote }}
             - name: N8N_GRACEFUL_SHUTDOWN_TIMEOUT
               value: {{ .Values.gracefulShutdownTimeout | quote }}
+            - name: NPM_CONFIG_CACHE
+              value: /home/node/.cache/npm
           {{- if .Values.main.editorBaseUrl }}
             - name: N8N_EDITOR_BASE_URL
               value: {{ .Values.main.editorBaseUrl | quote }}
@@ -143,9 +160,9 @@ spec:
                 secretKeyRef:
                   name: {{ default (include "n8n.postgresql.fullname" .) .Values.externalPostgresql.existingSecret }}
               {{- if .Values.postgresql.auth.username }}
-                  key: password
+                  key: {{ default "password" .Values.externalPostgresql.existingSecretPasswordKey }}
               {{- else }}
-                  key: postgres-password
+                  key: {{ default "postgres-password" .Values.externalPostgresql.existingSecretPasswordKey }}
               {{- end }}
                   optional: true
             {{- if eq .Values.worker.mode "queue" }}
@@ -153,13 +170,13 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ default (include "n8n.redis.fullname" .) .Values.externalRedis.existingSecret }}
-                  key: redis-username
+                  key: {{ default "redis-username" .Values.externalRedis.existingUsernameKey }}
                   optional: true
             - name: QUEUE_BULL_REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ default (include "n8n.redis.fullname" .) .Values.externalRedis.existingSecret }}
-                  key: redis-password
+                  key: {{ default "redis-password" .Values.externalRedis.existingPasswordKey }}
                   optional: true
             {{- end }}
           {{- end }}
@@ -219,6 +236,9 @@ spec:
             - name: {{ upper $key }}
               value: {{ $value | quote }}
           {{- end }}
+          {{- with (default .Values.extraEnv .Values.main.extraEnv) }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ template "n8n.fullname" . }}-database-configmap
@@ -254,18 +274,18 @@ spec:
             - secretRef:
                 name: {{ . }}
           {{- end }}
-          {{- if or (eq (include "n8n.main.hasVolumeMounts" .) "true") .Values.main.persistence.enabled }}
           volumeMounts:
-          {{- end }}
-          {{- if and (or .Values.nodes.external.packages .Values.main.persistence.enabled) (eq .Values.taskRunners.mode "internal") }}
+            - name: tmp
+              mountPath: /tmp
+            - name: cache
+              mountPath: /home/node/.cache
             - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
               mountPath: {{ .Values.main.persistence.mountPath }}
               {{- if .Values.main.persistence.subPath }}
               subPath: {{ .Values.main.persistence.subPath }}
               {{- end }}
               readOnly: false
-          {{- end }}
-          {{- if and .Values.nodes.external.packages (eq .Values.taskRunners.mode "internal") }}
+          {{- if and .Values.nodes.external.packages (not (eq (include "n8n.main.coversCommunityNodes" .) "true")) }}
             - name: community-node-modules
               mountPath: "/home/node/.n8n/nodes"
               readOnly: false
@@ -291,24 +311,44 @@ spec:
           {{- with (default .Values.volumeMounts .Values.main.volumeMounts) }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- if eq .Values.taskRunners.mode "external" }}
+      {{- if and (eq .Values.taskRunners.mode "external") (ne .Values.worker.mode "queue") }}
         - name: {{ template "n8n.taskRunners.name" . }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/usr/local/bin/task-runner-launcher"]
-          args: ["javascript"]
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.taskRunners.external.image.repository }}:{{ .Values.taskRunners.external.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.taskRunners.external.image.pullPolicy }}
+          {{- if .Values.nodes.python.external.packages }}
+          command:
+            - /bin/sh
+            - -c
+            - {{ include "n8n.taskRunners.uvInstallCommand" . | quote }}
+          {{- else }}
+          command:
+            - /usr/local/bin/task-runner-launcher
+          args:
+            - javascript
+          {{- if .Values.nodes.python.enabled }}
+            - python
+          {{- end }}
+          {{- end }}
           ports:
-            - name: http
+            - name: runner-health
               containerPort: {{ .Values.taskRunners.external.port }}
               protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: runner-health
+            failureThreshold: 30
+            periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /healthz
-              port: http
+              port: runner-health
           readinessProbe:
             httpGet:
               path: /healthz
-              port: http
+              port: runner-health
           resources:
             {{- toYaml .Values.taskRunners.external.resources | nindent 12 }}
           env:
@@ -332,19 +372,37 @@ spec:
             - name: N8N_REINSTALL_MISSING_PACKAGES
               value: "true"
           {{- end }}
+          {{- if .Values.pypiRegistry.enabled }}
+          {{- if or .Values.pypiRegistry.secretName .Values.pypiRegistry.customUvConfig }}
+            - name: UV_CONFIG_FILE
+              value: {{ printf "/home/node/.uv-config/%s" (default "uv.toml" .Values.pypiRegistry.secretKey) | quote }}
+          {{- else if .Values.pypiRegistry.url }}
+            - name: UV_DEFAULT_INDEX
+              value: {{ .Values.pypiRegistry.url | quote }}
+          {{- end }}
+          {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ template "n8n.taskRunners.fullname" . }}-configmap
-          {{- if or .Values.nodes.external.packages .Values.main.persistence.enabled }}
           volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: cache
+              mountPath: /home/node/.cache
+            - name: python-packages
+              mountPath: /home/node/.python-packages
+          {{- if and .Values.pypiRegistry.enabled (or .Values.pypiRegistry.secretName .Values.pypiRegistry.customUvConfig) }}
+            - name: uv-config
+              mountPath: /home/node/.uv-config
+              readOnly: true
+          {{- end }}
             - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
               mountPath: {{ .Values.main.persistence.mountPath }}
               {{- if .Values.main.persistence.subPath }}
               subPath: {{ .Values.main.persistence.subPath }}
               {{- end }}
               readOnly: false
-          {{- end }}
-          {{- if .Values.nodes.external.packages }}
+          {{- if and .Values.nodes.external.packages (not (eq (include "n8n.main.coversCommunityNodes" .) "true")) }}
             - name: community-node-modules
               mountPath: "/home/node/.n8n/nodes"
               readOnly: false
@@ -353,20 +411,42 @@ spec:
       {{- with .Values.main.extraContainers }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if or .Values.main.persistence.enabled (eq (include "n8n.main.hasVolumes" .) "true") }}
       volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: cache
+          emptyDir: {}
+      {{- if and (eq .Values.taskRunners.mode "external") (ne .Values.worker.mode "queue") }}
+        - name: python-packages
+          {{- if .Values.nodes.python.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "n8n-python.packages.fullname" . }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
       {{- end }}
       {{- if .Values.main.persistence.enabled }}
         - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
           persistentVolumeClaim:
             claimName: {{ default (include "n8n-main.persistence.fullname" .) .Values.main.persistence.existingClaim }}
-      {{- else if .Values.nodes.external.packages }}
+      {{- else }}
         - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
           emptyDir: {}
       {{- end }}
-      {{- if .Values.nodes.external.packages }}
+      {{- if and .Values.nodes.external.packages (not (eq (include "n8n.main.coversCommunityNodes" .) "true")) }}
         - name: community-node-modules
+          {{- if .Values.nodes.external.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "n8n-community.packages.fullname" . }}
+          {{- else }}
           emptyDir: {}
+          {{- end }}
+      {{- end }}
+      {{- if and (eq .Values.taskRunners.mode "external") (ne .Values.worker.mode "queue") .Values.pypiRegistry.enabled (or .Values.pypiRegistry.secretName .Values.pypiRegistry.customUvConfig) }}
+        - name: uv-config
+          secret:
+            secretName: {{ default (printf "%s-pypi-registry-secret" (include "n8n.fullname" .)) .Values.pypiRegistry.secretName | quote }}
+            optional: true
       {{- end }}
       {{- if .Values.npmRegistry.enabled }}
         - name: npmrc

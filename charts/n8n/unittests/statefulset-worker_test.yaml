@@ -613,6 +613,29 @@ tests:
                 optional: true
         template: statefulset-worker.yaml
 
+  - it: should set postgresdb password environment variable from external secret with custom key when postgresql.auth.username is set and existingSecretPasswordKey is set
+    set:
+      db:
+        type: postgresdb
+      postgresql:
+        enabled: true
+        auth:
+          username: n8npostgres
+          password: n8npostgrespassword
+      externalPostgresql:
+        existingSecretPasswordKey: custom-postgres-password
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: DB_POSTGRESDB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: n8n-postgresql
+                key: custom-postgres-password
+                optional: true
+        template: statefulset-worker.yaml
+
   - it: should set postgresdb password environment variable from secret with key postgres-password when postgresql.auth.username is not set
     set:
       db:
@@ -648,6 +671,25 @@ tests:
               secretKeyRef:
                 name: custom-secret
                 key: postgres-password
+                optional: true
+        template: statefulset-worker.yaml
+
+  - it: should set postgresdb password environment variable from external secret with custom key when externalPostgresql.existingSecretPasswordKey is set
+    set:
+      db:
+        type: postgresdb
+      externalPostgresql:
+        existingSecret: custom-secret
+        existingSecretPasswordKey: custom-postgres-password
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: DB_POSTGRESDB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: custom-secret
+                key: custom-postgres-password
                 optional: true
         template: statefulset-worker.yaml
 
@@ -709,6 +751,34 @@ tests:
                 optional: true
         template: statefulset-worker.yaml
 
+  - it: should set redis username and password environment variables from external secret with custom keys
+    set:
+      externalRedis:
+        existingSecret: custom-secret
+        existingUsernameKey: custom-redis-username
+        existingPasswordKey: custom-redis-password
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: QUEUE_BULL_REDIS_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: custom-secret
+                key: custom-redis-username
+                optional: true
+        template: statefulset-worker.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: QUEUE_BULL_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: custom-secret
+                key: custom-redis-password
+                optional: true
+        template: statefulset-worker.yaml
+
   - it: should set extra environment variables when extraEnvVars is set
     set:
       extraEnvVars:
@@ -732,6 +802,45 @@ tests:
           content:
             name: N8N_EXTRA_ENV_VAR
             value: n8nextraenvvar
+        template: statefulset-worker.yaml
+
+  - it: should set valueFrom environment variables when extraEnv is set
+    set:
+      extraEnv:
+        - name: N8N_VALUE_FROM_VAR
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: my-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
+        template: statefulset-worker.yaml
+
+  - it: should set valueFrom environment variables when worker.extraEnv is set
+    set:
+      worker:
+        extraEnv:
+          - name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
         template: statefulset-worker.yaml
 
   - it: should set database configurations from database configmap
@@ -1214,7 +1323,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].image
-          value: n8nio/n8n:1.0.0
+          value: n8nio/runners:1.0.0
         template: statefulset-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].imagePullPolicy
@@ -1242,7 +1351,7 @@ tests:
         template: statefulset-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].livenessProbe.httpGet.port
-          value: http
+          value: runner-health
         template: statefulset-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].readinessProbe.httpGet.path
@@ -1250,7 +1359,19 @@ tests:
         template: statefulset-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].readinessProbe.httpGet.port
-          value: http
+          value: runner-health
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].startupProbe.httpGet.path
+          value: /healthz
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].startupProbe.httpGet.port
+          value: runner-health
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].startupProbe.failureThreshold
+          value: 30
         template: statefulset-worker.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].resources
@@ -1276,6 +1397,67 @@ tests:
           content:
             configMapRef:
               name: n8n-task-runners-configmap
+        template: statefulset-worker.yaml
+
+  - it: should add python arg to task runner container when nodes.python.enabled is true
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].args
+          content: python
+        template: statefulset-worker.yaml
+
+  - it: should not add python arg when nodes.python.enabled is false
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          enabled: false
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].args
+          value: ["javascript"]
+        template: statefulset-worker.yaml
+
+  - it: should set security context on task runner container when taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].securityContext.runAsUser
+          value: 1000
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].securityContext.runAsGroup
+          value: 1000
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].securityContext.runAsNonRoot
+          value: true
+        template: statefulset-worker.yaml
+
+  - it: should mount tmp in task runner container when taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].volumeMounts
+          content:
+            name: tmp
+            mountPath: /tmp
+          any: true
         template: statefulset-worker.yaml
 
   - it: should use license configmap and secret when license.enabled is true
@@ -1446,8 +1628,9 @@ tests:
       - contains:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
           content:
-            name: community-node-modules
+            name: node-modules
             mountPath: "/nodesdata/nodes"
+            subPath: nodes
             readOnly: false
           any: true
         template: statefulset-worker.yaml
@@ -1522,8 +1705,9 @@ tests:
       - contains:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
           content:
-            name: community-node-modules
+            name: node-modules
             mountPath: "/nodesdata/nodes"
+            subPath: nodes
             readOnly: false
           any: true
         template: statefulset-worker.yaml
@@ -1614,10 +1798,10 @@ tests:
             echo "$PACKAGES" | sha256sum > /npmdata/packages.hash.new
             if [ ! -f /npmdata/packages.hash ] || ! cmp /npmdata/packages.hash /npmdata/packages.hash.new; then
               if [ -n "$NON_COMMUNITY_PACKAGES" ]; then
-                npm install --loglevel info --no-save $NON_COMMUNITY_PACKAGES --prefix /npmdata
+                npm install --loglevel info --no-save --ignore-scripts $NON_COMMUNITY_PACKAGES --prefix /npmdata
               fi
               if [ -n "$COMMUNITY_PACKAGES" ]; then
-                npm install --loglevel info --no-save $COMMUNITY_PACKAGES --prefix /nodesdata/nodes
+                npm install --loglevel info --no-save --ignore-scripts $COMMUNITY_PACKAGES --prefix /nodesdata/nodes
               fi
               mv /npmdata/packages.hash.new /npmdata/packages.hash
             else
@@ -1712,8 +1896,9 @@ tests:
       - contains:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
           content:
-            name: community-node-modules
+            name: node-modules
             mountPath: "/nodesdata/nodes"
+            subPath: nodes
             readOnly: false
           any: true
         template: statefulset-worker.yaml
@@ -1840,6 +2025,91 @@ tests:
               echo "Waiting for main node to be ready..."
               sleep 2
             done
+        template: statefulset-worker.yaml
+
+  - it: should set security context on wait-for-main init container when worker.waitMainNodeReady.enabled is true
+    set:
+      worker:
+        waitMainNodeReady:
+          enabled: true
+      waitContainerSecurityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].securityContext.runAsUser
+          value: 1000
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].securityContext.runAsGroup
+          value: 1000
+        template: statefulset-worker.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "wait-for-main")].securityContext.runAsNonRoot
+          value: true
+        template: statefulset-worker.yaml
+
+  - it: should set seccompProfile RuntimeDefault in pod security context by default
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.seccompProfile.type
+          value: RuntimeDefault
+        template: statefulset-worker.yaml
+
+  - it: should always include tmp emptyDir volume
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: tmp
+            emptyDir: {}
+          any: true
+        template: statefulset-worker.yaml
+
+  - it: should always mount tmp in worker container
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].volumeMounts
+          content:
+            name: tmp
+            mountPath: /tmp
+          any: true
+        template: statefulset-worker.yaml
+
+  - it: should always include cache emptyDir volume
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: cache
+            emptyDir: {}
+          any: true
+        template: statefulset-worker.yaml
+
+  - it: should always mount cache in worker container
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].volumeMounts
+          content:
+            name: cache
+            mountPath: /home/node/.cache
+          any: true
+        template: statefulset-worker.yaml
+
+  - it: should set NPM_CONFIG_CACHE on npm-install init container when packages are set
+    set:
+      nodes:
+        external:
+          packages:
+            - "moment@2.29.4"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].env
+          content:
+            name: NPM_CONFIG_CACHE
+            value: /npmdata/.npm-cache
+          any: true
         template: statefulset-worker.yaml
 
   - it: should use startupProbe to wait n8n process ready
@@ -2116,3 +2386,404 @@ tests:
               key: client.key
     asserts:
       - matchSnapshot: { }
+
+  - it: should set WEBHOOK_URL environment variable for worker when webhook.url is set
+    set:
+      webhook:
+        url: "https://webhook.example.com"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: WEBHOOK_URL
+            value: "https://webhook.example.com"
+        template: statefulset-worker.yaml
+
+  - it: should not set WEBHOOK_URL environment variable for worker when webhook.url is not set
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: WEBHOOK_URL
+        template: statefulset-worker.yaml
+
+  - it: should not set revisionHistoryLimit when revisionHistoryLimit is not set
+    asserts:
+      - notExists:
+          path: spec.revisionHistoryLimit
+        template: statefulset-worker.yaml
+
+  - it: should set revisionHistoryLimit when revisionHistoryLimit is set
+    set:
+      revisionHistoryLimit: 3
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 3
+        template: statefulset-worker.yaml
+
+  - it: should set revisionHistoryLimit to 0 when revisionHistoryLimit is 0
+    set:
+      revisionHistoryLimit: 0
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 0
+        template: statefulset-worker.yaml
+
+  - it: should set runner-health port name on task runner sidecar container
+    set:
+      taskRunners:
+        mode: external
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].ports[0].name
+          value: runner-health
+        template: statefulset-worker.yaml
+
+  - it: should use explicit tag when taskRunners.external.image.tag is set
+    set:
+      taskRunners:
+        mode: external
+        external:
+          image:
+            tag: "2.0.0"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].image
+          value: n8nio/runners:2.0.0
+        template: statefulset-worker.yaml
+
+  - it: should use uv install command when nodes.python.external.packages is set
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          enabled: true
+          external:
+            packages:
+              - pandas
+              - numpy
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].command
+          value: ["/bin/sh", "-c", "UV_CACHE_DIR=/tmp/.uv-cache UV_LINK_MODE=copy uv pip install --target /home/node/.python-packages pandas numpy && export PYTHONPATH=/home/node/.python-packages && exec /usr/local/bin/task-runner-launcher javascript python"]
+        template: statefulset-worker.yaml
+
+  - it: should use direct launcher command when nodes.python.external.packages is empty
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          enabled: true
+          external:
+            packages: []
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].command
+          value: ["/usr/local/bin/task-runner-launcher"]
+        template: statefulset-worker.yaml
+
+  - it: should mount python-packages volume in StatefulSet worker runner sidecar at /home/node/.python-packages
+    set:
+      taskRunners:
+        mode: external
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].volumeMounts
+          content:
+            name: python-packages
+            mountPath: /home/node/.python-packages
+        template: statefulset-worker.yaml
+
+  - it: should add python-packages emptyDir in StatefulSet worker volumes when persistence is disabled
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          persistence:
+            enabled: false
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: python-packages
+            emptyDir: {}
+        template: statefulset-worker.yaml
+
+  - it: should add python-packages to StatefulSet worker volumeClaimTemplates when persistence is enabled
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          persistence:
+            enabled: true
+            accessMode: ReadWriteOnce
+            size: 2Gi
+    asserts:
+      - contains:
+          path: spec.volumeClaimTemplates
+          content:
+            metadata:
+              name: python-packages
+            spec:
+              accessModes:
+                - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 2Gi
+        template: statefulset-worker.yaml
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: python-packages
+            emptyDir: {}
+        template: statefulset-worker.yaml
+
+  - it: should use existingClaim as regular volume in StatefulSet worker when existingClaim is set
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          persistence:
+            enabled: true
+            existingClaim: my-existing-pvc
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: python-packages
+            persistentVolumeClaim:
+              claimName: my-existing-pvc
+        template: statefulset-worker.yaml
+      - notContains:
+          path: spec.volumeClaimTemplates
+          content:
+            metadata:
+              name: python-packages
+        template: statefulset-worker.yaml
+
+  - it: should not add python-packages volume in StatefulSet worker when taskRunners.mode is internal
+    set:
+      taskRunners:
+        mode: internal
+    asserts:
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: python-packages
+            emptyDir: {}
+        template: statefulset-worker.yaml
+
+  - it: should set UV_DEFAULT_INDEX in StatefulSet worker when pypiRegistry.enabled and url is set without config file
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: true
+        url: "https://my.registry.com/simple/"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].env
+          content:
+            name: UV_DEFAULT_INDEX
+            value: "https://my.registry.com/simple/"
+          any: true
+        template: statefulset-worker.yaml
+
+  - it: should set UV_CONFIG_FILE in StatefulSet worker when pypiRegistry.enabled and customUvConfig is set
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: true
+        customUvConfig: "[index]\nurl = \"https://my.registry.com/simple/\""
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].env
+          content:
+            name: UV_CONFIG_FILE
+            value: "/home/node/.uv-config/uv.toml"
+          any: true
+        template: statefulset-worker.yaml
+
+  - it: should set UV_CONFIG_FILE in StatefulSet worker when pypiRegistry.enabled and secretName is set
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: true
+        secretName: "my-uv-secret"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].env
+          content:
+            name: UV_CONFIG_FILE
+            value: "/home/node/.uv-config/uv.toml"
+          any: true
+        template: statefulset-worker.yaml
+
+  - it: should mount uv-config volume in StatefulSet worker when pypiRegistry.enabled and customUvConfig is set
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: true
+        customUvConfig: "[index]\nurl = \"https://my.registry.com/simple/\""
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].volumeMounts
+          content:
+            name: uv-config
+            mountPath: /home/node/.uv-config
+            readOnly: true
+          any: true
+        template: statefulset-worker.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: uv-config
+            secret:
+              secretName: "n8n-pypi-registry-secret"
+              optional: true
+          any: true
+        template: statefulset-worker.yaml
+
+  - it: should use existing secret name for uv-config volume in StatefulSet worker when pypiRegistry.secretName is set
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: true
+        secretName: "my-existing-uv-secret"
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: uv-config
+            secret:
+              secretName: "my-existing-uv-secret"
+              optional: true
+          any: true
+        template: statefulset-worker.yaml
+
+  - it: should not add pypiRegistry env vars in StatefulSet worker when pypiRegistry is disabled
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: false
+        url: "https://my.registry.com/simple/"
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].env
+          content:
+            name: UV_DEFAULT_INDEX
+            value: "https://my.registry.com/simple/"
+          any: true
+        template: statefulset-worker.yaml
+
+  - it: should not add uv-config volume in StatefulSet worker when pypiRegistry is disabled
+    set:
+      taskRunners:
+        mode: external
+      pypiRegistry:
+        enabled: false
+        customUvConfig: "[index]\nurl = \"https://my.registry.com/simple/\""
+    asserts:
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: uv-config
+            secret:
+              secretName: "n8n-pypi-registry-secret"
+              optional: true
+          any: true
+        template: statefulset-worker.yaml
+
+  - it: should add community-node-modules to volumeClaimTemplates in worker StatefulSet when forceToUseStatefulset and community persistence enabled
+    set:
+      worker:
+        forceToUseStatefulset: true
+        persistence:
+          enabled: false
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: true
+            accessMode: ReadWriteOnce
+            size: 2Gi
+    asserts:
+      - contains:
+          path: spec.volumeClaimTemplates
+          content:
+            metadata:
+              name: community-node-modules
+            spec:
+              accessModes:
+                - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 2Gi
+        template: statefulset-worker.yaml
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            emptyDir: {}
+        template: statefulset-worker.yaml
+
+  - it: should use existingClaim as regular volume in worker StatefulSet when community existingClaim is set
+    set:
+      worker:
+        forceToUseStatefulset: true
+        persistence:
+          enabled: false
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: true
+            existingClaim: my-existing-community-pvc
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            persistentVolumeClaim:
+              claimName: my-existing-community-pvc
+        template: statefulset-worker.yaml
+      - notContains:
+          path: spec.volumeClaimTemplates
+          content:
+            metadata:
+              name: community-node-modules
+        template: statefulset-worker.yaml
+
+  - it: should add community-node-modules emptyDir in worker StatefulSet when forceToUseStatefulset and community persistence disabled
+    set:
+      worker:
+        forceToUseStatefulset: true
+        persistence:
+          enabled: false
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: false
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            emptyDir: {}
+        template: statefulset-worker.yaml

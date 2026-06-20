@@ -157,3 +157,59 @@ tests:
           enabled: true
     asserts:
       - matchSnapshot: { }
+
+  - it: should not render HPA when nodes.python.persistence is enabled with ReadWriteOnce
+    set:
+      db:
+        type: postgresdb
+      worker:
+        mode: queue
+        autoscaling:
+          enabled: true
+        persistence:
+          accessMode: ReadWriteMany
+      nodes:
+        python:
+          persistence:
+            enabled: true
+            accessMode: ReadWriteOnce
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should render HPA when nodes.python.persistence is enabled with ReadWriteMany
+    set:
+      db:
+        type: postgresdb
+      worker:
+        mode: queue
+        autoscaling:
+          enabled: true
+        persistence:
+          accessMode: ReadWriteMany
+      nodes:
+        python:
+          persistence:
+            enabled: true
+            accessMode: ReadWriteMany
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should render HPA when nodes.python.persistence is disabled
+    set:
+      db:
+        type: postgresdb
+      worker:
+        mode: queue
+        autoscaling:
+          enabled: true
+        persistence:
+          accessMode: ReadWriteMany
+      nodes:
+        python:
+          persistence:
+            enabled: false
+    asserts:
+      - hasDocuments:
+          count: 1

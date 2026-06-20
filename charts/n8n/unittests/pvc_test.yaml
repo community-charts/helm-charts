@@ -159,3 +159,327 @@ tests:
           enabled: true
     asserts:
       - matchSnapshot: { }
+
+  - it: should not create python-packages PVC when persistence is disabled
+    set:
+      main:
+        persistence:
+          enabled: false
+      worker:
+        persistence:
+          enabled: false
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          persistence:
+            enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should not create python-packages PVC when taskRunners.mode is internal
+    set:
+      main:
+        persistence:
+          enabled: false
+      worker:
+        persistence:
+          enabled: false
+      taskRunners:
+        mode: internal
+      nodes:
+        python:
+          persistence:
+            enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should not create python-packages PVC when existingClaim is set
+    set:
+      main:
+        persistence:
+          enabled: false
+      worker:
+        persistence:
+          enabled: false
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          persistence:
+            enabled: true
+            existingClaim: my-existing-pvc
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create python-packages PVC when persistence is enabled and taskRunners.mode is external
+    set:
+      main:
+        persistence:
+          enabled: false
+      worker:
+        persistence:
+          enabled: false
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          persistence:
+            enabled: true
+            storageClass: fast-ssd
+            accessMode: ReadWriteOnce
+            size: 2Gi
+            annotations:
+              test-key: test-value
+    documentSelector:
+      path: metadata.name
+      value: n8n-python-packages
+    asserts:
+      - equal:
+          path: spec.accessModes[0]
+          value: ReadWriteOnce
+      - equal:
+          path: spec.resources.requests.storage
+          value: 2Gi
+      - equal:
+          path: spec.storageClassName
+          value: fast-ssd
+      - equal:
+          path: metadata.annotations.test-key
+          value: test-value
+
+  - it: should create python-packages PVC with ReadWriteMany access mode
+    set:
+      main:
+        persistence:
+          enabled: false
+      worker:
+        persistence:
+          enabled: false
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          persistence:
+            enabled: true
+            accessMode: ReadWriteMany
+    documentSelector:
+      path: metadata.name
+      value: n8n-python-packages
+    asserts:
+      - equal:
+          path: spec.accessModes[0]
+          value: ReadWriteMany
+
+  - it: should not create community-packages PVC when persistence is disabled
+    set:
+      main:
+        persistence:
+          enabled: false
+      worker:
+        persistence:
+          enabled: false
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should not create community-packages PVC when packages list is empty
+    set:
+      main:
+        persistence:
+          enabled: false
+      worker:
+        persistence:
+          enabled: false
+      nodes:
+        external:
+          packages: []
+          persistence:
+            enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should not create community-packages PVC when existingClaim is set
+    set:
+      main:
+        persistence:
+          enabled: false
+      worker:
+        persistence:
+          enabled: false
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: true
+            existingClaim: my-existing-pvc
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create community-packages PVC when persistence is enabled and packages are set
+    set:
+      main:
+        persistence:
+          enabled: false
+      worker:
+        persistence:
+          enabled: false
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: true
+            storageClass: fast-ssd
+            accessMode: ReadWriteOnce
+            size: 2Gi
+            annotations:
+              test-key: test-value
+    documentSelector:
+      path: metadata.name
+      value: n8n-community-packages
+    asserts:
+      - equal:
+          path: spec.accessModes[0]
+          value: ReadWriteOnce
+      - equal:
+          path: spec.resources.requests.storage
+          value: 2Gi
+      - equal:
+          path: spec.storageClassName
+          value: fast-ssd
+      - equal:
+          path: metadata.annotations.test-key
+          value: test-value
+
+  - it: should create community-packages PVC with ReadWriteMany access mode
+    set:
+      main:
+        persistence:
+          enabled: false
+      worker:
+        persistence:
+          enabled: false
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: true
+            accessMode: ReadWriteMany
+    documentSelector:
+      path: metadata.name
+      value: n8n-community-packages
+    asserts:
+      - equal:
+          path: spec.accessModes[0]
+          value: ReadWriteMany
+
+  - it: should not create community-packages PVC when main.persistence covers community nodes
+    set:
+      main:
+        persistence:
+          enabled: true
+          existingClaim: my-n8n-pvc
+      worker:
+        persistence:
+          enabled: false
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create community-packages PVC when main.persistence enabled but worker queue mode has no worker persistence
+    set:
+      main:
+        persistence:
+          enabled: true
+          existingClaim: my-n8n-pvc
+      worker:
+        mode: queue
+        persistence:
+          enabled: false
+      db:
+        type: postgresdb
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: true
+    documentSelector:
+      path: metadata.name
+      value: n8n-community-packages
+    asserts:
+      - equal:
+          path: spec.accessModes[0]
+          value: ReadWriteOnce
+
+  - it: should create worker PVC when worker.count is 3 and accessMode is ReadWriteMany
+    set:
+      main:
+        persistence:
+          enabled: false
+      worker:
+        count: 3
+        persistence:
+          accessMode: ReadWriteMany
+    documentSelector:
+      path: metadata.name
+      value: n8n-worker-persistence
+    asserts:
+      - equal:
+          path: spec.accessModes[0]
+          value: ReadWriteMany
+
+  - it: should not create worker PVC when worker.forceToUseStatefulset is true
+    set:
+      main:
+        persistence:
+          enabled: false
+      worker:
+        count: 1
+        forceToUseStatefulset: true
+        mode: queue
+      db:
+        type: postgresdb
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should not create community-packages PVC when main.forceToUseStatefulset is true and main.persistence is disabled
+    set:
+      main:
+        forceToUseStatefulset: true
+        persistence:
+          enabled: false
+      worker:
+        persistence:
+          enabled: false
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+

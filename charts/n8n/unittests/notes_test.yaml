@@ -9,7 +9,7 @@ tests:
     asserts:
       - equal:
           path: raw
-          value: |-
+          value: |
             1. Get the application URL by running these commands:
               export POD_NAME=$(kubectl get pods --namespace NAMESPACE -l "app.kubernetes.io/name=n8n,app.kubernetes.io/instance=RELEASE-NAME" -o jsonpath="{.items[0].metadata.name}")
               export CONTAINER_PORT=$(kubectl get pod --namespace NAMESPACE $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
@@ -17,7 +17,7 @@ tests:
               kubectl --namespace NAMESPACE port-forward $POD_NAME 8080:$CONTAINER_PORT
       - notMatchRegex:
           path: raw
-          pattern: "!!! We detected deprecated root level .* configuration usage"
+          pattern: "WARNING: We detected deprecated root level .* configuration usage"
 
   - it: should show deprecation notice for non-empty extraEnvVars
     set:
@@ -26,7 +26,7 @@ tests:
     asserts:
       - matchRegex:
           path: raw
-          pattern: "!!! We detected deprecated root level extraEnvVars configuration usage"
+          pattern: "WARNING: We detected deprecated root level extraEnvVars configuration usage"
 
   - it: should not show deprecation notice for empty extraEnvVars
     set:
@@ -34,7 +34,7 @@ tests:
     asserts:
       - notMatchRegex:
           path: raw
-          pattern: "!!! We detected deprecated root level extraEnvVars configuration usage"
+          pattern: "WARNING: We detected deprecated root level extraEnvVars configuration usage"
 
   - it: should show deprecation notices for multiple non-empty fields
     set:
@@ -45,10 +45,10 @@ tests:
     asserts:
       - matchRegex:
           path: raw
-          pattern: "!!! We detected deprecated root level extraSecretNamesForEnvFrom configuration usage"
+          pattern: "WARNING: We detected deprecated root level extraSecretNamesForEnvFrom configuration usage"
       - matchRegex:
           path: raw
-          pattern: "!!! We detected deprecated root level livenessProbe configuration usage"
+          pattern: "WARNING: We detected deprecated root level livenessProbe configuration usage"
 
   - it: should not show deprecation notices for empty or undefined fields
     set:
@@ -57,7 +57,34 @@ tests:
     asserts:
       - notMatchRegex:
           path: raw
-          pattern: "!!! We detected deprecated root level resources configuration usage"
+          pattern: "WARNING: We detected deprecated root level resources configuration usage"
       - notMatchRegex:
           path: raw
-          pattern: "!!! We detected deprecated root level volumes configuration usage"
+          pattern: "WARNING: We detected deprecated root level volumes configuration usage"
+
+  - it: should show deprecation warning when license.autoNenew.enabled is set
+    set:
+      license:
+        autoNenew:
+          enabled: false
+    asserts:
+      - matchRegex:
+          path: raw
+          pattern: "WARNING: license.autoNenew is deprecated"
+
+  - it: should show deprecation warning when license.autoNenew.offsetInHours is set
+    set:
+      license:
+        autoNenew:
+          offsetInHours: 24
+    asserts:
+      - matchRegex:
+          path: raw
+          pattern: "WARNING: license.autoNenew is deprecated"
+
+  - it: should not show autoNenew deprecation warning when autoNenew fields are null
+    set: {}
+    asserts:
+      - notMatchRegex:
+          path: raw
+          pattern: "WARNING: license.autoNenew is deprecated"

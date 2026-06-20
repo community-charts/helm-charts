@@ -113,6 +113,23 @@ ingress:
 
   - service: http_status:404
 
+# -- This is for configuring the liveness probe. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+livenessProbe:
+  httpGet:
+    path: /ready
+    port: 2000
+  failureThreshold: 1
+  initialDelaySeconds: 10
+  periodSeconds: 10
+
+# -- This is for configuring the readiness probe. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 2000
+  initialDelaySeconds: 10
+  periodSeconds: 10
+
 # -- This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
