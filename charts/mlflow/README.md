@@ -898,11 +898,23 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | oauth2Proxy.createSecret | bool | `false` | If true the chart will create a Kubernetes secret with the oauth client id/secret |
 | oauth2Proxy.enabled | bool | `false` | Enable deploying oauth2-proxy as a sidecar to the mlflow pod |
 | oauth2Proxy.existingSecret | object | `{"clientIDKey":"client-id","clientSecretKey":"client-secret","cookieSecretKey":"cookie-secret","name":""}` | Reference a pre-existing secret instead of creating one. All key name fields below are used both when creating and when referencing an existing secret. |
+| oauth2Proxy.existingSecret.clientIDKey | string | `"client-id"` | Secret key that holds the OAuth2 client ID |
+| oauth2Proxy.existingSecret.clientSecretKey | string | `"client-secret"` | Secret key that holds the OAuth2 client secret |
+| oauth2Proxy.existingSecret.cookieSecretKey | string | `"cookie-secret"` | Secret key that holds the cookie secret |
+| oauth2Proxy.existingSecret.name | string | `""` | Name of the pre-existing secret; if empty the chart creates one when createSecret is true |
 | oauth2Proxy.extraArgs | list | `["--cookie-secure=true","--cookie-samesite=lax"]` | Extra args to pass to oauth2-proxy as flags |
 | oauth2Proxy.extraEnv | object | `{}` | Extra environment variables for oauth2-proxy |
 | oauth2Proxy.image | object | `{"pullPolicy":"IfNotPresent","repository":"quay.io/oauth2-proxy/oauth2-proxy","tag":"v7.4.0"}` | OAuth2 Proxy image |
+| oauth2Proxy.image.pullPolicy | string | `"IfNotPresent"` | OAuth2 Proxy image pull policy |
+| oauth2Proxy.image.repository | string | `"quay.io/oauth2-proxy/oauth2-proxy"` | OAuth2 Proxy image repository |
+| oauth2Proxy.image.tag | string | `"v7.4.0"` | OAuth2 Proxy image tag |
 | oauth2Proxy.listenPort | int | `4180` | Port oauth2-proxy listens on inside the pod |
 | oauth2Proxy.provider | object | `{"clientID":"","clientSecret":"","issuerURL":"","name":"keycloak","redirectURL":""}` | Provider specific settings (example: keycloak) |
+| oauth2Proxy.provider.clientID | string | `""` | OAuth2 client ID |
+| oauth2Proxy.provider.clientSecret | string | `""` | OAuth2 client secret — prefer existingSecret for production |
+| oauth2Proxy.provider.issuerURL | string | `""` | OIDC issuer URL for the provider |
+| oauth2Proxy.provider.name | string | `"keycloak"` | Provider name (e.g. keycloak, keycloak-oidc, google, github) |
+| oauth2Proxy.provider.redirectURL | string | `""` | OAuth2 redirect / callback URL |
 | oauth2Proxy.resources | object | `{}` | Resources for the oauth2-proxy container |
 | oidcAuth | object | `{"adminGroupName":["mlflow-admin"],"audience":"","cache":{"enabled":false,"keyPrefix":"mlflow_oidc_auth:","redisUrl":""},"clientId":"","clientSecret":"","database":{"postgres":{"database":"","driver":"","enabled":false,"existingSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"host":"","password":"","port":5432,"user":""},"uri":""},"defaultPermission":"MANAGE","discoveryUrl":"","enabled":false,"existingSecret":{"clientSecretKey":"OIDC_CLIENT_SECRET","name":""},"groupName":["mlflow"],"groupsAttribute":"groups","providerDisplayName":"Login with OIDC","redirectUri":"","scope":"openid,email,profile","sessionCookieSamesite":"lax","sessionCookieSecure":true,"trustedProxies":[]}` | OIDC Authentication via the mlflow-oidc-auth plugin (already bundled in the burakince/mlflow image). Mutually exclusive with auth, ldapAuth, and oauth2Proxy — enable only one auth mechanism. |
 | oidcAuth.adminGroupName | list | `["mlflow-admin"]` | Groups whose members receive admin/MANAGE permission (env: OIDC_ADMIN_GROUP_NAME) |
@@ -914,13 +926,23 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | oidcAuth.clientId | string | `""` | OIDC client ID (env: OIDC_CLIENT_ID) |
 | oidcAuth.clientSecret | string | `""` | OIDC client secret — use existingSecret for production (env: OIDC_CLIENT_SECRET) |
 | oidcAuth.database | object | `{"postgres":{"database":"","driver":"","enabled":false,"existingSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"host":"","password":"","port":5432,"user":""},"uri":""}` | OIDC user/permission database — separate from the MLflow tracking store. Defaults to sqlite:///auth.db when postgres is not enabled and uri is empty. |
+| oidcAuth.database.postgres.database | string | `""` | Database name for the OIDC user/permission database |
+| oidcAuth.database.postgres.driver | string | `""` | Postgres driver (e.g. psycopg2; leave empty for the default) |
 | oidcAuth.database.postgres.enabled | bool | `false` | Use PostgreSQL for the OIDC user/permission database |
+| oidcAuth.database.postgres.existingSecret | object | `{"name":"","passwordKey":"password","usernameKey":"username"}` | Reference a pre-existing DB credentials secret instead of using user and password above |
+| oidcAuth.database.postgres.existingSecret.name | string | `""` | Name of the pre-existing DB credentials secret; if empty the chart creates one |
+| oidcAuth.database.postgres.existingSecret.passwordKey | string | `"password"` | Key in the secret that holds the database password |
+| oidcAuth.database.postgres.existingSecret.usernameKey | string | `"username"` | Key in the secret that holds the database username |
+| oidcAuth.database.postgres.host | string | `""` | Postgres host for the OIDC user/permission database |
 | oidcAuth.database.postgres.password | string | `""` | Postgres password for the OIDC user/permission database — prefer existingSecret for production |
+| oidcAuth.database.postgres.port | int | `5432` | Postgres port for the OIDC user/permission database |
 | oidcAuth.database.postgres.user | string | `""` | Postgres username for the OIDC user/permission database |
 | oidcAuth.database.uri | string | `""` | Full URI override (env: OIDC_USERS_DB_URI); takes precedence over postgres block when set. Example: postgresql+psycopg2://user:pass@host:5432/oidc_users |
 | oidcAuth.defaultPermission | string | `"MANAGE"` | Default permission for authenticated users: NO_PERMISSIONS / READ / EDIT / MANAGE (env: DEFAULT_MLFLOW_PERMISSION) |
 | oidcAuth.discoveryUrl | string | `""` | OIDC discovery URL (env: OIDC_DISCOVERY_URL) e.g. https://keycloak/realms/mlflow/.well-known/openid-configuration |
 | oidcAuth.existingSecret | object | `{"clientSecretKey":"OIDC_CLIENT_SECRET","name":""}` | Reference a pre-existing secret instead of creating one from clientSecret above |
+| oidcAuth.existingSecret.clientSecretKey | string | `"OIDC_CLIENT_SECRET"` | Key in the secret that holds the OIDC client secret value |
+| oidcAuth.existingSecret.name | string | `""` | Name of the pre-existing secret; if empty the chart creates one from clientSecret |
 | oidcAuth.groupName | list | `["mlflow"]` | Groups whose members are allowed to access MLflow (env: OIDC_GROUP_NAME) |
 | oidcAuth.groupsAttribute | string | `"groups"` | JWT claim that contains group memberships (env: OIDC_GROUPS_ATTRIBUTE) |
 | oidcAuth.providerDisplayName | string | `"Login with OIDC"` | Display name on the Login button in the MLflow UI (env: OIDC_PROVIDER_DISPLAY_NAME) |

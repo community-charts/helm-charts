@@ -589,27 +589,39 @@ oauth2Proxy:
   # -- Reference a pre-existing secret instead of creating one.
   # All key name fields below are used both when creating and when referencing an existing secret.
   existingSecret:
+    # -- Name of the pre-existing secret; if empty the chart creates one when createSecret is true
     name: ""
+    # -- Secret key that holds the OAuth2 client ID
     clientIDKey: "client-id"
+    # -- Secret key that holds the OAuth2 client secret
     clientSecretKey: "client-secret"
+    # -- Secret key that holds the cookie secret
     cookieSecretKey: "cookie-secret"
   # -- OAuth2 Proxy image
   image:
+    # -- OAuth2 Proxy image repository
     repository: quay.io/oauth2-proxy/oauth2-proxy
+    # -- OAuth2 Proxy image tag
     tag: v7.4.0
+    # -- OAuth2 Proxy image pull policy
     pullPolicy: IfNotPresent
-  # -- Upstream is constructed from the mlflow service container port
-  #    The chart will use: http://127.0.0.1:<service.containerPort>
+  # Upstream is constructed from the mlflow service container port;
+  # the chart sets: --upstream=http://127.0.0.1:<service.containerPort>
   # -- Port oauth2-proxy listens on inside the pod
   listenPort: 4180
   # -- Cookie secret plaintext value — only used when createSecret is true
   cookieSecret: ""
   # -- Provider specific settings (example: keycloak)
   provider:
+    # -- Provider name (e.g. keycloak, keycloak-oidc, google, github)
     name: keycloak
+    # -- OIDC issuer URL for the provider
     issuerURL: ""
+    # -- OAuth2 client ID
     clientID: ""
+    # -- OAuth2 client secret — prefer existingSecret for production
     clientSecret: ""
+    # -- OAuth2 redirect / callback URL
     redirectURL: ""
   # -- Extra args to pass to oauth2-proxy as flags
   extraArgs:
@@ -634,7 +646,9 @@ oidcAuth:
   clientSecret: ""
   # -- Reference a pre-existing secret instead of creating one from clientSecret above
   existingSecret:
+    # -- Name of the pre-existing secret; if empty the chart creates one from clientSecret
     name: ""
+    # -- Key in the secret that holds the OIDC client secret value
     clientSecretKey: "OIDC_CLIENT_SECRET"
   # -- Optional redirect URI; auto-detected from request headers when empty (env: OIDC_REDIRECT_URI)
   redirectUri: ""
@@ -654,8 +668,7 @@ oidcAuth:
     - mlflow-admin
   # -- Default permission for authenticated users: NO_PERMISSIONS / READ / EDIT / MANAGE (env: DEFAULT_MLFLOW_PERMISSION)
   defaultPermission: "MANAGE"
-  # -- Require HTTPS for session cookies; set false only in local/dev environments
-  # (env: SESSION_COOKIE_SECURE)
+  # -- Require HTTPS for session cookies; set false only in local/dev environments (env: SESSION_COOKIE_SECURE)
   sessionCookieSecure: true
   # -- SameSite policy for session cookies: lax / strict / none (env: SESSION_COOKIE_SAMESITE)
   sessionCookieSamesite: "lax"
@@ -676,17 +689,25 @@ oidcAuth:
     postgres:
       # -- Use PostgreSQL for the OIDC user/permission database
       enabled: false
+      # -- Postgres host for the OIDC user/permission database
       host: ""
+      # -- Postgres port for the OIDC user/permission database
       port: 5432
+      # -- Database name for the OIDC user/permission database
       database: ""
+      # -- Postgres driver (e.g. psycopg2; leave empty for the default)
       driver: ""
       # -- Postgres username for the OIDC user/permission database
       user: ""
       # -- Postgres password for the OIDC user/permission database — prefer existingSecret for production
       password: ""
+      # -- Reference a pre-existing DB credentials secret instead of using user and password above
       existingSecret:
+        # -- Name of the pre-existing DB credentials secret; if empty the chart creates one
         name: ""
+        # -- Key in the secret that holds the database username
         usernameKey: "username"
+        # -- Key in the secret that holds the database password
         passwordKey: "password"
   # -- List of trusted proxy IPs/CIDRs (e.g. ingress controller CIDR).
   # Required when MLflow runs behind an ingress; fixes redirect URI auto-detection. (env: TRUSTED_PROXIES)
