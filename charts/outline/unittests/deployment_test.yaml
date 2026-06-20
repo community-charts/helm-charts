@@ -144,6 +144,33 @@ tests:
           value: fake-image-repository/fake-image:fake-tag
         template: deployment.yaml
 
+  - it: should add digest to image tag when digest is set
+    set:
+      image:
+        digest: "sha256:a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
+    chart:
+      appVersion: 1.8.1
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "outline")].image
+          value: "outlinewiki/outline:1.8.1@sha256:a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
+        template: deployment.yaml
+
+  - it: should always have a tmp emptyDir volume and mount
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: tmp
+            emptyDir: {}
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "outline")].volumeMounts
+          content:
+            name: tmp
+            mountPath: /tmp
+        template: deployment.yaml
+
   - it: should use default image and chart app version as image tag when tag is not set
     set:
       image:

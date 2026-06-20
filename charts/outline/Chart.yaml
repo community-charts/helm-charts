@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.8.1
+version: 0.9.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -52,6 +52,10 @@ annotations:
       url: https://docs.getoutline.com/s/hosting/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
+    - kind: added
+      description: Add optional image digest support for immutable image pulls
+    - kind: fixed
+      description: Enable readOnlyRootFilesystem and add built-in tmp emptyDir volume
     - kind: changed
       description: Update outlinewiki/outline image version to 1.8.1
       links:
