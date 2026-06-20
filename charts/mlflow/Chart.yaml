@@ -59,8 +59,8 @@ annotations:
     - kind: added
       description: Add oidcAuth block for built-in OIDC authentication via mlflow-oidc-auth plugin, with Redis cache and PostgreSQL user-database support
       links:
-        - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/328
+        - name: GitHub PR
+          url: https://github.com/community-charts/helm-charts/pull/328
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.14.0
