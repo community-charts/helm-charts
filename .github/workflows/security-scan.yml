@@ -65,6 +65,7 @@ jobs:
           output: trivy-results.sarif
           exit-code: 1
           skip-dirs: "charts"
+          limit-severities-for-sarif: true
 
       - name: Upload Trivy SARIF
         if: steps.changed-charts.outputs.any_changed == 'true'

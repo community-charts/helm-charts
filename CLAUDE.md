@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a community Helm chart repository hosting production-grade Kubernetes charts for: `actualbudget`, `cloudflared`, `drone`, `kserve`, `mlflow`, `n8n`, `outline`, and `pypiserver`. Charts are published to GitHub Pages via the `chart-releaser` action.
 
-Chart-specific guidance (architecture, external docs, non-obvious patterns) lives in `charts/<name>/CLAUDE.md`. Read that file when working on a specific chart. Charts that currently have one: `mlflow` (`charts/mlflow/CLAUDE.md`), `n8n` (`charts/n8n/CLAUDE.md`).
+Chart-specific guidance (architecture, external docs, non-obvious patterns) lives in `charts/<name>/CLAUDE.md`. Read that file when working on a specific chart. Charts that currently have one: `actualbudget` (`charts/actualbudget/CLAUDE.md`), `mlflow` (`charts/mlflow/CLAUDE.md`), `n8n` (`charts/n8n/CLAUDE.md`).
 
 ## Common Commands
 

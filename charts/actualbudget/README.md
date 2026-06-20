@@ -4,7 +4,7 @@
 
 A local-first personal finance app
 
-![Version: 1.8.9](https://img.shields.io/badge/Version-1.8.9-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 26.6.0](https://img.shields.io/badge/AppVersion-26.6.0-informational?style=flat-square)
+![Version: 1.9.0](https://img.shields.io/badge/Version-1.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 26.6.0](https://img.shields.io/badge/AppVersion-26.6.0-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -60,6 +60,12 @@ persistence:
 
 The `actualbudget` Helm chart supports OpenID Connect (OIDC) for authentication with providers like Keycloak or Auth0. Please find full tested providers from [here](https://actualbudget.org/docs/config/oauth-auth/#tested-providers). Configure the `login.openid` settings in `values.yaml` or a `secrets.yaml` file to enable it. See the [Values](#values) table for all options, including `login.openid.tokenExpiration` (valid values: `"never"`, `"openid-provider"`, or seconds like `3600`).
 
+> **Important:** OIDC requires **all four** of these conditions to be true or it silently does nothing:
+> 1. `ingress.enabled: true`
+> 2. `login.method: "openid"`
+> 3. `"openid"` present in `login.allowedLoginMethods`
+> 4. App version ≥ `25.1.0`
+
 ### Example Configuration
 
 To use OpenID with a Kubernetes Secret for sensitive data:
@@ -75,8 +81,22 @@ kubectl create secret generic actualbudget-openid-secret \
 2. **Update `values.yaml`**:
 
 ```yaml
+ingress:
+  enabled: true
+  hosts:
+    - host: actualbudget.example.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: actualbudget-tls
+      hosts:
+        - actualbudget.example.com
+
 login:
   method: "openid"
+  allowedLoginMethods:
+    - openid
   openid:
     enforce: true
     providerName: "Keycloak"
@@ -137,6 +157,7 @@ helm upgrade [RELEASE_NAME] community-charts/actualbudget
 | files.server | string | `"/data/server-files"` | The server will put an account.sqlite file in this directory, which will contain the (hashed) server password, a list of all the budget files the server knows about, and the active session token (along with anything else the server may want to store in the future). For more information checkout: https://actualbudget.org/docs/config/#serverfiles |
 | files.user | string | `"/data/user-files"` | The server will put all the budget files in this directory as binary blobs. For more information checkout: https://actualbudget.org/docs/config/#userfiles |
 | fullnameOverride | string | `""` |  |
+| image.digest | string | `""` | Image digest in the format sha256:<hex>. When set, overrides the tag for immutable pulls. |
 | image.pullPolicy | string | `"IfNotPresent"` | This sets the pull policy for images. |
 | image.repository | string | `"actualbudget/actual-server"` | The docker image repository to use |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
@@ -152,7 +173,7 @@ helm upgrade [RELEASE_NAME] community-charts/actualbudget
 | login.openid.authorizationEndpoint | string | `""` | This is the authorization endpoint for the openid provider. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_openid_authorization_endpoint |
 | login.openid.clientId | string | `""` | This is the client id for the openid provider. If not set and existingSecret is set, the client id will be read from the existing secret. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_openid_client_id |
 | login.openid.clientSecret | string | `""` | This is the client secret for the openid provider. If not set and existingSecret is set, the client secret will be read from the existing secret. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_openid_client_secret |
-| login.openid.dicovertUrl | string | `""` | Deprecated: Please use discoveryUrl instead. This field will be removed in next major version. |
+| login.openid.dicovertUrl | string | `""` | @deprecated Use discoveryUrl instead. This field will be removed in a future release. |
 | login.openid.discoveryUrl | string | `""` | This is the discovery url for the openid provider. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_openid_discovery_url |
 | login.openid.enforce | bool | `true` | This is for setting the enforce for the openid login. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_openid_enforce |
 | login.openid.existingSecret | object | `{"clientIdKey":"","clientSecretKey":"","name":""}` | This is for setting up the existing secret for the openid provider. |
@@ -181,7 +202,7 @@ helm upgrade [RELEASE_NAME] community-charts/actualbudget
 | readinessProbe | object | `{"httpGet":{"path":"/","port":"http"}}` | This is to setup the readiness probe more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | replicaCount | int | `1` | This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/ |
 | resources | object | `{}` | This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
-| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":false,"runAsGroup":1001,"runAsNonRoot":true,"runAsUser":1001}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
+| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true,"runAsGroup":1001,"runAsNonRoot":true,"runAsUser":1001}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
 | service | object | `{"annotations":{},"name":"http","port":5006,"type":"ClusterIP"}` | This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/ |
 | service.annotations | object | `{}` | Additional service annotations |
 | service.name | string | `"http"` | Default Service name |
