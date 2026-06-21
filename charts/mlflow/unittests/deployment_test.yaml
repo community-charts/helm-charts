@@ -528,7 +528,7 @@ tests:
         enabled: true
         listenPort: 4180
     asserts:
-      - isNotNull:
+      - exists:
           path: spec.template.spec.containers[?(@.name == "oauth2-proxy")]
         template: deployment.yaml
 
@@ -597,7 +597,7 @@ tests:
         enabled: true
         listenPort: 4180
     asserts:
-      - isNull:
+      - notExists:
           path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].volumeMounts
         template: deployment.yaml
 
@@ -2359,7 +2359,7 @@ tests:
           path: spec.template.spec.initContainers[?(@.name == "mlflow-db-migration")].resources.limits.memory
           value: 128Mi
         template: deployment.yaml
-      - isNull:
+      - notExists:
           path: spec.template.spec.initContainers[?(@.name == "dbchecker")].resources
         template: deployment.yaml
 
