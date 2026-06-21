@@ -131,6 +131,45 @@ Build the full container image reference, appending digest when set.
 {{- end }}
 
 {{/*
+Build the MLFLOW_SERVER_ALLOWED_HOSTS value.
+Merges ingress hostnames with serverAllowedHosts, deduplicates, and collapses to "*" when present.
+Returns a comma-separated string, or empty string when no hosts are configured.
+Usage: {{ include "mlflow.serverAllowedHosts" . }}
+*/}}
+{{- define "mlflow.serverAllowedHosts" -}}
+{{- $hosts := list -}}
+{{- if and .Values.ingress.enabled .Values.ingress.hosts -}}
+  {{- range .Values.ingress.hosts -}}
+    {{- if .host -}}{{- $hosts = append $hosts .host -}}{{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- range .Values.serverAllowedHosts -}}{{- $hosts = append $hosts . -}}{{- end -}}
+{{- $hosts = $hosts | uniq -}}
+{{- if has "*" $hosts -}}*{{- else if $hosts -}}{{- join "," $hosts -}}{{- end -}}
+{{- end }}
+
+{{/*
+Build the MLFLOW_SERVER_CORS_ALLOWED_ORIGINS value.
+Merges ingress-derived origins (with scheme from TLS config) with corsAllowedOrigins,
+deduplicates, and collapses to "*" when present.
+Returns a comma-separated string, or empty string when no origins are configured.
+Usage: {{ include "mlflow.corsAllowedOrigins" . }}
+*/}}
+{{- define "mlflow.corsAllowedOrigins" -}}
+{{- $origins := list -}}
+{{- if and .Values.ingress.enabled .Values.ingress.hosts -}}
+  {{- $scheme := "http" -}}
+  {{- if .Values.ingress.tls -}}{{- $scheme = "https" -}}{{- end -}}
+  {{- range .Values.ingress.hosts -}}
+    {{- if .host -}}{{- $origins = append $origins (printf "%s://%s" $scheme .host) -}}{{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- range .Values.corsAllowedOrigins -}}{{- $origins = append $origins . -}}{{- end -}}
+{{- $origins = $origins | uniq -}}
+{{- if has "*" $origins -}}*{{- else if $origins -}}{{- join "," $origins -}}{{- end -}}
+{{- end }}
+
+{{/*
 Return the port number the Ingress should target. If oauth2-proxy sidecar is enabled
 use its listenPort, otherwise use the service.port value.
 Usage: {{ include "mlflow.servicePort" . }}
