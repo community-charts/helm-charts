@@ -334,10 +334,9 @@ minio:
     - name: mlflow-artifacts
       policy: none
       purge: false
-
-extraEnvVars:
-  MLFLOW_S3_ENDPOINT_URL: "http://mlflow-minio:9000"
 ```
+
+> **Note**: `MLFLOW_S3_ENDPOINT_URL` is set automatically to the in-cluster MinIO service when `minio.enabled` is `true` — no `extraEnvVars` entry needed.
 
 ## Azure Cloud Installation Example
 
