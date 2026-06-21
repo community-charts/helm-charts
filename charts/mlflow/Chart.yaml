@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.11.1
+version: 1.11.2
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -52,20 +52,24 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update oauth2-proxy image version to v7.15.3
+      description: Update dbchecker image version to 1.38.0
       links:
-        - name: oauth2-proxy
-          url: https://quay.io/repository/oauth2-proxy/oauth2-proxy
+        - name: dbchecker
+          url: https://hub.docker.com/r/library/busybox
     - kind: changed
-      description: Update dependency postgresql from 18.7.5 to 18.7.6
+      description: Update ini-file-initializer image version to 1.38.0
       links:
-        - name: ArtifactHub
-          url: https://artifacthub.io/packages/helm/bitnami/postgresql
+        - name: ini-file-initializer
+          url: https://hub.docker.com/r/library/busybox
   artifacthub.io/images: |-
     - name: mlflow
       image: burakince/mlflow:3.14.0
     - name: oauth2-proxy
       image: quay.io/oauth2-proxy/oauth2-proxy:v7.15.3
+    - name: dbchecker
+      image: library/busybox:1.38.0
+    - name: ini-file-initializer
+      image: library/busybox:1.38.0
   artifacthub.io/license: MIT
   artifacthub.io/maintainers: |
     - name: burakince
