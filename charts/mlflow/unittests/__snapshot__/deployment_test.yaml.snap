@@ -1475,11 +1475,20 @@ should match snapshot with additional values when bitnami postgresql is enabled:
                 - |
                   sed -e "s/\$(ADMIN_USERNAME_PLACEHOLDER)/${ADMIN_USERNAME}/g" \
                       -e "s/\$(ADMIN_PASSWORD_PLACEHOLDER)/${ADMIN_PASSWORD}/g" \
+                      -e "s/\$(POSTGRES_USERNAME_PLACEHOLDER)/${DB_USERNAME}/g" \
+                      -e "s/\$(POSTGRES_PASSWORD_PLACEHOLDER)/${DB_PASSWORD}/g" \
                       /template/auth_template.ini > /config/auth_result.ini
               command:
                 - sh
                 - -c
               env:
+                - name: DB_USERNAME
+                  value: test-user
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: password
+                      name: mlflow-postgresql
                 - name: ADMIN_USERNAME
                   valueFrom:
                     secretKeyRef:

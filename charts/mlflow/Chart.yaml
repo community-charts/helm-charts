@@ -83,6 +83,11 @@ annotations:
       description: Automatically inject MLFLOW_SERVER_CORS_ALLOWED_ORIGINS from ingress hosts (https when TLS configured, http otherwise) to fix browser CORS blocking
     - kind: added
       description: Add serverAllowedHosts and corsAllowedOrigins list values that append to ingress auto-detected entries; duplicates are removed and a lone wildcard entry collapses the list to just *
+    - kind: fixed
+      description: Auto-configure auth PostgreSQL backend from the Bitnami postgresql subchart when postgresql.enabled is true and auth.enabled is true, fixing missing database_uri templating reported in v0.7.4
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/504
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.14.0
