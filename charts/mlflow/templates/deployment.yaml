@@ -333,11 +333,15 @@ spec:
           {{- else if .Values.ldapAuth.enabled }}
             - --app-name=basic-auth
           {{- end }}
-          {{- if and .Values.log.enabled (not (hasKey .Values.extraArgs "gunicornOpts")) (not (hasKey .Values.extraArgs "allowedHosts")) (not (hasKey .Values.extraArgs "corsAllowedOrigins")) (not (hasKey .Values.extraArgs "disableSecurityMiddleware")) }}
-            - {{ printf "--gunicorn-opts='--log-level=%s'" .Values.log.level }}
+          {{- if and .Values.log.enabled (not (hasKey .Values.extraArgs "gunicornOpts")) (not (hasKey .Values.extraArgs "uvicornOpts")) }}
+            - {{ printf "--uvicorn-opts='--log-level=%s'" .Values.log.level }}
           {{- end }}
           {{- range $key, $value := .Values.extraArgs }}
-            {{- if and $.Values.log.enabled (eq $key "gunicornOpts") (contains "--log-level" $value) }}
+            {{- if and $.Values.log.enabled (eq $key "uvicornOpts") (contains "--log-level" $value) }}
+            - {{ printf "--uvicorn-opts='%s'" (regexReplaceAll "--log-level=[^\\s]*" $value (printf "--log-level=%s" $.Values.log.level)) }}
+            {{- else if and $.Values.log.enabled (eq $key "uvicornOpts") (not (contains "--log-level" $value)) }}
+            - {{ printf "--uvicorn-opts='--log-level=%s %s'" $.Values.log.level $value }}
+            {{- else if and $.Values.log.enabled (eq $key "gunicornOpts") (contains "--log-level" $value) }}
             - {{ printf "--gunicorn-opts='%s'" (regexReplaceAll "--log-level=[^\\s]*" $value (printf "--log-level=%s" $.Values.log.level)) }}
             {{- else if and $.Values.log.enabled (eq $key "gunicornOpts") (not (contains "--log-level" $value)) }}
             - {{ printf "--gunicorn-opts='--log-level=%s %s'" $.Values.log.level $value }}

@@ -55,6 +55,8 @@ annotations:
       description: Add optional image digest support for immutable image pulls
     - kind: added
       description: Add optional MinIO subchart for S3-compatible artifact storage without external dependencies
+    - kind: added
+      description: Add uvicorn-opts support with log-level merging; uvicorn is now the default server for log injection instead of gunicorn
     - kind: fixed
       description: Enable readOnlyRootFilesystem and add built-in tmp emptyDir volume
   artifacthub.io/images: |

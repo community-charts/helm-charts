@@ -444,6 +444,8 @@ extraArgs: {}
 # It must always start with slash `/`
 # e.g. /mlflow
   # staticPrefix: TEXT
+# Additional command line options forwarded to uvicorn processes (used by default).
+  # uvicornOpts: TEXT
 # Additional command line options forwarded to gunicorn processes.
   # gunicornOpts: TEXT
 # Additional command line options for waitress-serve.

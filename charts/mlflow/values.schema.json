@@ -741,6 +741,12 @@
           "title": "gunicornOpts",
           "type": "string"
         },
+        "uvicornOpts": {
+          "default": "",
+          "required": [],
+          "title": "uvicornOpts",
+          "type": "string"
+        },
         "waitressOpts": {
           "default": "",
           "required": [],

@@ -167,15 +167,21 @@ When using `oidcAuth` with HPA, ensure:
 - `extraArgs` is a `map[string]string` — keys are camelCase, values are strings. The template converts keys to kebab-case automatically: `{gunicornOpts: "--workers=4"}` → `--gunicorn-opts=--workers=4`
 - `extraFlags` is a `string[]` of flag names (no `--` prefix, no value). Also kebab-case converted: `["serveArtifacts"]` → `--serve-artifacts`
 
-### Gunicorn Log-Level Merging
+### Server Log-Level Merging (uvicorn / gunicorn)
 
-When `log.enabled: true`, the template injects `--log-level` into gunicorn opts by one of three paths:
+MLflow 3.x uses **uvicorn** by default (`--uvicorn-opts`). Gunicorn (`--gunicorn-opts`) is an opt-in legacy mode; waitress (`--waitress-opts`) is for Windows.
 
-- No `gunicornOpts` in `extraArgs` → appends `--gunicorn-opts='--log-level=<level>'`
+When `log.enabled: true`, the template injects `--log-level` via one of five paths:
+
+- Neither `uvicornOpts` nor `gunicornOpts` in `extraArgs` → injects `--uvicorn-opts='--log-level=<level>'` (default)
+- `uvicornOpts` present and already contains `--log-level` → replaces the existing value via `regexReplaceAll`
+- `uvicornOpts` present without `--log-level` → prepends `--log-level=<level>` to the existing string
 - `gunicornOpts` present and already contains `--log-level` → replaces the existing value via `regexReplaceAll`
 - `gunicornOpts` present without `--log-level` → prepends `--log-level=<level>` to the existing string
 
-Test cases for all three paths exist in `unittests/deployment_test.yaml`.
+Security middleware flags (`--allowed-hosts`, `--cors-allowed-origins`, `--disable-security-middleware`) are uvicorn-only and now naturally co-exist with the default uvicorn-opts injection.
+
+Test cases for all paths exist in `unittests/deployment_test.yaml`.
 
 ### Proxied Artifact Storage Mode
 
