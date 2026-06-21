@@ -267,7 +267,7 @@ spec:
               {{- if .Values.auth.enabled }}
               sed -e "s/\$(ADMIN_USERNAME_PLACEHOLDER)/${ADMIN_USERNAME}/g" \
                   -e "s/\$(ADMIN_PASSWORD_PLACEHOLDER)/${ADMIN_PASSWORD}/g" \
-                {{- if or .Values.auth.postgres.enabled (and .Values.postgresql.enabled .Values.auth.enabled) }}
+                {{- if or .Values.auth.postgres.enabled .Values.postgresql.enabled }}
                   -e "s/\$(POSTGRES_USERNAME_PLACEHOLDER)/${DB_USERNAME}/g" \
                   -e "s/\$(POSTGRES_PASSWORD_PLACEHOLDER)/${DB_PASSWORD}/g" \
                 {{- end }}
