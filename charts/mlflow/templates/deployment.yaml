@@ -288,18 +288,14 @@ spec:
                 secretKeyRef:
                   name: {{ default (printf "%s-auth-pg-secret" (include "mlflow.fullname" .)) .Values.auth.postgres.existingSecret.name }}
                   key: {{ ternary "password" .Values.auth.postgres.existingSecret.passwordKey (eq .Values.auth.postgres.existingSecret.name "") }}
-          {{- else if and .Values.postgresql.enabled .Values.auth.enabled }}
+          {{- else if .Values.postgresql.enabled }}
             - name: DB_USERNAME
-              value: {{ .Values.postgresql.auth.username | default "postgres" | quote }}
+              value: {{ default "postgres" .Values.postgresql.auth.username | quote }}
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "mlflow.postgresql.fullname" . }}
-                  {{- if .Values.postgresql.auth.username }}
-                  key: password
-                  {{- else }}
-                  key: postgres-password
-                  {{- end }}
+                  key: {{ ternary "postgres-password" "password" (eq .Values.postgresql.auth.username "") }}
           {{- end }}
             - name: ADMIN_USERNAME
               valueFrom:
