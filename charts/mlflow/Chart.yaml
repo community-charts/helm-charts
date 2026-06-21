@@ -62,6 +62,8 @@ annotations:
           url: https://github.com/community-charts/helm-charts/issues/223
         - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/310
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/411
     - kind: security
       description: Enable readOnlyRootFilesystem and add built-in tmp emptyDir volume to harden container filesystem
     - kind: fixed
