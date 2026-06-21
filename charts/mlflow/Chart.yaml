@@ -49,7 +49,7 @@ annotations:
       url: https://community-charts.github.io/docs/charts/mlflow/usage
     - name: Upstream Project
       url: https://github.com/burakince/mlflow
-  artifacthub.io/containsSecurityUpdates: "false"
+  artifacthub.io/containsSecurityUpdates: "true"
   artifacthub.io/changes: |-
     - kind: added
       description: Add optional image digest support for immutable image pulls
@@ -62,15 +62,15 @@ annotations:
           url: https://github.com/community-charts/helm-charts/issues/223
         - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/310
-    - kind: fixed
-      description: Enable readOnlyRootFilesystem and add built-in tmp emptyDir volume
+    - kind: security
+      description: Enable readOnlyRootFilesystem and add built-in tmp emptyDir volume to harden container filesystem
     - kind: fixed
       description: Default keyOfAccessKeyId and keyOfSecretAccessKey to standard AWS key names so existingSecret works when only name is provided
       links:
         - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/225
-    - kind: fixed
-      description: Automatically inject MLFLOW_SERVER_ALLOWED_HOSTS from ingress hosts to prevent DNS rebinding HTTP 403 errors
+    - kind: security
+      description: Automatically inject MLFLOW_SERVER_ALLOWED_HOSTS from ingress hosts to prevent DNS rebinding attacks
       links:
         - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/285
@@ -79,8 +79,8 @@ annotations:
       links:
         - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/423
-    - kind: fixed
-      description: Automatically inject MLFLOW_SERVER_CORS_ALLOWED_ORIGINS from ingress hosts (https when TLS configured, http otherwise) to fix browser CORS blocking
+    - kind: security
+      description: Automatically inject MLFLOW_SERVER_CORS_ALLOWED_ORIGINS from ingress hosts (https when TLS configured, http otherwise) to prevent CORS-based cross-origin attacks
     - kind: added
       description: Add serverAllowedHosts and corsAllowedOrigins list values that append to ingress auto-detected entries; duplicates are removed and a lone wildcard entry collapses the list to just *
     - kind: fixed
