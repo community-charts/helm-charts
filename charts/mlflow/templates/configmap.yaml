@@ -49,6 +49,23 @@ data:
   MLFLOW_SERVER_ALLOWED_HOSTS: {{ join "," $hosts | quote }}
   {{- end }}
 {{- end }}
+{{- if .Values.corsAllowedOrigins }}
+  MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: {{ .Values.corsAllowedOrigins | quote }}
+{{- else if and .Values.ingress.enabled .Values.ingress.hosts }}
+  {{- $origins := list }}
+  {{- $scheme := "http" }}
+  {{- if .Values.ingress.tls }}
+    {{- $scheme = "https" }}
+  {{- end }}
+  {{- range .Values.ingress.hosts }}
+    {{- if .host }}
+      {{- $origins = append $origins (printf "%s://%s" $scheme .host) }}
+    {{- end }}
+  {{- end }}
+  {{- if $origins }}
+  MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: {{ join "," $origins | quote }}
+  {{- end }}
+{{- end }}
 ---
 {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseMigration }}
 {{- $dbConnectionDriver := "" }}

@@ -1181,6 +1181,12 @@
       "title": "ingress",
       "type": "object"
     },
+    "corsAllowedOrigins": {
+      "default": "",
+      "description": "Comma-separated list of CORS allowed origins (MLFLOW_SERVER_CORS_ALLOWED_ORIGINS). Auto-derived from ingress hosts when ingress is enabled.",
+      "title": "corsAllowedOrigins",
+      "type": "string"
+    },
     "initContainers": {
       "description": "Init Containers for Mlflow Pod",
       "items": {

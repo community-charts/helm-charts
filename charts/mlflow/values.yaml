@@ -498,6 +498,12 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
+# -- Comma-separated list of allowed CORS origins for the MLflow server security middleware (env: MLFLOW_SERVER_CORS_ALLOWED_ORIGINS).
+# When ingress is enabled, origins are automatically derived from ingress hosts: https:// if ingress.tls is configured, http:// otherwise.
+# Set explicitly to override auto-detection (e.g. "*" for dev, or origins behind a load balancer with TLS termination before ingress).
+# Requires uvicorn, which is the default server in MLflow 3.x.
+corsAllowedOrigins: ""
+
 # -- This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
