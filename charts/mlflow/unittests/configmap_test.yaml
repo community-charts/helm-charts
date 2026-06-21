@@ -221,6 +221,72 @@ tests:
           path: data.DO_NOT_TRACK
           value: "true"
 
+  - it: should inject MLFLOW_SERVER_ALLOWED_HOSTS when ingress is enabled with a host
+    set:
+      ingress:
+        enabled: true
+        hosts:
+          - host: mlflow.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.MLFLOW_SERVER_ALLOWED_HOSTS
+          value: "mlflow.example.com"
+
+  - it: should join multiple ingress hosts with comma
+    set:
+      ingress:
+        enabled: true
+        hosts:
+          - host: mlflow.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+          - host: mlflow2.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.MLFLOW_SERVER_ALLOWED_HOSTS
+          value: "mlflow.example.com,mlflow2.example.com"
+
+  - it: should not inject MLFLOW_SERVER_ALLOWED_HOSTS into configmap when user sets it in extraEnvVars
+    set:
+      ingress:
+        enabled: true
+        hosts:
+          - host: mlflow.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+      extraEnvVars:
+        MLFLOW_SERVER_ALLOWED_HOSTS: "*"
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - notExists:
+          path: data.MLFLOW_SERVER_ALLOWED_HOSTS
+
+  - it: should not inject MLFLOW_SERVER_ALLOWED_HOSTS when ingress is disabled
+    set:
+      ingress.enabled: false
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - notExists:
+          path: data.MLFLOW_SERVER_ALLOWED_HOSTS
+
   - it: should match snapshot of default values
     release:
       name: mlflow

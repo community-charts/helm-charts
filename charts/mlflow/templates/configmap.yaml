@@ -38,6 +38,17 @@ data:
   MLFLOW_DISABLE_TELEMETRY: "true"
   DO_NOT_TRACK: "true"
 {{- end }}
+{{- if and .Values.ingress.enabled .Values.ingress.hosts (not (hasKey .Values.extraEnvVars "MLFLOW_SERVER_ALLOWED_HOSTS")) }}
+  {{- $hosts := list }}
+  {{- range .Values.ingress.hosts }}
+    {{- if .host }}
+      {{- $hosts = append $hosts .host }}
+    {{- end }}
+  {{- end }}
+  {{- if $hosts }}
+  MLFLOW_SERVER_ALLOWED_HOSTS: {{ join "," $hosts | quote }}
+  {{- end }}
+{{- end }}
 ---
 {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseMigration }}
 {{- $dbConnectionDriver := "" }}

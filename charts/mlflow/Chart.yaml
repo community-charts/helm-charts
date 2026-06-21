@@ -69,6 +69,16 @@ annotations:
       links:
         - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/225
+    - kind: fixed
+      description: Automatically inject MLFLOW_SERVER_ALLOWED_HOSTS from ingress hosts to prevent DNS rebinding HTTP 403 errors
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/285
+    - kind: changed
+      description: Document azure-identity requirement for AKS Managed Identity; workaround is AZURE_STORAGE_CONNECTION_STRING via extraEnvVars
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/423
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.14.0
