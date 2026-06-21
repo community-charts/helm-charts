@@ -1199,6 +1199,12 @@
         "type": "string"
       }
     },
+    "serverHost": {
+      "default": "0.0.0.0",
+      "description": "Network interface the MLflow server binds to (--host flag). Set to 127.0.0.1 when using a sidecar proxy so MLflow is not reachable directly.",
+      "title": "serverHost",
+      "type": "string"
+    },
     "initContainers": {
       "description": "Init Containers for Mlflow Pod",
       "items": {

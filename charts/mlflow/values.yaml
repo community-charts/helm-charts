@@ -510,6 +510,11 @@ corsAllowedOrigins: []
 # Requires uvicorn, which is the default server in MLflow 3.x.
 serverAllowedHosts: []
 
+# -- Network interface the MLflow server binds to (passed as --host to `mlflow server`).
+# Defaults to 0.0.0.0 (all interfaces). Set to 127.0.0.1 when using a sidecar proxy (e.g. oauth2Proxy)
+# so that MLflow is only reachable through the proxy and not directly from outside the pod.
+serverHost: "0.0.0.0"
+
 # -- This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

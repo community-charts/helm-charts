@@ -320,7 +320,7 @@ spec:
           command: ["mlflow"]
           args:
             - server
-            - --host=0.0.0.0
+            - --host={{ .Values.serverHost }}
             - --port={{ .Values.service.containerPort }}
           {{- if or .Values.backendStore.postgres.enabled .Values.postgresql.enabled }}
             - --backend-store-uri=postgresql{{ $dbConnectionDriver }}://

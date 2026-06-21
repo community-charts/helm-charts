@@ -1124,6 +1124,22 @@ tests:
           value: 3
         template: deployment.yaml
 
+  - it: should use default 0.0.0.0 host binding
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --host=0.0.0.0
+        template: deployment.yaml
+
+  - it: should use custom host binding when serverHost is set
+    set:
+      serverHost: "127.0.0.1"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --host=127.0.0.1
+        template: deployment.yaml
+
   - it: should use different port number when we change it
     set:
       service.containerPort: 80
