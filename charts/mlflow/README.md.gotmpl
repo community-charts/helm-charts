@@ -328,15 +328,13 @@ artifactRoot:
 
 minio:
   enabled: true
-  rootUser: "minioadmin"
-  rootPassword: "minioadmin"
   buckets:
     - name: mlflow-artifacts
       policy: none
       purge: false
 ```
 
-> **Note**: When `minio.enabled` is `true`, the chart reads `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` directly from the MinIO secret (`rootUser`/`rootPassword` keys) and sets `MLFLOW_S3_ENDPOINT_URL` automatically — do not set those values under `artifactRoot.s3`.
+> **Note**: When `minio.enabled` is `true`, the chart reads `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` directly from the MinIO secret (`rootUser`/`rootPassword` keys) and sets `MLFLOW_S3_ENDPOINT_URL` automatically — do not set those values under `artifactRoot.s3`. `minio.rootUser` and `minio.rootPassword` are optional; MinIO auto-generates stable credentials on first install if omitted.
 
 ## Azure Cloud Installation Example
 
