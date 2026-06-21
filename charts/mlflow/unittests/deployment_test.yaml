@@ -2619,6 +2619,21 @@ tests:
           path: spec.template.spec.initContainers[?(@.name == "ini-file-initializer")].env
         template: deployment.yaml
 
+  - it: should render priorityClassName in pod spec when set
+    set:
+      priorityClassName: "high-priority"
+    asserts:
+      - equal:
+          path: spec.template.spec.priorityClassName
+          value: "high-priority"
+        template: deployment.yaml
+
+  - it: should not render priorityClassName in pod spec when empty
+    asserts:
+      - notExists:
+          path: spec.template.spec.priorityClassName
+        template: deployment.yaml
+
   - it: should render deploymentAnnotations on Deployment metadata
     set:
       deploymentAnnotations:

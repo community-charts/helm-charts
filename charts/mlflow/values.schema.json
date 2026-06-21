@@ -1290,6 +1290,11 @@
       "title": "nodeSelector",
       "type": "object"
     },
+    "priorityClassName": {
+      "description": "For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/",
+      "title": "priorityClassName",
+      "type": "string"
+    },
     "deploymentAnnotations": {
       "additionalProperties": true,
       "description": "Annotations for the Deployment resource",
@@ -3245,6 +3250,7 @@
     "nodeSelector",
     "tolerations",
     "affinity",
+    "priorityClassName",
     "initContainers",
     "extraContainers",
     "extraVolumes",

@@ -116,6 +116,11 @@ annotations:
         - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/468
     - kind: added
+      description: Add priorityClassName value to set pod scheduling priority class
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/317
+    - kind: added
       description: Add deploymentAnnotations value to annotate the Deployment resource metadata; enables tooling that discovers deployments via metadata.annotations
       links:
         - name: GitHub Issue
