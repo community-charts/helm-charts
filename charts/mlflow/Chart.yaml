@@ -100,6 +100,11 @@ annotations:
       links:
         - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/248
+    - kind: added
+      description: Add backendStore.mssql.existingConnectionUrlSecret (name and key) to store credential-bearing MSSQL connection URLs in a Kubernetes Secret; takes priority over connectionUrl when set
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/248
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.14.0

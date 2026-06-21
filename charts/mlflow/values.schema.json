@@ -429,6 +429,27 @@
               "description": "Full SQLAlchemy connection URL for mssql (e.g. for Azure AD / MSI). When set, host/port/database/user/password are ignored.",
               "title": "connectionUrl",
               "type": "string"
+            },
+            "existingConnectionUrlSecret": {
+              "additionalProperties": false,
+              "description": "Existing secret containing the MSSQL connection URL. Takes precedence over connectionUrl when name is set.",
+              "title": "existingConnectionUrlSecret",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "Name of the existing secret containing the connection URL.",
+                  "title": "name",
+                  "type": "string"
+                },
+                "key": {
+                  "default": "",
+                  "description": "Key within the secret that holds the connection URL.",
+                  "title": "key",
+                  "type": "string"
+                }
+              },
+              "required": ["name", "key"]
             }
           },
           "required": [
@@ -439,7 +460,8 @@
             "user",
             "password",
             "driver",
-            "connectionUrl"
+            "connectionUrl",
+            "existingConnectionUrlSecret"
           ],
           "title": "mssql",
           "type": "object"

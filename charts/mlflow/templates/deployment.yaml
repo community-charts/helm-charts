@@ -167,7 +167,7 @@ spec:
           imagePullPolicy: {{ .Values.initImages.mlflowDbMigration.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-        {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name }}
+        {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name (and .Values.backendStore.mssql.enabled .Values.backendStore.mssql.existingConnectionUrlSecret.name) }}
           env:
         {{- end }}
           {{- if .Values.postgresql.enabled }}
@@ -231,6 +231,13 @@ spec:
                   name: {{ .Values.backendStore.existingDatabaseSecret.name }}
                   key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
             {{- end }}
+          {{- end }}
+          {{- if and .Values.backendStore.mssql.enabled .Values.backendStore.mssql.existingConnectionUrlSecret.name }}
+            - name: MSSQL_CONNECTION_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.mssql.existingConnectionUrlSecret.name }}
+                  key: {{ .Values.backendStore.mssql.existingConnectionUrlSecret.key }}
           {{- end }}
           envFrom:
             - configMapRef:
@@ -327,7 +334,9 @@ spec:
           {{- else if or .Values.backendStore.mysql.enabled .Values.mysql.enabled }}
             - --backend-store-uri=mysql{{ $dbConnectionDriver }}://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
           {{- else if or .Values.backendStore.mssql.enabled }}
-            {{- if .Values.backendStore.mssql.connectionUrl }}
+            {{- if .Values.backendStore.mssql.existingConnectionUrlSecret.name }}
+            - --backend-store-uri=$(MSSQL_CONNECTION_URL)
+            {{- else if .Values.backendStore.mssql.connectionUrl }}
             - --backend-store-uri={{ .Values.backendStore.mssql.connectionUrl }}
             {{- else }}
             - --backend-store-uri=mssql{{ $dbConnectionDriver }}://$(MSSQL_USERNAME):$(MSSQL_PWD)@$(MSSQL_HOST):$(MSSQL_TCP_PORT)/$(MSSQL_DATABASE)
@@ -535,6 +544,13 @@ spec:
                   name: {{ .Values.backendStore.existingDatabaseSecret.name }}
                   key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
             {{- end }}
+          {{- end }}
+          {{- if and .Values.backendStore.mssql.enabled .Values.backendStore.mssql.existingConnectionUrlSecret.name }}
+            - name: MSSQL_CONNECTION_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.mssql.existingConnectionUrlSecret.name }}
+                  key: {{ .Values.backendStore.mssql.existingConnectionUrlSecret.key }}
           {{- end }}
           {{- if and .Values.artifactRoot.s3.enabled (not .Values.minio.enabled) .Values.artifactRoot.s3.existingSecret.name }}
             {{- if .Values.artifactRoot.s3.existingSecret.keyOfAccessKeyId }}

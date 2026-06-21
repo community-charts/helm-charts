@@ -190,10 +190,19 @@ backendStore:
     password: "" # required
     # -- mssql database connection driver. e.g.: "pymssql"
     driver: "pymssql"
-    # -- Full SQLAlchemy connection URL for mssql (e.g. for Azure AD / MSI authentication).
+    # -- Full SQLAlchemy connection URL for mssql (e.g. for Azure AD / MSI authentication with no embedded credentials).
     # When set, host/port/database/user/password are ignored and this URL is used directly as --backend-store-uri.
     # Example: "mssql+pyodbc://?odbc_connect=DRIVER%3D...%3BAuthentication%3DActiveDirectoryMsi%3B"
     connectionUrl: ""
+    # -- Existing Kubernetes Secret containing the full MSSQL connection URL as a secret value.
+    # Use this instead of connectionUrl when the connection string contains credentials.
+    # The secret value is exposed as MSSQL_CONNECTION_URL and passed directly as --backend-store-uri.
+    # Takes precedence over connectionUrl when name is set.
+    existingConnectionUrlSecret:
+      # -- Name of the existing secret
+      name: ""
+      # -- Key within the secret that holds the connection URL
+      key: ""
 
   # -- Specifies if you want to use an existing database secret.
   existingDatabaseSecret:

@@ -878,7 +878,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | autoscaling.maxReplicas | int | `5` | The maximum number of replicas. |
 | autoscaling.metrics | list | `[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}]` | The metrics to use for autoscaling. |
 | autoscaling.minReplicas | int | `1` | The minimum number of replicas. |
-| backendStore | object | `{"databaseConnectionCheck":false,"databaseMigration":false,"defaultSqlitePath":":memory:","existingDatabaseSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"mssql":{"connectionUrl":"","database":"","driver":"pymssql","enabled":false,"host":"","password":"","port":1433,"user":""},"mysql":{"database":"","driver":"pymysql","enabled":false,"host":"","password":"","port":3306,"user":""},"postgres":{"database":"","driver":"","enabled":false,"host":"","password":"","port":5432,"user":""}}` | Mlflow database connection settings |
+| backendStore | object | `{"databaseConnectionCheck":false,"databaseMigration":false,"defaultSqlitePath":":memory:","existingDatabaseSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"mssql":{"connectionUrl":"","database":"","driver":"pymssql","enabled":false,"existingConnectionUrlSecret":{"key":"","name":""},"host":"","password":"","port":1433,"user":""},"mysql":{"database":"","driver":"pymysql","enabled":false,"host":"","password":"","port":3306,"user":""},"postgres":{"database":"","driver":"","enabled":false,"host":"","password":"","port":5432,"user":""}}` | Mlflow database connection settings |
 | backendStore.databaseConnectionCheck | bool | `false` | Add an additional init container, which checks for database availability |
 | backendStore.databaseMigration | bool | `false` | Specifies if you want to run database migration |
 | backendStore.defaultSqlitePath | string | `":memory:"` | Specifies the default sqlite path |
@@ -886,10 +886,13 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | backendStore.existingDatabaseSecret.name | string | `""` | The name of the existing database secret. |
 | backendStore.existingDatabaseSecret.passwordKey | string | `"password"` | The key of the password in the existing database secret. |
 | backendStore.existingDatabaseSecret.usernameKey | string | `"username"` | The key of the username in the existing database secret. |
-| backendStore.mssql.connectionUrl | string | `""` | Full SQLAlchemy connection URL for mssql (e.g. for Azure AD / MSI authentication). When set, host/port/database/user/password are ignored and this URL is used directly as --backend-store-uri. Example: "mssql+pyodbc://?odbc_connect=DRIVER%3D...%3BAuthentication%3DActiveDirectoryMsi%3B" |
+| backendStore.mssql.connectionUrl | string | `""` | Full SQLAlchemy connection URL for mssql (e.g. for Azure AD / MSI authentication with no embedded credentials). When set, host/port/database/user/password are ignored and this URL is used directly as --backend-store-uri. Example: "mssql+pyodbc://?odbc_connect=DRIVER%3D...%3BAuthentication%3DActiveDirectoryMsi%3B" |
 | backendStore.mssql.database | string | `""` | mlflow database name created before in the mssql instance |
 | backendStore.mssql.driver | string | `"pymssql"` | mssql database connection driver. e.g.: "pymssql" |
 | backendStore.mssql.enabled | bool | `false` | Specifies if you want to use mssql backend storage |
+| backendStore.mssql.existingConnectionUrlSecret | object | `{"key":"","name":""}` | Existing Kubernetes Secret containing the full MSSQL connection URL as a secret value. Use this instead of connectionUrl when the connection string contains credentials. The secret value is exposed as MSSQL_CONNECTION_URL and passed directly as --backend-store-uri. Takes precedence over connectionUrl when name is set. |
+| backendStore.mssql.existingConnectionUrlSecret.key | string | `""` | Key within the secret that holds the connection URL |
+| backendStore.mssql.existingConnectionUrlSecret.name | string | `""` | Name of the existing secret |
 | backendStore.mssql.host | string | `""` | mssql host address |
 | backendStore.mssql.password | string | `""` | mssql database user password which can access to mlflow database |
 | backendStore.mssql.port | int | `1433` | mssql service port |

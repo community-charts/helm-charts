@@ -175,6 +175,63 @@ tests:
           content: --backend-store-uri=mssql+pymssql://$(MSSQL_USERNAME):$(MSSQL_PWD)@$(MSSQL_HOST):$(MSSQL_TCP_PORT)/$(MSSQL_DATABASE)
         template: deployment.yaml
 
+  - it: should use mssql existingConnectionUrlSecret for backend-store-uri
+    set:
+      backendStore:
+        mssql:
+          enabled: true
+          existingConnectionUrlSecret:
+            name: mssql-url-secret
+            key: connectionUrl
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --backend-store-uri=$(MSSQL_CONNECTION_URL)
+        template: deployment.yaml
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --backend-store-uri=mssql+pymssql://$(MSSQL_USERNAME):$(MSSQL_PWD)@$(MSSQL_HOST):$(MSSQL_TCP_PORT)/$(MSSQL_DATABASE)
+        template: deployment.yaml
+
+  - it: should inject MSSQL_CONNECTION_URL env var in main container when existingConnectionUrlSecret is set
+    set:
+      backendStore:
+        mssql:
+          enabled: true
+          existingConnectionUrlSecret:
+            name: mssql-url-secret
+            key: connectionUrl
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: MSSQL_CONNECTION_URL
+            valueFrom:
+              secretKeyRef:
+                name: mssql-url-secret
+                key: connectionUrl
+        template: deployment.yaml
+
+  - it: should inject MSSQL_CONNECTION_URL env var in migration init container when existingConnectionUrlSecret is set
+    set:
+      backendStore:
+        mssql:
+          enabled: true
+          existingConnectionUrlSecret:
+            name: mssql-url-secret
+            key: connectionUrl
+      backendStore.databaseMigration: true
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "mlflow-db-migration")].env
+          content:
+            name: MSSQL_CONNECTION_URL
+            valueFrom:
+              secretKeyRef:
+                name: mssql-url-secret
+                key: connectionUrl
+        template: deployment.yaml
+
   - it: should be local folder as an artifact root when azureBlob or s3 or gcs is not enabled
     asserts:
       - contains:

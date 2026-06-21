@@ -175,6 +175,40 @@ tests:
           path: metadata.name
           value: mlflow-migrations
 
+  - it: should skip mssql host port database env vars when existingConnectionUrlSecret is set
+    set:
+      backendStore.mssql.enabled: true
+      backendStore.mssql.existingConnectionUrlSecret.name: mssql-url-secret
+      backendStore.mssql.existingConnectionUrlSecret.key: connectionUrl
+    asserts:
+      - notExists:
+          path: data.MSSQL_HOST
+        documentSelector:
+          path: metadata.name
+          value: mlflow-env-configmap
+      - notExists:
+          path: data.MSSQL_TCP_PORT
+        documentSelector:
+          path: metadata.name
+          value: mlflow-env-configmap
+      - notExists:
+          path: data.MSSQL_DATABASE
+        documentSelector:
+          path: metadata.name
+          value: mlflow-env-configmap
+
+  - it: should use existingConnectionUrlSecret in migration script when set
+    set:
+      backendStore.mssql.enabled: true
+      backendStore.mssql.existingConnectionUrlSecret.name: mssql-url-secret
+      backendStore.mssql.existingConnectionUrlSecret.key: connectionUrl
+      backendStore.databaseMigration: true
+    asserts:
+      - matchSnapshot: {}
+        documentSelector:
+          path: metadata.name
+          value: mlflow-migrations
+
   - it: should have postgresql environments when postgresql is enabled
     set:
       postgresql:
