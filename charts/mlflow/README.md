@@ -1005,6 +1005,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | deploymentAnnotations | object | `{}` | Annotations for the Deployment resource |
 | extraArgs | object | `{}` | A map of arguments and values to pass to the `mlflow server` command. Keys must be camelcase. Helm will turn them to kebabcase style. |
 | extraContainers | list | `[]` | Extra containers for the mlflow pod |
+| extraDeploy | list | `[]` | Array of extra Kubernetes objects to deploy alongside the chart (e.g. SecretStore, ExternalSecret). Supports Helm templating via tpl. |
 | extraEnvVars | object | `{}` | Extra environment variables |
 | extraFlags | list | `[]` | A list of flags to pass to `mlflow server` command. Items must be camelcase. Helm will turn them to kebabcase style. |
 | extraPodLabels | object | `{}` | Extra labels for the pod |

@@ -1295,6 +1295,12 @@
       "title": "priorityClassName",
       "type": "string"
     },
+    "extraDeploy": {
+      "description": "Array of extra Kubernetes objects to deploy alongside the chart. Supports Helm templating via tpl.",
+      "items": {},
+      "title": "extraDeploy",
+      "type": "array"
+    },
     "deploymentAnnotations": {
       "additionalProperties": true,
       "description": "Annotations for the Deployment resource",
@@ -3251,6 +3257,7 @@
     "tolerations",
     "affinity",
     "priorityClassName",
+    "extraDeploy",
     "initContainers",
     "extraContainers",
     "extraVolumes",

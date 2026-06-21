@@ -587,6 +587,9 @@ affinity: {}
 # -- For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/
 priorityClassName: ""
 
+# -- Array of extra Kubernetes objects to deploy alongside the chart (e.g. SecretStore, ExternalSecret). Supports Helm templating via tpl.
+extraDeploy: []
+
 # -- Init Containers for Mlflow Pod
 initContainers: []
 
