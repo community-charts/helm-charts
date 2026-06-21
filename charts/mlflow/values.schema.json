@@ -1309,19 +1309,19 @@
       "description": "Security context for all pod",
       "properties": {
         "runAsUser": {
-          "default": 1000,
+          "default": 1001,
           "required": [],
           "title": "runAsUser",
           "type": "integer"
         },
         "runAsGroup": {
-          "default": 3000,
+          "default": 1001,
           "required": [],
           "title": "runAsGroup",
           "type": "integer"
         },
         "fsGroup": {
-          "default": 2000,
+          "default": 1001,
           "required": [],
           "title": "fsGroup",
           "type": "integer"
@@ -1975,7 +1975,7 @@
           "type": "boolean"
         },
         "runAsUser": {
-          "default": 1000,
+          "default": 1001,
           "required": [],
           "title": "runAsUser",
           "type": "integer"
@@ -2034,7 +2034,7 @@
           "type": "string"
         },
         "port": {
-          "default": 5000,
+          "default": 80,
           "description": "Default Service port",
           "required": [],
           "title": "port",
@@ -2301,7 +2301,7 @@
       "description": "Mlflow authentication settings",
       "properties": {
         "enabled": {
-          "default": "false",
+          "default": false,
           "required": [],
           "title": "enabled",
           "type": "boolean"
@@ -2389,7 +2389,7 @@
           "type": "string"
         },
         "configPath": {
-          "default": "/etc/mlflow/",
+          "default": "/etc/mlflow/auth/",
           "required": [],
           "title": "configPath",
           "type": "string"

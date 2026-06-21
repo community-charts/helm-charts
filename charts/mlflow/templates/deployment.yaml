@@ -7,6 +7,9 @@
 {{- if and .Values.oidcAuth.enabled .Values.ldapAuth.enabled }}
   {{- fail "oidcAuth and ldapAuth are mutually exclusive" }}
 {{- end }}
+{{- if and .Values.auth.enabled .Values.ldapAuth.enabled }}
+  {{- fail "auth and ldapAuth are mutually exclusive" }}
+{{- end }}
 {{- $artifactCommandPrefix := "default-artifact-root" }}
 {{- $artifactCommand := printf "--%s=%s" $artifactCommandPrefix .Values.artifactRoot.defaultArtifactRoot }}
 
@@ -155,7 +158,7 @@ spec:
           {{- end }}
           envFrom:
             - configMapRef:
-                name: {{ template "mlflow.fullname" . }}-env-configmap
+                name: {{ include "mlflow.fullname" . }}-env-configmap
           volumeMounts:
             - name: dbchecker
               mountPath: /script/dbchecker.sh
@@ -245,11 +248,11 @@ spec:
           {{- end }}
           envFrom:
             - configMapRef:
-                name: {{ template "mlflow.fullname" . }}-env-configmap
+                name: {{ include "mlflow.fullname" . }}-env-configmap
             - secretRef:
-                name: {{ template "mlflow.fullname" . }}-env-secret
+                name: {{ include "mlflow.fullname" . }}-env-secret
             - secretRef:
-                name: {{ template "mlflow.fullname" . }}-flask-server-secret-key
+                name: {{ include "mlflow.fullname" . }}-flask-server-secret-key
           command: ["python"]
           args:
             - /opt/mlflow/migrations.py
@@ -595,11 +598,11 @@ spec:
           {{- end }}
           envFrom:
             - configMapRef:
-                name: {{ template "mlflow.fullname" . }}-env-configmap
+                name: {{ include "mlflow.fullname" . }}-env-configmap
             - secretRef:
-                name: {{ template "mlflow.fullname" . }}-env-secret
+                name: {{ include "mlflow.fullname" . }}-env-secret
             - secretRef:
-                name: {{ template "mlflow.fullname" . }}-flask-server-secret-key
+                name: {{ include "mlflow.fullname" . }}-flask-server-secret-key
           {{- range .Values.extraSecretNamesForEnvFrom }}
             - secretRef:
                 name: {{ . }}
@@ -693,20 +696,20 @@ spec:
         {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
         - name: dbchecker
           configMap:
-            name: {{ template "mlflow.fullname" . }}-dbchecker
+            name: {{ include "mlflow.fullname" . }}-dbchecker
             defaultMode: 0777
         {{- end }}
         {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseMigration }}
         - name: migrations-config
           configMap:
-            name: {{ template "mlflow.fullname" . }}-migrations
+            name: {{ include "mlflow.fullname" . }}-migrations
         {{- end }}
         {{- if or .Values.auth.enabled .Values.ldapAuth.enabled }}
         - name: ini-file
           emptyDir: {}
         - name: auth-ini-template-file
           configMap:
-            name: {{ template "mlflow.fullname" . }}-auth-ini-template
+            name: {{ include "mlflow.fullname" . }}-auth-ini-template
           {{- if or .Values.ldapAuth.encodedTrustedCACertificate .Values.ldapAuth.externalSecretForTrustedCACertificate }}
         - name: trusted-ca-cert-secret
           secret:

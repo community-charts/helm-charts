@@ -115,6 +115,10 @@ annotations:
       links:
         - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/468
+    - kind: fixed
+      description: Add mutual-exclusivity fail guard for auth and ldapAuth — both cannot be enabled simultaneously
+    - kind: fixed
+      description: Correct schema defaults for service.port, auth.configPath, securityContext UIDs, and auth.enabled boolean type; normalize legacy template calls to include in deployment.yaml
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.14.0
