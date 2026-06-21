@@ -59,6 +59,8 @@ annotations:
       description: Add uvicorn-opts support with log-level merging; uvicorn is now the default server for log injection instead of gunicorn
       links:
         - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/223
+        - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/310
     - kind: fixed
       description: Enable readOnlyRootFilesystem and add built-in tmp emptyDir volume
