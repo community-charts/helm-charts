@@ -81,6 +81,8 @@ annotations:
           url: https://github.com/community-charts/helm-charts/issues/423
     - kind: fixed
       description: Automatically inject MLFLOW_SERVER_CORS_ALLOWED_ORIGINS from ingress hosts (https when TLS configured, http otherwise) to fix browser CORS blocking
+    - kind: added
+      description: Add serverAllowedHosts value to explicitly set MLFLOW_SERVER_ALLOWED_HOSTS, overriding ingress auto-detection when extra hostnames are needed
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.14.0

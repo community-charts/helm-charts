@@ -504,6 +504,12 @@ ingress:
 # Requires uvicorn, which is the default server in MLflow 3.x.
 corsAllowedOrigins: ""
 
+# -- Comma-separated list of allowed hostnames for the MLflow server security middleware (env: MLFLOW_SERVER_ALLOWED_HOSTS).
+# When ingress is enabled, hostnames are automatically derived from ingress hosts.
+# Set explicitly to override auto-detection (e.g. to add extra hostnames beyond the ingress host, or when not using ingress).
+# Requires uvicorn, which is the default server in MLflow 3.x.
+serverAllowedHosts: ""
+
 # -- This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

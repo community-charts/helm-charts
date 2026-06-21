@@ -1187,6 +1187,12 @@
       "title": "corsAllowedOrigins",
       "type": "string"
     },
+    "serverAllowedHosts": {
+      "default": "",
+      "description": "Comma-separated list of allowed hostnames (MLFLOW_SERVER_ALLOWED_HOSTS). Auto-derived from ingress hosts when ingress is enabled.",
+      "title": "serverAllowedHosts",
+      "type": "string"
+    },
     "initContainers": {
       "description": "Init Containers for Mlflow Pod",
       "items": {

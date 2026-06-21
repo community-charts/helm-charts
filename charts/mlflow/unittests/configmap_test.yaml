@@ -288,6 +288,36 @@ tests:
       - notExists:
           path: data.MLFLOW_SERVER_ALLOWED_HOSTS
 
+  - it: should use explicit serverAllowedHosts value when set
+    set:
+      serverAllowedHosts: "mlflow.example.com,dashboard.example.com"
+      ingress:
+        enabled: true
+        hosts:
+          - host: mlflow.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.MLFLOW_SERVER_ALLOWED_HOSTS
+          value: "mlflow.example.com,dashboard.example.com"
+
+  - it: should inject serverAllowedHosts even when ingress is disabled
+    set:
+      serverAllowedHosts: "mlflow.internal,10.0.0.5"
+      ingress.enabled: false
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.MLFLOW_SERVER_ALLOWED_HOSTS
+          value: "mlflow.internal,10.0.0.5"
+
   - it: should auto-inject http CORS origin from ingress host when no TLS
     set:
       ingress:
