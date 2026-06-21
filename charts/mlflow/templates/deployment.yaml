@@ -38,6 +38,9 @@ metadata:
   labels:
     {{- include "mlflow.labels" . | nindent 4 }}
 spec:
+  {{- if not (kindIs "invalid" .Values.revisionHistoryLimit) }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  {{- end }}
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
@@ -330,7 +333,7 @@ spec:
           {{- else if .Values.ldapAuth.enabled }}
             - --app-name=basic-auth
           {{- end }}
-          {{- if and .Values.log.enabled (not (hasKey .Values.extraArgs "gunicornOpts")) }}
+          {{- if and .Values.log.enabled (not (hasKey .Values.extraArgs "gunicornOpts")) (not (hasKey .Values.extraArgs "allowedHosts")) (not (hasKey .Values.extraArgs "corsAllowedOrigins")) (not (hasKey .Values.extraArgs "disableSecurityMiddleware")) }}
             - {{ printf "--gunicorn-opts='--log-level=%s'" .Values.log.level }}
           {{- end }}
           {{- range $key, $value := .Values.extraArgs }}
@@ -513,7 +516,7 @@ spec:
                   key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
             {{- end }}
           {{- end }}
-          {{- if and .Values.artifactRoot.s3.enabled .Values.artifactRoot.s3.existingSecret.name }}
+          {{- if and .Values.artifactRoot.s3.enabled (not .Values.minio.enabled) .Values.artifactRoot.s3.existingSecret.name }}
             {{- if .Values.artifactRoot.s3.existingSecret.keyOfAccessKeyId }}
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
@@ -532,6 +535,20 @@ spec:
           {{- range $key, $value := .Values.extraEnvVars }}
             - name: {{ $key }}
               value: {{ $value | quote }}
+          {{- end }}
+          {{- if .Values.minio.enabled }}
+            - name: MLFLOW_S3_ENDPOINT_URL
+              value: {{ printf "http://%s-minio:9000" (include "mlflow.fullname" .) }}
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ printf "%s-minio" (include "mlflow.fullname" .) }}
+                  key: rootUser
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ printf "%s-minio" (include "mlflow.fullname" .) }}
+                  key: rootPassword
           {{- end }}
           envFrom:
             - configMapRef:

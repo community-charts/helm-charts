@@ -60,6 +60,9 @@ nameOverride: ""
 # -- String to override the default generated fullname
 fullnameOverride: ""
 
+# -- The number of old ReplicaSets to retain for rollback. More information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy
+revisionHistoryLimit: ~
+
 serviceAccount:
   # -- Specifies whether a ServiceAccount should be created
   create: true
@@ -714,3 +717,76 @@ oidcAuth:
   # -- List of trusted proxy IPs/CIDRs (e.g. ingress controller CIDR).
   # Required when MLflow runs behind an ingress; fixes redirect URI auto-detection. (env: TRUSTED_PROXIES)
   trustedProxies: []
+
+# -- MinIO subchart for S3-compatible local artifact storage.
+# When enabled, the MLflow deployment automatically receives AWS_ACCESS_KEY_ID,
+# AWS_SECRET_ACCESS_KEY, and MLFLOW_S3_ENDPOINT_URL from the MinIO secret and service.
+# artifactRoot.s3.enabled must also be set to true with a matching bucket name.
+minio:
+  # -- Enable the MinIO subchart
+  enabled: false
+
+  # -- MinIO mode
+  mode: standalone
+
+  # -- Minio deployment update strategy
+  deploymentUpdate:
+    type: Recreate
+
+  # -- Minio statefulset update strategy
+  statefulSetUpdate:
+    updateStrategy: Recreate
+
+  # -- Number of drives attached to a node
+  drivesPerNode: 1
+
+  # -- Number of MinIO containers running
+  replicas: 1
+
+  # -- Number of expanded MinIO clusters
+  pools: 1
+
+  # -- MinIO root user (access key). Length must be at least 3 characters.
+  rootUser: ""
+
+  # -- MinIO root password (secret key). Length must be at least 8 characters.
+  rootPassword: ""
+
+  # -- Buckets to create on startup
+  buckets: []
+    # - name: mlflow
+    #   policy: none
+    #   purge: false
+
+  # -- MinIO resources
+  resources:
+    # -- MinIO requests
+    requests:
+      # -- MinIO memory request
+      memory: 1Gi
+
+  # -- MinIO persistence settings
+  persistence:
+    # -- Enable persistent storage for MinIO. Disable for ephemeral/test deployments.
+    enabled: true
+
+    # -- Minio persistence annotations
+    annotations: {}
+
+    # -- Minio persistence existing claim
+    existingClaim: ""
+
+    # -- Minio persistence storage class
+    storageClass: ""
+
+    # -- Minio persistence volume name
+    volumeName: ""
+
+    # -- Minio persistence access mode
+    accessMode: ReadWriteOnce
+
+    # -- Minio persistence size
+    size: 10Gi
+
+    # -- Minio persistence sub path
+    subPath: ""

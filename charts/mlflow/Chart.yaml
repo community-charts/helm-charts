@@ -53,6 +53,8 @@ annotations:
   artifacthub.io/changes: |-
     - kind: added
       description: Add optional image digest support for immutable image pulls
+    - kind: added
+      description: Add optional MinIO subchart for S3-compatible artifact storage without external dependencies
     - kind: fixed
       description: Enable readOnlyRootFilesystem and add built-in tmp emptyDir volume
   artifacthub.io/images: |
@@ -95,3 +97,7 @@ dependencies:
     version: 14.0.3
     repository: https://charts.bitnami.com/bitnami
     condition: mysql.enabled
+  - name: minio
+    version: 5.4.0
+    repository: https://charts.min.io/
+    condition: minio.enabled

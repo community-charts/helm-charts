@@ -5,5 +5,8 @@ dependencies:
 - name: mysql
   repository: https://charts.bitnami.com/bitnami
   version: 14.0.3
-digest: sha256:54fd4352d0e616f59b8c15ad767a347a44f8eb330149a1b3b07f80544b2b3399
-generated: "2026-06-18T10:37:11.929057091Z"
+- name: minio
+  repository: https://charts.min.io/
+  version: 5.4.0
+digest: sha256:0792b9731fb6ba4289024804c95edaac69570157f27e1e53afb599f9b76503df
+generated: "2026-06-20T23:33:49.628584+02:00"

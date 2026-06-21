@@ -2226,3 +2226,59 @@ tests:
             name: tmp
             mountPath: /tmp
         template: deployment.yaml
+
+  - it: should inject minio env vars from minio secret when minio is enabled
+    set:
+      minio:
+        enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: MLFLOW_S3_ENDPOINT_URL
+            value: http://mlflow-minio:9000
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: mlflow-minio
+                key: rootUser
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: mlflow-minio
+                key: rootPassword
+        template: deployment.yaml
+
+  - it: should not inject minio env vars when minio is disabled
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: MLFLOW_S3_ENDPOINT_URL
+            value: http://mlflow-minio:9000
+        template: deployment.yaml
+
+  - it: should not inject gunicorn-opts when allowedHosts extraArg is set
+    set:
+      log:
+        enabled: true
+        level: info
+      extraArgs:
+        allowedHosts: "*"
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --gunicorn-opts='--log-level=info'
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --allowed-hosts=*
+        template: deployment.yaml

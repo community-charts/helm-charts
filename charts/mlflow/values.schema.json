@@ -870,6 +870,13 @@
       "title": "fullnameOverride",
       "type": "string"
     },
+    "revisionHistoryLimit": {
+      "default": null,
+      "description": "The number of old ReplicaSets to retain for rollback. More information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy",
+      "minimum": 0,
+      "title": "revisionHistoryLimit",
+      "type": ["integer", "null"]
+    },
     "global": {
       "additionalProperties": true,
       "description": "Global values are values that can be accessed from any chart or subchart by exactly the same name.",
@@ -3133,6 +3140,12 @@
       ],
       "title": "autoscaling",
       "type": "object"
+    },
+    "minio": {
+      "type": "object",
+      "title": "minio",
+      "description": "MinIO subchart for S3-compatible local artifact storage.",
+      "additionalProperties": true
     }
   },
   "required": [

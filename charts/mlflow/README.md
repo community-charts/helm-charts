@@ -726,6 +726,7 @@ Kubernetes: `>=1.16.0-0`
 |------------|------|---------|
 | https://charts.bitnami.com/bitnami | mysql | 14.0.3 |
 | https://charts.bitnami.com/bitnami | postgresql | 18.7.5 |
+| https://charts.min.io/ | minio | 5.4.0 |
 
 ## Uninstall Helm Chart
 
@@ -888,6 +889,29 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | log | object | `{"enabled":true,"level":"info"}` | Mlflow logging settings |
 | log.enabled | bool | `true` | Specifies if you want to enable mlflow logging. |
 | log.level | string | `"info"` | Mlflow logging level. |
+| minio | object | `{"buckets":[],"deploymentUpdate":{"type":"Recreate"},"drivesPerNode":1,"enabled":false,"mode":"standalone","persistence":{"accessMode":"ReadWriteOnce","annotations":{},"enabled":true,"existingClaim":"","size":"10Gi","storageClass":"","subPath":"","volumeName":""},"pools":1,"replicas":1,"resources":{"requests":{"memory":"1Gi"}},"rootPassword":"","rootUser":"","statefulSetUpdate":{"updateStrategy":"Recreate"}}` | MinIO subchart for S3-compatible local artifact storage. When enabled, the MLflow deployment automatically receives AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and MLFLOW_S3_ENDPOINT_URL from the MinIO secret and service. artifactRoot.s3.enabled must also be set to true with a matching bucket name. |
+| minio.buckets | list | `[]` | Buckets to create on startup |
+| minio.deploymentUpdate | object | `{"type":"Recreate"}` | Minio deployment update strategy |
+| minio.drivesPerNode | int | `1` | Number of drives attached to a node |
+| minio.enabled | bool | `false` | Enable the MinIO subchart |
+| minio.mode | string | `"standalone"` | MinIO mode |
+| minio.persistence | object | `{"accessMode":"ReadWriteOnce","annotations":{},"enabled":true,"existingClaim":"","size":"10Gi","storageClass":"","subPath":"","volumeName":""}` | MinIO persistence settings |
+| minio.persistence.accessMode | string | `"ReadWriteOnce"` | Minio persistence access mode |
+| minio.persistence.annotations | object | `{}` | Minio persistence annotations |
+| minio.persistence.enabled | bool | `true` | Enable persistent storage for MinIO. Disable for ephemeral/test deployments. |
+| minio.persistence.existingClaim | string | `""` | Minio persistence existing claim |
+| minio.persistence.size | string | `"10Gi"` | Minio persistence size |
+| minio.persistence.storageClass | string | `""` | Minio persistence storage class |
+| minio.persistence.subPath | string | `""` | Minio persistence sub path |
+| minio.persistence.volumeName | string | `""` | Minio persistence volume name |
+| minio.pools | int | `1` | Number of expanded MinIO clusters |
+| minio.replicas | int | `1` | Number of MinIO containers running |
+| minio.resources | object | `{"requests":{"memory":"1Gi"}}` | MinIO resources |
+| minio.resources.requests | object | `{"memory":"1Gi"}` | MinIO requests |
+| minio.resources.requests.memory | string | `"1Gi"` | MinIO memory request |
+| minio.rootPassword | string | `""` | MinIO root password (secret key). Length must be at least 8 characters. |
+| minio.rootUser | string | `""` | MinIO root user (access key). Length must be at least 3 characters. |
+| minio.statefulSetUpdate | object | `{"updateStrategy":"Recreate"}` | Minio statefulset update strategy |
 | mysql | object | `{"architecture":"standalone","auth":{"database":"mlflow","password":"","username":""},"enabled":false,"image":{"repository":"bitnamilegacy/mysql"},"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"mysql":3306}}}}` | Bitnami MySQL configuration. For more information checkout: https://github.com/bitnami/charts/tree/main/bitnami/mysql |
 | mysql.auth.database | string | `"mlflow"` | The name of the MySQL database. |
 | mysql.enabled | bool | `false` | Enable mysql |
@@ -961,6 +985,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | readinessProbe | object | `{"failureThreshold":5,"initialDelaySeconds":10,"periodSeconds":30,"timeoutSeconds":3}` | Readiness probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes). |
 | replicaCount | int | `1` | Numbers of replicas |
 | resources | object | `{}` | This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
+| revisionHistoryLimit | string | `nil` | The number of old ReplicaSets to retain for rollback. More information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true,"runAsGroup":1001,"runAsNonRoot":true,"runAsUser":1001}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
 | service | object | `{"annotations":{},"containerPort":5000,"containerPortName":"mlflow","enabled":true,"name":"http","port":80,"type":"ClusterIP"}` | This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/ |
 | service.annotations | object | `{}` | Additional service annotations |
