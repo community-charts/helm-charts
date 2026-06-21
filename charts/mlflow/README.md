@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 1.11.1](https://img.shields.io/badge/Version-1.11.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.14.0](https://img.shields.io/badge/AppVersion-3.14.0-informational?style=flat-square)
+![Version: 1.11.2](https://img.shields.io/badge/Version-1.11.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.14.0](https://img.shields.io/badge/AppVersion-3.14.0-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -1095,15 +1095,15 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` | Ingress path type |
 | ingress.tls | list | `[]` | Ingress tls configuration for https access |
 | initContainers | list | `[]` | Init Containers for Mlflow Pod |
-| initImages | object | `{"dbchecker":{"pullPolicy":"IfNotPresent","repository":"busybox","tag":"1.32"},"iniFileInitializer":{"pullPolicy":"IfNotPresent","repository":"busybox","tag":"1.32"},"mlflowDbMigration":{"pullPolicy":"IfNotPresent","repository":"burakince/mlflow","tag":""}}` | mlflow init images |
-| initImages.dbchecker | object | `{"pullPolicy":"IfNotPresent","repository":"busybox","tag":"1.32"}` | dbchecker init container image configuration |
+| initImages | object | `{"dbchecker":{"pullPolicy":"IfNotPresent","repository":"busybox","tag":"1.38.0"},"iniFileInitializer":{"pullPolicy":"IfNotPresent","repository":"busybox","tag":"1.38.0"},"mlflowDbMigration":{"pullPolicy":"IfNotPresent","repository":"burakince/mlflow","tag":""}}` | mlflow init images |
+| initImages.dbchecker | object | `{"pullPolicy":"IfNotPresent","repository":"busybox","tag":"1.38.0"}` | dbchecker init container image configuration |
 | initImages.dbchecker.pullPolicy | string | `"IfNotPresent"` | dbchecker init container image pull policy |
 | initImages.dbchecker.repository | string | `"busybox"` | dbchecker init container image repository to use |
-| initImages.dbchecker.tag | string | `"1.32"` | dbchecker init container image tag to use |
-| initImages.iniFileInitializer | object | `{"pullPolicy":"IfNotPresent","repository":"busybox","tag":"1.32"}` | ini-file-initializer init container image configuration |
+| initImages.dbchecker.tag | string | `"1.38.0"` | dbchecker init container image tag to use |
+| initImages.iniFileInitializer | object | `{"pullPolicy":"IfNotPresent","repository":"busybox","tag":"1.38.0"}` | ini-file-initializer init container image configuration |
 | initImages.iniFileInitializer.pullPolicy | string | `"IfNotPresent"` | ini-file-initializer init container image pull policy |
 | initImages.iniFileInitializer.repository | string | `"busybox"` | ini-file-initializer init container image repository to use |
-| initImages.iniFileInitializer.tag | string | `"1.32"` | ini-file-initializer init container image tag to use |
+| initImages.iniFileInitializer.tag | string | `"1.38.0"` | ini-file-initializer init container image tag to use |
 | initImages.mlflowDbMigration | object | `{"pullPolicy":"IfNotPresent","repository":"burakince/mlflow","tag":""}` | mlflow-db-migration init container image configuration |
 | initImages.mlflowDbMigration.pullPolicy | string | `"IfNotPresent"` | mlflow-db-migration init container image pull policy. |
 | initImages.mlflowDbMigration.repository | string | `"burakince/mlflow"` | mlflow-db-migration init container image repository to use. |

@@ -1922,7 +1922,58 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: {}
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: mlflow-db-migration
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[2].name
+          value: ini-file-initializer
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[3].name
+          value: init-myservice
+        template: deployment.yaml
+      - equal:
+          path: spec.template.metadata.annotations["test-key"]
+          value: test-value
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.nodeSelector.disktype
+          value: ssd
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: "example-key"
+            operator: "Exists"
+            effect: "NoSchedule"
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: mlflow-volume
+            persistentVolumeClaim:
+              claimName: mlflow-pv-volume
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].volumeMounts
+          content:
+            name: mlflow-volume
+            mountPath: /mlflow/data
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].resources.limits.cpu
+          value: 100m
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 1001
+        template: deployment.yaml
 
   - it: should match snapshot with additional values when postgresql is enabled
     set:
@@ -1999,7 +2050,58 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: {}
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: mlflow-db-migration
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[2].name
+          value: ini-file-initializer
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[3].name
+          value: init-myservice
+        template: deployment.yaml
+      - equal:
+          path: spec.template.metadata.annotations["test-key"]
+          value: test-value
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.nodeSelector.disktype
+          value: ssd
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: "example-key"
+            operator: "Exists"
+            effect: "NoSchedule"
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: mlflow-volume
+            persistentVolumeClaim:
+              claimName: mlflow-pv-volume
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].volumeMounts
+          content:
+            name: mlflow-volume
+            mountPath: /mlflow/data
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].resources.limits.cpu
+          value: 100m
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 1001
+        template: deployment.yaml
 
   - it: should match snapshot with additional values when bitnami postgresql is enabled
     set:
@@ -2076,7 +2178,58 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: {}
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: mlflow-db-migration
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[2].name
+          value: ini-file-initializer
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[3].name
+          value: init-myservice
+        template: deployment.yaml
+      - equal:
+          path: spec.template.metadata.annotations["test-key"]
+          value: test-value
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.nodeSelector.disktype
+          value: ssd
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: "example-key"
+            operator: "Exists"
+            effect: "NoSchedule"
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: mlflow-volume
+            persistentVolumeClaim:
+              claimName: mlflow-pv-volume
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].volumeMounts
+          content:
+            name: mlflow-volume
+            mountPath: /mlflow/data
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].resources.limits.cpu
+          value: 100m
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 1001
+        template: deployment.yaml
 
   - it: should match snapshot with additional values when mysql is enabled
     set:
@@ -2153,7 +2306,58 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: {}
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: mlflow-db-migration
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[2].name
+          value: ini-file-initializer
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[3].name
+          value: init-myservice
+        template: deployment.yaml
+      - equal:
+          path: spec.template.metadata.annotations["test-key"]
+          value: test-value
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.nodeSelector.disktype
+          value: ssd
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: "example-key"
+            operator: "Exists"
+            effect: "NoSchedule"
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: mlflow-volume
+            persistentVolumeClaim:
+              claimName: mlflow-pv-volume
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].volumeMounts
+          content:
+            name: mlflow-volume
+            mountPath: /mlflow/data
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].resources.limits.cpu
+          value: 100m
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 1001
+        template: deployment.yaml
 
   - it: should match snapshot with additional values when bitnami mysql is enabled
     set:
@@ -2230,7 +2434,58 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: {}
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: mlflow-db-migration
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[2].name
+          value: ini-file-initializer
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[3].name
+          value: init-myservice
+        template: deployment.yaml
+      - equal:
+          path: spec.template.metadata.annotations["test-key"]
+          value: test-value
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.nodeSelector.disktype
+          value: ssd
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: "example-key"
+            operator: "Exists"
+            effect: "NoSchedule"
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: mlflow-volume
+            persistentVolumeClaim:
+              claimName: mlflow-pv-volume
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].volumeMounts
+          content:
+            name: mlflow-volume
+            mountPath: /mlflow/data
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].resources.limits.cpu
+          value: 100m
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 1001
+        template: deployment.yaml
 
   - it: should match snapshot with additional values when auth and auth.postgres are enabled
     set:
@@ -2315,7 +2570,58 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: {}
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: mlflow-db-migration
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[2].name
+          value: ini-file-initializer
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[3].name
+          value: init-myservice
+        template: deployment.yaml
+      - equal:
+          path: spec.template.metadata.annotations["test-key"]
+          value: test-value
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.nodeSelector.disktype
+          value: ssd
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: "example-key"
+            operator: "Exists"
+            effect: "NoSchedule"
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: mlflow-volume
+            persistentVolumeClaim:
+              claimName: mlflow-pv-volume
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].volumeMounts
+          content:
+            name: mlflow-volume
+            mountPath: /mlflow/data
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].resources.limits.cpu
+          value: 100m
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 1001
+        template: deployment.yaml
 
   - it: should match snapshot with additional values when mssql is enabled
     set:
@@ -2392,7 +2698,58 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: {}
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: dbchecker
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: mlflow-db-migration
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[2].name
+          value: ini-file-initializer
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[3].name
+          value: init-myservice
+        template: deployment.yaml
+      - equal:
+          path: spec.template.metadata.annotations["test-key"]
+          value: test-value
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.nodeSelector.disktype
+          value: ssd
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: "example-key"
+            operator: "Exists"
+            effect: "NoSchedule"
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: mlflow-volume
+            persistentVolumeClaim:
+              claimName: mlflow-pv-volume
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].volumeMounts
+          content:
+            name: mlflow-volume
+            mountPath: /mlflow/data
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].resources.limits.cpu
+          value: 100m
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 1001
+        template: deployment.yaml
 
   - it: should set resources only on mlflow-db-migration init container, not on busybox init containers
     set:
@@ -2661,11 +3018,18 @@ tests:
         adminGroupDistinguishedName: "cn=admin"
         userGroupDistinguishedName: "cn=user"
     asserts:
-      - matchSnapshot: {}
+      - notExists:
+          path: spec.template.spec.initContainers[?(@.name == "ini-file-initializer")].env
         template: deployment.yaml
-        documentSelector:
-          path: kind
-          value: Deployment
+      - notExists:
+          path: spec.template.spec.initContainers[?(@.name == "ini-file-initializer")].envFrom
+        template: deployment.yaml
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: mlflow-auth-admin-secret
+          any: true
+        template: deployment.yaml
 
   - it: should apply securityContext to ini-file-initializer when auth is enabled
     set:
