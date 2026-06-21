@@ -147,12 +147,35 @@ The default (when no per-resource permission is set) is controlled by:
 - `auth.defaultPermission` for basic auth
 - `oidcAuth.defaultPermission` (`DEFAULT_MLFLOW_PERMISSION` env var) for OIDC auth
 
+### Security Middleware Auto-injection
+
+MLflow 3.x uvicorn server includes security middleware for DNS rebinding, CORS, and clickjacking protection. The chart auto-injects two env vars into `configmap.yaml` via helper functions in `_helpers.tpl`:
+
+| Env var | Helper | Source |
+|---|---|---|
+| `MLFLOW_SERVER_ALLOWED_HOSTS` | `mlflow.serverAllowedHosts` | Ingress hostnames + `serverAllowedHosts` list |
+| `MLFLOW_SERVER_CORS_ALLOWED_ORIGINS` | `mlflow.corsAllowedOrigins` | Ingress origins (with scheme) + `corsAllowedOrigins` list |
+
+Both helpers delegate the merge/dedup/wildcard step to a shared `mlflow.normalizeList` helper which:
+1. Calls `uniq` to remove duplicates from the merged list
+2. Returns `"*"` if the list contains a wildcard entry (collapsing everything else)
+3. Returns `join "," $list` otherwise
+4. Returns an empty string when the list is empty (suppressed by `with` in configmap)
+
+Scheme detection for CORS: `https` when `ingress.tls` is non-empty, `http` otherwise.
+
+**Important**: `serverAllowedHosts` and `corsAllowedOrigins` are **append-only** — their entries are merged with the ingress-derived entries, never replacing them. Users who need a full override should use `extraEnvVars.MLFLOW_SERVER_ALLOWED_HOSTS` / `extraEnvVars.MLFLOW_SERVER_CORS_ALLOWED_ORIGINS` (Kubernetes `env:` wins over `envFrom:` at runtime).
+
+### MLflow Assistant API Restriction
+
+The `/ajax-api/3.0/mlflow/assistant/config` endpoint is hardcoded localhost-only in `mlflow/server/assistant/api.py` via a `_require_localhost` dependency that checks `ip.is_loopback`. There is no env var to override this in current released MLflow. Through a Kubernetes ingress, every request arrives from the ingress controller's pod IP (never `127.0.0.1`), so this endpoint always returns 403. This is a known upstream limitation tracked in mlflow/mlflow#23883 — do not attempt to work around it at the chart level.
+
 ### HPA Creation Conditions
 
 The HPA (`hpa.yaml`) is guarded by three simultaneous requirements:
 
 1. `autoscaling.enabled: true`
-2. A persistent backend store is configured (any DB — not the default SQLite in-memory store)
+2. A persistent backend store is configured — any of: `backendStore.postgres.enabled`, `backendStore.mysql.enabled`, `backendStore.mssql.enabled`, `postgresql.enabled` (Bitnami subchart), `mysql.enabled` (Bitnami subchart)
 3. A persistent artifact store is configured (S3/Azure/GCS — not the default local `./mlruns`)
 4. Additionally: if `auth.enabled`, it must use `auth.postgres` (not the default SQLite auth backend)
 
@@ -196,15 +219,20 @@ LDAP with a self-signed CA uses one of two paths (mutually exclusive):
 
 Both mount to `/certs/ca.crt` and set `LDAP_CA=/certs/ca.crt` in the main container.
 
-### Secret Name Helpers
+### Helper Function Reference
 
-`_helpers.tpl` provides three helpers that resolve to either a chart-managed or user-provided secret name using Helm's `default` function:
+`_helpers.tpl` provides these named helpers beyond the standard `name`/`fullname`/`labels` set:
 
-| Helper | Resolves to |
+| Helper | Purpose |
 |---|---|
+| `mlflow.containerImage` | Builds `repo:tag` or `repo:tag@digest` depending on `image.digest` |
+| `mlflow.servicePort` | Returns `oauth2Proxy.listenPort` when sidecar is enabled, else `service.port` |
 | `mlflow.oauth2ProxySecretName` | `<release>-oauth2-proxy` or `oauth2Proxy.existingSecret.name` |
 | `mlflow.oidcAuthSecretName` | `<release>-oidc-auth-secret` or `oidcAuth.existingSecret.name` |
 | `mlflow.oidcAuthDbSecretName` | `<release>-oidc-auth-db-secret` or `oidcAuth.database.postgres.existingSecret.name` |
+| `mlflow.normalizeList` | Deduplicates a list and joins with `,`; collapses to `*` when wildcard present |
+| `mlflow.serverAllowedHosts` | Builds `MLFLOW_SERVER_ALLOWED_HOSTS` value from ingress + `serverAllowedHosts` |
+| `mlflow.corsAllowedOrigins` | Builds `MLFLOW_SERVER_CORS_ALLOWED_ORIGINS` value from ingress + `corsAllowedOrigins` |
 
 ### ConfigMap Checksum Annotation
 
@@ -267,7 +295,7 @@ Test files are in `unittests/`. Each focuses on one configuration axis:
 | `auth_admin_secret_test.yaml` | Basic auth admin secret (chart-managed vs existing secret) |
 | `auth_ini_configmap_test.yaml` | INI configmap rendering for basic auth and ldapAuth |
 | `auth_postgres_secret_test.yaml` | Auth Postgres credential secret |
-| `configmap_test.yaml` | Env-configmap and migrations configmap |
+| `configmap_test.yaml` | Env-configmap and migrations configmap; includes security middleware env var injection (`MLFLOW_SERVER_ALLOWED_HOSTS`, `MLFLOW_SERVER_CORS_ALLOWED_ORIGINS`) with append, dedup, and wildcard cases |
 | `hpa_test.yaml` | HPA creation conditions |
 | `ingress_test.yaml` | Ingress rendering and oauth2Proxy port routing |
 | `oidc_auth_test.yaml` | oidcAuth env vars, secret references, Redis cache, Postgres DB URI |
