@@ -13,6 +13,30 @@ chart:
   appVersion: 1.0.0
 
 tests:
+  - it: should not set revisionHistoryLimit when not configured
+    asserts:
+      - notExists:
+          path: spec.revisionHistoryLimit
+        template: deployment.yaml
+
+  - it: should set revisionHistoryLimit when configured
+    set:
+      revisionHistoryLimit: 3
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 3
+        template: deployment.yaml
+
+  - it: should set revisionHistoryLimit to zero when configured as 0
+    set:
+      revisionHistoryLimit: 0
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 0
+        template: deployment.yaml
+
   - it: should be custom service account when we do not create it
     set:
       serviceAccount.create: false
