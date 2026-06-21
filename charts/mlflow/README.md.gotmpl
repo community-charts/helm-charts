@@ -325,18 +325,18 @@ backendStore:
 artifactRoot:
   s3:
     enabled: true
-    awsAccessKeyId: "minioadmin"
-    awsSecretAccessKey: "minioadmin"
 
 minio:
   enabled: true
+  rootUser: "minioadmin"
+  rootPassword: "minioadmin"
   buckets:
     - name: mlflow-artifacts
       policy: none
       purge: false
 ```
 
-> **Note**: `MLFLOW_S3_ENDPOINT_URL` is set automatically to the in-cluster MinIO service when `minio.enabled` is `true` — no `extraEnvVars` entry needed.
+> **Note**: When `minio.enabled` is `true`, the chart reads `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` directly from the MinIO secret (`rootUser`/`rootPassword` keys) and sets `MLFLOW_S3_ENDPOINT_URL` automatically — do not set those values under `artifactRoot.s3`.
 
 ## Azure Cloud Installation Example
 
