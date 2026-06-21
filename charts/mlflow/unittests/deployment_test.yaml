@@ -2478,3 +2478,41 @@ tests:
                 name: mlflow-postgresql
                 key: password
         template: deployment.yaml
+
+  - it: should use cp and no env vars in ini-file-initializer when ldapAuth enabled and auth disabled
+    set:
+      ldapAuth:
+        enabled: true
+        uri: "ldap://ldap.test.com:389"
+        tlsVerification: none
+        lookupBind: "cn=%s"
+        searchBaseDistinguishedName: "ou=groups"
+        searchFilter: "(objectclass=group)"
+        adminGroupDistinguishedName: "cn=admin"
+        userGroupDistinguishedName: "cn=user"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "ini-file-initializer")].args
+          content: "cp /template/auth_template.ini /config/auth_result.ini\n"
+        template: deployment.yaml
+      - notExists:
+          path: spec.template.spec.initContainers[?(@.name == "ini-file-initializer")].env
+        template: deployment.yaml
+
+  - it: should not reference auth-admin-secret in ini-file-initializer when ldapAuth enabled and auth disabled
+    set:
+      ldapAuth:
+        enabled: true
+        uri: "ldap://ldap.test.com:389"
+        tlsVerification: none
+        lookupBind: "cn=%s"
+        searchBaseDistinguishedName: "ou=groups"
+        searchFilter: "(objectclass=group)"
+        adminGroupDistinguishedName: "cn=admin"
+        userGroupDistinguishedName: "cn=user"
+    asserts:
+      - matchSnapshot: {}
+        template: deployment.yaml
+        documentSelector:
+          path: kind
+          value: Deployment

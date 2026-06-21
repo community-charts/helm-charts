@@ -105,6 +105,11 @@ annotations:
       links:
         - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/248
+    - kind: fixed
+      description: Fix ini-file-initializer init container referencing the missing mlflow-auth-admin-secret when ldapAuth is enabled without auth; now uses cp instead of sed and skips all secret env vars for LDAP-only deployments
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/426
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.14.0

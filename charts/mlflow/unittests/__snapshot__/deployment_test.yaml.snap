@@ -2571,3 +2571,130 @@ should match snapshot with additional values when postgresql is enabled:
             - configMap:
                 name: example
               name: example
+should not reference auth-admin-secret in ini-file-initializer when ldapAuth enabled and auth disabled:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
+      name: mlflow
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: mlflow
+          app.kubernetes.io/instance: mlflow
+          app.kubernetes.io/name: mlflow
+      strategy:
+        rollingUpdate:
+          maxSurge: 100%
+          maxUnavailable: 0
+        type: RollingUpdate
+      template:
+        metadata:
+          annotations:
+            checksum/config: ef3288010cccf433373bc852c095b7bccbbcb1645c30158e161adea8b0761644
+          labels:
+            app: mlflow
+            app.kubernetes.io/instance: mlflow
+            app.kubernetes.io/name: mlflow
+        spec:
+          containers:
+            - args:
+                - server
+                - --host=0.0.0.0
+                - --port=5000
+                - '--backend-store-uri=sqlite:///:memory:'
+                - --default-artifact-root=./mlruns
+                - --app-name=basic-auth
+                - --uvicorn-opts='--log-level=info'
+              command:
+                - mlflow
+              env:
+                - name: MLFLOW_VERSION
+                  value: 1.0.0
+                - name: MLFLOW_AUTH_CONFIG_PATH
+                  value: /etc/mlflow/auth/ldap_basic_auth.ini
+              envFrom:
+                - configMapRef:
+                    name: mlflow-env-configmap
+                - secretRef:
+                    name: mlflow-env-secret
+                - secretRef:
+                    name: mlflow-flask-server-secret-key
+              image: burakince/mlflow:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 5
+                httpGet:
+                  path: /health
+                  port: mlflow
+                initialDelaySeconds: 10
+                periodSeconds: 30
+                timeoutSeconds: 3
+              name: mlflow
+              ports:
+                - containerPort: 5000
+                  name: mlflow
+                  protocol: TCP
+              readinessProbe:
+                failureThreshold: 5
+                httpGet:
+                  path: /health
+                  port: mlflow
+                initialDelaySeconds: 10
+                periodSeconds: 30
+                timeoutSeconds: 3
+              resources: {}
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: true
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
+              volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
+                - mountPath: /etc/mlflow/auth/ldap_basic_auth.ini
+                  name: ini-file
+                  readOnly: true
+                  subPath: auth_result.ini
+          initContainers:
+            - args:
+                - |
+                  cp /template/auth_template.ini /config/auth_result.ini
+              command:
+                - sh
+                - -c
+              image: busybox:1.32
+              imagePullPolicy: IfNotPresent
+              name: ini-file-initializer
+              volumeMounts:
+                - mountPath: /template
+                  name: auth-ini-template-file
+                  readOnly: true
+                - mountPath: /config
+                  name: ini-file
+          securityContext:
+            fsGroup: 1001
+            fsGroupChangePolicy: OnRootMismatch
+          serviceAccountName: mlflow
+          volumes:
+            - emptyDir: {}
+              name: tmp
+            - emptyDir: {}
+              name: ini-file
+            - configMap:
+                name: mlflow-auth-ini-template
+              name: auth-ini-template-file
