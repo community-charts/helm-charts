@@ -20,7 +20,7 @@ data:
   MYSQL_TCP_PORT: {{ required "mysql port must be specified" .Values.backendStore.mysql.port | quote }}
   MYSQL_DATABASE: {{ required "mysql database must be specified" .Values.backendStore.mysql.database }}
 {{- end }}
-{{- if .Values.backendStore.mssql.enabled }}
+{{- if and .Values.backendStore.mssql.enabled (not .Values.backendStore.mssql.connectionUrl) }}
   MSSQL_HOST: {{ required "mssql host must be specified" .Values.backendStore.mssql.host }}
   MSSQL_TCP_PORT: {{ required "mssql port must be specified" .Values.backendStore.mssql.port | quote }}
   MSSQL_DATABASE: {{ required "mssql database must be specified" .Values.backendStore.mssql.database }}
@@ -76,12 +76,16 @@ data:
     database = os.getenv("MYSQL_DATABASE")
     engine = utils.create_sqlalchemy_engine_with_retry(f"mysql{{ $dbConnectionDriver }}://{username}:{password}@{host}:{port}/{database}")
   {{- else if .Values.backendStore.mssql.enabled }}
+    {{- if .Values.backendStore.mssql.connectionUrl }}
+    engine = utils.create_sqlalchemy_engine_with_retry({{ .Values.backendStore.mssql.connectionUrl | quote }})
+    {{- else }}
     username = os.getenv("MSSQL_USERNAME")
     password = os.getenv("MSSQL_PWD")
     host = os.getenv("MSSQL_HOST")
     port = os.getenv("MSSQL_TCP_PORT")
     database = os.getenv("MSSQL_DATABASE")
     engine = utils.create_sqlalchemy_engine_with_retry(f"mssql{{ $dbConnectionDriver }}://{username}:{password}@{host}:{port}/{database}")
+    {{- end }}
   {{- end }}
     utils._initialize_tables(engine)
 {{- end }}

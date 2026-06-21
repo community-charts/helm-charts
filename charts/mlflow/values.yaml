@@ -190,6 +190,10 @@ backendStore:
     password: "" # required
     # -- mssql database connection driver. e.g.: "pymssql"
     driver: "pymssql"
+    # -- Full SQLAlchemy connection URL for mssql (e.g. for Azure AD / MSI authentication).
+    # When set, host/port/database/user/password are ignored and this URL is used directly as --backend-store-uri.
+    # Example: "mssql+pyodbc://?odbc_connect=DRIVER%3D...%3BAuthentication%3DActiveDirectoryMsi%3B"
+    connectionUrl: ""
 
   # -- Specifies if you want to use an existing database secret.
   existingDatabaseSecret:

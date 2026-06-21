@@ -159,6 +159,22 @@ tests:
           content: --backend-store-uri=mssql+pymssql://$(MSSQL_USERNAME):$(MSSQL_PWD)@$(MSSQL_HOST):$(MSSQL_TCP_PORT)/$(MSSQL_DATABASE)
         template: deployment.yaml
 
+  - it: should use mssql connectionUrl directly when set
+    set:
+      backendStore:
+        mssql:
+          enabled: true
+          connectionUrl: "mssql+pyodbc://?odbc_connect=DRIVER%3DODBC+Driver+17%3BAuthentication%3DActiveDirectoryMsi%3B"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: "--backend-store-uri=mssql+pyodbc://?odbc_connect=DRIVER%3DODBC+Driver+17%3BAuthentication%3DActiveDirectoryMsi%3B"
+        template: deployment.yaml
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --backend-store-uri=mssql+pymssql://$(MSSQL_USERNAME):$(MSSQL_PWD)@$(MSSQL_HOST):$(MSSQL_TCP_PORT)/$(MSSQL_DATABASE)
+        template: deployment.yaml
+
   - it: should be local folder as an artifact root when azureBlob or s3 or gcs is not enabled
     asserts:
       - contains:

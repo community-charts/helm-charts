@@ -127,3 +127,23 @@ should match snapshot of default values with postgres:
         helm.sh/chart: mlflow-1.0.0
         version: 1.0.0
       name: mlflow-env-configmap
+should use connectionUrl in migration script when mssql connectionUrl is set:
+  1: |
+    apiVersion: v1
+    data:
+      migrations.py: |-
+        from mlflow.store.db import utils
+        import os
+        engine = utils.create_sqlalchemy_engine_with_retry("mssql+pyodbc://?odbc_connect=DRIVER%3DODBC+Driver+17%3BAuthentication%3DActiveDirectoryMsi%3B")
+        utils._initialize_tables(engine)
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
+      name: mlflow-migrations

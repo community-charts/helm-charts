@@ -423,6 +423,12 @@
               "required": [],
               "title": "user",
               "type": "string"
+            },
+            "connectionUrl": {
+              "default": "",
+              "description": "Full SQLAlchemy connection URL for mssql (e.g. for Azure AD / MSI). When set, host/port/database/user/password are ignored.",
+              "title": "connectionUrl",
+              "type": "string"
             }
           },
           "required": [
@@ -432,7 +438,8 @@
             "database",
             "user",
             "password",
-            "driver"
+            "driver",
+            "connectionUrl"
           ],
           "title": "mssql",
           "type": "object"

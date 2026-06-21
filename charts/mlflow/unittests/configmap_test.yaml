@@ -143,6 +143,38 @@ tests:
       - hasDocuments:
           count: 2
 
+  - it: should skip mssql host port database env vars when connectionUrl is set
+    set:
+      backendStore.mssql.enabled: true
+      backendStore.mssql.connectionUrl: "mssql+pyodbc://?odbc_connect=DRIVER%3DODBC+Driver+17%3BAuthentication%3DActiveDirectoryMsi%3B"
+    asserts:
+      - notExists:
+          path: data.MSSQL_HOST
+        documentSelector:
+          path: metadata.name
+          value: mlflow-env-configmap
+      - notExists:
+          path: data.MSSQL_TCP_PORT
+        documentSelector:
+          path: metadata.name
+          value: mlflow-env-configmap
+      - notExists:
+          path: data.MSSQL_DATABASE
+        documentSelector:
+          path: metadata.name
+          value: mlflow-env-configmap
+
+  - it: should use connectionUrl in migration script when mssql connectionUrl is set
+    set:
+      backendStore.mssql.enabled: true
+      backendStore.mssql.connectionUrl: "mssql+pyodbc://?odbc_connect=DRIVER%3DODBC+Driver+17%3BAuthentication%3DActiveDirectoryMsi%3B"
+      backendStore.databaseMigration: true
+    asserts:
+      - matchSnapshot: {}
+        documentSelector:
+          path: metadata.name
+          value: mlflow-migrations
+
   - it: should have postgresql environments when postgresql is enabled
     set:
       postgresql:

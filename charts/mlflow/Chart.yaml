@@ -95,6 +95,11 @@ annotations:
       links:
         - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/230
+    - kind: added
+      description: Add backendStore.mssql.connectionUrl to support Azure Active Directory and MSI authentication for MSSQL by accepting a full SQLAlchemy connection URL; bypasses host/port/database/user/password when set
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/248
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.14.0
