@@ -19,8 +19,5 @@ artifactRoot:
 minio:
   enabled: true
 
-  rootUser: mlflow
-  rootPassword: thisisrootsecret
-
   persistence:
     enabled: false
