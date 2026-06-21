@@ -288,7 +288,7 @@ tests:
       - notExists:
           path: data.MLFLOW_SERVER_ALLOWED_HOSTS
 
-  - it: should use explicit serverAllowedHosts value when set
+  - it: should append serverAllowedHosts to ingress-derived hosts and deduplicate
     set:
       serverAllowedHosts:
         - mlflow.example.com
@@ -307,6 +307,44 @@ tests:
       - equal:
           path: data.MLFLOW_SERVER_ALLOWED_HOSTS
           value: "mlflow.example.com,dashboard.example.com"
+
+  - it: should append extra serverAllowedHosts not present in ingress
+    set:
+      serverAllowedHosts:
+        - dashboard.example.com
+      ingress:
+        enabled: true
+        hosts:
+          - host: mlflow.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.MLFLOW_SERVER_ALLOWED_HOSTS
+          value: "mlflow.example.com,dashboard.example.com"
+
+  - it: should output only wildcard when serverAllowedHosts contains asterisk
+    set:
+      serverAllowedHosts:
+        - "*"
+      ingress:
+        enabled: true
+        hosts:
+          - host: mlflow.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.MLFLOW_SERVER_ALLOWED_HOSTS
+          value: "*"
 
   - it: should inject serverAllowedHosts even when ingress is disabled
     set:
@@ -381,7 +419,45 @@ tests:
           path: data.MLFLOW_SERVER_CORS_ALLOWED_ORIGINS
           value: "http://mlflow.example.com,http://mlflow2.example.com"
 
-  - it: should use explicit corsAllowedOrigins value when set
+  - it: should append extra corsAllowedOrigins not present in ingress
+    set:
+      corsAllowedOrigins:
+        - https://dashboard.example.com
+      ingress:
+        enabled: true
+        hosts:
+          - host: mlflow.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.MLFLOW_SERVER_CORS_ALLOWED_ORIGINS
+          value: "http://mlflow.example.com,https://dashboard.example.com"
+
+  - it: should deduplicate when corsAllowedOrigins repeats an ingress-derived origin
+    set:
+      corsAllowedOrigins:
+        - http://mlflow.example.com
+      ingress:
+        enabled: true
+        hosts:
+          - host: mlflow.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.MLFLOW_SERVER_CORS_ALLOWED_ORIGINS
+          value: "http://mlflow.example.com"
+
+  - it: should output only wildcard when corsAllowedOrigins contains asterisk
     set:
       corsAllowedOrigins:
         - "*"

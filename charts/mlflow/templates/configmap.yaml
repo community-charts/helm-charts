@@ -38,23 +38,25 @@ data:
   MLFLOW_DISABLE_TELEMETRY: "true"
   DO_NOT_TRACK: "true"
 {{- end }}
-{{- if .Values.serverAllowedHosts }}
-  MLFLOW_SERVER_ALLOWED_HOSTS: {{ join "," .Values.serverAllowedHosts | quote }}
-{{- else if and .Values.ingress.enabled .Values.ingress.hosts }}
-  {{- $hosts := list }}
+{{- $hosts := list }}
+{{- if and .Values.ingress.enabled .Values.ingress.hosts }}
   {{- range .Values.ingress.hosts }}
     {{- if .host }}
       {{- $hosts = append $hosts .host }}
     {{- end }}
   {{- end }}
-  {{- if $hosts }}
-  MLFLOW_SERVER_ALLOWED_HOSTS: {{ join "," $hosts | quote }}
-  {{- end }}
 {{- end }}
-{{- if .Values.corsAllowedOrigins }}
-  MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: {{ join "," .Values.corsAllowedOrigins | quote }}
-{{- else if and .Values.ingress.enabled .Values.ingress.hosts }}
-  {{- $origins := list }}
+{{- range .Values.serverAllowedHosts }}
+  {{- $hosts = append $hosts . }}
+{{- end }}
+{{- $hosts = $hosts | uniq }}
+{{- if has "*" $hosts }}
+  MLFLOW_SERVER_ALLOWED_HOSTS: "*"
+{{- else if $hosts }}
+  MLFLOW_SERVER_ALLOWED_HOSTS: {{ join "," $hosts | quote }}
+{{- end }}
+{{- $origins := list }}
+{{- if and .Values.ingress.enabled .Values.ingress.hosts }}
   {{- $scheme := "http" }}
   {{- if .Values.ingress.tls }}
     {{- $scheme = "https" }}
@@ -64,9 +66,15 @@ data:
       {{- $origins = append $origins (printf "%s://%s" $scheme .host) }}
     {{- end }}
   {{- end }}
-  {{- if $origins }}
+{{- end }}
+{{- range .Values.corsAllowedOrigins }}
+  {{- $origins = append $origins . }}
+{{- end }}
+{{- $origins = $origins | uniq }}
+{{- if has "*" $origins }}
+  MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: "*"
+{{- else if $origins }}
   MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: {{ join "," $origins | quote }}
-  {{- end }}
 {{- end }}
 ---
 {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseMigration }}
