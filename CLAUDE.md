@@ -105,11 +105,13 @@ Do not apply `.helmignore` changes to deprecated charts (currently: `kserve`).
 - **Any change** to a chart (including docs) requires a `version` bump in `Chart.yaml` following semver.
 - `appVersion` tracks the upstream application version.
 - Breaking changes bump MAJOR version and must document manual upgrade steps in `README.md.gotmpl` under an "Upgrading" section.
-- The `artifacthub.io/changes` annotation in `Chart.yaml` is used to auto-generate release notes — always populate it for every change. When linking to a GitHub issue, use `name: GitHub Issue` (not `Issue` or any other variant):
+- The `artifacthub.io/changes` annotation in `Chart.yaml` is used to auto-generate release notes — always populate it for every change. When linking to a GitHub issue or pull request, use the exact name variants below (not `Issue`, `PR`, or any other variant):
   ```yaml
   links:
     - name: GitHub Issue
       url: https://github.com/community-charts/helm-charts/issues/<number>
+    - name: GitHub PR
+      url: https://github.com/community-charts/helm-charts/pull/<number>
   ```
 - **Bump `version` only once per branch/PR.** After the first bump, do not bump again for subsequent commits on the same branch — all changes in the PR are released together under the single bumped version.
 
