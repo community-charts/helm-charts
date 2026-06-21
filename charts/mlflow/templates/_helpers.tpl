@@ -119,6 +119,65 @@ Usage: {{ include "mlflow.oidcAuthDbSecretName" . }}
 {{- end -}}
 
 {{/*
+Build the full container image reference, appending digest when set.
+*/}}
+{{- define "mlflow.containerImage" -}}
+{{- $tag := .Values.image.tag | default .Chart.AppVersion -}}
+{{- if .Values.image.digest -}}
+{{- printf "%s:%s@%s" .Values.image.repository $tag .Values.image.digest -}}
+{{- else -}}
+{{- printf "%s:%s" .Values.image.repository $tag -}}
+{{- end -}}
+{{- end }}
+
+{{/*
+Deduplicate a string list and return a comma-separated string.
+Collapses the entire list to "*" when the wildcard entry is present.
+Returns empty string when the list is empty.
+Usage: {{ include "mlflow.normalizeList" $list }}
+*/}}
+{{- define "mlflow.normalizeList" -}}
+{{- $list := . | uniq -}}
+{{- if has "*" $list -}}*{{- else if $list -}}{{- join "," $list -}}{{- end -}}
+{{- end }}
+
+{{/*
+Build the MLFLOW_SERVER_ALLOWED_HOSTS value.
+Auto-detects ingress hostnames then appends serverAllowedHosts.
+Delegates dedup and wildcard collapsing to mlflow.normalizeList.
+Usage: {{ include "mlflow.serverAllowedHosts" . }}
+*/}}
+{{- define "mlflow.serverAllowedHosts" -}}
+{{- $hosts := list -}}
+{{- if and .Values.ingress.enabled .Values.ingress.hosts -}}
+  {{- range .Values.ingress.hosts -}}
+    {{- if .host -}}{{- $hosts = append $hosts .host -}}{{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- range .Values.serverAllowedHosts -}}{{- $hosts = append $hosts . -}}{{- end -}}
+{{- include "mlflow.normalizeList" $hosts -}}
+{{- end }}
+
+{{/*
+Build the MLFLOW_SERVER_CORS_ALLOWED_ORIGINS value.
+Auto-detects ingress origins (https when TLS configured, http otherwise) then appends corsAllowedOrigins.
+Delegates dedup and wildcard collapsing to mlflow.normalizeList.
+Usage: {{ include "mlflow.corsAllowedOrigins" . }}
+*/}}
+{{- define "mlflow.corsAllowedOrigins" -}}
+{{- $origins := list -}}
+{{- if and .Values.ingress.enabled .Values.ingress.hosts -}}
+  {{- $scheme := "http" -}}
+  {{- if .Values.ingress.tls -}}{{- $scheme = "https" -}}{{- end -}}
+  {{- range .Values.ingress.hosts -}}
+    {{- if .host -}}{{- $origins = append $origins (printf "%s://%s" $scheme .host) -}}{{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- range .Values.corsAllowedOrigins -}}{{- $origins = append $origins . -}}{{- end -}}
+{{- include "mlflow.normalizeList" $origins -}}
+{{- end }}
+
+{{/*
 Return the port number the Ingress should target. If oauth2-proxy sidecar is enabled
 use its listenPort, otherwise use the service.port value.
 Usage: {{ include "mlflow.servicePort" . }}

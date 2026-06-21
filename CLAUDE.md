@@ -105,11 +105,13 @@ Do not apply `.helmignore` changes to deprecated charts (currently: `kserve`).
 - **Any change** to a chart (including docs) requires a `version` bump in `Chart.yaml` following semver.
 - `appVersion` tracks the upstream application version.
 - Breaking changes bump MAJOR version and must document manual upgrade steps in `README.md.gotmpl` under an "Upgrading" section.
-- The `artifacthub.io/changes` annotation in `Chart.yaml` is used to auto-generate release notes — always populate it for every change. When linking to a GitHub issue, use `name: GitHub Issue` (not `Issue` or any other variant):
+- The `artifacthub.io/changes` annotation in `Chart.yaml` is used to auto-generate release notes — always populate it for every change. When linking to a GitHub issue or pull request, use the exact name variants below (not `Issue`, `PR`, or any other variant):
   ```yaml
   links:
     - name: GitHub Issue
       url: https://github.com/community-charts/helm-charts/issues/<number>
+    - name: GitHub PR
+      url: https://github.com/community-charts/helm-charts/pull/<number>
   ```
 - **Bump `version` only once per branch/PR.** After the first bump, do not bump again for subsequent commits on the same branch — all changes in the PR are released together under the single bumped version.
 
@@ -181,3 +183,5 @@ git commit -s  # retried after hook updates
 - Commits require a `Signed-off-by` trailer (`git commit -s`).
 - Never add a `Co-Authored-By` trailer to commits.
 - YAML files must follow the rules in `.github/configs/lintconf.yaml` (2-space indent, no trailing spaces, LF line endings, newline at EOF).
+- PR descriptions must follow the template in `.github/PULL_REQUEST_TEMPLATE.md`: fill in "What this PR does / why we need it", "Which issue this PR fixes" (using `fixes #<number>` format), "Special notes for your reviewer", and check all applicable checklist items.
+- Always use `fixes #<number>` (not `refs`, `closes`, or plain `#<number>`) for every issue the PR addresses. GitHub only creates a bidirectional PR↔issue link and auto-closes issues on merge when the `fixes` keyword is present. Using `refs` or a bare `#<number>` produces no link in GitHub's UI.

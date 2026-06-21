@@ -171,6 +171,24 @@ tests:
           path: spec.maxReplicas
           value: 3
 
+  - it: should have hpa when autoscaling is enabled and Bitnami postgresql subchart and s3 artifact root
+    set:
+      autoscaling.enabled: true
+      postgresql.enabled: true
+      artifactRoot.s3.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should have hpa when autoscaling is enabled and Bitnami mysql subchart and s3 artifact root
+    set:
+      autoscaling.enabled: true
+      mysql.enabled: true
+      artifactRoot.s3.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+
   - it: should set metrics when metrics is set
     set:
       backendStore.postgres.enabled: true

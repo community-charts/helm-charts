@@ -47,7 +47,16 @@ Four mutually exclusive auth mechanisms, all activated via `--app-name` on the `
 | `oidcAuth.enabled` | `oidc-auth` | `mlflow-oidc-auth` plugin (bundled in image); handles full OIDC flow inside MLflow |
 | `oauth2Proxy.enabled` | *(none — MLflow runs unauthenticated)* | Sidecar proxy intercepts all traffic; MLflow itself is open on loopback |
 
-`oauth2Proxy` can coexist with `auth` or `ldapAuth` in theory (proxy in front, MLflow auth behind) but is explicitly forbidden with `oidcAuth` — the chart enforces this with `fail` guards in `deployment.yaml`.
+`oauth2Proxy` can coexist with `auth` or `ldapAuth` in theory (proxy in front, MLflow auth behind) but is explicitly forbidden with `oidcAuth`.
+
+Mutual exclusivity enforcement:
+
+| Pair | Enforcement layer |
+|---|---|
+| `oidcAuth + oauth2Proxy`, `oidcAuth + auth`, `oidcAuth + ldapAuth` | Template-level `fail` guard in `deployment.yaml` |
+| `auth + ldapAuth` | Two layers: `allOf[0] not` constraint in `values.schema.json` (catches it at schema validation time) **and** a `fail` guard in `deployment.yaml` (defense-in-depth for `--disable-openapi-validation`) |
+
+Because the schema rejects `auth + ldapAuth` before the template renders, `failedTemplate` unit tests cannot exercise the template-level guard for that pair — `helm-unittest` validates values against the schema first.
 
 ### PostgreSQL Backend-Store URI Is Built Differently Than MySQL/MSSQL
 
@@ -85,15 +94,17 @@ When a database is configured the init containers always run in this fixed order
 
 1. **dbchecker** — polls DB port using Fibonacci-backoff netcat (8 attempts max); runs only when `backendStore.databaseConnectionCheck: true`
 2. **mlflow-db-migration** — runs `python /opt/mlflow/migrations.py` (wraps `mlflow db upgrade`); runs only when `backendStore.databaseMigration: true`
-3. **ini-file-initializer** — `sed` substitution that writes `auth_result.ini` into an `emptyDir` shared with the main container; runs when `auth.enabled` or `ldapAuth.enabled`
+3. **ini-file-initializer** — writes `auth_result.ini` into an `emptyDir` shared with the main container; runs when `auth.enabled` or `ldapAuth.enabled`. Uses `sed` when `auth.enabled` (substitutes `$(ADMIN_USERNAME_PLACEHOLDER)` etc. from secrets); uses `cp` when only `ldapAuth.enabled` (no placeholders — the INI uses literal `fakeuser`/`fakepassword`, secrets are not needed)
 4. **user-provided** `initContainers` — appended last
 
 ### Auth INI File Generation (basic auth and LDAP only)
 
-The auth config is not rendered directly into a ConfigMap. Instead `auth_ini_configmap.yaml` contains a template with literal placeholders (`$(ADMIN_USERNAME_PLACEHOLDER)` etc.), and the `ini-file-initializer` init container runs `sed` to substitute real values from secrets at runtime. The result lands in an `emptyDir` volume mounted read-only into the main container at `MLFLOW_AUTH_CONFIG_PATH`.
+The auth config is not rendered directly into a ConfigMap. Instead `auth_ini_configmap.yaml` contains a template, and the `ini-file-initializer` init container writes `auth_result.ini` into an `emptyDir` at runtime. The result is mounted read-only at `MLFLOW_AUTH_CONFIG_PATH`.
 
-- `auth.enabled` → uses `basic-auth` app-name (configurable via `auth.appName`), mounts at `auth.configPath/auth.configFile`
-- `ldapAuth.enabled` → hardcoded app-name `basic-auth`, hardcoded path `/etc/mlflow/auth/ldap_basic_auth.ini`, authorization function set to `mlflowstack.auth.ldap:authenticate_request_basic_auth`
+Two paths depending on which flag is active:
+
+- `auth.enabled` → the ConfigMap contains literal placeholders (`$(ADMIN_USERNAME_PLACEHOLDER)` etc.); `sed` substitutes real values from secrets (admin credentials, DB password). App-name configurable via `auth.appName`; mounts at `auth.configPath/auth.configFile`.
+- `ldapAuth.enabled` (without `auth.enabled`) → the ConfigMap uses literal `fakeuser`/`fakepassword` (LDAP itself handles credential validation — no placeholders needed); `cp` copies the file as-is, no secret env vars injected. App-name hardcoded to `basic-auth`; hardcoded path `/etc/mlflow/auth/ldap_basic_auth.ini`; authorization function `mlflowstack.auth.ldap:authenticate_request_basic_auth`.
 
 `oidcAuth` does **not** use an INI file — it is configured entirely via environment variables injected directly in `deployment.yaml`.
 
@@ -147,12 +158,35 @@ The default (when no per-resource permission is set) is controlled by:
 - `auth.defaultPermission` for basic auth
 - `oidcAuth.defaultPermission` (`DEFAULT_MLFLOW_PERMISSION` env var) for OIDC auth
 
+### Security Middleware Auto-injection
+
+MLflow 3.x uvicorn server includes security middleware for DNS rebinding, CORS, and clickjacking protection. The chart auto-injects two env vars into `configmap.yaml` via helper functions in `_helpers.tpl`:
+
+| Env var | Helper | Source |
+|---|---|---|
+| `MLFLOW_SERVER_ALLOWED_HOSTS` | `mlflow.serverAllowedHosts` | Ingress hostnames + `serverAllowedHosts` list |
+| `MLFLOW_SERVER_CORS_ALLOWED_ORIGINS` | `mlflow.corsAllowedOrigins` | Ingress origins (with scheme) + `corsAllowedOrigins` list |
+
+Both helpers delegate the merge/dedup/wildcard step to a shared `mlflow.normalizeList` helper which:
+1. Calls `uniq` to remove duplicates from the merged list
+2. Returns `"*"` if the list contains a wildcard entry (collapsing everything else)
+3. Returns `join "," $list` otherwise
+4. Returns an empty string when the list is empty (suppressed by `with` in configmap)
+
+Scheme detection for CORS: `https` when `ingress.tls` is non-empty, `http` otherwise.
+
+**Important**: `serverAllowedHosts` and `corsAllowedOrigins` are **append-only** — their entries are merged with the ingress-derived entries, never replacing them. Users who need a full override should use `extraEnvVars.MLFLOW_SERVER_ALLOWED_HOSTS` / `extraEnvVars.MLFLOW_SERVER_CORS_ALLOWED_ORIGINS` (Kubernetes `env:` wins over `envFrom:` at runtime).
+
+### MLflow Assistant API Restriction
+
+The `/ajax-api/3.0/mlflow/assistant/config` endpoint is hardcoded localhost-only in `mlflow/server/assistant/api.py` via a `_require_localhost` dependency that checks `ip.is_loopback`. There is no env var to override this in current released MLflow. Through a Kubernetes ingress, every request arrives from the ingress controller's pod IP (never `127.0.0.1`), so this endpoint always returns 403. This is a known upstream limitation tracked in mlflow/mlflow#23883 — do not attempt to work around it at the chart level.
+
 ### HPA Creation Conditions
 
 The HPA (`hpa.yaml`) is guarded by three simultaneous requirements:
 
 1. `autoscaling.enabled: true`
-2. A persistent backend store is configured (any DB — not the default SQLite in-memory store)
+2. A persistent backend store is configured — any of: `backendStore.postgres.enabled`, `backendStore.mysql.enabled`, `backendStore.mssql.enabled`, `postgresql.enabled` (Bitnami subchart), `mysql.enabled` (Bitnami subchart)
 3. A persistent artifact store is configured (S3/Azure/GCS — not the default local `./mlruns`)
 4. Additionally: if `auth.enabled`, it must use `auth.postgres` (not the default SQLite auth backend)
 
@@ -167,15 +201,21 @@ When using `oidcAuth` with HPA, ensure:
 - `extraArgs` is a `map[string]string` — keys are camelCase, values are strings. The template converts keys to kebab-case automatically: `{gunicornOpts: "--workers=4"}` → `--gunicorn-opts=--workers=4`
 - `extraFlags` is a `string[]` of flag names (no `--` prefix, no value). Also kebab-case converted: `["serveArtifacts"]` → `--serve-artifacts`
 
-### Gunicorn Log-Level Merging
+### Server Log-Level Merging (uvicorn / gunicorn)
 
-When `log.enabled: true`, the template injects `--log-level` into gunicorn opts by one of three paths:
+MLflow 3.x uses **uvicorn** by default (`--uvicorn-opts`). Gunicorn (`--gunicorn-opts`) is an opt-in legacy mode; waitress (`--waitress-opts`) is for Windows.
 
-- No `gunicornOpts` in `extraArgs` → appends `--gunicorn-opts='--log-level=<level>'`
+When `log.enabled: true`, the template injects `--log-level` via one of five paths:
+
+- Neither `uvicornOpts` nor `gunicornOpts` in `extraArgs` → injects `--uvicorn-opts='--log-level=<level>'` (default)
+- `uvicornOpts` present and already contains `--log-level` → replaces the existing value via `regexReplaceAll`
+- `uvicornOpts` present without `--log-level` → prepends `--log-level=<level>` to the existing string
 - `gunicornOpts` present and already contains `--log-level` → replaces the existing value via `regexReplaceAll`
 - `gunicornOpts` present without `--log-level` → prepends `--log-level=<level>` to the existing string
 
-Test cases for all three paths exist in `unittests/deployment_test.yaml`.
+Security middleware flags (`--allowed-hosts`, `--cors-allowed-origins`, `--disable-security-middleware`) are uvicorn-only and now naturally co-exist with the default uvicorn-opts injection.
+
+Test cases for all paths exist in `unittests/deployment_test.yaml`.
 
 ### Proxied Artifact Storage Mode
 
@@ -190,15 +230,38 @@ LDAP with a self-signed CA uses one of two paths (mutually exclusive):
 
 Both mount to `/certs/ca.crt` and set `LDAP_CA=/certs/ca.crt` in the main container.
 
-### Secret Name Helpers
+### Helper Function Reference
 
-`_helpers.tpl` provides three helpers that resolve to either a chart-managed or user-provided secret name using Helm's `default` function:
+`_helpers.tpl` provides these named helpers beyond the standard `name`/`fullname`/`labels` set:
 
-| Helper | Resolves to |
+| Helper | Purpose |
 |---|---|
+| `mlflow.containerImage` | Builds `repo:tag` or `repo:tag@digest` depending on `image.digest` |
+| `mlflow.servicePort` | Returns `oauth2Proxy.listenPort` when sidecar is enabled, else `service.port` |
 | `mlflow.oauth2ProxySecretName` | `<release>-oauth2-proxy` or `oauth2Proxy.existingSecret.name` |
 | `mlflow.oidcAuthSecretName` | `<release>-oidc-auth-secret` or `oidcAuth.existingSecret.name` |
 | `mlflow.oidcAuthDbSecretName` | `<release>-oidc-auth-db-secret` or `oidcAuth.database.postgres.existingSecret.name` |
+| `mlflow.normalizeList` | Deduplicates a list and joins with `,`; collapses to `*` when wildcard present |
+| `mlflow.serverAllowedHosts` | Builds `MLFLOW_SERVER_ALLOWED_HOSTS` value from ingress + `serverAllowedHosts` |
+| `mlflow.corsAllowedOrigins` | Builds `MLFLOW_SERVER_CORS_ALLOWED_ORIGINS` value from ingress + `corsAllowedOrigins` |
+
+### extraDeploy — Arbitrary Extra Resources
+
+`extraDeploy` is a list of arbitrary Kubernetes objects rendered by `templates/extra-list.yaml` via `tpl (toYaml .) $`. Each item is emitted as a separate YAML document (with a `---` separator). Because `tpl` is used, Helm expressions are fully evaluated:
+
+```yaml
+extraDeploy:
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: '{{ include "mlflow.fullname" . }}-extra'
+    data:
+      release: '{{ .Release.Name }}'
+```
+
+Single quotes around template expressions in YAML string values are required — without them the `{{` is parsed as part of the YAML scalar and may produce unexpected output.
+
+The feature is intentionally minimal — no label injection, no name prefixing. Users have full control over every field.
 
 ### ConfigMap Checksum Annotation
 
@@ -261,16 +324,17 @@ Test files are in `unittests/`. Each focuses on one configuration axis:
 | `auth_admin_secret_test.yaml` | Basic auth admin secret (chart-managed vs existing secret) |
 | `auth_ini_configmap_test.yaml` | INI configmap rendering for basic auth and ldapAuth |
 | `auth_postgres_secret_test.yaml` | Auth Postgres credential secret |
-| `configmap_test.yaml` | Env-configmap and migrations configmap |
+| `configmap_test.yaml` | Env-configmap and migrations configmap; includes security middleware env var injection (`MLFLOW_SERVER_ALLOWED_HOSTS`, `MLFLOW_SERVER_CORS_ALLOWED_ORIGINS`) with append, dedup, and wildcard cases |
 | `hpa_test.yaml` | HPA creation conditions |
 | `ingress_test.yaml` | Ingress rendering and oauth2Proxy port routing |
 | `oidc_auth_test.yaml` | oidcAuth env vars, secret references, Redis cache, Postgres DB URI |
-| `oidc_auth_conflict_test.yaml` | Mutual exclusivity `fail` guards for oidcAuth |
+| `oidc_auth_conflict_test.yaml` | Mutual exclusivity `fail` guards for oidcAuth (three `failedTemplate` tests). The `auth + ldapAuth` pair is enforced by `values.schema.json` (`allOf[0] not` constraint) before templates render, so no `failedTemplate` test is possible for that pair — the schema catches it first |
 | `secret_test.yaml` | Env-secret (db credentials, S3/azure keys, ldap) and oauth2-proxy secret |
 | `service_test.yaml` | Service port and type rendering |
 | `serviceaccount_test.yaml` | ServiceAccount creation |
 | `servicemonitor_test.yaml` | Prometheus ServiceMonitor rendering |
 | `trusted_ca_cert_secret_test.yaml` | LDAP CA certificate secret |
+| `extra_deploy_test.yaml` | `extraDeploy` rendering: empty list, single object, multiple objects, and `tpl` expression evaluation |
 
 Use `matchRegex` (not `equal`) when asserting a substring within a rendered multi-line arg or command string — the full strings include unrelated boilerplate that would make `equal` brittle.
 

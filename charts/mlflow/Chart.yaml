@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.9.0
+version: 1.10.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -49,18 +49,91 @@ annotations:
       url: https://community-charts.github.io/docs/charts/mlflow/usage
     - name: Upstream Project
       url: https://github.com/burakince/mlflow
-  artifacthub.io/containsSecurityUpdates: "false"
+  artifacthub.io/containsSecurityUpdates: "true"
   artifacthub.io/changes: |-
     - kind: added
-      description: Add optional oauth2-proxy sidecar for OIDC/OAuth2 authentication in front of MLflow, with configurable provider settings, secret management, and automatic Ingress port forwarding
+      description: Add optional image digest support for immutable image pulls
+    - kind: added
+      description: Add optional MinIO subchart for S3-compatible artifact storage without external dependencies
+    - kind: added
+      description: Add uvicorn-opts support with log-level merging; uvicorn is now the default server for log injection instead of gunicorn
       links:
         - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/321
-    - kind: added
-      description: Add oidcAuth block for built-in OIDC authentication via mlflow-oidc-auth plugin, with Redis cache and PostgreSQL user-database support
+          url: https://github.com/community-charts/helm-charts/issues/223
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/310
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/411
+    - kind: security
+      description: Enable readOnlyRootFilesystem and add built-in tmp emptyDir volume to harden container filesystem
+    - kind: fixed
+      description: Default keyOfAccessKeyId and keyOfSecretAccessKey to standard AWS key names so existingSecret works when only name is provided
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/328
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/225
+    - kind: security
+      description: Automatically inject MLFLOW_SERVER_ALLOWED_HOSTS from ingress hosts to prevent DNS rebinding attacks
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/285
+    - kind: changed
+      description: Document azure-identity requirement for AKS Managed Identity; workaround is AZURE_STORAGE_CONNECTION_STRING via extraEnvVars
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/423
+    - kind: security
+      description: Automatically inject MLFLOW_SERVER_CORS_ALLOWED_ORIGINS from ingress hosts (https when TLS configured, http otherwise) to prevent CORS-based cross-origin attacks
+    - kind: added
+      description: Add serverAllowedHosts and corsAllowedOrigins list values that append to ingress auto-detected entries; duplicates are removed and a lone wildcard entry collapses the list to just *
+    - kind: fixed
+      description: Auto-configure auth PostgreSQL backend from the Bitnami postgresql subchart when postgresql.enabled is true and auth.enabled is true, fixing missing database_uri templating reported in v0.7.4
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/504
+    - kind: added
+      description: Add serverHost value to make the MLflow server network interface binding configurable; defaults to 0.0.0.0 and can be set to 127.0.0.1 for sidecar proxy deployments
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/230
+    - kind: added
+      description: Add backendStore.mssql.connectionUrl to support Azure Active Directory and MSI authentication for MSSQL by accepting a full SQLAlchemy connection URL; bypasses host/port/database/user/password when set
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/248
+    - kind: added
+      description: Add backendStore.mssql.existingConnectionUrlSecret (name and key) to store credential-bearing MSSQL connection URLs in a Kubernetes Secret; takes priority over connectionUrl when set
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/248
+    - kind: fixed
+      description: Fix ini-file-initializer init container referencing the missing mlflow-auth-admin-secret when ldapAuth is enabled without auth; now uses cp instead of sed and skips all secret env vars for LDAP-only deployments
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/426
+    - kind: fixed
+      description: Clarify that service.name sets the port protocol name in spec.ports[].name, not the Service resource name; add guidance to use nameOverride or fullnameOverride to rename the Service resource
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/468
+    - kind: added
+      description: Add extraDeploy value to render arbitrary extra Kubernetes objects alongside the chart; supports Helm templating via tpl
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/53
+    - kind: added
+      description: Add priorityClassName value to set pod scheduling priority class
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/317
+    - kind: added
+      description: Add deploymentAnnotations value to annotate the Deployment resource metadata; enables tooling that discovers deployments via metadata.annotations
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/461
+    - kind: fixed
+      description: Add mutual-exclusivity fail guard for auth and ldapAuth — both cannot be enabled simultaneously
+    - kind: fixed
+      description: Correct schema defaults for service.port, auth.configPath, securityContext UIDs, and auth.enabled boolean type; normalize legacy template calls to include in deployment.yaml
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.14.0
@@ -101,3 +174,7 @@ dependencies:
     version: 14.0.3
     repository: https://charts.bitnami.com/bitnami
     condition: mysql.enabled
+  - name: minio
+    version: 5.4.0
+    repository: https://charts.min.io/
+    condition: minio.enabled

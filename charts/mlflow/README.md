@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 1.9.0](https://img.shields.io/badge/Version-1.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.14.0](https://img.shields.io/badge/AppVersion-3.14.0-informational?style=flat-square)
+![Version: 1.10.0](https://img.shields.io/badge/Version-1.10.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.14.0](https://img.shields.io/badge/AppVersion-3.14.0-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -172,6 +172,46 @@ mysql:
   enabled: true
 ```
 
+## MSSQL Database Migration Values Files Example
+
+```yaml
+backendStore:
+  databaseMigration: true
+  mssql:
+    enabled: true
+    host: "mssql-instance1.database.windows.net"
+    port: 1433
+    database: "mlflow"
+    user: "mlflowuser"
+    password: "Pa33w0rd!"
+```
+
+## MSSQL Database with Azure Active Directory or MSI Connection URL Example
+
+For Azure AD or Managed Service Identity (MSI) authentication, pass a full SQLAlchemy connection URL via `connectionUrl`. When set, `host`, `port`, `database`, `user`, and `password` are all ignored.
+
+```yaml
+backendStore:
+  databaseMigration: true
+  mssql:
+    enabled: true
+    connectionUrl: "mssql+pyodbc:///?odbc_connect=Driver={ODBC Driver 18 for SQL Server};Server=mssql-instance1.database.windows.net,1433;Database=mlflow;Authentication=ActiveDirectoryMsi"
+```
+
+## MSSQL Database with Existing Connection URL Secret Example
+
+Store a credential-bearing connection URL in a Kubernetes Secret. `existingConnectionUrlSecret` takes priority over `connectionUrl` when set.
+
+```yaml
+backendStore:
+  databaseMigration: true
+  mssql:
+    enabled: true
+    existingConnectionUrlSecret:
+      name: "mssql-connection-secret"
+      key: "connection-url"
+```
+
 ## AWS Installation Examples
 
 You can use 2 different way to connect your S3 backend.
@@ -264,6 +304,37 @@ artifactRoot:
     enabled: true
     bucket: "my-mlflow-artifact-root-backend"
 ```
+
+## Built-in MinIO Subchart for S3-Compatible Artifact Storage
+
+The chart ships an optional [MinIO](https://min.io/) subchart. Enable it to deploy a self-contained S3-compatible object store in the same namespace — no external object storage required.
+
+When `minio.enabled` is `true` and `artifactRoot.s3.bucket` is empty, the chart automatically uses the first bucket name from `minio.buckets`.
+
+```yaml
+backendStore:
+  databaseMigration: true
+  postgres:
+    enabled: true
+    host: "postgresql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "mlflow"
+    user: "mlflowuser"
+    password: "Pa33w0rd!"
+
+artifactRoot:
+  s3:
+    enabled: true
+
+minio:
+  enabled: true
+  buckets:
+    - name: mlflow-artifacts
+      policy: none
+      purge: false
+```
+
+> **Note**: When `minio.enabled` is `true`, the chart reads `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` directly from the MinIO secret (`rootUser`/`rootPassword` keys) and sets `MLFLOW_S3_ENDPOINT_URL` automatically — do not set those values under `artifactRoot.s3`. `minio.rootUser` and `minio.rootPassword` are optional; MinIO auto-generates stable credentials on first install if omitted.
 
 ## Azure Cloud Installation Example
 
@@ -586,6 +657,164 @@ oauth2Proxy:
     redirectURL: "https://mlflow.example.com/oauth2/callback"
 ```
 
+## Server Host Binding Example
+
+By default MLflow binds to `0.0.0.0` (all interfaces). When you deploy an `oauth2Proxy` sidecar, set `serverHost: "127.0.0.1"` so MLflow is reachable only through the proxy — without this, pod-to-pod traffic can reach MLflow directly and bypass authentication.
+
+```yaml
+serverHost: "127.0.0.1"
+
+oauth2Proxy:
+  enabled: true
+  createSecret: true
+  cookieSecret: "a-random-32-char-cookie-secret!!"
+  provider:
+    name: keycloak-oidc
+    issuerURL: "https://keycloak.example.com/realms/mlflow"
+    clientID: "mlflow-client"
+    clientSecret: "mlflow-client-secret"
+    redirectURL: "https://mlflow.example.com/oauth2/callback"
+```
+
+## Security Middleware Example
+
+MLflow 3.x runs on uvicorn and includes security middleware that protects against DNS rebinding, CORS, and clickjacking attacks. The chart automatically configures `MLFLOW_SERVER_ALLOWED_HOSTS` and `MLFLOW_SERVER_CORS_ALLOWED_ORIGINS` from your ingress hosts so the middleware does not block legitimate requests.
+
+### Auto-detection from Ingress
+
+When `ingress.enabled` is `true` and hosts are configured the chart derives both env vars automatically:
+
+- `MLFLOW_SERVER_ALLOWED_HOSTS` is set to the bare hostnames (e.g. `mlflow.example.com`)
+- `MLFLOW_SERVER_CORS_ALLOWED_ORIGINS` is set to `https://hostname` when `ingress.tls` is configured, or `http://hostname` otherwise
+
+```yaml
+ingress:
+  enabled: true
+  hosts:
+    - host: mlflow.example.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: mlflow-tls
+      hosts:
+        - mlflow.example.com
+# Results in:
+#   MLFLOW_SERVER_ALLOWED_HOSTS: "mlflow.example.com"
+#   MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: "https://mlflow.example.com"
+```
+
+### Appending Extra Hosts or Origins
+
+Use `serverAllowedHosts` and `corsAllowedOrigins` to add entries beyond what is auto-detected. Ingress-derived values always come first; entries from these lists are appended and duplicates are removed automatically.
+
+```yaml
+ingress:
+  enabled: true
+  hosts:
+    - host: mlflow.example.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+
+serverAllowedHosts:
+  - dashboard.example.com   # extra hostname that also routes to MLflow
+
+corsAllowedOrigins:
+  - https://dashboard.example.com   # frontend served from a different origin
+# Results in:
+#   MLFLOW_SERVER_ALLOWED_HOSTS: "mlflow.example.com,dashboard.example.com"
+#   MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: "http://mlflow.example.com,https://dashboard.example.com"
+```
+
+### Wildcard for Development
+
+A single `"*"` entry collapses the entire list to just `*`, ignoring all other entries including auto-detected ingress values:
+
+```yaml
+corsAllowedOrigins:
+  - "*"
+serverAllowedHosts:
+  - "*"
+```
+
+### Runtime Override
+
+`extraEnvVars` always wins at runtime via Kubernetes `env:` → `envFrom:` precedence, so you can override both env vars without touching `serverAllowedHosts` or `corsAllowedOrigins`:
+
+```yaml
+extraEnvVars:
+  MLFLOW_SERVER_ALLOWED_HOSTS: "mlflow.example.com,other.example.com"
+  MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: "https://mlflow.example.com,https://other.example.com"
+```
+
+## Extra Kubernetes Resources Example
+
+Use `extraDeploy` to render arbitrary Kubernetes objects alongside the chart. Each item is evaluated with `tpl`, so Helm template expressions work inside the objects.
+
+### ExternalSecret via External Secrets Operator
+
+Each item in `extraDeploy` is evaluated with `tpl`, so Helm template expressions work inside the objects (e.g. `{{ include "mlflow.fullname" . }}`).
+
+```yaml
+extraDeploy:
+  - apiVersion: external-secrets.io/v1
+    kind: SecretStore
+    metadata:
+      name: mlflow
+    spec:
+      provider:
+        aws:
+          service: SecretsManager
+          region: eu-central-1
+          auth:
+            jwt:
+              serviceAccountRef:
+                name: mlflow
+
+  - apiVersion: external-secrets.io/v1
+    kind: ExternalSecret
+    metadata:
+      name: mlflow-db-credentials
+    spec:
+      secretStoreRef:
+        name: mlflow
+        kind: SecretStore
+      target:
+        name: mlflow-db-credentials
+      data:
+        - secretKey: username
+          remoteRef:
+            key: mlflow/db
+            property: username
+        - secretKey: password
+          remoteRef:
+            key: mlflow/db
+            property: password
+
+backendStore:
+  postgres:
+    enabled: true
+    host: "postgresql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "mlflow"
+  existingDatabaseSecret:
+    name: "mlflow-db-credentials"
+    usernameKey: "username"
+    passwordKey: "password"
+```
+
+## Deployment Annotations Example
+
+Use `deploymentAnnotations` to add annotations to the `Deployment` resource metadata (not the pod). This is distinct from `podAnnotations`, which annotates the pod template.
+
+```yaml
+deploymentAnnotations:
+  velero.database/restart-on-restore: "mlflow"
+```
+
+This allows external tooling to discover deployments by annotation, for example to scale them down before a database restore operation.
+
 ## Auto Scaling Example
 
 This Helm chart supports Horizontal Pod Autoscaling (HPA) to dynamically scale the MLflow `Deployment` based on metrics. The HPA resource is created when `autoscaling.enabled` is `true` and specific conditions are met (see Prerequisites).
@@ -595,7 +824,7 @@ This Helm chart supports Horizontal Pod Autoscaling (HPA) to dynamically scale t
 The HPA is created only if:
 
 - `autoscaling.enabled: true`
-- A backend store is enabled (`backendStore.postgres.enabled` or `backendStore.mysql.enabled`).
+- A backend store is enabled (`backendStore.postgres.enabled`, `backendStore.mysql.enabled`, `postgresql.enabled`, or `mysql.enabled`).
 - An artifact store is enabled (`artifactRoot.azureBlob.enabled`, `artifactRoot.s3.enabled`, or `artifactRoot.gcs.enabled`).
 - Auth is either enabled with Postgres (`auth.enabled` and `auth.postgres.enabled`) or disabled (`auth.enabled: false`).
 
@@ -726,6 +955,7 @@ Kubernetes: `>=1.16.0-0`
 |------------|------|---------|
 | https://charts.bitnami.com/bitnami | mysql | 14.0.3 |
 | https://charts.bitnami.com/bitnami | postgresql | 18.7.5 |
+| https://charts.min.io/ | minio | 5.4.0 |
 
 ## Uninstall Helm Chart
 
@@ -762,14 +992,14 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | artifactRoot.gcs.enabled | bool | `false` | Specifies if you want to use Google Cloud Storage Mlflow Artifact Root |
 | artifactRoot.gcs.path | string | `""` | Google Cloud Storage bucket folder. If you want to use root level, please don't set anything. |
 | artifactRoot.proxiedArtifactStorage | bool | `false` | Specifies if you want to enable proxied artifact storage access |
-| artifactRoot.s3 | object | `{"awsAccessKeyId":"","awsSecretAccessKey":"","bucket":"","enabled":false,"existingSecret":{"keyOfAccessKeyId":"","keyOfSecretAccessKey":"","name":""},"path":""}` | Specifies if you want to use AWS S3 Mlflow Artifact Root |
+| artifactRoot.s3 | object | `{"awsAccessKeyId":"","awsSecretAccessKey":"","bucket":"","enabled":false,"existingSecret":{"keyOfAccessKeyId":"AWS_ACCESS_KEY_ID","keyOfSecretAccessKey":"AWS_SECRET_ACCESS_KEY","name":""},"path":""}` | Specifies if you want to use AWS S3 Mlflow Artifact Root |
 | artifactRoot.s3.awsAccessKeyId | string | `""` | AWS IAM user AWS_ACCESS_KEY_ID which has attached policy for access to the S3 bucket |
 | artifactRoot.s3.awsSecretAccessKey | string | `""` | AWS IAM user AWS_SECRET_ACCESS_KEY which has attached policy for access to the S3 bucket |
 | artifactRoot.s3.bucket | string | `""` | S3 bucket name |
 | artifactRoot.s3.enabled | bool | `false` | Specifies if you want to use AWS S3 Mlflow Artifact Root |
-| artifactRoot.s3.existingSecret | object | `{"keyOfAccessKeyId":"","keyOfSecretAccessKey":"","name":""}` | Existing secret for AWS IAM user AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY secrets. |
-| artifactRoot.s3.existingSecret.keyOfAccessKeyId | string | `""` | This is for setting up the key for AWS_ACCESS_KEY_ID secret. If it's set, awsAccessKeyId will be ignored. |
-| artifactRoot.s3.existingSecret.keyOfSecretAccessKey | string | `""` | This is for setting up the key for AWS_SECRET_ACCESS_KEY secret. If it's set, awsSecretAccessKey will be ignored. |
+| artifactRoot.s3.existingSecret | object | `{"keyOfAccessKeyId":"AWS_ACCESS_KEY_ID","keyOfSecretAccessKey":"AWS_SECRET_ACCESS_KEY","name":""}` | Existing secret for AWS IAM user AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY secrets. |
+| artifactRoot.s3.existingSecret.keyOfAccessKeyId | string | `"AWS_ACCESS_KEY_ID"` | Key in the existing secret that holds the AWS_ACCESS_KEY_ID value. |
+| artifactRoot.s3.existingSecret.keyOfSecretAccessKey | string | `"AWS_SECRET_ACCESS_KEY"` | Key in the existing secret that holds the AWS_SECRET_ACCESS_KEY value. |
 | artifactRoot.s3.existingSecret.name | string | `""` | This is for setting up the AWS IAM user secrets existing secret name. |
 | artifactRoot.s3.path | string | `""` | S3 bucket folder. If you want to use root level, please don't set anything. |
 | auth | object | `{"adminPassword":"","adminUsername":"","appName":"basic-auth","authorizationFunction":"mlflow.server.auth:authenticate_request_basic_auth","configFile":"basic_auth.ini","configPath":"/etc/mlflow/auth/","defaultPermission":"READ","enabled":false,"existingAdminSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"postgres":{"database":"","driver":"","enabled":false,"existingSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"host":"","password":"","port":5432,"user":""},"sqliteFile":"basic_auth.db","sqliteFullPath":""}` | Mlflow authentication settings |
@@ -805,7 +1035,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | autoscaling.maxReplicas | int | `5` | The maximum number of replicas. |
 | autoscaling.metrics | list | `[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}]` | The metrics to use for autoscaling. |
 | autoscaling.minReplicas | int | `1` | The minimum number of replicas. |
-| backendStore | object | `{"databaseConnectionCheck":false,"databaseMigration":false,"defaultSqlitePath":":memory:","existingDatabaseSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"mssql":{"database":"","driver":"pymssql","enabled":false,"host":"","password":"","port":1433,"user":""},"mysql":{"database":"","driver":"pymysql","enabled":false,"host":"","password":"","port":3306,"user":""},"postgres":{"database":"","driver":"","enabled":false,"host":"","password":"","port":5432,"user":""}}` | Mlflow database connection settings |
+| backendStore | object | `{"databaseConnectionCheck":false,"databaseMigration":false,"defaultSqlitePath":":memory:","existingDatabaseSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"mssql":{"connectionUrl":"","database":"","driver":"pymssql","enabled":false,"existingConnectionUrlSecret":{"key":"","name":""},"host":"","password":"","port":1433,"user":""},"mysql":{"database":"","driver":"pymysql","enabled":false,"host":"","password":"","port":3306,"user":""},"postgres":{"database":"","driver":"","enabled":false,"host":"","password":"","port":5432,"user":""}}` | Mlflow database connection settings |
 | backendStore.databaseConnectionCheck | bool | `false` | Add an additional init container, which checks for database availability |
 | backendStore.databaseMigration | bool | `false` | Specifies if you want to run database migration |
 | backendStore.defaultSqlitePath | string | `":memory:"` | Specifies the default sqlite path |
@@ -813,9 +1043,13 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | backendStore.existingDatabaseSecret.name | string | `""` | The name of the existing database secret. |
 | backendStore.existingDatabaseSecret.passwordKey | string | `"password"` | The key of the password in the existing database secret. |
 | backendStore.existingDatabaseSecret.usernameKey | string | `"username"` | The key of the username in the existing database secret. |
+| backendStore.mssql.connectionUrl | string | `""` | Full SQLAlchemy connection URL for mssql (e.g. for Azure AD / MSI authentication with no embedded credentials). When set, host/port/database/user/password are ignored and this URL is used directly as --backend-store-uri. Example: "mssql+pyodbc://?odbc_connect=DRIVER%3D...%3BAuthentication%3DActiveDirectoryMsi%3B" |
 | backendStore.mssql.database | string | `""` | mlflow database name created before in the mssql instance |
 | backendStore.mssql.driver | string | `"pymssql"` | mssql database connection driver. e.g.: "pymssql" |
 | backendStore.mssql.enabled | bool | `false` | Specifies if you want to use mssql backend storage |
+| backendStore.mssql.existingConnectionUrlSecret | object | `{"key":"","name":""}` | Existing Kubernetes Secret containing the full MSSQL connection URL as a secret value. Use this instead of connectionUrl when the connection string contains credentials. The secret value is exposed as MSSQL_CONNECTION_URL and passed directly as --backend-store-uri. Takes precedence over connectionUrl when name is set. |
+| backendStore.mssql.existingConnectionUrlSecret.key | string | `""` | Key within the secret that holds the connection URL |
+| backendStore.mssql.existingConnectionUrlSecret.name | string | `""` | Name of the existing secret |
 | backendStore.mssql.host | string | `""` | mssql host address |
 | backendStore.mssql.password | string | `""` | mssql database user password which can access to mlflow database |
 | backendStore.mssql.port | int | `1433` | mssql service port |
@@ -834,8 +1068,11 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | backendStore.postgres.password | string | `""` | postgres database user password which can access to mlflow database |
 | backendStore.postgres.port | int | `5432` | Postgres service port |
 | backendStore.postgres.user | string | `""` | postgres database user name which can access to mlflow database |
+| corsAllowedOrigins | list | `[]` | List of allowed CORS origins for the MLflow server security middleware (env: MLFLOW_SERVER_CORS_ALLOWED_ORIGINS). When ingress is enabled, origins are automatically derived from ingress hosts: https:// if ingress.tls is configured, http:// otherwise. Set explicitly to override auto-detection (e.g. ["*"] for dev, or origins behind a load balancer with TLS termination before ingress). Requires uvicorn, which is the default server in MLflow 3.x. |
+| deploymentAnnotations | object | `{}` | Annotations for the Deployment resource |
 | extraArgs | object | `{}` | A map of arguments and values to pass to the `mlflow server` command. Keys must be camelcase. Helm will turn them to kebabcase style. |
 | extraContainers | list | `[]` | Extra containers for the mlflow pod |
+| extraDeploy | list | `[]` | Array of extra Kubernetes objects to deploy alongside the chart (e.g. SecretStore, ExternalSecret). Supports Helm templating via tpl. |
 | extraEnvVars | object | `{}` | Extra environment variables |
 | extraFlags | list | `[]` | A list of flags to pass to `mlflow server` command. Items must be camelcase. Helm will turn them to kebabcase style. |
 | extraPodLabels | object | `{}` | Extra labels for the pod |
@@ -844,7 +1081,8 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | extraVolumes | list | `[]` | Extra Volumes for the pod |
 | flaskServerSecretKey | string | `""` | Mlflow Flask Server Secret Key. Default: Will be auto generated. |
 | fullnameOverride | string | `""` | String to override the default generated fullname |
-| image | object | `{"pullPolicy":"IfNotPresent","repository":"burakince/mlflow","tag":""}` | Image of mlflow |
+| image | object | `{"digest":"","pullPolicy":"IfNotPresent","repository":"burakince/mlflow","tag":""}` | Image of mlflow |
+| image.digest | string | `""` | Image digest in the format sha256:<hex>. When set, overrides the tag for immutable pulls. |
 | image.pullPolicy | string | `"IfNotPresent"` | The docker image pull policy |
 | image.repository | string | `"burakince/mlflow"` | The docker image repository to use |
 | image.tag | string | `""` | The docker image tag to use. Default app version |
@@ -887,6 +1125,31 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | log | object | `{"enabled":true,"level":"info"}` | Mlflow logging settings |
 | log.enabled | bool | `true` | Specifies if you want to enable mlflow logging. |
 | log.level | string | `"info"` | Mlflow logging level. |
+| minio | object | `{"buckets":[{"name":"mlflow","policy":"none","purge":false}],"deploymentUpdate":{"type":"Recreate"},"drivesPerNode":1,"enabled":false,"mode":"standalone","persistence":{"accessMode":"ReadWriteOnce","annotations":{},"enabled":true,"existingClaim":"","size":"10Gi","storageClass":"","subPath":"","volumeName":""},"policies":[],"pools":1,"replicas":1,"resources":{"requests":{"memory":"1Gi"}},"rootPassword":"","rootUser":"","statefulSetUpdate":{"updateStrategy":"Recreate"},"users":[]}` | MinIO subchart for S3-compatible local artifact storage. When enabled, the MLflow deployment automatically receives AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and MLFLOW_S3_ENDPOINT_URL from the MinIO secret and service. artifactRoot.s3.enabled must also be set to true with a matching bucket name. |
+| minio.buckets | list | `[{"name":"mlflow","policy":"none","purge":false}]` | Buckets to create on startup |
+| minio.deploymentUpdate | object | `{"type":"Recreate"}` | Minio deployment update strategy |
+| minio.drivesPerNode | int | `1` | Number of drives attached to a node |
+| minio.enabled | bool | `false` | Enable the MinIO subchart |
+| minio.mode | string | `"standalone"` | MinIO mode |
+| minio.persistence | object | `{"accessMode":"ReadWriteOnce","annotations":{},"enabled":true,"existingClaim":"","size":"10Gi","storageClass":"","subPath":"","volumeName":""}` | MinIO persistence settings |
+| minio.persistence.accessMode | string | `"ReadWriteOnce"` | Minio persistence access mode |
+| minio.persistence.annotations | object | `{}` | Minio persistence annotations |
+| minio.persistence.enabled | bool | `true` | Enable persistent storage for MinIO. Disable for ephemeral/test deployments. |
+| minio.persistence.existingClaim | string | `""` | Minio persistence existing claim |
+| minio.persistence.size | string | `"10Gi"` | Minio persistence size |
+| minio.persistence.storageClass | string | `""` | Minio persistence storage class |
+| minio.persistence.subPath | string | `""` | Minio persistence sub path |
+| minio.persistence.volumeName | string | `""` | Minio persistence volume name |
+| minio.policies | list | `[]` | MinIO model bucket policy. |
+| minio.pools | int | `1` | Number of expanded MinIO clusters |
+| minio.replicas | int | `1` | Number of MinIO containers running |
+| minio.resources | object | `{"requests":{"memory":"1Gi"}}` | MinIO resources |
+| minio.resources.requests | object | `{"memory":"1Gi"}` | MinIO requests |
+| minio.resources.requests.memory | string | `"1Gi"` | MinIO memory request |
+| minio.rootPassword | string | `""` | MinIO root password (secret key). Length must be at least 8 characters. |
+| minio.rootUser | string | `""` | MinIO root user (access key). Length must be at least 3 characters. |
+| minio.statefulSetUpdate | object | `{"updateStrategy":"Recreate"}` | Minio statefulset update strategy |
+| minio.users | list | `[]` | MinIO users |
 | mysql | object | `{"architecture":"standalone","auth":{"database":"mlflow","password":"","username":""},"enabled":false,"image":{"repository":"bitnamilegacy/mysql"},"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"mysql":3306}}}}` | Bitnami MySQL configuration. For more information checkout: https://github.com/bitnami/charts/tree/main/bitnami/mysql |
 | mysql.auth.database | string | `"mlflow"` | The name of the MySQL database. |
 | mysql.enabled | bool | `false` | Enable mysql |
@@ -957,16 +1220,20 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | postgresql.auth.database | string | `"mlflow"` | The name of the PostgreSQL database. |
 | postgresql.enabled | bool | `false` | Enable postgresql |
 | postgresql.image.repository | string | `"bitnamilegacy/postgresql"` | This is temporary workaround because of bitnami's deprecation until to completely replace it with our solution. |
+| priorityClassName | string | `""` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/ |
 | readinessProbe | object | `{"failureThreshold":5,"initialDelaySeconds":10,"periodSeconds":30,"timeoutSeconds":3}` | Readiness probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes). |
 | replicaCount | int | `1` | Numbers of replicas |
 | resources | object | `{}` | This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
-| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":false,"runAsGroup":1001,"runAsNonRoot":true,"runAsUser":1001}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
+| revisionHistoryLimit | string | `nil` | The number of old ReplicaSets to retain for rollback. More information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy |
+| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true,"runAsGroup":1001,"runAsNonRoot":true,"runAsUser":1001}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
+| serverAllowedHosts | list | `[]` | List of allowed hostnames for the MLflow server security middleware (env: MLFLOW_SERVER_ALLOWED_HOSTS). When ingress is enabled, hostnames are automatically derived from ingress hosts. Set explicitly to override auto-detection (e.g. to add extra hostnames beyond the ingress host, or when not using ingress). Requires uvicorn, which is the default server in MLflow 3.x. |
+| serverHost | string | `"0.0.0.0"` |  |
 | service | object | `{"annotations":{},"containerPort":5000,"containerPortName":"mlflow","enabled":true,"name":"http","port":80,"type":"ClusterIP"}` | This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/ |
 | service.annotations | object | `{}` | Additional service annotations |
 | service.containerPort | int | `5000` | Default container port |
 | service.containerPortName | string | `"mlflow"` | Default container port name |
 | service.enabled | bool | `true` | Specifies if you want to create a service |
-| service.name | string | `"http"` | Default Service name |
+| service.name | string | `"http"` | Port protocol name for the main HTTP port in the Service spec. This sets spec.ports[].name, not the Service resource name. To rename the Service resource itself use nameOverride or fullnameOverride. |
 | service.port | int | `80` | This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports |
 | service.type | string | `"ClusterIP"` | This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account. AWS EKS users can assign role arn from here. Please find more information from here: https://docs.aws.amazon.com/eks/latest/userguide/associate-service-account-role.html |

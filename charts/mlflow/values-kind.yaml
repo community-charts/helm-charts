@@ -11,3 +11,13 @@ postgresql:
   primary:
     persistence:
       enabled: false
+
+artifactRoot:
+  s3:
+    enabled: true
+
+minio:
+  enabled: true
+
+  persistence:
+    enabled: false
