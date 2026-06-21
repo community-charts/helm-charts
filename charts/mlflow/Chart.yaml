@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.11.0
+version: 1.11.1
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -49,16 +49,23 @@ annotations:
       url: https://community-charts.github.io/docs/charts/mlflow/usage
     - name: Upstream Project
       url: https://github.com/burakince/mlflow
-  artifacthub.io/containsSecurityUpdates: "true"
+  artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: security
-      description: Add securityContext to ini-file-initializer and dbchecker init containers
+    - kind: changed
+      description: Update oauth2-proxy image version to v7.15.3
       links:
-        - name: GitHub PR
-          url: https://github.com/community-charts/helm-charts/pull/433
-  artifacthub.io/images: |
+        - name: oauth2-proxy
+          url: https://quay.io/repository/oauth2-proxy/oauth2-proxy
+    - kind: changed
+      description: Update dependency postgresql from 18.7.5 to 18.7.6
+      links:
+        - name: ArtifactHub
+          url: https://artifacthub.io/packages/helm/bitnami/postgresql
+  artifacthub.io/images: |-
     - name: mlflow
       image: burakince/mlflow:3.14.0
+    - name: oauth2-proxy
+      image: quay.io/oauth2-proxy/oauth2-proxy:v7.15.3
   artifacthub.io/license: MIT
   artifacthub.io/maintainers: |
     - name: burakince
@@ -89,7 +96,7 @@ annotations:
     url: https://keybase.io/communitycharts/pgp_keys.asc
 dependencies:
   - name: postgresql
-    version: 18.7.5
+    version: 18.7.6
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: mysql

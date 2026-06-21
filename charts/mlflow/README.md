@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 1.11.0](https://img.shields.io/badge/Version-1.11.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.14.0](https://img.shields.io/badge/AppVersion-3.14.0-informational?style=flat-square)
+![Version: 1.11.1](https://img.shields.io/badge/Version-1.11.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.14.0](https://img.shields.io/badge/AppVersion-3.14.0-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -954,7 +954,7 @@ Kubernetes: `>=1.16.0-0`
 | Repository | Name | Version |
 |------------|------|---------|
 | https://charts.bitnami.com/bitnami | mysql | 14.0.3 |
-| https://charts.bitnami.com/bitnami | postgresql | 18.7.5 |
+| https://charts.bitnami.com/bitnami | postgresql | 18.7.6 |
 | https://charts.min.io/ | minio | 5.4.0 |
 
 ## Uninstall Helm Chart
@@ -1156,7 +1156,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | mysql.image.repository | string | `"bitnamilegacy/mysql"` | This is temporary workaround because of bitnami's deprecation until to completely replace it with our solution. |
 | nameOverride | string | `""` | String to override the default generated name |
 | nodeSelector | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector |
-| oauth2Proxy | object | `{"cookieSecret":"","createSecret":false,"enabled":false,"existingSecret":{"clientIDKey":"client-id","clientSecretKey":"client-secret","cookieSecretKey":"cookie-secret","name":""},"extraArgs":["--cookie-secure=true","--cookie-samesite=lax"],"extraEnv":{},"image":{"pullPolicy":"IfNotPresent","repository":"quay.io/oauth2-proxy/oauth2-proxy","tag":"v7.4.0"},"listenPort":4180,"provider":{"clientID":"","clientSecret":"","issuerURL":"","name":"keycloak","redirectURL":""},"resources":{}}` | oauth2-proxy sidecar configuration |
+| oauth2Proxy | object | `{"cookieSecret":"","createSecret":false,"enabled":false,"existingSecret":{"clientIDKey":"client-id","clientSecretKey":"client-secret","cookieSecretKey":"cookie-secret","name":""},"extraArgs":["--cookie-secure=true","--cookie-samesite=lax"],"extraEnv":{},"image":{"pullPolicy":"IfNotPresent","repository":"quay.io/oauth2-proxy/oauth2-proxy","tag":"v7.15.3"},"listenPort":4180,"provider":{"clientID":"","clientSecret":"","issuerURL":"","name":"keycloak","redirectURL":""},"resources":{}}` | oauth2-proxy sidecar configuration |
 | oauth2Proxy.cookieSecret | string | `""` | Cookie secret plaintext value — only used when createSecret is true |
 | oauth2Proxy.createSecret | bool | `false` | If true the chart will create a Kubernetes secret with the oauth client id/secret |
 | oauth2Proxy.enabled | bool | `false` | Enable deploying oauth2-proxy as a sidecar to the mlflow pod |
@@ -1167,10 +1167,10 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | oauth2Proxy.existingSecret.name | string | `""` | Name of the pre-existing secret; if empty the chart creates one when createSecret is true |
 | oauth2Proxy.extraArgs | list | `["--cookie-secure=true","--cookie-samesite=lax"]` | Extra args to pass to oauth2-proxy as flags |
 | oauth2Proxy.extraEnv | object | `{}` | Extra environment variables for oauth2-proxy |
-| oauth2Proxy.image | object | `{"pullPolicy":"IfNotPresent","repository":"quay.io/oauth2-proxy/oauth2-proxy","tag":"v7.4.0"}` | OAuth2 Proxy image |
+| oauth2Proxy.image | object | `{"pullPolicy":"IfNotPresent","repository":"quay.io/oauth2-proxy/oauth2-proxy","tag":"v7.15.3"}` | OAuth2 Proxy image |
 | oauth2Proxy.image.pullPolicy | string | `"IfNotPresent"` | OAuth2 Proxy image pull policy |
 | oauth2Proxy.image.repository | string | `"quay.io/oauth2-proxy/oauth2-proxy"` | OAuth2 Proxy image repository |
-| oauth2Proxy.image.tag | string | `"v7.4.0"` | OAuth2 Proxy image tag |
+| oauth2Proxy.image.tag | string | `"v7.15.3"` | OAuth2 Proxy image tag |
 | oauth2Proxy.listenPort | int | `4180` | Port oauth2-proxy listens on inside the pod |
 | oauth2Proxy.provider | object | `{"clientID":"","clientSecret":"","issuerURL":"","name":"keycloak","redirectURL":""}` | Provider specific settings (example: keycloak) |
 | oauth2Proxy.provider.clientID | string | `""` | OAuth2 client ID |
