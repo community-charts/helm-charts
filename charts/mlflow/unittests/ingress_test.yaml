@@ -93,3 +93,42 @@ tests:
       appVersion: 1.0.0
     asserts:
       - matchSnapshot: { }
+
+  - it: should route ingress backend to oauth2Proxy.listenPort when oauth2Proxy is enabled
+    set:
+      ingress:
+        enabled: true
+        hosts:
+          - host: example.com
+            paths:
+              - path: /
+                pathType: Prefix
+      oauth2Proxy:
+        enabled: true
+        listenPort: 4180
+    capabilities:
+      majorVersion: 1
+      minorVersion: 19
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.port.number
+          value: 4180
+
+  - it: should route ingress backend to service.port when oauth2Proxy is disabled
+    set:
+      ingress:
+        enabled: true
+        hosts:
+          - host: example.com
+            paths:
+              - path: /
+                pathType: Prefix
+      service:
+        port: 9090
+    capabilities:
+      majorVersion: 1
+      minorVersion: 19
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.port.number
+          value: 9090

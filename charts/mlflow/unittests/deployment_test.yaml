@@ -601,6 +601,64 @@ tests:
           path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].volumeMounts
         template: deployment.yaml
 
+  - it: should render http-address upstream and provider args in oauth2-proxy sidecar
+    set:
+      oauth2Proxy:
+        enabled: true
+        listenPort: 4180
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].args
+          content: --http-address=0.0.0.0:4180
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].args
+          content: --upstream=http://127.0.0.1:5000
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].args
+          content: --provider=keycloak
+        template: deployment.yaml
+
+  - it: should render oidc-issuer-url arg when provider.issuerURL is set
+    set:
+      oauth2Proxy:
+        enabled: true
+        listenPort: 4180
+        provider:
+          issuerURL: https://oidc.example.com
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].args
+          content: --oidc-issuer-url=https://oidc.example.com
+        template: deployment.yaml
+
+  - it: should render redirect-url arg when provider.redirectURL is set
+    set:
+      oauth2Proxy:
+        enabled: true
+        listenPort: 4180
+        provider:
+          redirectURL: https://mlflow.example.com/oauth2/callback
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].args
+          content: --redirect-url=https://mlflow.example.com/oauth2/callback
+        template: deployment.yaml
+
+  - it: should append extraArgs to oauth2-proxy sidecar args
+    set:
+      oauth2Proxy:
+        enabled: true
+        listenPort: 4180
+        extraArgs:
+          - --skip-jwt-bearer-tokens=true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].args
+          content: --skip-jwt-bearer-tokens=true
+        template: deployment.yaml
+
   - it: should show extra secret environment variables from secrets when we pass any
     set:
       extraSecretNamesForEnvFrom:
@@ -2434,6 +2492,41 @@ tests:
           content:
             name: MLFLOW_S3_ENDPOINT_URL
             value: http://mlflow-minio:9000
+        template: deployment.yaml
+
+  - it: should use minio bucket name for artifact root when s3.bucket is empty
+    set:
+      artifactRoot:
+        s3:
+          enabled: true
+      minio:
+        enabled: true
+        buckets:
+          - name: my-minio-bucket
+            policy: none
+            purge: false
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --default-artifact-root=s3://my-minio-bucket/
+        template: deployment.yaml
+
+  - it: should use s3.bucket over minio bucket name when s3.bucket is set
+    set:
+      artifactRoot:
+        s3:
+          enabled: true
+          bucket: override-bucket
+      minio:
+        enabled: true
+        buckets:
+          - name: my-minio-bucket
+            policy: none
+            purge: false
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --default-artifact-root=s3://override-bucket/
         template: deployment.yaml
 
   - it: should inject uvicorn-opts and not gunicorn-opts when allowedHosts extraArg is set
