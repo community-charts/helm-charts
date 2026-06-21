@@ -2619,6 +2619,21 @@ tests:
           path: spec.template.spec.initContainers[?(@.name == "ini-file-initializer")].env
         template: deployment.yaml
 
+  - it: should render deploymentAnnotations on Deployment metadata
+    set:
+      deploymentAnnotations:
+        velero.database/restart-on-restore: "mlflow"
+        custom.annotation/key: "value"
+    asserts:
+      - equal:
+          path: metadata.annotations["velero.database/restart-on-restore"]
+          value: "mlflow"
+        template: deployment.yaml
+      - equal:
+          path: metadata.annotations["custom.annotation/key"]
+          value: "value"
+        template: deployment.yaml
+
   - it: should not reference auth-admin-secret in ini-file-initializer when ldapAuth enabled and auth disabled
     set:
       ldapAuth:

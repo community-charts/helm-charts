@@ -115,6 +115,11 @@ annotations:
       links:
         - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/468
+    - kind: added
+      description: Add deploymentAnnotations value to annotate the Deployment resource metadata; enables tooling that discovers deployments via metadata.annotations
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/461
     - kind: fixed
       description: Add mutual-exclusivity fail guard for auth and ldapAuth — both cannot be enabled simultaneously
     - kind: fixed

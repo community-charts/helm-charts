@@ -1290,6 +1290,13 @@
       "title": "nodeSelector",
       "type": "object"
     },
+    "deploymentAnnotations": {
+      "additionalProperties": true,
+      "description": "Annotations for the Deployment resource",
+      "required": [],
+      "title": "deploymentAnnotations",
+      "type": "object"
+    },
     "podAnnotations": {
       "additionalProperties": true,
       "description": "Annotations for the pod",
@@ -3216,6 +3223,7 @@
     "nameOverride",
     "fullnameOverride",
     "serviceAccount",
+    "deploymentAnnotations",
     "podAnnotations",
     "extraPodLabels",
     "podSecurityContext",
