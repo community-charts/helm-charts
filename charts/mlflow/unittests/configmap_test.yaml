@@ -259,7 +259,7 @@ tests:
           path: data.MLFLOW_SERVER_ALLOWED_HOSTS
           value: "mlflow.example.com,mlflow2.example.com"
 
-  - it: should not inject MLFLOW_SERVER_ALLOWED_HOSTS into configmap when user sets it in extraEnvVars
+  - it: should still inject MLFLOW_SERVER_ALLOWED_HOSTS into configmap even when user sets it in extraEnvVars
     set:
       ingress:
         enabled: true
@@ -274,8 +274,9 @@ tests:
       path: metadata.name
       value: mlflow-env-configmap
     asserts:
-      - notExists:
+      - equal:
           path: data.MLFLOW_SERVER_ALLOWED_HOSTS
+          value: "mlflow.example.com"
 
   - it: should not inject MLFLOW_SERVER_ALLOWED_HOSTS when ingress is disabled
     set:

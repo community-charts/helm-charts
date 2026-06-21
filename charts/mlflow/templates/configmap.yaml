@@ -38,7 +38,7 @@ data:
   MLFLOW_DISABLE_TELEMETRY: "true"
   DO_NOT_TRACK: "true"
 {{- end }}
-{{- if and .Values.ingress.enabled .Values.ingress.hosts (not (hasKey .Values.extraEnvVars "MLFLOW_SERVER_ALLOWED_HOSTS")) }}
+{{- if and .Values.ingress.enabled .Values.ingress.hosts }}
   {{- $hosts := list }}
   {{- range .Values.ingress.hosts }}
     {{- if .host }}
