@@ -39,7 +39,7 @@ data:
   DO_NOT_TRACK: "true"
 {{- end }}
 {{- if .Values.serverAllowedHosts }}
-  MLFLOW_SERVER_ALLOWED_HOSTS: {{ .Values.serverAllowedHosts | quote }}
+  MLFLOW_SERVER_ALLOWED_HOSTS: {{ join "," .Values.serverAllowedHosts | quote }}
 {{- else if and .Values.ingress.enabled .Values.ingress.hosts }}
   {{- $hosts := list }}
   {{- range .Values.ingress.hosts }}
@@ -52,7 +52,7 @@ data:
   {{- end }}
 {{- end }}
 {{- if .Values.corsAllowedOrigins }}
-  MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: {{ .Values.corsAllowedOrigins | quote }}
+  MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: {{ join "," .Values.corsAllowedOrigins | quote }}
 {{- else if and .Values.ingress.enabled .Values.ingress.hosts }}
   {{- $origins := list }}
   {{- $scheme := "http" }}

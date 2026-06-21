@@ -290,7 +290,9 @@ tests:
 
   - it: should use explicit serverAllowedHosts value when set
     set:
-      serverAllowedHosts: "mlflow.example.com,dashboard.example.com"
+      serverAllowedHosts:
+        - mlflow.example.com
+        - dashboard.example.com
       ingress:
         enabled: true
         hosts:
@@ -308,7 +310,9 @@ tests:
 
   - it: should inject serverAllowedHosts even when ingress is disabled
     set:
-      serverAllowedHosts: "mlflow.internal,10.0.0.5"
+      serverAllowedHosts:
+        - mlflow.internal
+        - 10.0.0.5
       ingress.enabled: false
     documentSelector:
       path: metadata.name
@@ -379,7 +383,8 @@ tests:
 
   - it: should use explicit corsAllowedOrigins value when set
     set:
-      corsAllowedOrigins: "*"
+      corsAllowedOrigins:
+        - "*"
       ingress:
         enabled: true
         hosts:
