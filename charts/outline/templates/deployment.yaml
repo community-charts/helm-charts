@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "outline.fullname" . }}
+  annotations:
+    ignore-check.kube-linter.io/read-secret-from-env-var: "Outline reads secrets via environment variables; the application does not support file-based secret loading"
   labels:
     {{- include "outline.labels" . | nindent 4 }}
 spec:
@@ -53,7 +55,7 @@ spec:
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: {{ include "outline.containerImage" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
           {{- if not (and .Values.redis.enabled (not .Values.redis.auth.enabled)) }}
           command: ["/bin/bash", "/entrypoint.sh"]
@@ -406,6 +408,8 @@ spec:
                 name: {{ . }}
           {{- end }}
           volumeMounts:
+            - name: tmp
+              mountPath: /tmp
             - name: entrypoint-volume
               mountPath: /entrypoint.sh
               subPath: entrypoint.sh
@@ -420,6 +424,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
+        - name: tmp
+          emptyDir: {}
         - name: entrypoint-volume
           configMap:
             name: {{ template "outline.fullname" . }}-entrypoint

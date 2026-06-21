@@ -46,6 +46,19 @@ Create n8n main full name
 {{- end -}}
 
 {{/*
+Labels for extra manifests (no component-specific label)
+*/}}
+{{- define "n8n.extraManifests.labels" -}}
+helm.sh/chart: {{ include "n8n.chart" . }}
+app.kubernetes.io/name: {{ include "n8n.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
 Main labels
 */}}
 {{- define "n8n.main.labels" -}}
@@ -281,12 +294,24 @@ Extract package names from a list of strings
 {{- end -}}
 
 {{/*
-Filter community packages (starting with n8n-nodes-)
+Return a non-empty string if the package is a community package.
+*/}}
+{{- define "n8n.isCommunityPackage" -}}
+{{- $pkg := regexReplaceAll "@[^/@]+$" . "" -}}
+{{- $name := $pkg -}}
+{{- if hasPrefix "@" $pkg -}}
+  {{- $name = (splitList "/" $pkg | last) -}}
+{{- end -}}
+{{- if hasPrefix "n8n-nodes-" $name -}}true{{- end -}}
+{{- end -}}
+
+{{/*
+Filter community packages (starting with n8n-nodes-, also if scoped)
 */}}
 {{- define "n8n.communityPackages" -}}
 {{- $community := list -}}
 {{- range .Values.nodes.external.packages -}}
-{{- if hasPrefix "n8n-nodes-" . -}}
+{{- if include "n8n.isCommunityPackage" . -}}
 {{- $community = append $community . -}}
 {{- end -}}
 {{- end -}}
@@ -299,7 +324,7 @@ Filter non-community packages (as a space-separated string)
 {{- define "n8n.nonCommunityPackages" -}}
 {{- $nonCommunity := list -}}
 {{- range .Values.nodes.external.packages -}}
-{{- if not (hasPrefix "n8n-nodes-" .) -}}
+{{- if not (include "n8n.isCommunityPackage" .) -}}
 {{- $nonCommunity = append $nonCommunity . -}}
 {{- end -}}
 {{- end -}}
@@ -391,6 +416,62 @@ app.kubernetes.io/component: persistence
 {{- end }}
 
 {{/*
+n8n python packages PVC name
+*/}}
+{{- define "n8n-python.packages.name" -}}
+{{- printf "%s-python-packages" (include "n8n.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+
+{{/*
+n8n python packages PVC full name (respects existingClaim)
+*/}}
+{{- define "n8n-python.packages.fullname" -}}
+{{- default (include "n8n-python.packages.name" .) .Values.nodes.python.persistence.existingClaim -}}
+{{- end -}}
+
+{{/*
+n8n community packages PVC name
+*/}}
+{{- define "n8n-community.packages.name" -}}
+{{- printf "%s-community-packages" (include "n8n.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+
+{{/*
+n8n community packages PVC full name (respects existingClaim)
+*/}}
+{{- define "n8n-community.packages.fullname" -}}
+{{- default (include "n8n-community.packages.name" .) .Values.nodes.external.persistence.existingClaim -}}
+{{- end -}}
+
+{{/*
+Returns "true" when main.persistence already covers /home/node/.n8n/nodes,
+making a separate community-node-modules volume redundant.
+Only true when persistence is enabled, mountPath is the default, and no subPath
+is redirecting the mount to a subdirectory of the PVC.
+*/}}
+{{- define "n8n.main.coversCommunityNodes" -}}
+{{- if and .Values.main.persistence.enabled (not .Values.main.persistence.subPath) (eq .Values.main.persistence.mountPath "/home/node/.n8n") -}}
+true
+{{- end -}}
+{{- end -}}
+
+{{/*
+Same check as n8n.main.coversCommunityNodes but for the worker persistence volume.
+*/}}
+{{- define "n8n.worker.coversCommunityNodes" -}}
+{{- if and .Values.worker.persistence.enabled (not .Values.worker.persistence.subPath) (eq .Values.worker.persistence.mountPath "/home/node/.n8n") -}}
+true
+{{- end -}}
+{{- end -}}
+
+{{/*
+n8n task runner uv install shell command string (unquoted)
+*/}}
+{{- define "n8n.taskRunners.uvInstallCommand" -}}
+UV_CACHE_DIR=/tmp/.uv-cache UV_LINK_MODE=copy uv pip install --target /home/node/.python-packages {{ .Values.nodes.python.external.packages | join " " }} && export PYTHONPATH=/home/node/.python-packages && exec /usr/local/bin/task-runner-launcher javascript{{ ternary " python" "" .Values.nodes.python.enabled }}
+{{- end -}}
+
+{{/*
 n8n npm install script logic
 */}}
 {{- define "n8n.npmInstallScript" -}}
@@ -400,10 +481,10 @@ export NON_COMMUNITY_PACKAGES="{{ include "n8n.nonCommunityPackages" . }}"
 echo "$PACKAGES" | sha256sum > /npmdata/packages.hash.new
 if [ ! -f /npmdata/packages.hash ] || ! cmp /npmdata/packages.hash /npmdata/packages.hash.new; then
   if [ -n "$NON_COMMUNITY_PACKAGES" ]; then
-    npm install --loglevel {{ include "n8n.npmLogLevel" .Values.log.level }} --no-save $NON_COMMUNITY_PACKAGES --prefix /npmdata
+    npm install --loglevel {{ include "n8n.npmLogLevel" .Values.log.level }} --no-save --ignore-scripts $NON_COMMUNITY_PACKAGES --prefix /npmdata
   fi
   if [ -n "$COMMUNITY_PACKAGES" ]; then
-    npm install --loglevel {{ include "n8n.npmLogLevel" .Values.log.level }} --no-save $COMMUNITY_PACKAGES --prefix /nodesdata/nodes
+    npm install --loglevel {{ include "n8n.npmLogLevel" .Values.log.level }} --no-save --ignore-scripts $COMMUNITY_PACKAGES --prefix /nodesdata/nodes
   fi
   mv /npmdata/packages.hash.new /npmdata/packages.hash
 else
@@ -455,90 +536,3 @@ Check postgres ssl certificate file content exist or not
 {{- $internalResult -}}
 {{- end -}}
 
-{{/*
-Check if volumes should be included to main. If the context is not provided, result must be false
-*/}}
-{{- define "n8n.main.hasVolumes" -}}
-{{- $hasVolumes := false -}}
-{{- if or .Values.volumes .Values.main.volumes .Values.nodes.external.packages .Values.npmRegistry.enabled (eq (include "n8n.postgres.ssl.hasFileInternal" .) "true") -}}
-  {{- $hasVolumes = true -}}
-{{- end -}}
-{{- $hasVolumes -}}
-{{- end -}}
-
-{{/*
-Check if volumeMounts should be included to main. If the context is not provided, result must be false
-*/}}
-{{- define "n8n.main.hasVolumeMounts" -}}
-{{- $hasVolumeMounts := false -}}
-{{- if or .Values.volumeMounts .Values.main.volumeMounts .Values.nodes.external.packages .Values.npmRegistry.enabled (eq (include "n8n.postgres.ssl.hasFileInternal" .) "true") -}}
-  {{- $hasVolumeMounts = true -}}
-{{- end -}}
-{{- $hasVolumeMounts -}}
-{{- end -}}
-
-{{/*
-Check if volumes should be included to worker. If the context is not provided, result must be false
-*/}}
-{{- define "n8n.worker.hasVolumes" -}}
-{{- $hasVolumes := false -}}
-{{- if or .Values.volumes .Values.worker.volumes .Values.nodes.external.packages .Values.npmRegistry.enabled (eq (include "n8n.postgres.ssl.hasFileInternal" .) "true") -}}
-  {{- $hasVolumes = true -}}
-{{- end -}}
-{{- $hasVolumes -}}
-{{- end -}}
-
-{{/*
-Check if volumeMounts should be included to worker. If the context is not provided, result must be false
-*/}}
-{{- define "n8n.worker.hasVolumeMounts" -}}
-{{- $hasVolumeMounts := false -}}
-{{- if or .Values.volumeMounts .Values.worker.volumeMounts .Values.nodes.external.packages .Values.npmRegistry.enabled (eq (include "n8n.postgres.ssl.hasFileInternal" .) "true") -}}
-  {{- $hasVolumeMounts = true -}}
-{{- end -}}
-{{- $hasVolumeMounts -}}
-{{- end -}}
-
-{{/*
-Check if volumes should be included to webhook. If the context is not provided, result must be false
-*/}}
-{{- define "n8n.webhook.hasVolumes" -}}
-{{- $hasVolumes := false -}}
-{{- if or .Values.volumes .Values.webhook.volumes (eq (include "n8n.postgres.ssl.hasFileInternal" .) "true") -}}
-  {{- $hasVolumes = true -}}
-{{- end -}}
-{{- $hasVolumes -}}
-{{- end -}}
-
-{{/*
-Check if volumeMounts should be included to webhook. If the context is not provided, result must be false
-*/}}
-{{- define "n8n.webhook.hasVolumeMounts" -}}
-{{- $hasVolumeMounts := false -}}
-{{- if or .Values.volumeMounts .Values.webhook.volumeMounts (eq (include "n8n.postgres.ssl.hasFileInternal" .) "true") -}}
-  {{- $hasVolumeMounts = true -}}
-{{- end -}}
-{{- $hasVolumeMounts -}}
-{{- end -}}
-
-{{/*
-Check if volumes should be included to MCP webhook. If the context is not provided, result must be false
-*/}}
-{{- define "n8n.mcp-webhook.hasVolumes" -}}
-{{- $hasVolumes := false -}}
-{{- if or .Values.volumes .Values.webhook.mcp.volumes (eq (include "n8n.postgres.ssl.hasFileInternal" .) "true") -}}
-  {{- $hasVolumes = true -}}
-{{- end -}}
-{{- $hasVolumes -}}
-{{- end -}}
-
-{{/*
-Check if volumeMounts should be included to MCP webhook. If the context is not provided, result must be false
-*/}}
-{{- define "n8n.mcp-webhook.hasVolumeMounts" -}}
-{{- $hasVolumeMounts := false -}}
-{{- if or .Values.volumeMounts .Values.webhook.mcp.volumeMounts (eq (include "n8n.postgres.ssl.hasFileInternal" .) "true") -}}
-  {{- $hasVolumeMounts = true -}}
-{{- end -}}
-{{- $hasVolumeMounts -}}
-{{- end -}}

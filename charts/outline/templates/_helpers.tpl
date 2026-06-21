@@ -149,6 +149,18 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
+Build the full container image reference, appending digest when set.
+*/}}
+{{- define "outline.containerImage" -}}
+{{- $tag := .Values.image.tag | default .Chart.AppVersion -}}
+{{- if .Values.image.digest -}}
+{{- printf "%s:%s@%s" .Values.image.repository $tag .Values.image.digest -}}
+{{- else -}}
+{{- printf "%s:%s" .Values.image.repository $tag -}}
+{{- end -}}
+{{- end }}
+
+{{/*
 Generate random hex similar to `openssl rand -hex 32` command.
 Usage: {{ include "outline.generateRandomHex" 64 }}
 */}}

@@ -15,8 +15,8 @@ should match snapshot of default values:
         # Set the REDIS_URL environment variable. You can find more information about REDIS_URL [here](https://docs.getoutline.com/s/hosting/doc/redis-LGM4BFXYp4#h-advanced)
         export REDIS_URL="ioredis://$BASE64_JSON"
 
-        # Execute the original command (yarn start)
-        exec yarn start
+        # Execute the original command
+        exec node build/server/index.js
     kind: ConfigMap
     metadata:
       labels:
@@ -29,6 +29,8 @@ should match snapshot of default values:
     apiVersion: apps/v1
     kind: Deployment
     metadata:
+      annotations:
+        ignore-check.kube-linter.io/read-secret-from-env-var: Outline reads secrets via environment variables; the application does not support file-based secret loading
       labels:
         app.kubernetes.io/instance: outline
         app.kubernetes.io/managed-by: Helm
@@ -50,7 +52,7 @@ should match snapshot of default values:
       template:
         metadata:
           annotations:
-            checksum/config: 52b4c94af9c3e1eb23b0391ff13115d7b3328cc1271a67be91c19eac87d78e93
+            checksum/config: e64d33fc0d26ff94e6fbec04ebe470993b7f2b781e2f0ac8d54de1b5e23ee347
             checksum/secret: c9f56502fc6d865fa60d33519aa2d0f897bea71d2af7c35aa4b71a1fa9e70e50
           labels:
             app.kubernetes.io/instance: outline
@@ -178,11 +180,13 @@ should match snapshot of default values:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1001
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /entrypoint.sh
                   name: entrypoint-volume
                   subPath: entrypoint.sh
@@ -191,6 +195,8 @@ should match snapshot of default values:
             fsGroupChangePolicy: OnRootMismatch
           serviceAccountName: outline
           volumes:
+            - emptyDir: {}
+              name: tmp
             - configMap:
                 defaultMode: 493
                 name: outline-entrypoint

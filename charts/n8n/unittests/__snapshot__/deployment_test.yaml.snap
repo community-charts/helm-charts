@@ -85,7 +85,6 @@ should match snapshot of default values:
   7: |
     apiVersion: v1
     data:
-      N8N_RUNNERS_ENABLED: "true"
       N8N_RUNNERS_HEARTBEAT_INTERVAL: "30"
       N8N_RUNNERS_MAX_CONCURRENCY: "5"
       N8N_RUNNERS_MODE: internal
@@ -161,7 +160,7 @@ should match snapshot of default values:
       template:
         metadata:
           annotations:
-            checksum/config: ebb640e853e11410aa426741a83e301290fcfa10987f5e8a3e7d2cb8a84eb4c8
+            checksum/config: fc9799ad2ff7266b11a1422e4886d8f41ba893b4e4f24079a667238037ee9667
           labels:
             app.kubernetes.io/component: main
             app.kubernetes.io/instance: n8n
@@ -187,6 +186,8 @@ should match snapshot of default values:
                   value: Europe/Berlin
                 - name: N8N_GRACEFUL_SHUTDOWN_TIMEOUT
                   value: "30"
+                - name: NPM_CONFIG_CACHE
+                  value: /home/node/.cache/npm
               envFrom:
                 - configMapRef:
                     name: n8n-database-configmap
@@ -230,14 +231,31 @@ should match snapshot of default values:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1000
                 runAsNonRoot: true
                 runAsUser: 1000
+              volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
+                - mountPath: /home/node/.cache
+                  name: cache
+                - mountPath: /home/node/.n8n
+                  name: node-modules
+                  readOnly: false
           securityContext:
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           serviceAccountName: n8n
+          volumes:
+            - emptyDir: {}
+              name: tmp
+            - emptyDir: {}
+              name: cache
+            - emptyDir: {}
+              name: node-modules
   11: |
     apiVersion: v1
     data:
@@ -343,7 +361,6 @@ should match snapshot of main persistence:
   7: |
     apiVersion: v1
     data:
-      N8N_RUNNERS_ENABLED: "true"
       N8N_RUNNERS_HEARTBEAT_INTERVAL: "30"
       N8N_RUNNERS_MAX_CONCURRENCY: "5"
       N8N_RUNNERS_MODE: internal
@@ -419,7 +436,7 @@ should match snapshot of main persistence:
       template:
         metadata:
           annotations:
-            checksum/config: ebb640e853e11410aa426741a83e301290fcfa10987f5e8a3e7d2cb8a84eb4c8
+            checksum/config: fc9799ad2ff7266b11a1422e4886d8f41ba893b4e4f24079a667238037ee9667
           labels:
             app.kubernetes.io/component: main
             app.kubernetes.io/instance: n8n
@@ -445,6 +462,8 @@ should match snapshot of main persistence:
                   value: Europe/Berlin
                 - name: N8N_GRACEFUL_SHUTDOWN_TIMEOUT
                   value: "30"
+                - name: NPM_CONFIG_CACHE
+                  value: /home/node/.cache/npm
               envFrom:
                 - configMapRef:
                     name: n8n-database-configmap
@@ -488,19 +507,29 @@ should match snapshot of main persistence:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1000
                 runAsNonRoot: true
                 runAsUser: 1000
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
+                - mountPath: /home/node/.cache
+                  name: cache
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
           securityContext:
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           serviceAccountName: n8n
           volumes:
+            - emptyDir: {}
+              name: tmp
+            - emptyDir: {}
+              name: cache
             - name: node-modules
               persistentVolumeClaim:
                 claimName: n8n-main-persistence
@@ -609,7 +638,6 @@ should match snapshot of main persistence with multiple main node and mode read 
   7: |
     apiVersion: v1
     data:
-      N8N_RUNNERS_ENABLED: "true"
       N8N_RUNNERS_HEARTBEAT_INTERVAL: "30"
       N8N_RUNNERS_MAX_CONCURRENCY: "5"
       N8N_RUNNERS_MODE: internal
@@ -685,7 +713,7 @@ should match snapshot of main persistence with multiple main node and mode read 
       template:
         metadata:
           annotations:
-            checksum/config: ebb640e853e11410aa426741a83e301290fcfa10987f5e8a3e7d2cb8a84eb4c8
+            checksum/config: fc9799ad2ff7266b11a1422e4886d8f41ba893b4e4f24079a667238037ee9667
           labels:
             app.kubernetes.io/component: main
             app.kubernetes.io/instance: n8n
@@ -711,6 +739,8 @@ should match snapshot of main persistence with multiple main node and mode read 
                   value: Europe/Berlin
                 - name: N8N_GRACEFUL_SHUTDOWN_TIMEOUT
                   value: "30"
+                - name: NPM_CONFIG_CACHE
+                  value: /home/node/.cache/npm
                 - name: N8N_MULTI_MAIN_SETUP_ENABLED
                   value: "true"
               envFrom:
@@ -756,19 +786,29 @@ should match snapshot of main persistence with multiple main node and mode read 
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1000
                 runAsNonRoot: true
                 runAsUser: 1000
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
+                - mountPath: /home/node/.cache
+                  name: cache
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
           securityContext:
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           serviceAccountName: n8n
           volumes:
+            - emptyDir: {}
+              name: tmp
+            - emptyDir: {}
+              name: cache
             - name: node-modules
               persistentVolumeClaim:
                 claimName: n8n-main-persistence
@@ -887,7 +927,6 @@ should match snapshot of postgres ssl certificate values:
   7: |
     apiVersion: v1
     data:
-      N8N_RUNNERS_ENABLED: "true"
       N8N_RUNNERS_HEARTBEAT_INTERVAL: "30"
       N8N_RUNNERS_MAX_CONCURRENCY: "5"
       N8N_RUNNERS_MODE: internal
@@ -963,7 +1002,7 @@ should match snapshot of postgres ssl certificate values:
       template:
         metadata:
           annotations:
-            checksum/config: b9968f93f265e5024a55c0d954ae1ab89d083de575b8bb39815245d357f8cc85
+            checksum/config: 4db2178b5cd47bd137334fb0cf833a9cc35ab8b9816f990f7b7b12fc55d0eb3a
           labels:
             app.kubernetes.io/component: main
             app.kubernetes.io/instance: n8n
@@ -989,6 +1028,8 @@ should match snapshot of postgres ssl certificate values:
                   value: Europe/Berlin
                 - name: N8N_GRACEFUL_SHUTDOWN_TIMEOUT
                   value: "30"
+                - name: NPM_CONFIG_CACHE
+                  value: /home/node/.cache/npm
                 - name: DB_POSTGRESDB_USER
                   value: postgres
                 - name: DB_POSTGRESDB_PASSWORD
@@ -1040,11 +1081,18 @@ should match snapshot of postgres ssl certificate values:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1000
                 runAsNonRoot: true
                 runAsUser: 1000
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
+                - mountPath: /home/node/.cache
+                  name: cache
+                - mountPath: /home/node/.n8n
+                  name: node-modules
+                  readOnly: false
                 - mountPath: /home/node/certs/ca/ca.crt
                   name: pg-ssl-ca
                   readOnly: true
@@ -1060,8 +1108,16 @@ should match snapshot of postgres ssl certificate values:
           securityContext:
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           serviceAccountName: n8n
           volumes:
+            - emptyDir: {}
+              name: tmp
+            - emptyDir: {}
+              name: cache
+            - emptyDir: {}
+              name: node-modules
             - name: pg-ssl-ca
               secret:
                 items:

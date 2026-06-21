@@ -27,7 +27,7 @@ spec:
     {{- end }}
   {{- end }}
 {{- end }}
-{{- if and .Values.worker.persistence.enabled (not .Values.worker.persistence.existingClaim) (eq (int .Values.worker.count) 1) }}
+{{- if and .Values.worker.persistence.enabled (not .Values.worker.persistence.existingClaim) (not .Values.worker.forceToUseStatefulset) (or (and (eq (int .Values.worker.count) 1) (not .Values.worker.autoscaling.enabled)) (eq .Values.worker.persistence.accessMode "ReadWriteMany")) }}
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -53,6 +53,57 @@ spec:
   storageClassName: ""
     {{- else }}
   storageClassName: {{ .Values.worker.persistence.storageClass | quote }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- $mainCoversNodes := eq (include "n8n.main.coversCommunityNodes" .) "true" }}
+{{- $workerCoversNodes := eq (include "n8n.worker.coversCommunityNodes" .) "true" }}
+{{- $pvcNeeded := or (and (not $mainCoversNodes) (not .Values.main.forceToUseStatefulset)) (and (eq .Values.worker.mode "queue") (not $workerCoversNodes) (not .Values.worker.forceToUseStatefulset)) }}
+{{- if and .Values.nodes.external.persistence.enabled (not .Values.nodes.external.persistence.existingClaim) .Values.nodes.external.packages $pvcNeeded }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "n8n-community.packages.fullname" . }}
+  {{- with .Values.nodes.external.persistence.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    - {{ .Values.nodes.external.persistence.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.nodes.external.persistence.size }}
+  {{- if .Values.nodes.external.persistence.storageClass }}
+    {{- if (eq "-" .Values.nodes.external.persistence.storageClass) }}
+  storageClassName: ""
+    {{- else }}
+  storageClassName: {{ .Values.nodes.external.persistence.storageClass | quote }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- if and .Values.nodes.python.persistence.enabled (not .Values.nodes.python.persistence.existingClaim) (eq .Values.taskRunners.mode "external") }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "n8n-python.packages.fullname" . }}
+  {{- with .Values.nodes.python.persistence.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    - {{ .Values.nodes.python.persistence.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.nodes.python.persistence.size }}
+  {{- if .Values.nodes.python.persistence.storageClass }}
+    {{- if (eq "-" .Values.nodes.python.persistence.storageClass) }}
+  storageClassName: ""
+    {{- else }}
+  storageClassName: {{ .Values.nodes.python.persistence.storageClass | quote }}
     {{- end }}
   {{- end }}
 {{- end }}

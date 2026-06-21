@@ -43,7 +43,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: {{ include "actualbudget.containerImage" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: ACTUAL_PORT
@@ -103,15 +103,13 @@ spec:
             {{- toYaml .Values.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- if or .Values.volumeMounts .Values.persistence.enabled }}
           volumeMounts:
-          {{- end }}
-          {{- if .Values.persistence.enabled }}
+            - name: tmp
+              mountPath: /tmp
             - name: data
               mountPath: {{ default "/data" .Values.files.dataDirectory }}
-            {{- if .Values.persistence.subPath }}
+          {{- if and .Values.persistence.enabled .Values.persistence.subPath }}
               subPath: {{ .Values.persistence.subPath }}
-            {{- end }}
           {{- end }}
           {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
@@ -119,18 +117,20 @@ spec:
       {{- with .Values.extraContainers }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if or .Values.volumes .Values.persistence.enabled }}
       volumes:
-      {{- end }}
-      {{- if .Values.persistence.enabled }}
+        - name: tmp
+          emptyDir: {}
         - name: data
+        {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
-        {{- if .Values.persistence.existingClaim }}
+          {{- if .Values.persistence.existingClaim }}
             claimName: {{ .Values.persistence.existingClaim }}
-        {{- else }}
+          {{- else }}
             claimName: {{ template "actualbudget.fullname" . }}-data
+          {{- end }}
+        {{- else }}
+          emptyDir: {}
         {{- end }}
-      {{- end }}
       {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
       {{- end }}

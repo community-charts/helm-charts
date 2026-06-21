@@ -24,6 +24,9 @@ strategy:
     maxSurge: "25%"
     maxUnavailable: "25%"
 
+# -- The number of old ReplicaSets to retain for rollback. More information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy
+revisionHistoryLimit: ~
+
 # -- This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
 serviceAccount:
   # -- Specifies whether a service account should be created
@@ -44,6 +47,8 @@ podLabels: {}
 podSecurityContext:
   fsGroup: 1000
   fsGroupChangePolicy: "OnRootMismatch"
+  seccompProfile:
+    type: RuntimeDefault
 
 # -- This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
 securityContext:
@@ -51,7 +56,19 @@ securityContext:
   capabilities:
     drop:
       - ALL
-  readOnlyRootFilesystem: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  privileged: false
+  runAsUser: 1000
+  runAsGroup: 1000
+
+# -- Security Context for the wait-for-main busybox init containers.
+waitContainerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
   runAsNonRoot: true
   privileged: false
   runAsUser: 1000
@@ -119,6 +136,20 @@ nodes:
     packages: []
       # - "moment@2.29.4"
       # - "lodash@4.17.21"
+    # -- Persistence for community node packages installed by the init container. Optional PVC so packages survive pod restarts without re-downloading.
+    persistence:
+      # -- Enable persistence. When false, packages are installed into an emptyDir and lost on pod restart.
+      enabled: false
+      # -- Use an existing PVC instead of creating one. When set, no PVC is created by this chart.
+      existingClaim: ""
+      # -- Storage class for the PVC. Empty string uses the cluster default.
+      storageClass: ""
+      # -- Access mode. Use ReadWriteMany when worker pods may be scheduled on different nodes.
+      accessMode: ReadWriteOnce
+      # -- Size of the PVC.
+      size: 1Gi
+      # -- Additional annotations for the PVC.
+      annotations: {}
   # -- Image for the init container to install npm packages
   initContainer:
     # -- Image for the init container to install npm packages
@@ -137,6 +168,54 @@ nodes:
       # limits:
       #   cpu: 500m
       #   memory: 256Mi
+  # -- Python Code node configuration. Requires n8n 1.111.0+ and taskRunners.mode: external.
+  python:
+    # -- Enable Python code execution in the Code node via external task runners.
+    enabled: false
+    # -- Built-in Python module access for the Code node.
+    builtin:
+      # -- Python standard library modules allowed in Code nodes. Use ['*'] to allow all.
+      modules: []
+        # - "*"
+    # -- External Python package access for the Code node.
+    external:
+      # -- Allow all external Python packages in Code nodes. When true, sets N8N_RUNNERS_EXTERNAL_ALLOW=* regardless of packages list.
+      allowAll: false
+      # -- Python packages to install via uv before starting the runner (e.g. ["pandas", "numpy"]). Each listed package is also automatically allowed as an external package in Code nodes.
+      packages: []
+        # - pandas
+        # - numpy
+    # -- Persistence for Python packages installed by uv. Optional PVC so packages survive pod restarts without re-downloading.
+    persistence:
+      # -- Enable persistence. When false, packages are installed into an emptyDir and lost on pod restart.
+      enabled: false
+      # -- Use an existing PVC instead of creating one. When set, no PVC is created by this chart.
+      existingClaim: ""
+      # -- Storage class for the PVC. Empty string uses the cluster default.
+      storageClass: ""
+      # -- Access mode. Use ReadWriteMany when worker pods may be scheduled on different nodes.
+      accessMode: ReadWriteOnce
+      # -- Size of the PVC.
+      size: 1Gi
+      # -- Additional annotations for the PVC.
+      annotations: {}
+
+# -- Configuration for private Python package (PyPI) registry. Used by the runner sidecar when nodes.python.external.packages is set.
+pypiRegistry:
+  # -- Enable private PyPI registry support for the runner sidecar.
+  enabled: false
+  # -- URL of the private PyPI index (e.g. https://my.jfrog.io/artifactory/api/pypi/pypi/simple/).
+  # Used when no config file is provided; sets UV_DEFAULT_INDEX in the sidecar.
+  # For authenticated registries embed credentials inline or use customUvConfig/secretName instead.
+  url: ""
+  # -- Name of an existing Kubernetes secret whose data contains a uv.toml config file.
+  # When set, the file is mounted into the runner sidecar and UV_CONFIG_FILE is set.
+  secretName: ""
+  # -- Key within the secret that holds the uv.toml content.
+  secretKey: "uv.toml"
+  # -- Inline uv.toml content. When set and secretName is empty, the chart creates a Secret
+  # from this content (mirrors customNpmrc behaviour). Mutually exclusive with url.
+  customUvConfig: ""
 
 # -- Configuration for private npm registry
 npmRegistry:
@@ -287,8 +366,14 @@ license:
   activationKey: ""
   # -- The name of an existing secret with license activation key. The secret must contain a key with the name N8N_LICENSE_ACTIVATION_KEY.
   existingActivationKeySecret: ""
-  # -- The auto new license configuration
+  # -- @deprecated Use license.autoRenew fields instead.
   autoNenew:
+    # -- @deprecated Use license.autoRenew.enabled field instead.
+    enabled: ~
+    # -- @deprecated Use license.autoRenew.offsetInHours field instead.
+    offsetInHours: ~
+  # -- The auto new license configuration
+  autoRenew:
     # -- Enables (true) or disables (false) autorenewal for licenses. If disabled, you need to manually renew the license every 10 days by navigating to Settings > Usage and plan, and pressing F5. Failure to renew the license will disable Enterprise features.
     enabled: true
     # -- Time in hours before expiry a license should automatically renew.
@@ -311,9 +396,11 @@ main:
     # -- Whether to enable the PodDisruptionBudget
     enabled: true
     # -- Minimum number of available replicas
-    minAvailable: 1
+    minAvailable: null
     # -- Maximum number of unavailable replicas
-    maxUnavailable: null
+    maxUnavailable: 1
+    # -- Unhealty main pod eviction policy
+    unhealthyPodEvictionPolicy: AlwaysAllow
 
   # -- This block is for setting up the resource management for the main pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources: {}
@@ -369,6 +456,14 @@ main:
 
   # -- Extra environment variables
   extraEnvVars: {}
+
+  # -- Extra environment variables that support `valueFrom` (e.g., secretKeyRef, configMapKeyRef). Entries are passed through verbatim and rendered after `extraEnvVars`.
+  extraEnv: []
+  # - name: MY_ENV
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: my-secret
+  #       key: my-key
 
   # -- Extra secrets for environment variables
   extraSecretNamesForEnvFrom: []
@@ -465,9 +560,11 @@ worker:
     # -- Whether to enable the PodDisruptionBudget
     enabled: true
     # -- Minimum number of available replicas
-    minAvailable: 1
+    minAvailable: null
     # -- Maximum number of unavailable replicas
-    maxUnavailable: null
+    maxUnavailable: 1
+    # -- Unhealty worker pod eviction policy
+    unhealthyPodEvictionPolicy: AlwaysAllow
 
   # -- This is to setup the wait for the main node to be ready.
   waitMainNodeReady:
@@ -546,6 +643,14 @@ worker:
   # -- Extra environment variables
   extraEnvVars: {}
 
+  # -- Extra environment variables that support `valueFrom` (e.g., secretKeyRef, configMapKeyRef). Entries are passed through verbatim and rendered after `extraEnvVars`.
+  extraEnv: []
+  # - name: MY_ENV
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: my-secret
+  #       key: my-key
+
   # -- Extra secrets for environment variables
   extraSecretNamesForEnvFrom: []
 
@@ -621,6 +726,14 @@ webhook:
 
     # -- Extra environment variables for the mcp webhook pod
     extraEnvVars: {}
+
+    # -- Extra environment variables for the mcp webhook pod that support `valueFrom` (e.g., secretKeyRef, configMapKeyRef). Entries are passed through verbatim and rendered after `extraEnvVars`.
+    extraEnv: []
+    # - name: MY_ENV
+    #   valueFrom:
+    #     secretKeyRef:
+    #       name: my-secret
+    #       key: my-key
 
     # -- Extra secrets for environment variables for the mcp webhook pod
     extraSecretNamesForEnvFrom: []
@@ -712,9 +825,11 @@ webhook:
     # -- Whether to enable the PodDisruptionBudget
     enabled: true
     # -- Minimum number of available replicas
-    minAvailable: 1
+    minAvailable: null
     # -- Maximum number of unavailable replicas
-    maxUnavailable: null
+    maxUnavailable: 1
+    # -- Unhealty webhook pod eviction policy
+    unhealthyPodEvictionPolicy: AlwaysAllow
 
   # -- This is to setup the wait for the webhook node to be ready.
   waitMainNodeReady:
@@ -765,6 +880,14 @@ webhook:
 
   # -- Extra environment variables
   extraEnvVars: {}
+
+  # -- Extra environment variables that support `valueFrom` (e.g., secretKeyRef, configMapKeyRef). Entries are passed through verbatim and rendered after `extraEnvVars`.
+  extraEnv: []
+  # - name: MY_ENV
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: my-secret
+  #       key: my-key
 
   # -- Extra secrets for environment variables
   extraSecretNamesForEnvFrom: []
@@ -829,6 +952,15 @@ taskRunners:
     nodeOptions:
       - "--max-semi-space-size=16"
       - "--max-old-space-size=300"
+
+    # -- The image for the external task runner sidecar. Tag must match the n8n appVersion.
+    image:
+      # -- The repository for the external task runner image
+      repository: n8nio/runners
+      # -- This sets the pull policy for images.
+      pullPolicy: IfNotPresent
+      # -- Overrides the image tag whose default is the chart appVersion.
+      tag: ""
 
     # -- The resources for the external task runner
     resources:
@@ -940,13 +1072,21 @@ serviceMonitor:
     # -- Whether to include queue metrics
     queueMetrics: false
 
-# -- DEPRECATED: Use main, worker, and webhook blocks extraEnvVars fields instead. This field will be removed in a future release.
+# -- @deprecated Use main, worker, and webhook blocks extraEnvVars fields instead. This field will be removed in a future release.
 extraEnvVars: {}
 
-# -- DEPRECATED: Use main, worker, and webhook blocks extraSecretNamesForEnvFrom fields instead. This field will be removed in a future release.
+# -- @deprecated Use main, worker, webhook, and webhook.mcp blocks extraEnv fields instead. This field will be removed in a future release.
+extraEnv: []
+# - name: MY_ENV
+#   valueFrom:
+#     secretKeyRef:
+#       name: my-secret
+#       key: my-key
+
+# -- @deprecated Use main, worker, and webhook blocks extraSecretNamesForEnvFrom fields instead. This field will be removed in a future release.
 extraSecretNamesForEnvFrom: []
 
-# -- DEPRECATED: Use main, worker, and webhook blocks resources fields instead. This field will be removed in a future release.
+# -- @deprecated Use main, worker, and webhook blocks resources fields instead. This field will be removed in a future release.
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -959,20 +1099,20 @@ resources: {}
   #   cpu: 2000m
   #   memory: 1Gi
 
-# -- DEPRECATED: Use main, worker, and webhook blocks livenessProbe field instead. This field will be removed in a future release.
+# -- @deprecated Use main, worker, and webhook blocks livenessProbe field instead. This field will be removed in a future release.
 livenessProbe: {}
 
-# -- DEPRECATED: Use main, worker, and webhook blocks readinessProbe field instead. This field will be removed in a future release.
+# -- @deprecated Use main, worker, and webhook blocks readinessProbe field instead. This field will be removed in a future release.
 readinessProbe: {}
 
-# -- DEPRECATED: Use main, worker, and webhook blocks volumes fields instead. This field will be removed in a future release.
+# -- @deprecated Use main, worker, and webhook blocks volumes fields instead. This field will be removed in a future release.
 volumes: []
 # - name: foo
 #   secret:
 #     secretName: mysecret
 #     optional: false
 
-# -- DEPRECATED: Use main, worker, and webhook blocks volumeMounts fields instead. This field will be removed in a future release.
+# -- @deprecated Use main, worker, and webhook blocks volumeMounts fields instead. This field will be removed in a future release.
 volumeMounts: []
 # - name: foo
 #   mountPath: "/etc/foo"
@@ -984,7 +1124,7 @@ nodeSelector: {}
 # -- For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
 tolerations: []
 
-# -- DEPRECATED: Use main, worker, and webhook blocks volumes fields instead. This field will be removed in a future release.
+# -- @deprecated Use main, worker, and webhook blocks volumes fields instead. This field will be removed in a future release.
 affinity: {}
 
 # -- For more information checkout: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy
@@ -1033,6 +1173,10 @@ externalRedis:
   # -- The name of an existing secret with Redis (must contain key `redis-password`) and Sentinel credentials.
   # When it's set, the `externalRedis.password` parameter is ignored
   existingSecret: ""
+  # -- The key in `externalRedis.existingSecret` that stores the Redis username.
+  existingUsernameKey: ""
+  # -- The key in `externalRedis.existingSecret` that stores the Redis password.
+  existingPasswordKey: ""
   # -- List of Redis Cluster nodes. Setting this variable will create a Redis Cluster client instead of a Redis client, and n8n will ignore `externalRedis.host` and `externalRedis.port`.
   clusterNodes: []
     # - host: redis-1
@@ -1097,6 +1241,14 @@ externalPostgresql:
   # -- The name of an existing secret with PostgreSQL (must contain key `postgres-password`) and credentials.
   # When it's set, the `externalPostgresql.password` parameter is ignored
   existingSecret: ""
+  # -- The key in `externalPostgresql.existingSecret` that stores the PostgreSQL password.
+  existingSecretPasswordKey: ""
+
+# -- List of extra Kubernetes manifests (objects or YAML strings) to deploy alongside n8n. Chart labels are automatically merged into each manifest's metadata.
+extraManifests: []
+
+# -- List of extra Kubernetes manifests as Helm template strings to deploy alongside n8n. Chart labels are automatically merged into each manifest's metadata.
+extraTemplateManifests: []
 
 # -- Minio configuration
 minio:

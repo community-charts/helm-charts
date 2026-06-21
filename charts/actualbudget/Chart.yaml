@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.8.7
+version: 1.9.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "26.2.0"
+appVersion: "26.6.0"
 kubeVersion: ">=1.16.0-0"
 home: https://actualbudget.org/
 maintainers:
@@ -49,14 +49,25 @@ annotations:
       url: https://github.com/actualbudget/actual
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Update actualbudget/actual-server image version to 26.2.0
-      links:
-        - name: Upstream Project
-          url: https://hub.docker.com/r/actualbudget/actual-server
+    - kind: added
+      description: Add optional image digest support for immutable image pulls
+    - kind: fixed
+      description: Fix secret namespace using release namespace instead of undefined value
+    - kind: fixed
+      description: Align schema default values with actual values.yaml defaults
+    - kind: fixed
+      description: Fix supplementalGroups schema title typo
+    - kind: fixed
+      description: Fix notContains test assertion on scalar field to use isNull
+    - kind: fixed
+      description: Fix NOTES.txt to use configurable service port in port-forward instructions
+    - kind: fixed
+      description: Use @deprecated marker convention for dicovertUrl field
+    - kind: fixed
+      description: Enable readOnlyRootFilesystem and add built-in tmp emptyDir volume
   artifacthub.io/images: |
     - name: actualbudget
-      image: actualbudget/actual-server:26.2.0
+      image: actualbudget/actual-server:26.6.0
       platforms:
         - linux/amd64
         - linux/arm64

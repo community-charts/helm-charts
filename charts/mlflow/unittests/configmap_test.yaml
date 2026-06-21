@@ -143,6 +143,72 @@ tests:
       - hasDocuments:
           count: 2
 
+  - it: should skip mssql host port database env vars when connectionUrl is set
+    set:
+      backendStore.mssql.enabled: true
+      backendStore.mssql.connectionUrl: "mssql+pyodbc://?odbc_connect=DRIVER%3DODBC+Driver+17%3BAuthentication%3DActiveDirectoryMsi%3B"
+    asserts:
+      - notExists:
+          path: data.MSSQL_HOST
+        documentSelector:
+          path: metadata.name
+          value: mlflow-env-configmap
+      - notExists:
+          path: data.MSSQL_TCP_PORT
+        documentSelector:
+          path: metadata.name
+          value: mlflow-env-configmap
+      - notExists:
+          path: data.MSSQL_DATABASE
+        documentSelector:
+          path: metadata.name
+          value: mlflow-env-configmap
+
+  - it: should use connectionUrl in migration script when mssql connectionUrl is set
+    set:
+      backendStore.mssql.enabled: true
+      backendStore.mssql.connectionUrl: "mssql+pyodbc://?odbc_connect=DRIVER%3DODBC+Driver+17%3BAuthentication%3DActiveDirectoryMsi%3B"
+      backendStore.databaseMigration: true
+    asserts:
+      - matchSnapshot: {}
+        documentSelector:
+          path: metadata.name
+          value: mlflow-migrations
+
+  - it: should skip mssql host port database env vars when existingConnectionUrlSecret is set
+    set:
+      backendStore.mssql.enabled: true
+      backendStore.mssql.existingConnectionUrlSecret.name: mssql-url-secret
+      backendStore.mssql.existingConnectionUrlSecret.key: connectionUrl
+    asserts:
+      - notExists:
+          path: data.MSSQL_HOST
+        documentSelector:
+          path: metadata.name
+          value: mlflow-env-configmap
+      - notExists:
+          path: data.MSSQL_TCP_PORT
+        documentSelector:
+          path: metadata.name
+          value: mlflow-env-configmap
+      - notExists:
+          path: data.MSSQL_DATABASE
+        documentSelector:
+          path: metadata.name
+          value: mlflow-env-configmap
+
+  - it: should use existingConnectionUrlSecret in migration script when set
+    set:
+      backendStore.mssql.enabled: true
+      backendStore.mssql.existingConnectionUrlSecret.name: mssql-url-secret
+      backendStore.mssql.existingConnectionUrlSecret.key: connectionUrl
+      backendStore.databaseMigration: true
+    asserts:
+      - matchSnapshot: {}
+        documentSelector:
+          path: metadata.name
+          value: mlflow-migrations
+
   - it: should have postgresql environments when postgresql is enabled
     set:
       postgresql:
@@ -220,6 +286,261 @@ tests:
       - equal:
           path: data.DO_NOT_TRACK
           value: "true"
+
+  - it: should inject MLFLOW_SERVER_ALLOWED_HOSTS when ingress is enabled with a host
+    set:
+      ingress:
+        enabled: true
+        hosts:
+          - host: mlflow.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.MLFLOW_SERVER_ALLOWED_HOSTS
+          value: "mlflow.example.com"
+
+  - it: should join multiple ingress hosts with comma
+    set:
+      ingress:
+        enabled: true
+        hosts:
+          - host: mlflow.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+          - host: mlflow2.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.MLFLOW_SERVER_ALLOWED_HOSTS
+          value: "mlflow.example.com,mlflow2.example.com"
+
+  - it: should still inject MLFLOW_SERVER_ALLOWED_HOSTS into configmap even when user sets it in extraEnvVars
+    set:
+      ingress:
+        enabled: true
+        hosts:
+          - host: mlflow.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+      extraEnvVars:
+        MLFLOW_SERVER_ALLOWED_HOSTS: "*"
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.MLFLOW_SERVER_ALLOWED_HOSTS
+          value: "mlflow.example.com"
+
+  - it: should not inject MLFLOW_SERVER_ALLOWED_HOSTS when ingress is disabled
+    set:
+      ingress.enabled: false
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - notExists:
+          path: data.MLFLOW_SERVER_ALLOWED_HOSTS
+
+  - it: should append serverAllowedHosts to ingress-derived hosts and deduplicate
+    set:
+      serverAllowedHosts:
+        - mlflow.example.com
+        - dashboard.example.com
+      ingress:
+        enabled: true
+        hosts:
+          - host: mlflow.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.MLFLOW_SERVER_ALLOWED_HOSTS
+          value: "mlflow.example.com,dashboard.example.com"
+
+  - it: should append extra serverAllowedHosts not present in ingress
+    set:
+      serverAllowedHosts:
+        - dashboard.example.com
+      ingress:
+        enabled: true
+        hosts:
+          - host: mlflow.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.MLFLOW_SERVER_ALLOWED_HOSTS
+          value: "mlflow.example.com,dashboard.example.com"
+
+  - it: should output only wildcard when serverAllowedHosts contains asterisk
+    set:
+      serverAllowedHosts:
+        - "*"
+      ingress:
+        enabled: true
+        hosts:
+          - host: mlflow.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.MLFLOW_SERVER_ALLOWED_HOSTS
+          value: "*"
+
+  - it: should inject serverAllowedHosts even when ingress is disabled
+    set:
+      serverAllowedHosts:
+        - mlflow.internal
+        - 10.0.0.5
+      ingress.enabled: false
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.MLFLOW_SERVER_ALLOWED_HOSTS
+          value: "mlflow.internal,10.0.0.5"
+
+  - it: should auto-inject http CORS origin from ingress host when no TLS
+    set:
+      ingress:
+        enabled: true
+        hosts:
+          - host: mlflow.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.MLFLOW_SERVER_CORS_ALLOWED_ORIGINS
+          value: "http://mlflow.example.com"
+
+  - it: should auto-inject https CORS origin from ingress host when TLS configured
+    set:
+      ingress:
+        enabled: true
+        hosts:
+          - host: mlflow.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+        tls:
+          - secretName: mlflow-tls
+            hosts:
+              - mlflow.example.com
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.MLFLOW_SERVER_CORS_ALLOWED_ORIGINS
+          value: "https://mlflow.example.com"
+
+  - it: should join multiple ingress hosts for CORS origins with comma
+    set:
+      ingress:
+        enabled: true
+        hosts:
+          - host: mlflow.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+          - host: mlflow2.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.MLFLOW_SERVER_CORS_ALLOWED_ORIGINS
+          value: "http://mlflow.example.com,http://mlflow2.example.com"
+
+  - it: should append extra corsAllowedOrigins not present in ingress
+    set:
+      corsAllowedOrigins:
+        - https://dashboard.example.com
+      ingress:
+        enabled: true
+        hosts:
+          - host: mlflow.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.MLFLOW_SERVER_CORS_ALLOWED_ORIGINS
+          value: "http://mlflow.example.com,https://dashboard.example.com"
+
+  - it: should deduplicate when corsAllowedOrigins repeats an ingress-derived origin
+    set:
+      corsAllowedOrigins:
+        - http://mlflow.example.com
+      ingress:
+        enabled: true
+        hosts:
+          - host: mlflow.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.MLFLOW_SERVER_CORS_ALLOWED_ORIGINS
+          value: "http://mlflow.example.com"
+
+  - it: should output only wildcard when corsAllowedOrigins contains asterisk
+    set:
+      corsAllowedOrigins:
+        - "*"
+      ingress:
+        enabled: true
+        hosts:
+          - host: mlflow.example.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+    documentSelector:
+      path: metadata.name
+      value: mlflow-env-configmap
+    asserts:
+      - equal:
+          path: data.MLFLOW_SERVER_CORS_ALLOWED_ORIGINS
+          value: "*"
 
   - it: should match snapshot of default values
     release:

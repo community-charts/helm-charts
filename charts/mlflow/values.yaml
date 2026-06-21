@@ -14,6 +14,8 @@ image:
   pullPolicy: IfNotPresent
   # -- The docker image tag to use. Default app version
   tag: ""
+  # -- Image digest in the format sha256:<hex>. When set, overrides the tag for immutable pulls.
+  digest: ""
 
 # -- mlflow init images
 initImages:
@@ -58,6 +60,9 @@ nameOverride: ""
 # -- String to override the default generated fullname
 fullnameOverride: ""
 
+# -- The number of old ReplicaSets to retain for rollback. More information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy
+revisionHistoryLimit: ~
+
 serviceAccount:
   # -- Specifies whether a ServiceAccount should be created
   create: true
@@ -74,6 +79,9 @@ serviceAccount:
   # -- The name of the ServiceAccount to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
+
+# -- Annotations for the Deployment resource
+deploymentAnnotations: {}
 
 # -- Annotations for the pod
 podAnnotations: {}
@@ -92,7 +100,7 @@ securityContext:
   capabilities:
     drop:
       - ALL
-  readOnlyRootFilesystem: false
+  readOnlyRootFilesystem: true
   runAsNonRoot: true
   privileged: false
   runAsUser: 1001
@@ -106,7 +114,7 @@ service:
   type: ClusterIP
   # -- This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
   port: 80
-  # -- Default Service name
+  # -- Port protocol name for the main HTTP port in the Service spec. This sets spec.ports[].name, not the Service resource name. To rename the Service resource itself use nameOverride or fullnameOverride.
   name: http
   # -- Default container port
   containerPort: 5000
@@ -185,6 +193,19 @@ backendStore:
     password: "" # required
     # -- mssql database connection driver. e.g.: "pymssql"
     driver: "pymssql"
+    # -- Full SQLAlchemy connection URL for mssql (e.g. for Azure AD / MSI authentication with no embedded credentials).
+    # When set, host/port/database/user/password are ignored and this URL is used directly as --backend-store-uri.
+    # Example: "mssql+pyodbc://?odbc_connect=DRIVER%3D...%3BAuthentication%3DActiveDirectoryMsi%3B"
+    connectionUrl: ""
+    # -- Existing Kubernetes Secret containing the full MSSQL connection URL as a secret value.
+    # Use this instead of connectionUrl when the connection string contains credentials.
+    # The secret value is exposed as MSSQL_CONNECTION_URL and passed directly as --backend-store-uri.
+    # Takes precedence over connectionUrl when name is set.
+    existingConnectionUrlSecret:
+      # -- Name of the existing secret
+      name: ""
+      # -- Key within the secret that holds the connection URL
+      key: ""
 
   # -- Specifies if you want to use an existing database secret.
   existingDatabaseSecret:
@@ -287,10 +308,10 @@ artifactRoot:
     existingSecret:
       # -- This is for setting up the AWS IAM user secrets existing secret name.
       name: ""
-      # -- This is for setting up the key for AWS_ACCESS_KEY_ID secret. If it's set, awsAccessKeyId will be ignored.
-      keyOfAccessKeyId: ""
-      # -- This is for setting up the key for AWS_SECRET_ACCESS_KEY secret. If it's set, awsSecretAccessKey will be ignored.
-      keyOfSecretAccessKey: ""
+      # -- Key in the existing secret that holds the AWS_ACCESS_KEY_ID value.
+      keyOfAccessKeyId: "AWS_ACCESS_KEY_ID"
+      # -- Key in the existing secret that holds the AWS_SECRET_ACCESS_KEY value.
+      keyOfSecretAccessKey: "AWS_SECRET_ACCESS_KEY"
 
   # -- Specifies if you want to use Google Cloud Storage Mlflow Artifact Root
   gcs:
@@ -306,7 +327,7 @@ flaskServerSecretKey: ""
 
 # -- Mlflow authentication settings
 auth:
-  # -- Specifies if you want to enable mlflow authentication. auth and ldapAuth can't be enabled at same time.
+  # -- Specifies if you want to enable mlflow authentication. auth, ldapAuth, and oidcAuth can't be enabled at same time.
   enabled: false
   # -- Mlflow admin user username
   adminUsername: ""
@@ -361,7 +382,7 @@ auth:
 
 # -- Basic Authentication with LDAP backend
 ldapAuth:
-  # -- Specifies if you want to enable mlflow LDAP authentication. auth and ldapAuth can't be enabled at same time.
+  # -- Specifies if you want to enable mlflow LDAP authentication. auth, ldapAuth, and oidcAuth can't be enabled at same time.
   enabled: false
   # -- LDAP URI. e.g.: "ldap://lldap:3890/dc=mlflow,dc=test"
   uri: ""
@@ -439,6 +460,8 @@ extraArgs: {}
 # It must always start with slash `/`
 # e.g. /mlflow
   # staticPrefix: TEXT
+# Additional command line options forwarded to uvicorn processes (used by default).
+  # uvicornOpts: TEXT
 # Additional command line options forwarded to gunicorn processes.
   # gunicornOpts: TEXT
 # Additional command line options for waitress-serve.
@@ -490,6 +513,23 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
+
+# -- List of allowed CORS origins for the MLflow server security middleware (env: MLFLOW_SERVER_CORS_ALLOWED_ORIGINS).
+# When ingress is enabled, origins are automatically derived from ingress hosts: https:// if ingress.tls is configured, http:// otherwise.
+# Set explicitly to override auto-detection (e.g. ["*"] for dev, or origins behind a load balancer with TLS termination before ingress).
+# Requires uvicorn, which is the default server in MLflow 3.x.
+corsAllowedOrigins: []
+
+# -- List of allowed hostnames for the MLflow server security middleware (env: MLFLOW_SERVER_ALLOWED_HOSTS).
+# When ingress is enabled, hostnames are automatically derived from ingress hosts.
+# Set explicitly to override auto-detection (e.g. to add extra hostnames beyond the ingress host, or when not using ingress).
+# Requires uvicorn, which is the default server in MLflow 3.x.
+serverAllowedHosts: []
+
+# -- Network interface the MLflow server binds to (passed as --host to `mlflow server`).
+# Defaults to 0.0.0.0 (all interfaces). Set to 127.0.0.1 when using a sidecar proxy (e.g. oauth2Proxy)
+# so that MLflow is only reachable through the proxy and not directly from outside the pod.
+serverHost: "0.0.0.0"
 
 # -- This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 resources: {}
@@ -544,6 +584,12 @@ tolerations: []
 # -- For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
 affinity: {}
 
+# -- For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/
+priorityClassName: ""
+
+# -- Array of extra Kubernetes objects to deploy alongside the chart (e.g. SecretStore, ExternalSecret). Supports Helm templating via tpl.
+extraDeploy: []
+
 # -- Init Containers for Mlflow Pod
 initContainers: []
 
@@ -579,3 +625,250 @@ readinessProbe:
   periodSeconds: 30
   timeoutSeconds: 3
   failureThreshold: 5
+
+# -- oauth2-proxy sidecar configuration
+oauth2Proxy:
+  # -- Enable deploying oauth2-proxy as a sidecar to the mlflow pod
+  enabled: false
+  # -- If true the chart will create a Kubernetes secret with the oauth client id/secret
+  createSecret: false
+  # -- Reference a pre-existing secret instead of creating one.
+  # All key name fields below are used both when creating and when referencing an existing secret.
+  existingSecret:
+    # -- Name of the pre-existing secret; if empty the chart creates one when createSecret is true
+    name: ""
+    # -- Secret key that holds the OAuth2 client ID
+    clientIDKey: "client-id"
+    # -- Secret key that holds the OAuth2 client secret
+    clientSecretKey: "client-secret"
+    # -- Secret key that holds the cookie secret
+    cookieSecretKey: "cookie-secret"
+  # -- OAuth2 Proxy image
+  image:
+    # -- OAuth2 Proxy image repository
+    repository: quay.io/oauth2-proxy/oauth2-proxy
+    # -- OAuth2 Proxy image tag
+    tag: v7.4.0
+    # -- OAuth2 Proxy image pull policy
+    pullPolicy: IfNotPresent
+  # Upstream is constructed from the mlflow service container port;
+  # the chart sets: --upstream=http://127.0.0.1:<service.containerPort>
+  # -- Port oauth2-proxy listens on inside the pod
+  listenPort: 4180
+  # -- Cookie secret plaintext value — only used when createSecret is true
+  cookieSecret: ""
+  # -- Provider specific settings (example: keycloak)
+  provider:
+    # -- Provider name (e.g. keycloak, keycloak-oidc, google, github)
+    name: keycloak
+    # -- OIDC issuer URL for the provider
+    issuerURL: ""
+    # -- OAuth2 client ID
+    clientID: ""
+    # -- OAuth2 client secret — prefer existingSecret for production
+    clientSecret: ""
+    # -- OAuth2 redirect / callback URL
+    redirectURL: ""
+  # -- Extra args to pass to oauth2-proxy as flags
+  extraArgs:
+    - "--cookie-secure=true"
+    - "--cookie-samesite=lax"
+  # -- Extra environment variables for oauth2-proxy
+  extraEnv: {}
+  # -- Resources for the oauth2-proxy container
+  resources: {}
+
+# -- OIDC Authentication via the mlflow-oidc-auth plugin (already bundled in the burakince/mlflow image).
+# Mutually exclusive with auth, ldapAuth, and oauth2Proxy — enable only one auth mechanism.
+oidcAuth:
+  # -- Enable built-in OIDC authentication (adds --app-name oidc-auth to the mlflow server command)
+  enabled: false
+  # -- OIDC discovery URL (env: OIDC_DISCOVERY_URL)
+  # e.g. https://keycloak/realms/mlflow/.well-known/openid-configuration
+  discoveryUrl: ""
+  # -- OIDC client ID (env: OIDC_CLIENT_ID)
+  clientId: ""
+  # -- OIDC client secret — use existingSecret for production (env: OIDC_CLIENT_SECRET)
+  clientSecret: ""
+  # -- Reference a pre-existing secret instead of creating one from clientSecret above
+  existingSecret:
+    # -- Name of the pre-existing secret; if empty the chart creates one from clientSecret
+    name: ""
+    # -- Key in the secret that holds the OIDC client secret value
+    clientSecretKey: "OIDC_CLIENT_SECRET"
+  # -- Optional redirect URI; auto-detected from request headers when empty (env: OIDC_REDIRECT_URI)
+  redirectUri: ""
+  # -- Scopes requested from the OIDC provider (env: OIDC_SCOPE)
+  scope: "openid,email,profile"
+  # -- Optional audience claim validation (env: OIDC_AUDIENCE)
+  audience: ""
+  # -- Display name on the Login button in the MLflow UI (env: OIDC_PROVIDER_DISPLAY_NAME)
+  providerDisplayName: "Login with OIDC"
+  # -- JWT claim that contains group memberships (env: OIDC_GROUPS_ATTRIBUTE)
+  groupsAttribute: "groups"
+  # -- Groups whose members are allowed to access MLflow (env: OIDC_GROUP_NAME)
+  groupName:
+    - mlflow
+  # -- Groups whose members receive admin/MANAGE permission (env: OIDC_ADMIN_GROUP_NAME)
+  adminGroupName:
+    - mlflow-admin
+  # -- Default permission for authenticated users: NO_PERMISSIONS / READ / EDIT / MANAGE (env: DEFAULT_MLFLOW_PERMISSION)
+  defaultPermission: "MANAGE"
+  # -- Require HTTPS for session cookies; set false only in local/dev environments (env: SESSION_COOKIE_SECURE)
+  sessionCookieSecure: true
+  # -- SameSite policy for session cookies: lax / strict / none (env: SESSION_COOKIE_SAMESITE)
+  sessionCookieSamesite: "lax"
+  # -- Shared cache backend for multi-replica deployments (requires mlflow-oidc-auth[cache], already in image)
+  cache:
+    # -- Set true to use Redis instead of in-process TTLCache (env: CACHE_BACKEND)
+    enabled: false
+    # -- Redis connection URL (env: CACHE_REDIS_URL)
+    redisUrl: ""
+    # -- Cache key prefix to avoid collisions when sharing a Redis instance (env: CACHE_KEY_PREFIX)
+    keyPrefix: "mlflow_oidc_auth:"
+  # -- OIDC user/permission database — separate from the MLflow tracking store.
+  # Defaults to sqlite:///auth.db when postgres is not enabled and uri is empty.
+  database:
+    # -- Full URI override (env: OIDC_USERS_DB_URI); takes precedence over postgres block when set.
+    # Example: postgresql+psycopg2://user:pass@host:5432/oidc_users
+    uri: ""
+    postgres:
+      # -- Use PostgreSQL for the OIDC user/permission database
+      enabled: false
+      # -- Postgres host for the OIDC user/permission database
+      host: ""
+      # -- Postgres port for the OIDC user/permission database
+      port: 5432
+      # -- Database name for the OIDC user/permission database
+      database: ""
+      # -- Postgres driver (e.g. psycopg2; leave empty for the default)
+      driver: ""
+      # -- Postgres username for the OIDC user/permission database
+      user: ""
+      # -- Postgres password for the OIDC user/permission database — prefer existingSecret for production
+      password: ""
+      # -- Reference a pre-existing DB credentials secret instead of using user and password above
+      existingSecret:
+        # -- Name of the pre-existing DB credentials secret; if empty the chart creates one
+        name: ""
+        # -- Key in the secret that holds the database username
+        usernameKey: "username"
+        # -- Key in the secret that holds the database password
+        passwordKey: "password"
+  # -- List of trusted proxy IPs/CIDRs (e.g. ingress controller CIDR).
+  # Required when MLflow runs behind an ingress; fixes redirect URI auto-detection. (env: TRUSTED_PROXIES)
+  trustedProxies: []
+
+# -- MinIO subchart for S3-compatible local artifact storage.
+# When enabled, the MLflow deployment automatically receives AWS_ACCESS_KEY_ID,
+# AWS_SECRET_ACCESS_KEY, and MLFLOW_S3_ENDPOINT_URL from the MinIO secret and service.
+# artifactRoot.s3.enabled must also be set to true with a matching bucket name.
+minio:
+  # -- Enable the MinIO subchart
+  enabled: false
+
+  # -- MinIO mode
+  mode: standalone
+
+  # -- Minio deployment update strategy
+  deploymentUpdate:
+    type: Recreate
+
+  # -- Minio statefulset update strategy
+  statefulSetUpdate:
+    updateStrategy: Recreate
+
+  # -- Number of drives attached to a node
+  drivesPerNode: 1
+
+  # -- Number of MinIO containers running
+  replicas: 1
+
+  # -- Number of expanded MinIO clusters
+  pools: 1
+
+  # -- MinIO root user (access key). Length must be at least 3 characters.
+  rootUser: ""
+
+  # -- MinIO root password (secret key). Length must be at least 8 characters.
+  rootPassword: ""
+
+  # -- MinIO model bucket policy.
+  policies: []
+    # - name: modelspolicy
+    #   statements:
+    #     - resources:
+    #         - 'arn:aws:s3:::models*/*'
+    #       actions:
+    #         - "s3:AbortMultipartUpload"
+    #         - "s3:GetObject"
+    #         - "s3:DeleteObject"
+    #         - "s3:PutObject"
+    #         - "s3:ListMultipartUploadParts"
+    #     - resources:
+    #         - 'arn:aws:s3:::models*'
+    #       actions:
+    #         - "s3:CreateBucket"
+    #         - "s3:DeleteBucket"
+    #         - "s3:GetBucketLocation"
+    #         - "s3:ListBucket"
+    #         - "s3:ListBucketMultipartUploads"
+
+  # -- MinIO users
+  users: []
+  #   ## Username, password and policy to be assigned to the user
+  #   ## Default policies are [readonly|readwrite|writeonly|consoleAdmin|diagnostics]
+  #   ## Add new policies as explained here https://docs.min.io/docs/minio-multi-user-quickstart-guide.html
+  #   ## NOTE: this will fail if LDAP is enabled in your MinIO deployment
+  #   ## make sure to disable this if you are using LDAP.
+  #   #- accessKey: mlflow
+  #   #  secretKey: console123
+  #   #  policy: consoleAdmin
+  #   # Or you can use models policy but it must be also enabled.
+  #   - accessKey: mlflow
+  #     secretKey: my-super-secret
+  #     policy: modelspolicy
+  #   # Or you can refer to specific secret
+  #   #- accessKey: externalSecret
+  #   #  existingSecret: my-secret
+  #   #  existingSecretKey: password
+  #   #  policy: readonly
+
+  # -- Buckets to create on startup
+  buckets:
+    - name: mlflow
+      policy: none
+      purge: false
+
+  # -- MinIO resources
+  resources:
+    # -- MinIO requests
+    requests:
+      # -- MinIO memory request
+      memory: 1Gi
+
+  # -- MinIO persistence settings
+  persistence:
+    # -- Enable persistent storage for MinIO. Disable for ephemeral/test deployments.
+    enabled: true
+
+    # -- Minio persistence annotations
+    annotations: {}
+
+    # -- Minio persistence existing claim
+    existingClaim: ""
+
+    # -- Minio persistence storage class
+    storageClass: ""
+
+    # -- Minio persistence volume name
+    volumeName: ""
+
+    # -- Minio persistence access mode
+    accessMode: ReadWriteOnce
+
+    # -- Minio persistence size
+    size: 10Gi
+
+    # -- Minio persistence sub path
+    subPath: ""

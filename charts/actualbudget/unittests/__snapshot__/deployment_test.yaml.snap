@@ -72,11 +72,21 @@ should match snapshot of default values:
                   drop:
                     - ALL
                 privileged: false
-                readOnlyRootFilesystem: false
+                readOnlyRootFilesystem: true
                 runAsGroup: 1001
                 runAsNonRoot: true
                 runAsUser: 1001
+              volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
+                - mountPath: /data
+                  name: data
           securityContext:
             fsGroup: 1001
             fsGroupChangePolicy: OnRootMismatch
           serviceAccountName: actualbudget
+          volumes:
+            - emptyDir: {}
+              name: tmp
+            - emptyDir: {}
+              name: data

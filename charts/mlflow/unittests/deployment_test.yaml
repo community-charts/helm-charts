@@ -13,6 +13,30 @@ chart:
   appVersion: 1.0.0
 
 tests:
+  - it: should not set revisionHistoryLimit when not configured
+    asserts:
+      - notExists:
+          path: spec.revisionHistoryLimit
+        template: deployment.yaml
+
+  - it: should set revisionHistoryLimit when configured
+    set:
+      revisionHistoryLimit: 3
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 3
+        template: deployment.yaml
+
+  - it: should set revisionHistoryLimit to zero when configured as 0
+    set:
+      revisionHistoryLimit: 0
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 0
+        template: deployment.yaml
+
   - it: should be custom service account when we do not create it
     set:
       serviceAccount.create: false
@@ -157,6 +181,79 @@ tests:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --backend-store-uri=mssql+pymssql://$(MSSQL_USERNAME):$(MSSQL_PWD)@$(MSSQL_HOST):$(MSSQL_TCP_PORT)/$(MSSQL_DATABASE)
+        template: deployment.yaml
+
+  - it: should use mssql connectionUrl directly when set
+    set:
+      backendStore:
+        mssql:
+          enabled: true
+          connectionUrl: "mssql+pyodbc://?odbc_connect=DRIVER%3DODBC+Driver+17%3BAuthentication%3DActiveDirectoryMsi%3B"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: "--backend-store-uri=mssql+pyodbc://?odbc_connect=DRIVER%3DODBC+Driver+17%3BAuthentication%3DActiveDirectoryMsi%3B"
+        template: deployment.yaml
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --backend-store-uri=mssql+pymssql://$(MSSQL_USERNAME):$(MSSQL_PWD)@$(MSSQL_HOST):$(MSSQL_TCP_PORT)/$(MSSQL_DATABASE)
+        template: deployment.yaml
+
+  - it: should use mssql existingConnectionUrlSecret for backend-store-uri
+    set:
+      backendStore:
+        mssql:
+          enabled: true
+          existingConnectionUrlSecret:
+            name: mssql-url-secret
+            key: connectionUrl
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --backend-store-uri=$(MSSQL_CONNECTION_URL)
+        template: deployment.yaml
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --backend-store-uri=mssql+pymssql://$(MSSQL_USERNAME):$(MSSQL_PWD)@$(MSSQL_HOST):$(MSSQL_TCP_PORT)/$(MSSQL_DATABASE)
+        template: deployment.yaml
+
+  - it: should inject MSSQL_CONNECTION_URL env var in main container when existingConnectionUrlSecret is set
+    set:
+      backendStore:
+        mssql:
+          enabled: true
+          existingConnectionUrlSecret:
+            name: mssql-url-secret
+            key: connectionUrl
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: MSSQL_CONNECTION_URL
+            valueFrom:
+              secretKeyRef:
+                name: mssql-url-secret
+                key: connectionUrl
+        template: deployment.yaml
+
+  - it: should inject MSSQL_CONNECTION_URL env var in migration init container when existingConnectionUrlSecret is set
+    set:
+      backendStore:
+        mssql:
+          enabled: true
+          existingConnectionUrlSecret:
+            name: mssql-url-secret
+            key: connectionUrl
+      backendStore.databaseMigration: true
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "mlflow-db-migration")].env
+          content:
+            name: MSSQL_CONNECTION_URL
+            valueFrom:
+              secretKeyRef:
+                name: mssql-url-secret
+                key: connectionUrl
         template: deployment.yaml
 
   - it: should be local folder as an artifact root when azureBlob or s3 or gcs is not enabled
@@ -307,7 +404,7 @@ tests:
           content: --expose-prometheus=/mlflow/metrics
         template: deployment.yaml
 
-  - it: should set log level to gunicorn when log level is set and gunicornOpts is not set
+  - it: should set log level to uvicorn when log level is set and no server opts are set
     set:
       log:
         enabled: true
@@ -315,7 +412,33 @@ tests:
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
-          content: --gunicorn-opts='--log-level=debug'
+          content: --uvicorn-opts='--log-level=debug'
+        template: deployment.yaml
+
+  - it: should set log level to uvicorn when log level is set and uvicornOpts is set without log level
+    set:
+      log:
+        enabled: true
+        level: debug
+      extraArgs:
+        uvicornOpts: "--workers=2"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --uvicorn-opts='--log-level=debug --workers=2'
+        template: deployment.yaml
+
+  - it: should set log level to uvicorn when log level is set and uvicornOpts is set with different log level
+    set:
+      log:
+        enabled: true
+        level: debug
+      extraArgs:
+        uvicornOpts: "--log-level=info --workers=2"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --uvicorn-opts='--log-level=debug --workers=2'
         template: deployment.yaml
 
   - it: should set log level to gunicorn when log level is set and gunicornOpts is set without log level
@@ -389,8 +512,8 @@ tests:
   - it: should show extra environment variables when we pass any
     set:
       extraEnvVars:
-         MLFLOW_S3_IGNORE_TLS: true
-         AWS_DEFAULT_REGION: eu-central-1
+        MLFLOW_S3_IGNORE_TLS: true
+        AWS_DEFAULT_REGION: eu-central-1
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].env
@@ -398,11 +521,142 @@ tests:
             name: MLFLOW_S3_IGNORE_TLS
             value: "true"
         template: deployment.yaml
+
+  - it: should inject oauth2-proxy sidecar when enabled
+    set:
+      oauth2Proxy:
+        enabled: true
+        listenPort: 4180
+    asserts:
+      - exists:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")]
+        template: deployment.yaml
+
+  - it: should reference existing secret for oauth2-proxy when provided
+    set:
+      oauth2Proxy:
+        enabled: true
+        existingSecret:
+          name: my-oauth2-secret
+          clientIDKey: client-id
+          clientSecretKey: client-secret
+          cookieSecretKey: cookie-secret
+        listenPort: 4180
+      extraEnvVars:
+        AWS_DEFAULT_REGION: eu-central-1
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].env
+          content:
+            name: OAUTH2_PROXY_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: my-oauth2-secret
+                key: client-id
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].env
+          content:
+            name: OAUTH2_PROXY_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: my-oauth2-secret
+                key: client-secret
+        template: deployment.yaml
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].env
           content:
             name: AWS_DEFAULT_REGION
             value: eu-central-1
+        template: deployment.yaml
+
+  - it: should use oauth2ProxySecretName helper name (no -secret suffix) for env var secret refs
+    set:
+      oauth2Proxy:
+        enabled: true
+        createSecret: true
+        provider:
+          clientID: test-client
+          clientSecret: test-secret
+        cookieSecret: test-cookie
+        listenPort: 4180
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].env
+          content:
+            name: OAUTH2_PROXY_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: mlflow-oauth2-proxy
+                key: client-id
+        template: deployment.yaml
+
+  - it: should not mount oauth2-proxy-cookie volume on the sidecar
+    set:
+      oauth2Proxy:
+        enabled: true
+        listenPort: 4180
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].volumeMounts
+        template: deployment.yaml
+
+  - it: should render http-address upstream and provider args in oauth2-proxy sidecar
+    set:
+      oauth2Proxy:
+        enabled: true
+        listenPort: 4180
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].args
+          content: --http-address=0.0.0.0:4180
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].args
+          content: --upstream=http://127.0.0.1:5000
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].args
+          content: --provider=keycloak
+        template: deployment.yaml
+
+  - it: should render oidc-issuer-url arg when provider.issuerURL is set
+    set:
+      oauth2Proxy:
+        enabled: true
+        listenPort: 4180
+        provider:
+          issuerURL: https://oidc.example.com
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].args
+          content: --oidc-issuer-url=https://oidc.example.com
+        template: deployment.yaml
+
+  - it: should render redirect-url arg when provider.redirectURL is set
+    set:
+      oauth2Proxy:
+        enabled: true
+        listenPort: 4180
+        provider:
+          redirectURL: https://mlflow.example.com/oauth2/callback
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].args
+          content: --redirect-url=https://mlflow.example.com/oauth2/callback
+        template: deployment.yaml
+
+  - it: should append extraArgs to oauth2-proxy sidecar args
+    set:
+      oauth2Proxy:
+        enabled: true
+        listenPort: 4180
+        extraArgs:
+          - --skip-jwt-bearer-tokens=true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].args
+          content: --skip-jwt-bearer-tokens=true
         template: deployment.yaml
 
   - it: should show extra secret environment variables from secrets when we pass any
@@ -417,18 +671,18 @@ tests:
               name: mysupersecret
         template: deployment.yaml
 
-  - it: should check liveness and rediness with static prefix when we set static prefix from extra arguments
+  - it: should check that liveness and rediness is not affected if static prefix is set
     set:
       extraArgs:
         staticPrefix: /mlflow
     asserts:
       - equal:
           path: spec.template.spec.containers[?(@.name == "mlflow")].livenessProbe.httpGet.path
-          value: /mlflow/health
+          value: /health
         template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "mlflow")].readinessProbe.httpGet.path
-          value: /mlflow/health
+          value: /health
         template: deployment.yaml
 
   - it: should check that the db checker init container is present if enabled with postgres
@@ -1025,6 +1279,22 @@ tests:
           value: 3
         template: deployment.yaml
 
+  - it: should use default 0.0.0.0 host binding
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --host=0.0.0.0
+        template: deployment.yaml
+
+  - it: should use custom host binding when serverHost is set
+    set:
+      serverHost: "127.0.0.1"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --host=127.0.0.1
+        template: deployment.yaml
+
   - it: should use different port number when we change it
     set:
       service.containerPort: 80
@@ -1455,6 +1725,34 @@ tests:
           value: "true"
         template: deployment.yaml
 
+  - it: should set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY from existing secret using default key names when only name is set
+    set:
+      artifactRoot:
+        s3:
+          enabled: true
+          bucket: test-bucket
+          existingSecret:
+            name: my-aws-existing-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: my-aws-existing-secret
+                key: AWS_ACCESS_KEY_ID
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: my-aws-existing-secret
+                key: AWS_SECRET_ACCESS_KEY
+        template: deployment.yaml
+
   - it: should set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY from existing secret when existing secret name, keyOfAccessKeyId and keyOfSecretAccessKey fields set
     set:
       artifactRoot:
@@ -1547,7 +1845,7 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: { }
+      - matchSnapshot: {}
 
   - it: should match snapshot with additional values
     set:
@@ -1624,7 +1922,7 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: { }
+      - matchSnapshot: {}
 
   - it: should match snapshot with additional values when postgresql is enabled
     set:
@@ -1701,7 +1999,7 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: { }
+      - matchSnapshot: {}
 
   - it: should match snapshot with additional values when bitnami postgresql is enabled
     set:
@@ -1778,7 +2076,7 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: { }
+      - matchSnapshot: {}
 
   - it: should match snapshot with additional values when mysql is enabled
     set:
@@ -1855,7 +2153,7 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: { }
+      - matchSnapshot: {}
 
   - it: should match snapshot with additional values when bitnami mysql is enabled
     set:
@@ -1932,7 +2230,7 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: { }
+      - matchSnapshot: {}
 
   - it: should match snapshot with additional values when auth and auth.postgres are enabled
     set:
@@ -2017,7 +2315,7 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: { }
+      - matchSnapshot: {}
 
   - it: should match snapshot with additional values when mssql is enabled
     set:
@@ -2094,14 +2392,13 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - matchSnapshot: { }
+      - matchSnapshot: {}
 
-  - it: should set resources for init containers when resources are defined
+  - it: should set resources only on mlflow-db-migration init container, not on busybox init containers
     set:
-      auth:
-        enabled: true
       backendStore:
         databaseConnectionCheck: true
+        databaseMigration: true
       postgresql:
         enabled: true
       resources:
@@ -2113,10 +2410,259 @@ tests:
           memory: 128Mi
     asserts:
       - equal:
-          path: spec.template.spec.initContainers[?(@.name == "dbchecker")].resources.requests.cpu
+          path: spec.template.spec.initContainers[?(@.name == "mlflow-db-migration")].resources.requests.cpu
           value: 100m
         template: deployment.yaml
       - equal:
-          path: spec.template.spec.initContainers[?(@.name == "ini-file-initializer")].resources.limits.memory
+          path: spec.template.spec.initContainers[?(@.name == "mlflow-db-migration")].resources.limits.memory
           value: 128Mi
         template: deployment.yaml
+      - notExists:
+          path: spec.template.spec.initContainers[?(@.name == "dbchecker")].resources
+        template: deployment.yaml
+
+  - it: should add digest to image tag when digest is set
+    set:
+      image.digest: "sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].image
+          pattern: "burakince/mlflow:1\\.0\\.0@sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+        template: deployment.yaml
+
+  - it: should not add digest when digest is empty
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].image
+          pattern: "burakince/mlflow:1\\.0\\.0$"
+        template: deployment.yaml
+
+  - it: should always have a tmp emptyDir volume and mount
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: tmp
+            emptyDir: {}
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].volumeMounts
+          content:
+            name: tmp
+            mountPath: /tmp
+        template: deployment.yaml
+
+  - it: should inject minio env vars from minio secret when minio is enabled
+    set:
+      artifactRoot:
+        s3:
+          enabled: true
+      minio:
+        enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: MLFLOW_S3_ENDPOINT_URL
+            value: http://mlflow-minio:9000
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: mlflow-minio
+                key: rootUser
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: mlflow-minio
+                key: rootPassword
+        template: deployment.yaml
+
+  - it: should not inject minio env vars when minio is disabled
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: MLFLOW_S3_ENDPOINT_URL
+            value: http://mlflow-minio:9000
+        template: deployment.yaml
+
+  - it: should use minio bucket name for artifact root when s3.bucket is empty
+    set:
+      artifactRoot:
+        s3:
+          enabled: true
+      minio:
+        enabled: true
+        buckets:
+          - name: my-minio-bucket
+            policy: none
+            purge: false
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --default-artifact-root=s3://my-minio-bucket/
+        template: deployment.yaml
+
+  - it: should use s3.bucket over minio bucket name when s3.bucket is set
+    set:
+      artifactRoot:
+        s3:
+          enabled: true
+          bucket: override-bucket
+      minio:
+        enabled: true
+        buckets:
+          - name: my-minio-bucket
+            policy: none
+            purge: false
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --default-artifact-root=s3://override-bucket/
+        template: deployment.yaml
+
+  - it: should inject uvicorn-opts and not gunicorn-opts when allowedHosts extraArg is set
+    set:
+      log:
+        enabled: true
+        level: info
+      extraArgs:
+        allowedHosts: "*"
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --gunicorn-opts='--log-level=info'
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --uvicorn-opts='--log-level=info'
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --allowed-hosts=*
+        template: deployment.yaml
+
+  - it: should inject oauth2-proxy extraEnv into env block (not after resources)
+    set:
+      oauth2Proxy:
+        enabled: true
+        listenPort: 4180
+        extraEnv:
+          MY_EXTRA_VAR: "hello"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].env
+          content:
+            name: MY_EXTRA_VAR
+            value: "hello"
+        template: deployment.yaml
+
+  - it: should inject postgresql subchart credentials into ini-file-initializer when postgresql and auth enabled
+    set:
+      auth:
+        enabled: true
+        adminUsername: "admin"
+        adminPassword: "thisisnotasecret"
+      postgresql:
+        enabled: true
+        auth:
+          database: mlflow
+          username: mlflow
+    release:
+      name: mlflow
+      namespace: mlflow
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "ini-file-initializer")].env
+          content:
+            name: DB_USERNAME
+            value: "mlflow"
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "ini-file-initializer")].env
+          content:
+            name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mlflow-postgresql
+                key: password
+        template: deployment.yaml
+
+  - it: should use cp and no env vars in ini-file-initializer when ldapAuth enabled and auth disabled
+    set:
+      ldapAuth:
+        enabled: true
+        uri: "ldap://ldap.test.com:389"
+        tlsVerification: none
+        lookupBind: "cn=%s"
+        searchBaseDistinguishedName: "ou=groups"
+        searchFilter: "(objectclass=group)"
+        adminGroupDistinguishedName: "cn=admin"
+        userGroupDistinguishedName: "cn=user"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "ini-file-initializer")].args
+          content: "cp /template/auth_template.ini /config/auth_result.ini\n"
+        template: deployment.yaml
+      - notExists:
+          path: spec.template.spec.initContainers[?(@.name == "ini-file-initializer")].env
+        template: deployment.yaml
+
+  - it: should render priorityClassName in pod spec when set
+    set:
+      priorityClassName: "high-priority"
+    asserts:
+      - equal:
+          path: spec.template.spec.priorityClassName
+          value: "high-priority"
+        template: deployment.yaml
+
+  - it: should not render priorityClassName in pod spec when empty
+    asserts:
+      - notExists:
+          path: spec.template.spec.priorityClassName
+        template: deployment.yaml
+
+  - it: should render deploymentAnnotations on Deployment metadata
+    set:
+      deploymentAnnotations:
+        velero.database/restart-on-restore: "mlflow"
+        custom.annotation/key: "value"
+    asserts:
+      - equal:
+          path: metadata.annotations["velero.database/restart-on-restore"]
+          value: "mlflow"
+        template: deployment.yaml
+      - equal:
+          path: metadata.annotations["custom.annotation/key"]
+          value: "value"
+        template: deployment.yaml
+
+  - it: should not reference auth-admin-secret in ini-file-initializer when ldapAuth enabled and auth disabled
+    set:
+      ldapAuth:
+        enabled: true
+        uri: "ldap://ldap.test.com:389"
+        tlsVerification: none
+        lookupBind: "cn=%s"
+        searchBaseDistinguishedName: "ou=groups"
+        searchFilter: "(objectclass=group)"
+        adminGroupDistinguishedName: "cn=admin"
+        userGroupDistinguishedName: "cn=user"
+    asserts:
+      - matchSnapshot: {}
+        template: deployment.yaml
+        documentSelector:
+          path: kind
+          value: Deployment

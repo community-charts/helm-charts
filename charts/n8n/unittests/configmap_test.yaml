@@ -878,9 +878,8 @@ tests:
       path: metadata.name
       value: n8n-task-broker-configmap
     asserts:
-      - equal:
+      - notExists:
           path: data.N8N_RUNNERS_ENABLED
-          value: "true"
       - equal:
           path: data.N8N_RUNNERS_MODE
           value: internal
@@ -1076,11 +1075,219 @@ tests:
           path: data.SENTRY_DSN
           value: ""
 
+  - it: should set N8N_NATIVE_PYTHON_RUNNER when nodes.python.enabled is true
+    set:
+      nodes:
+        python:
+          enabled: true
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-broker-configmap
+    asserts:
+      - equal:
+          path: data.N8N_NATIVE_PYTHON_RUNNER
+          value: "true"
+
+  - it: should not set N8N_NATIVE_PYTHON_RUNNER when nodes.python.enabled is false
+    set:
+      nodes:
+        python:
+          enabled: false
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-broker-configmap
+    asserts:
+      - notExists:
+          path: data.N8N_NATIVE_PYTHON_RUNNER
+
+  - it: should set N8N_RUNNERS_STDLIB_ALLOW when python.enabled and builtin.modules is set
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          enabled: true
+          builtin:
+            modules:
+              - os
+              - sys
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-runners-configmap
+    asserts:
+      - equal:
+          path: data.N8N_RUNNERS_STDLIB_ALLOW
+          value: "os,sys"
+
+  - it: should set N8N_RUNNERS_EXTERNAL_ALLOW from external.packages when python.enabled and packages are set
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          enabled: true
+          external:
+            packages:
+              - numpy
+              - pandas
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-runners-configmap
+    asserts:
+      - equal:
+          path: data.N8N_RUNNERS_EXTERNAL_ALLOW
+          value: "numpy,pandas"
+
+  - it: should not set N8N_RUNNERS_ENABLED when taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-broker-configmap
+    asserts:
+      - notExists:
+          path: data.N8N_RUNNERS_ENABLED
+
+  - it: should set N8N_RUNNERS_STDLIB_ALLOW in task-broker-configmap when python.enabled and builtin.modules is set
+    set:
+      nodes:
+        python:
+          enabled: true
+          builtin:
+            modules:
+              - os
+              - sys
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-broker-configmap
+    asserts:
+      - equal:
+          path: data.N8N_RUNNERS_STDLIB_ALLOW
+          value: "os,sys"
+
+  - it: should set N8N_RUNNERS_EXTERNAL_ALLOW in task-broker-configmap from external.packages when python.enabled and packages are set
+    set:
+      nodes:
+        python:
+          enabled: true
+          external:
+            packages:
+              - numpy
+              - pandas
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-broker-configmap
+    asserts:
+      - equal:
+          path: data.N8N_RUNNERS_EXTERNAL_ALLOW
+          value: "numpy,pandas"
+
+  - it: should not set N8N_RUNNERS_STDLIB_ALLOW in task-broker-configmap when python.enabled is false
+    set:
+      nodes:
+        python:
+          enabled: false
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-broker-configmap
+    asserts:
+      - notExists:
+          path: data.N8N_RUNNERS_STDLIB_ALLOW
+
+  - it: should not set N8N_RUNNERS_EXTERNAL_ALLOW in task-broker-configmap when python.enabled is false
+    set:
+      nodes:
+        python:
+          enabled: false
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-broker-configmap
+    asserts:
+      - notExists:
+          path: data.N8N_RUNNERS_EXTERNAL_ALLOW
+
+  - it: should not set N8N_RUNNERS_STDLIB_ALLOW when python.enabled is false
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          enabled: false
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-runners-configmap
+    asserts:
+      - notExists:
+          path: data.N8N_RUNNERS_STDLIB_ALLOW
+
+  - it: should not set N8N_RUNNERS_EXTERNAL_ALLOW when python.enabled is false
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          enabled: false
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-runners-configmap
+    asserts:
+      - notExists:
+          path: data.N8N_RUNNERS_EXTERNAL_ALLOW
+
+  - it: should not set N8N_RUNNERS_EXTERNAL_ALLOW when python.enabled and external.packages is empty
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          enabled: true
+          external:
+            packages: []
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-runners-configmap
+    asserts:
+      - notExists:
+          path: data.N8N_RUNNERS_EXTERNAL_ALLOW
+
+  - it: should set N8N_RUNNERS_EXTERNAL_ALLOW to * when python.external.allowAll is true
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        python:
+          enabled: true
+          external:
+            allowAll: true
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-runners-configmap
+    asserts:
+      - equal:
+          path: data.N8N_RUNNERS_EXTERNAL_ALLOW
+          value: "*"
+
+  - it: should set N8N_RUNNERS_EXTERNAL_ALLOW to * in task-broker-configmap when python.external.allowAll is true
+    set:
+      nodes:
+        python:
+          enabled: true
+          external:
+            allowAll: true
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-broker-configmap
+    asserts:
+      - equal:
+          path: data.N8N_RUNNERS_EXTERNAL_ALLOW
+          value: "*"
+
   - it: should set license environment variables when license.enabled is true
     set:
       license:
         enabled: true
-        autoNenew:
+        autoRenew:
           enabled: false
           offsetInHours: 1
         serverUrl: "https://license.mydomain.com"
@@ -1101,6 +1308,34 @@ tests:
       - equal:
           path: data.N8N_LICENSE_TENANT_ID
           value: "999"
+
+  - it: should use deprecated license.autoNenew.enabled when set
+    set:
+      license:
+        enabled: true
+        autoNenew:
+          enabled: false
+    documentSelector:
+      path: metadata.name
+      value: n8n-license-configmap
+    asserts:
+      - equal:
+          path: data.N8N_LICENSE_AUTO_RENEW_ENABLED
+          value: "false"
+
+  - it: should use deprecated license.autoNenew.offsetInHours when set
+    set:
+      license:
+        enabled: true
+        autoNenew:
+          offsetInHours: 24
+    documentSelector:
+      path: metadata.name
+      value: n8n-license-configmap
+    asserts:
+      - equal:
+          path: data.N8N_LICENSE_AUTO_RENEW_OFFSET
+          value: "86400"
 
   - it: should set default binary data mode from binaryData.mode
     set:

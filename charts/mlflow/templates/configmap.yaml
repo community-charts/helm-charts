@@ -1,12 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "mlflow.fullname" . }}-env-configmap
+  name: {{ include "mlflow.fullname" . }}-env-configmap
   labels:
-    app: {{ template "mlflow.name" . }}
-    chart: {{ template "mlflow.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "mlflow.labels" . | nindent 4 }}
 data:
 {{- if .Values.backendStore.postgres.enabled }}
   PGHOST: {{ required "postgres host must be specified" .Values.backendStore.postgres.host }}
@@ -14,7 +11,7 @@ data:
   PGDATABASE: {{ required "postgres database must be specified" .Values.backendStore.postgres.database }}
 {{- end }}
 {{- if .Values.postgresql.enabled }}
-  PGHOST: {{ template "mlflow.fullname" . }}-postgresql
+  PGHOST: {{ include "mlflow.fullname" . }}-postgresql
   PGPORT: {{ default "5432" .Values.postgresql.primary.service.ports.postgresql | quote }}
   PGDATABASE: {{ .Values.postgresql.auth.database }}
 {{- end }}
@@ -23,13 +20,13 @@ data:
   MYSQL_TCP_PORT: {{ required "mysql port must be specified" .Values.backendStore.mysql.port | quote }}
   MYSQL_DATABASE: {{ required "mysql database must be specified" .Values.backendStore.mysql.database }}
 {{- end }}
-{{- if .Values.backendStore.mssql.enabled }}
+{{- if and .Values.backendStore.mssql.enabled (not .Values.backendStore.mssql.connectionUrl) (not .Values.backendStore.mssql.existingConnectionUrlSecret.name) }}
   MSSQL_HOST: {{ required "mssql host must be specified" .Values.backendStore.mssql.host }}
   MSSQL_TCP_PORT: {{ required "mssql port must be specified" .Values.backendStore.mssql.port | quote }}
   MSSQL_DATABASE: {{ required "mssql database must be specified" .Values.backendStore.mssql.database }}
 {{- end }}
 {{- if .Values.mysql.enabled }}
-  MYSQL_HOST: {{ template "mlflow.fullname" . }}-mysql
+  MYSQL_HOST: {{ include "mlflow.fullname" . }}-mysql
   MYSQL_TCP_PORT: {{ default "3306" .Values.mysql.primary.service.ports.mysql | quote }}
   MYSQL_DATABASE: {{ .Values.mysql.auth.database }}
 {{- end }}
@@ -40,6 +37,12 @@ data:
 {{- if not .Values.telemetry.enabled }}
   MLFLOW_DISABLE_TELEMETRY: "true"
   DO_NOT_TRACK: "true"
+{{- end }}
+{{- with include "mlflow.serverAllowedHosts" . }}
+  MLFLOW_SERVER_ALLOWED_HOSTS: {{ . | quote }}
+{{- end }}
+{{- with include "mlflow.corsAllowedOrigins" . }}
+  MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: {{ . | quote }}
 {{- end }}
 ---
 {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseMigration }}
@@ -54,12 +57,9 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "mlflow.fullname" . }}-migrations
+  name: {{ include "mlflow.fullname" . }}-migrations
   labels:
-    app: {{ template "mlflow.name" . }}
-    chart: {{ template "mlflow.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "mlflow.labels" . | nindent 4 }}
 data:
   migrations.py: |-
     from mlflow.store.db import utils
@@ -76,12 +76,18 @@ data:
     database = os.getenv("MYSQL_DATABASE")
     engine = utils.create_sqlalchemy_engine_with_retry(f"mysql{{ $dbConnectionDriver }}://{username}:{password}@{host}:{port}/{database}")
   {{- else if .Values.backendStore.mssql.enabled }}
+    {{- if .Values.backendStore.mssql.existingConnectionUrlSecret.name }}
+    engine = utils.create_sqlalchemy_engine_with_retry(os.getenv("MSSQL_CONNECTION_URL"))
+    {{- else if .Values.backendStore.mssql.connectionUrl }}
+    engine = utils.create_sqlalchemy_engine_with_retry({{ .Values.backendStore.mssql.connectionUrl | quote }})
+    {{- else }}
     username = os.getenv("MSSQL_USERNAME")
     password = os.getenv("MSSQL_PWD")
     host = os.getenv("MSSQL_HOST")
     port = os.getenv("MSSQL_TCP_PORT")
     database = os.getenv("MSSQL_DATABASE")
     engine = utils.create_sqlalchemy_engine_with_retry(f"mssql{{ $dbConnectionDriver }}://{username}:{password}@{host}:{port}/{database}")
+    {{- end }}
   {{- end }}
     utils._initialize_tables(engine)
 {{- end }}
@@ -90,12 +96,9 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "mlflow.fullname" . }}-dbchecker
+  name: {{ include "mlflow.fullname" . }}-dbchecker
   labels:
-    app: {{ template "mlflow.name" . }}
-    chart: {{ template "mlflow.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "mlflow.labels" . | nindent 4 }}
 data:
   {{ (.Files.Glob "files/dbchecker.sh").AsConfig | nindent 2 }}
 {{- end }}

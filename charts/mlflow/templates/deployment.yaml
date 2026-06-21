@@ -1,3 +1,15 @@
+{{- if and .Values.oidcAuth.enabled .Values.oauth2Proxy.enabled }}
+  {{- fail "oidcAuth and oauth2Proxy are mutually exclusive" }}
+{{- end }}
+{{- if and .Values.oidcAuth.enabled .Values.auth.enabled }}
+  {{- fail "oidcAuth and auth are mutually exclusive" }}
+{{- end }}
+{{- if and .Values.oidcAuth.enabled .Values.ldapAuth.enabled }}
+  {{- fail "oidcAuth and ldapAuth are mutually exclusive" }}
+{{- end }}
+{{- if and .Values.auth.enabled .Values.ldapAuth.enabled }}
+  {{- fail "auth and ldapAuth are mutually exclusive" }}
+{{- end }}
 {{- $artifactCommandPrefix := "default-artifact-root" }}
 {{- $artifactCommand := printf "--%s=%s" $artifactCommandPrefix .Values.artifactRoot.defaultArtifactRoot }}
 
@@ -9,7 +21,11 @@
 {{- if .Values.artifactRoot.azureBlob.enabled }}
   {{- $artifactCommand = printf "--%s=wasbs://%s@%s.blob.core.windows.net/%s" $artifactCommandPrefix .Values.artifactRoot.azureBlob.container .Values.artifactRoot.azureBlob.storageAccount .Values.artifactRoot.azureBlob.path }}
 {{- else if .Values.artifactRoot.s3.enabled }}
+{{- if .Values.minio.enabled }}
+  {{- $artifactCommand = printf "--%s=s3://%s/" $artifactCommandPrefix (ternary (index .Values.minio.buckets 0).name .Values.artifactRoot.s3.bucket (eq .Values.artifactRoot.s3.bucket "")) }}
+{{- else }}
   {{- $artifactCommand = printf "--%s=s3://%s/%s" $artifactCommandPrefix .Values.artifactRoot.s3.bucket .Values.artifactRoot.s3.path }}
+{{- end }}
 {{- else if .Values.artifactRoot.gcs.enabled }}
   {{- $artifactCommand = printf "--%s=gs://%s/%s" $artifactCommandPrefix .Values.artifactRoot.gcs.bucket .Values.artifactRoot.gcs.path }}
 {{- end }}
@@ -28,7 +44,14 @@ metadata:
   name: {{ include "mlflow.fullname" . }}
   labels:
     {{- include "mlflow.labels" . | nindent 4 }}
+  {{- with .Values.deploymentAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
+  {{- if not (kindIs "invalid" .Values.revisionHistoryLimit) }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  {{- end }}
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
@@ -71,8 +94,6 @@ spec:
         - name: dbchecker
           image: "{{ .Values.initImages.dbchecker.repository }}:{{ .Values.initImages.dbchecker.tag }}"
           imagePullPolicy: {{ .Values.initImages.dbchecker.pullPolicy }}
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
           command: [ "/script/dbchecker.sh" ]
         {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name }}
           env:
@@ -141,7 +162,7 @@ spec:
           {{- end }}
           envFrom:
             - configMapRef:
-                name: {{ template "mlflow.fullname" . }}-env-configmap
+                name: {{ include "mlflow.fullname" . }}-env-configmap
           volumeMounts:
             - name: dbchecker
               mountPath: /script/dbchecker.sh
@@ -157,7 +178,7 @@ spec:
           imagePullPolicy: {{ .Values.initImages.mlflowDbMigration.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-        {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name }}
+        {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name (and .Values.backendStore.mssql.enabled .Values.backendStore.mssql.existingConnectionUrlSecret.name) }}
           env:
         {{- end }}
           {{- if .Values.postgresql.enabled }}
@@ -222,17 +243,26 @@ spec:
                   key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
             {{- end }}
           {{- end }}
+          {{- if and .Values.backendStore.mssql.enabled .Values.backendStore.mssql.existingConnectionUrlSecret.name }}
+            - name: MSSQL_CONNECTION_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.mssql.existingConnectionUrlSecret.name }}
+                  key: {{ .Values.backendStore.mssql.existingConnectionUrlSecret.key }}
+          {{- end }}
           envFrom:
             - configMapRef:
-                name: {{ template "mlflow.fullname" . }}-env-configmap
+                name: {{ include "mlflow.fullname" . }}-env-configmap
             - secretRef:
-                name: {{ template "mlflow.fullname" . }}-env-secret
+                name: {{ include "mlflow.fullname" . }}-env-secret
             - secretRef:
-                name: {{ template "mlflow.fullname" . }}-flask-server-secret-key
+                name: {{ include "mlflow.fullname" . }}-flask-server-secret-key
           command: ["python"]
           args:
             - /opt/mlflow/migrations.py
           volumeMounts:
+            - name: tmp
+              mountPath: /tmp
             - name: migrations-config
               mountPath: /opt/mlflow/migrations.py
               subPath: migrations.py
@@ -246,18 +276,21 @@ spec:
           {{- end }}
           image: "{{ .Values.initImages.iniFileInitializer.repository }}:{{ .Values.initImages.iniFileInitializer.tag }}"
           imagePullPolicy: {{ .Values.initImages.iniFileInitializer.pullPolicy }}
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
           command: ['sh', '-c']
           args:
             - |
+              {{- if .Values.auth.enabled }}
               sed -e "s/\$(ADMIN_USERNAME_PLACEHOLDER)/${ADMIN_USERNAME}/g" \
                   -e "s/\$(ADMIN_PASSWORD_PLACEHOLDER)/${ADMIN_PASSWORD}/g" \
-                {{- if .Values.auth.postgres.enabled }}
+                {{- if or .Values.auth.postgres.enabled .Values.postgresql.enabled }}
                   -e "s/\$(POSTGRES_USERNAME_PLACEHOLDER)/${DB_USERNAME}/g" \
                   -e "s/\$(POSTGRES_PASSWORD_PLACEHOLDER)/${DB_PASSWORD}/g" \
                 {{- end }}
                   /template/auth_template.ini > /config/auth_result.ini
+              {{- else }}
+              cp /template/auth_template.ini /config/auth_result.ini
+              {{- end }}
+          {{- if .Values.auth.enabled }}
           env:
           {{- if .Values.auth.postgres.enabled }}
             - name: DB_USERNAME
@@ -270,6 +303,14 @@ spec:
                 secretKeyRef:
                   name: {{ default (printf "%s-auth-pg-secret" (include "mlflow.fullname" .)) .Values.auth.postgres.existingSecret.name }}
                   key: {{ ternary "password" .Values.auth.postgres.existingSecret.passwordKey (eq .Values.auth.postgres.existingSecret.name "") }}
+          {{- else if .Values.postgresql.enabled }}
+            - name: DB_USERNAME
+              value: {{ default "postgres" .Values.postgresql.auth.username | quote }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mlflow.postgresql.fullname" . }}
+                  key: {{ ternary "postgres-password" "password" (eq .Values.postgresql.auth.username "") }}
           {{- end }}
             - name: ADMIN_USERNAME
               valueFrom:
@@ -281,6 +322,7 @@ spec:
                 secretKeyRef:
                   name: {{ default (printf "%s-auth-admin-secret" (include "mlflow.fullname" .)) .Values.auth.existingAdminSecret.name }}
                   key: {{ ternary "password" .Values.auth.existingAdminSecret.passwordKey (eq .Values.auth.existingAdminSecret.name "") }}
+          {{- end }}
           volumeMounts:
             - name: auth-ini-template-file
               mountPath: /template
@@ -297,19 +339,25 @@ spec:
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: {{ include "mlflow.containerImage" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["mlflow"]
           args:
             - server
-            - --host=0.0.0.0
+            - --host={{ .Values.serverHost }}
             - --port={{ .Values.service.containerPort }}
           {{- if or .Values.backendStore.postgres.enabled .Values.postgresql.enabled }}
             - --backend-store-uri=postgresql{{ $dbConnectionDriver }}://
           {{- else if or .Values.backendStore.mysql.enabled .Values.mysql.enabled }}
             - --backend-store-uri=mysql{{ $dbConnectionDriver }}://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
           {{- else if or .Values.backendStore.mssql.enabled }}
+            {{- if .Values.backendStore.mssql.existingConnectionUrlSecret.name }}
+            - --backend-store-uri=$(MSSQL_CONNECTION_URL)
+            {{- else if .Values.backendStore.mssql.connectionUrl }}
+            - --backend-store-uri={{ .Values.backendStore.mssql.connectionUrl }}
+            {{- else }}
             - --backend-store-uri=mssql{{ $dbConnectionDriver }}://$(MSSQL_USERNAME):$(MSSQL_PWD)@$(MSSQL_HOST):$(MSSQL_TCP_PORT)/$(MSSQL_DATABASE)
+            {{- end }}
           {{- else }}
             - "--backend-store-uri=sqlite:///{{ .Values.backendStore.defaultSqlitePath }}"
           {{- end }}
@@ -320,16 +368,22 @@ spec:
           {{- if .Values.serviceMonitor.enabled }}
             - --expose-prometheus=/mlflow/metrics
           {{- end }}
-          {{- if .Values.auth.enabled }}
+          {{- if .Values.oidcAuth.enabled }}
+            - --app-name=oidc-auth
+          {{- else if .Values.auth.enabled }}
             - --app-name={{ .Values.auth.appName }}
           {{- else if .Values.ldapAuth.enabled }}
             - --app-name=basic-auth
           {{- end }}
-          {{- if and .Values.log.enabled (not (hasKey .Values.extraArgs "gunicornOpts")) }}
-            - {{ printf "--gunicorn-opts='--log-level=%s'" .Values.log.level }}
+          {{- if and .Values.log.enabled (not (hasKey .Values.extraArgs "gunicornOpts")) (not (hasKey .Values.extraArgs "uvicornOpts")) }}
+            - {{ printf "--uvicorn-opts='--log-level=%s'" .Values.log.level }}
           {{- end }}
           {{- range $key, $value := .Values.extraArgs }}
-            {{- if and $.Values.log.enabled (eq $key "gunicornOpts") (contains "--log-level" $value) }}
+            {{- if and $.Values.log.enabled (eq $key "uvicornOpts") (contains "--log-level" $value) }}
+            - {{ printf "--uvicorn-opts='%s'" (regexReplaceAll "--log-level=[^\\s]*" $value (printf "--log-level=%s" $.Values.log.level)) }}
+            {{- else if and $.Values.log.enabled (eq $key "uvicornOpts") (not (contains "--log-level" $value)) }}
+            - {{ printf "--uvicorn-opts='--log-level=%s %s'" $.Values.log.level $value }}
+            {{- else if and $.Values.log.enabled (eq $key "gunicornOpts") (contains "--log-level" $value) }}
             - {{ printf "--gunicorn-opts='%s'" (regexReplaceAll "--log-level=[^\\s]*" $value (printf "--log-level=%s" $.Values.log.level)) }}
             {{- else if and $.Values.log.enabled (eq $key "gunicornOpts") (not (contains "--log-level" $value)) }}
             - {{ printf "--gunicorn-opts='--log-level=%s %s'" $.Values.log.level $value }}
@@ -346,14 +400,14 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: {{ include "mlflow.health" . }}
+              path: /health
               port: {{ .Values.service.containerPortName }}
           {{- with .Values.livenessProbe }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
           readinessProbe:
             httpGet:
-              path: {{ include "mlflow.health" . }}
+              path: /health
               port: {{ .Values.service.containerPortName }}
           {{- with .Values.readinessProbe }}
             {{- toYaml . | nindent 12 }}
@@ -372,6 +426,78 @@ spec:
             {{- if or .Values.ldapAuth.encodedTrustedCACertificate .Values.ldapAuth.externalSecretForTrustedCACertificate }}
             - name: LDAP_CA
               value: "/certs/ca.crt"
+            {{- end }}
+          {{- else if .Values.oidcAuth.enabled }}
+            - name: OIDC_DISCOVERY_URL
+              value: {{ .Values.oidcAuth.discoveryUrl | quote }}
+            - name: OIDC_CLIENT_ID
+              value: {{ .Values.oidcAuth.clientId | quote }}
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mlflow.oidcAuthSecretName" . }}
+                  key: {{ .Values.oidcAuth.existingSecret.clientSecretKey }}
+            {{- if .Values.oidcAuth.redirectUri }}
+            - name: OIDC_REDIRECT_URI
+              value: {{ .Values.oidcAuth.redirectUri | quote }}
+            {{- end }}
+            - name: OIDC_SCOPE
+              value: {{ .Values.oidcAuth.scope | quote }}
+            {{- if .Values.oidcAuth.audience }}
+            - name: OIDC_AUDIENCE
+              value: {{ .Values.oidcAuth.audience | quote }}
+            {{- end }}
+            - name: OIDC_PROVIDER_DISPLAY_NAME
+              value: {{ .Values.oidcAuth.providerDisplayName | quote }}
+            - name: OIDC_GROUPS_ATTRIBUTE
+              value: {{ .Values.oidcAuth.groupsAttribute | quote }}
+            - name: OIDC_GROUP_NAME
+              value: {{ .Values.oidcAuth.groupName | join "," | quote }}
+            - name: OIDC_ADMIN_GROUP_NAME
+              value: {{ .Values.oidcAuth.adminGroupName | join "," | quote }}
+            - name: DEFAULT_MLFLOW_PERMISSION
+              value: {{ .Values.oidcAuth.defaultPermission | quote }}
+            - name: SESSION_COOKIE_SECURE
+              value: {{ .Values.oidcAuth.sessionCookieSecure | quote }}
+            - name: SESSION_COOKIE_SAMESITE
+              value: {{ .Values.oidcAuth.sessionCookieSamesite | quote }}
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mlflow.fullname" . }}-flask-server-secret-key
+                  key: MLFLOW_FLASK_SERVER_SECRET_KEY
+            {{- if .Values.oidcAuth.cache.enabled }}
+            - name: CACHE_BACKEND
+              value: "redis"
+            - name: CACHE_REDIS_URL
+              value: {{ .Values.oidcAuth.cache.redisUrl | quote }}
+            - name: CACHE_KEY_PREFIX
+              value: {{ .Values.oidcAuth.cache.keyPrefix | quote }}
+            {{- end }}
+            {{- if .Values.oidcAuth.database.postgres.enabled }}
+            - name: OIDC_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mlflow.oidcAuthDbSecretName" . }}
+                  key: {{ .Values.oidcAuth.database.postgres.existingSecret.usernameKey }}
+            - name: OIDC_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mlflow.oidcAuthDbSecretName" . }}
+                  key: {{ .Values.oidcAuth.database.postgres.existingSecret.passwordKey }}
+            {{- $oidcDbDriver := "" }}
+            {{- if .Values.oidcAuth.database.postgres.driver }}
+              {{- $oidcDbDriver = printf "+%s" .Values.oidcAuth.database.postgres.driver }}
+            {{- end }}
+            - name: OIDC_USERS_DB_URI
+              value: {{ printf "postgresql%s://$(OIDC_DB_USER):$(OIDC_DB_PASSWORD)@%s:%v/%s" $oidcDbDriver (required "oidcAuth.database.postgres.host must be specified" .Values.oidcAuth.database.postgres.host) .Values.oidcAuth.database.postgres.port (required "oidcAuth.database.postgres.database must be specified" .Values.oidcAuth.database.postgres.database) | quote }}
+            {{- else if .Values.oidcAuth.database.uri }}
+            - name: OIDC_USERS_DB_URI
+              value: {{ .Values.oidcAuth.database.uri | quote }}
+            {{- end }}
+            {{- if .Values.oidcAuth.trustedProxies }}
+            - name: TRUSTED_PROXIES
+              value: {{ .Values.oidcAuth.trustedProxies | join "," | quote }}
             {{- end }}
           {{- end }}
           {{- if .Values.postgresql.enabled }}
@@ -436,6 +562,13 @@ spec:
                   key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
             {{- end }}
           {{- end }}
+          {{- if and .Values.backendStore.mssql.enabled .Values.backendStore.mssql.existingConnectionUrlSecret.name }}
+            - name: MSSQL_CONNECTION_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backendStore.mssql.existingConnectionUrlSecret.name }}
+                  key: {{ .Values.backendStore.mssql.existingConnectionUrlSecret.key }}
+          {{- end }}
           {{- if and .Values.artifactRoot.s3.enabled .Values.artifactRoot.s3.existingSecret.name }}
             {{- if .Values.artifactRoot.s3.existingSecret.keyOfAccessKeyId }}
             - name: AWS_ACCESS_KEY_ID
@@ -451,24 +584,40 @@ spec:
                   name: {{ .Values.artifactRoot.s3.existingSecret.name }}
                   key: {{ .Values.artifactRoot.s3.existingSecret.keyOfSecretAccessKey }}
             {{- end }}
+          {{- else if and .Values.artifactRoot.s3.enabled .Values.minio.enabled }}
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ printf "%s-minio" (include "mlflow.fullname" .) }}
+                  key: rootUser
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ printf "%s-minio" (include "mlflow.fullname" .) }}
+                  key: rootPassword
+          {{- end }}
+          {{- if .Values.minio.enabled }}
+            - name: MLFLOW_S3_ENDPOINT_URL
+              value: {{ printf "http://%s-minio:9000" (include "mlflow.fullname" .) }}
           {{- end }}
           {{- range $key, $value := .Values.extraEnvVars }}
-            - name: {{ upper $key }}
+            - name: {{ $key }}
               value: {{ $value | quote }}
           {{- end }}
           envFrom:
             - configMapRef:
-                name: {{ template "mlflow.fullname" . }}-env-configmap
+                name: {{ include "mlflow.fullname" . }}-env-configmap
             - secretRef:
-                name: {{ template "mlflow.fullname" . }}-env-secret
+                name: {{ include "mlflow.fullname" . }}-env-secret
             - secretRef:
-                name: {{ template "mlflow.fullname" . }}-flask-server-secret-key
+                name: {{ include "mlflow.fullname" . }}-flask-server-secret-key
           {{- range .Values.extraSecretNamesForEnvFrom }}
             - secretRef:
                 name: {{ . }}
           {{- end }}
-          {{- if or .Values.extraVolumeMounts .Values.auth.enabled .Values.ldapAuth.enabled }}
           volumeMounts:
+            - name: tmp
+              mountPath: /tmp
             {{- if .Values.auth.enabled }}
             - name: ini-file
               mountPath: {{ printf "%s/%s" (.Values.auth.configPath | trimSuffix "/") (default "basic_auth.ini" (.Values.auth.configFile | trimPrefix "/")) }}
@@ -489,9 +638,53 @@ spec:
           {{- with .Values.extraVolumeMounts }}
             {{ toYaml . | nindent 12 }}
           {{- end }}
-          {{- end }}
       {{- with .Values.extraContainers }}
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.oauth2Proxy.enabled }}
+        - name: oauth2-proxy
+          image: "{{ .Values.oauth2Proxy.image.repository }}:{{ .Values.oauth2Proxy.image.tag }}"
+          imagePullPolicy: {{ .Values.oauth2Proxy.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.oauth2Proxy.listenPort }}
+              name: oauth2-proxy
+          args:
+            - --http-address=0.0.0.0:{{ .Values.oauth2Proxy.listenPort }}
+            - --upstream=http://127.0.0.1:{{ .Values.service.containerPort }}
+            - --provider={{ .Values.oauth2Proxy.provider.name | default "keycloak" }}
+            {{- if .Values.oauth2Proxy.provider.issuerURL }}
+            - --oidc-issuer-url={{ .Values.oauth2Proxy.provider.issuerURL }}
+            {{- end }}
+            {{- if .Values.oauth2Proxy.provider.redirectURL }}
+            - --redirect-url={{ .Values.oauth2Proxy.provider.redirectURL }}
+            {{- end }}
+            {{- if .Values.oauth2Proxy.extraArgs }}
+            {{- toYaml .Values.oauth2Proxy.extraArgs | nindent 12 }}
+            {{- end }}
+          env:
+            - name: OAUTH2_PROXY_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mlflow.oauth2ProxySecretName" . }}
+                  key: {{ .Values.oauth2Proxy.existingSecret.clientIDKey }}
+            - name: OAUTH2_PROXY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mlflow.oauth2ProxySecretName" . }}
+                  key: {{ .Values.oauth2Proxy.existingSecret.clientSecretKey }}
+            - name: OAUTH2_PROXY_COOKIE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mlflow.oauth2ProxySecretName" . }}
+                  key: {{ .Values.oauth2Proxy.existingSecret.cookieSecretKey }}
+          {{- with .Values.oauth2Proxy.extraEnv }}
+            {{- range $key, $val := . }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.oauth2Proxy.resources | nindent 12 }}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
@@ -505,25 +698,29 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) (or .Values.backendStore.databaseConnectionCheck .Values.backendStore.databaseMigration) ) .Values.extraVolumes .Values.auth.enabled .Values.ldapAuth.enabled }}
+      {{- with .Values.priorityClassName }}
+      priorityClassName: {{ . }}
+      {{- end }}
       volumes:
+        - name: tmp
+          emptyDir: {}
         {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
         - name: dbchecker
           configMap:
-            name: {{ template "mlflow.fullname" . }}-dbchecker
+            name: {{ include "mlflow.fullname" . }}-dbchecker
             defaultMode: 0777
         {{- end }}
         {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseMigration }}
         - name: migrations-config
           configMap:
-            name: {{ template "mlflow.fullname" . }}-migrations
+            name: {{ include "mlflow.fullname" . }}-migrations
         {{- end }}
         {{- if or .Values.auth.enabled .Values.ldapAuth.enabled }}
         - name: ini-file
           emptyDir: {}
         - name: auth-ini-template-file
           configMap:
-            name: {{ template "mlflow.fullname" . }}-auth-ini-template
+            name: {{ include "mlflow.fullname" . }}-auth-ini-template
           {{- if or .Values.ldapAuth.encodedTrustedCACertificate .Values.ldapAuth.externalSecretForTrustedCACertificate }}
         - name: trusted-ca-cert-secret
           secret:
@@ -532,5 +729,4 @@ spec:
         {{- end }}
       {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
       {{- end }}

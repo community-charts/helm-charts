@@ -6,6 +6,8 @@ kind: Deployment
 {{- end }}
 metadata:
   name: {{ include "cloudflared.fullname" . }}
+  annotations:
+    ignore-check.kube-linter.io/unsafe-sysctls: "net.ipv4.ping_group_range is required for cloudflared ICMP tunneling support"
   labels:
     {{- include "cloudflared.labels" . | nindent 4 }}
 spec:
@@ -57,12 +59,9 @@ spec:
             - name: TUNNEL_ORIGIN_CERT
               value: {{ printf "/etc/cloudflared/creds/%s" (default "cert.pem" .Values.tunnelSecrets.existingPemFileSecret.key) | quote }}
           livenessProbe:
-            httpGet:
-              path: /ready
-              port: 2000
-            failureThreshold: 1
-            initialDelaySeconds: 10
-            periodSeconds: 10
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
           volumeMounts:
             - name: config
               mountPath: /etc/cloudflared/config

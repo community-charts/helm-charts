@@ -60,6 +60,12 @@ persistence:
 
 The `actualbudget` Helm chart supports OpenID Connect (OIDC) for authentication with providers like Keycloak or Auth0. Please find full tested providers from [here](https://actualbudget.org/docs/config/oauth-auth/#tested-providers). Configure the `login.openid` settings in `values.yaml` or a `secrets.yaml` file to enable it. See the [Values](#values) table for all options, including `login.openid.tokenExpiration` (valid values: `"never"`, `"openid-provider"`, or seconds like `3600`).
 
+> **Important:** OIDC requires **all four** of these conditions to be true or it silently does nothing:
+> 1. `ingress.enabled: true`
+> 2. `login.method: "openid"`
+> 3. `"openid"` present in `login.allowedLoginMethods`
+> 4. App version ≥ `25.1.0`
+
 ### Example Configuration
 
 To use OpenID with a Kubernetes Secret for sensitive data:
@@ -75,8 +81,22 @@ kubectl create secret generic actualbudget-openid-secret \
 2. **Update `values.yaml`**:
 
 ```yaml
+ingress:
+  enabled: true
+  hosts:
+    - host: actualbudget.example.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: actualbudget-tls
+      hosts:
+        - actualbudget.example.com
+
 login:
   method: "openid"
+  allowedLoginMethods:
+    - openid
   openid:
     enforce: true
     providerName: "Keycloak"

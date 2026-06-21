@@ -4,7 +4,7 @@
 
 A Helm chart for the fastest knowledge base for growing teams. Beautiful, realtime collaborative, feature packed, and markdown compatible.
 
-![Version: 0.7.3](https://img.shields.io/badge/Version-0.7.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.1.0](https://img.shields.io/badge/AppVersion-1.1.0-informational?style=flat-square)
+![Version: 0.9.0](https://img.shields.io/badge/Version-0.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.8.1](https://img.shields.io/badge/AppVersion-1.8.1-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -516,8 +516,8 @@ Kubernetes: `>=1.23.0-0`
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | postgresql | 18.1.9 |
-| https://charts.bitnami.com/bitnami | redis | 23.2.12 |
+| https://charts.bitnami.com/bitnami | postgresql | 18.7.2 |
+| https://charts.bitnami.com/bitnami | redis | 27.0.4 |
 | https://charts.min.io/ | minio | 5.4.0 |
 
 ## Uninstall Helm Chart
@@ -681,14 +681,15 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | extraContainers | list | `[]` | Additional containers (sidecars) on the output Deployment definition. |
 | extraEnvVars | object | `{}` | This is for setting up the extra environment variables. |
 | extraSecretNamesForEnvFrom | list | `[]` | This is for setting up the extra secrets for environment variables. |
-| fileStorage | object | `{"importMaxSize":"","local":{"persistence":{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"existingClaim":"","size":"8Gi","storageClass":"","volumeMode":""},"rootDir":"/var/lib/outline/data"},"mode":"local","s3":{"accelerateUrl":"","accessKeyId":"","accessKeyIdSecretKey":"access-key-id","acl":"private","bucket":"outline","bucketUrl":"","existingSecret":"","forcePathStyle":true,"region":"us-east-1","secretAccessKey":"","secretAccessKeySecretKey":"secret-access-key"},"uploadMaxSize":"262144000","workspaceImportMaxSize":""}` | This is for setting up the file storage. More information about file storage can be found here: https://docs.getoutline.com/s/hosting/doc/file-storage-N4M0T6Ypu7 |
+| fileStorage | object | `{"importMaxSize":"","local":{"persistence":{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"existingClaim":"","labels":{},"size":"8Gi","storageClass":"","volumeMode":""},"rootDir":"/var/lib/outline/data"},"mode":"local","s3":{"accelerateUrl":"","accessKeyId":"","accessKeyIdSecretKey":"access-key-id","acl":"private","bucket":"outline","bucketUrl":"","existingSecret":"","forcePathStyle":true,"region":"us-east-1","secretAccessKey":"","secretAccessKeySecretKey":"secret-access-key"},"uploadMaxSize":"262144000","workspaceImportMaxSize":""}` | This is for setting up the file storage. More information about file storage can be found here: https://docs.getoutline.com/s/hosting/doc/file-storage-N4M0T6Ypu7 |
 | fileStorage.importMaxSize | string | `""` | This is for setting up the file storage import max size. |
-| fileStorage.local | object | `{"persistence":{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"existingClaim":"","size":"8Gi","storageClass":"","volumeMode":""},"rootDir":"/var/lib/outline/data"}` | This is for setting up the local file storage. |
-| fileStorage.local.persistence | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"existingClaim":"","size":"8Gi","storageClass":"","volumeMode":""}` | This is for setting up the local file storage persistence. |
+| fileStorage.local | object | `{"persistence":{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"existingClaim":"","labels":{},"size":"8Gi","storageClass":"","volumeMode":""},"rootDir":"/var/lib/outline/data"}` | This is for setting up the local file storage. |
+| fileStorage.local.persistence | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"existingClaim":"","labels":{},"size":"8Gi","storageClass":"","volumeMode":""}` | This is for setting up the local file storage persistence. |
 | fileStorage.local.persistence.accessModes | list | `["ReadWriteOnce"]` | This is for setting up the local file storage persistence access modes. |
 | fileStorage.local.persistence.annotations | object | `{}` | This is for setting up the local file storage persistence annotations. |
 | fileStorage.local.persistence.enabled | bool | `false` | This is for setting up the local file storage persistence enabled. |
 | fileStorage.local.persistence.existingClaim | string | `""` | This is for setting up the local file storage persistence existing claim. |
+| fileStorage.local.persistence.labels | object | `{}` | This is for setting up the local file storage persistence labels. |
 | fileStorage.local.persistence.size | string | `"8Gi"` | This is for setting up the local file storage persistence size. |
 | fileStorage.local.persistence.storageClass | string | `""` | This is for setting up the local file storage persistence storage class. |
 | fileStorage.local.persistence.volumeMode | string | `""` | This is for setting up the local file storage persistence volume mode. |
@@ -710,7 +711,8 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | fileStorage.workspaceImportMaxSize | string | `""` | This is for setting up the file storage workspace import max size. |
 | fullnameOverride | string | `""` | This is to override the full name of the chart. |
 | hostAliases | list | `[]` | Host aliases for the pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases |
-| image | object | `{"pullPolicy":"IfNotPresent","repository":"outlinewiki/outline","tag":""}` | This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/ |
+| image | object | `{"digest":"","pullPolicy":"IfNotPresent","repository":"outlinewiki/outline","tag":""}` | This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/ |
+| image.digest | string | `""` | Image digest in the format sha256:<hex>. When set, overrides the tag for immutable pulls. |
 | image.pullPolicy | string | `"IfNotPresent"` | This sets the pull policy for images. |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
@@ -864,7 +866,7 @@ helm upgrade [RELEASE_NAME] community-charts/outline
 | secretKeyExternalSecret | object | `{"key":"secret-key","name":""}` | This is for setting up the secret key external secret. |
 | secretKeyExternalSecret.key | string | `"secret-key"` | This is for setting up the secret key external secret key. |
 | secretKeyExternalSecret.name | string | `""` | This is for setting up the secret key external secret name. |
-| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":false,"runAsGroup":1001,"runAsNonRoot":true,"runAsUser":1001}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
+| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true,"runAsGroup":1001,"runAsNonRoot":true,"runAsUser":1001}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
 | service | object | `{"annotations":{},"enabled":true,"name":"http","port":3000,"type":"ClusterIP"}` | This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/ |
 | service.annotations | object | `{}` | Additional service annotations |
 | service.enabled | bool | `true` | This sets the service enabled. |
