@@ -184,3 +184,4 @@ git commit -s  # retried after hook updates
 - Never add a `Co-Authored-By` trailer to commits.
 - YAML files must follow the rules in `.github/configs/lintconf.yaml` (2-space indent, no trailing spaces, LF line endings, newline at EOF).
 - PR descriptions must follow the template in `.github/PULL_REQUEST_TEMPLATE.md`: fill in "What this PR does / why we need it", "Which issue this PR fixes" (using `fixes #<number>` format), "Special notes for your reviewer", and check all applicable checklist items.
+- Always use `fixes #<number>` (not `refs`, `closes`, or plain `#<number>`) for every issue the PR addresses. GitHub only creates a bidirectional PR↔issue link and auto-closes issues on merge when the `fixes` keyword is present. Using `refs` or a bare `#<number>` produces no link in GitHub's UI.
