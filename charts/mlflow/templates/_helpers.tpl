@@ -131,9 +131,20 @@ Build the full container image reference, appending digest when set.
 {{- end }}
 
 {{/*
+Deduplicate a string list and return a comma-separated string.
+Collapses the entire list to "*" when the wildcard entry is present.
+Returns empty string when the list is empty.
+Usage: {{ include "mlflow.normalizeList" $list }}
+*/}}
+{{- define "mlflow.normalizeList" -}}
+{{- $list := . | uniq -}}
+{{- if has "*" $list -}}*{{- else if $list -}}{{- join "," $list -}}{{- end -}}
+{{- end }}
+
+{{/*
 Build the MLFLOW_SERVER_ALLOWED_HOSTS value.
-Merges ingress hostnames with serverAllowedHosts, deduplicates, and collapses to "*" when present.
-Returns a comma-separated string, or empty string when no hosts are configured.
+Auto-detects ingress hostnames then appends serverAllowedHosts.
+Delegates dedup and wildcard collapsing to mlflow.normalizeList.
 Usage: {{ include "mlflow.serverAllowedHosts" . }}
 */}}
 {{- define "mlflow.serverAllowedHosts" -}}
@@ -144,15 +155,13 @@ Usage: {{ include "mlflow.serverAllowedHosts" . }}
   {{- end -}}
 {{- end -}}
 {{- range .Values.serverAllowedHosts -}}{{- $hosts = append $hosts . -}}{{- end -}}
-{{- $hosts = $hosts | uniq -}}
-{{- if has "*" $hosts -}}*{{- else if $hosts -}}{{- join "," $hosts -}}{{- end -}}
+{{- include "mlflow.normalizeList" $hosts -}}
 {{- end }}
 
 {{/*
 Build the MLFLOW_SERVER_CORS_ALLOWED_ORIGINS value.
-Merges ingress-derived origins (with scheme from TLS config) with corsAllowedOrigins,
-deduplicates, and collapses to "*" when present.
-Returns a comma-separated string, or empty string when no origins are configured.
+Auto-detects ingress origins (https when TLS configured, http otherwise) then appends corsAllowedOrigins.
+Delegates dedup and wildcard collapsing to mlflow.normalizeList.
 Usage: {{ include "mlflow.corsAllowedOrigins" . }}
 */}}
 {{- define "mlflow.corsAllowedOrigins" -}}
@@ -165,8 +174,7 @@ Usage: {{ include "mlflow.corsAllowedOrigins" . }}
   {{- end -}}
 {{- end -}}
 {{- range .Values.corsAllowedOrigins -}}{{- $origins = append $origins . -}}{{- end -}}
-{{- $origins = $origins | uniq -}}
-{{- if has "*" $origins -}}*{{- else if $origins -}}{{- join "," $origins -}}{{- end -}}
+{{- include "mlflow.normalizeList" $origins -}}
 {{- end }}
 
 {{/*
