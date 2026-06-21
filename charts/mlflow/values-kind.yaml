@@ -11,3 +11,16 @@ postgresql:
   primary:
     persistence:
       enabled: false
+
+artifactRoot:
+  s3:
+    enabled: true
+
+minio:
+  enabled: true
+
+  rootUser: mlflow
+  rootPassword: thisisrootsecret
+
+  persistence:
+    enabled: false

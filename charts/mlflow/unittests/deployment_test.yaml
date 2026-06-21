@@ -2372,6 +2372,9 @@ tests:
 
   - it: should inject minio env vars from minio secret when minio is enabled
     set:
+      artifactRoot:
+        s3:
+          enabled: true
       minio:
         enabled: true
     asserts:

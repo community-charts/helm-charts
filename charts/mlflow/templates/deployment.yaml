@@ -18,7 +18,11 @@
 {{- if .Values.artifactRoot.azureBlob.enabled }}
   {{- $artifactCommand = printf "--%s=wasbs://%s@%s.blob.core.windows.net/%s" $artifactCommandPrefix .Values.artifactRoot.azureBlob.container .Values.artifactRoot.azureBlob.storageAccount .Values.artifactRoot.azureBlob.path }}
 {{- else if .Values.artifactRoot.s3.enabled }}
+{{- if .Values.minio.enabled }}
+  {{- $artifactCommand = printf "--%s=s3://%s/" $artifactCommandPrefix (ternary (index .Values.minio.buckets 0).name .Values.artifactRoot.s3.bucket (eq .Values.artifactRoot.s3.bucket "")) }}
+{{- else }}
   {{- $artifactCommand = printf "--%s=s3://%s/%s" $artifactCommandPrefix .Values.artifactRoot.s3.bucket .Values.artifactRoot.s3.path }}
+{{- end }}
 {{- else if .Values.artifactRoot.gcs.enabled }}
   {{- $artifactCommand = printf "--%s=gs://%s/%s" $artifactCommandPrefix .Values.artifactRoot.gcs.bucket .Values.artifactRoot.gcs.path }}
 {{- end }}
@@ -570,7 +574,7 @@ spec:
                   key: {{ .Values.artifactRoot.s3.existingSecret.keyOfSecretAccessKey }}
             {{- end }}
           {{- end }}
-          {{- if .Values.minio.enabled }}
+          {{- if and .Values.artifactRoot.s3.enabled .Values.minio.enabled }}
             - name: MLFLOW_S3_ENDPOINT_URL
               value: {{ printf "http://%s-minio:9000" (include "mlflow.fullname" .) }}
             - name: AWS_ACCESS_KEY_ID

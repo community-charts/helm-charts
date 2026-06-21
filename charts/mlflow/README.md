@@ -966,8 +966,8 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | log | object | `{"enabled":true,"level":"info"}` | Mlflow logging settings |
 | log.enabled | bool | `true` | Specifies if you want to enable mlflow logging. |
 | log.level | string | `"info"` | Mlflow logging level. |
-| minio | object | `{"buckets":[],"deploymentUpdate":{"type":"Recreate"},"drivesPerNode":1,"enabled":false,"mode":"standalone","persistence":{"accessMode":"ReadWriteOnce","annotations":{},"enabled":true,"existingClaim":"","size":"10Gi","storageClass":"","subPath":"","volumeName":""},"pools":1,"replicas":1,"resources":{"requests":{"memory":"1Gi"}},"rootPassword":"","rootUser":"","statefulSetUpdate":{"updateStrategy":"Recreate"}}` | MinIO subchart for S3-compatible local artifact storage. When enabled, the MLflow deployment automatically receives AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and MLFLOW_S3_ENDPOINT_URL from the MinIO secret and service. artifactRoot.s3.enabled must also be set to true with a matching bucket name. |
-| minio.buckets | list | `[]` | Buckets to create on startup |
+| minio | object | `{"buckets":[{"name":"mlflow","policy":"none","purge":false}],"deploymentUpdate":{"type":"Recreate"},"drivesPerNode":1,"enabled":false,"mode":"standalone","persistence":{"accessMode":"ReadWriteOnce","annotations":{},"enabled":true,"existingClaim":"","size":"10Gi","storageClass":"","subPath":"","volumeName":""},"policies":[],"pools":1,"replicas":1,"resources":{"requests":{"memory":"1Gi"}},"rootPassword":"","rootUser":"","statefulSetUpdate":{"updateStrategy":"Recreate"},"users":[]}` | MinIO subchart for S3-compatible local artifact storage. When enabled, the MLflow deployment automatically receives AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and MLFLOW_S3_ENDPOINT_URL from the MinIO secret and service. artifactRoot.s3.enabled must also be set to true with a matching bucket name. |
+| minio.buckets | list | `[{"name":"mlflow","policy":"none","purge":false}]` | Buckets to create on startup |
 | minio.deploymentUpdate | object | `{"type":"Recreate"}` | Minio deployment update strategy |
 | minio.drivesPerNode | int | `1` | Number of drives attached to a node |
 | minio.enabled | bool | `false` | Enable the MinIO subchart |
@@ -981,6 +981,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | minio.persistence.storageClass | string | `""` | Minio persistence storage class |
 | minio.persistence.subPath | string | `""` | Minio persistence sub path |
 | minio.persistence.volumeName | string | `""` | Minio persistence volume name |
+| minio.policies | list | `[]` | MinIO model bucket policy. |
 | minio.pools | int | `1` | Number of expanded MinIO clusters |
 | minio.replicas | int | `1` | Number of MinIO containers running |
 | minio.resources | object | `{"requests":{"memory":"1Gi"}}` | MinIO resources |
@@ -989,6 +990,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | minio.rootPassword | string | `""` | MinIO root password (secret key). Length must be at least 8 characters. |
 | minio.rootUser | string | `""` | MinIO root user (access key). Length must be at least 3 characters. |
 | minio.statefulSetUpdate | object | `{"updateStrategy":"Recreate"}` | Minio statefulset update strategy |
+| minio.users | list | `[]` | MinIO users |
 | mysql | object | `{"architecture":"standalone","auth":{"database":"mlflow","password":"","username":""},"enabled":false,"image":{"repository":"bitnamilegacy/mysql"},"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"mysql":3306}}}}` | Bitnami MySQL configuration. For more information checkout: https://github.com/bitnami/charts/tree/main/bitnami/mysql |
 | mysql.auth.database | string | `"mlflow"` | The name of the MySQL database. |
 | mysql.enabled | bool | `false` | Enable mysql |
