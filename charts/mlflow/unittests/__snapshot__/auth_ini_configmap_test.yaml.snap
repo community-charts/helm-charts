@@ -13,9 +13,12 @@ should use different path for sqlite:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-auth-ini-template
 should use ldap configurations when ldap auth enabled:
   1: |
@@ -32,9 +35,12 @@ should use ldap configurations when ldap auth enabled:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-auth-ini-template
 should use postgres when auth enabled and postgres backend enabled:
   1: |
@@ -51,9 +57,12 @@ should use postgres when auth enabled and postgres backend enabled:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-auth-ini-template
 should use slash only path for sqlite:
   1: |
@@ -70,9 +79,12 @@ should use slash only path for sqlite:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-auth-ini-template
 should use sqlite on default when auth enabled:
   1: |
@@ -89,9 +101,12 @@ should use sqlite on default when auth enabled:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-auth-ini-template
 should work with postgres driver:
   1: |
@@ -108,7 +123,10 @@ should work with postgres driver:
     metadata:
       labels:
         app: mlflow
-        chart: mlflow-1.0.0
-        heritage: Helm
-        release: mlflow
+        app.kubernetes.io/instance: mlflow
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mlflow
+        app.kubernetes.io/version: 1.0.0
+        helm.sh/chart: mlflow-1.0.0
+        version: 1.0.0
       name: mlflow-auth-ini-template

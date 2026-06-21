@@ -627,14 +627,14 @@ spec:
                 secretKeyRef:
                   name: {{ include "mlflow.oauth2ProxySecretName" . }}
                   key: {{ .Values.oauth2Proxy.existingSecret.cookieSecretKey }}
-          resources:
-            {{- toYaml .Values.oauth2Proxy.resources | nindent 12 }}
           {{- with .Values.oauth2Proxy.extraEnv }}
             {{- range $key, $val := . }}
             - name: {{ $key }}
               value: {{ $val | quote }}
             {{- end }}
           {{- end }}
+          resources:
+            {{- toYaml .Values.oauth2Proxy.resources | nindent 12 }}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

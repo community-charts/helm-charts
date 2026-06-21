@@ -41,10 +41,7 @@ kind: ConfigMap
 metadata:
   name: {{ template "mlflow.fullname" . }}-auth-ini-template
   labels:
-    app: {{ template "mlflow.name" . }}
-    chart: {{ template "mlflow.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "mlflow.labels" . | nindent 4 }}
 data:
   auth_template.ini: |
     [mlflow]

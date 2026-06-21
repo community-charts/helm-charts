@@ -2340,3 +2340,18 @@ tests:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --allowed-hosts=*
         template: deployment.yaml
+
+  - it: should inject oauth2-proxy extraEnv into env block (not after resources)
+    set:
+      oauth2Proxy:
+        enabled: true
+        listenPort: 4180
+        extraEnv:
+          MY_EXTRA_VAR: "hello"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "oauth2-proxy")].env
+          content:
+            name: MY_EXTRA_VAR
+            value: "hello"
+        template: deployment.yaml
