@@ -558,7 +558,7 @@ spec:
                   name: {{ .Values.backendStore.mssql.existingConnectionUrlSecret.name }}
                   key: {{ .Values.backendStore.mssql.existingConnectionUrlSecret.key }}
           {{- end }}
-          {{- if and .Values.artifactRoot.s3.enabled (not .Values.minio.enabled) .Values.artifactRoot.s3.existingSecret.name }}
+          {{- if and .Values.artifactRoot.s3.enabled .Values.artifactRoot.s3.existingSecret.name }}
             {{- if .Values.artifactRoot.s3.existingSecret.keyOfAccessKeyId }}
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
@@ -573,10 +573,7 @@ spec:
                   name: {{ .Values.artifactRoot.s3.existingSecret.name }}
                   key: {{ .Values.artifactRoot.s3.existingSecret.keyOfSecretAccessKey }}
             {{- end }}
-          {{- end }}
-          {{- if and .Values.artifactRoot.s3.enabled .Values.minio.enabled }}
-            - name: MLFLOW_S3_ENDPOINT_URL
-              value: {{ printf "http://%s-minio:9000" (include "mlflow.fullname" .) }}
+          {{- else if and .Values.artifactRoot.s3.enabled .Values.minio.enabled }}
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:
@@ -587,6 +584,10 @@ spec:
                 secretKeyRef:
                   name: {{ printf "%s-minio" (include "mlflow.fullname" .) }}
                   key: rootPassword
+          {{- end }}
+          {{- if .Values.minio.enabled }}
+            - name: MLFLOW_S3_ENDPOINT_URL
+              value: {{ printf "http://%s-minio:9000" (include "mlflow.fullname" .) }}
           {{- end }}
           {{- range $key, $value := .Values.extraEnvVars }}
             - name: {{ $key }}
