@@ -153,15 +153,15 @@
                   "type": "string"
                 },
                 "keyOfAccessKeyId": {
-                  "default": "",
-                  "description": "This is for setting up the key for AWS_ACCESS_KEY_ID secret. If it's set, awsAccessKeyId will be ignored.",
+                  "default": "AWS_ACCESS_KEY_ID",
+                  "description": "Key in the existing secret that holds the AWS_ACCESS_KEY_ID value.",
                   "required": [],
                   "title": "keyOfAccessKeyId",
                   "type": "string"
                 },
                 "keyOfSecretAccessKey": {
-                  "default": "",
-                  "description": "This is for setting up the key for AWS_SECRET_ACCESS_KEY secret. If it's set, awsSecretAccessKey will be ignored.",
+                  "default": "AWS_SECRET_ACCESS_KEY",
+                  "description": "Key in the existing secret that holds the AWS_SECRET_ACCESS_KEY value.",
                   "required": [],
                   "title": "keyOfSecretAccessKey",
                   "type": "string"

@@ -1554,6 +1554,34 @@ tests:
           value: "true"
         template: deployment.yaml
 
+  - it: should set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY from existing secret using default key names when only name is set
+    set:
+      artifactRoot:
+        s3:
+          enabled: true
+          bucket: test-bucket
+          existingSecret:
+            name: my-aws-existing-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: my-aws-existing-secret
+                key: AWS_ACCESS_KEY_ID
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: my-aws-existing-secret
+                key: AWS_SECRET_ACCESS_KEY
+        template: deployment.yaml
+
   - it: should set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY from existing secret when existing secret name, keyOfAccessKeyId and keyOfSecretAccessKey fields set
     set:
       artifactRoot:

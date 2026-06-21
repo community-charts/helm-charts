@@ -62,6 +62,11 @@ annotations:
           url: https://github.com/community-charts/helm-charts/issues/310
     - kind: fixed
       description: Enable readOnlyRootFilesystem and add built-in tmp emptyDir volume
+    - kind: fixed
+      description: Default keyOfAccessKeyId and keyOfSecretAccessKey to standard AWS key names so existingSecret works when only name is provided
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/225
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.14.0

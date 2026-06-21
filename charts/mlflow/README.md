@@ -763,14 +763,14 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | artifactRoot.gcs.enabled | bool | `false` | Specifies if you want to use Google Cloud Storage Mlflow Artifact Root |
 | artifactRoot.gcs.path | string | `""` | Google Cloud Storage bucket folder. If you want to use root level, please don't set anything. |
 | artifactRoot.proxiedArtifactStorage | bool | `false` | Specifies if you want to enable proxied artifact storage access |
-| artifactRoot.s3 | object | `{"awsAccessKeyId":"","awsSecretAccessKey":"","bucket":"","enabled":false,"existingSecret":{"keyOfAccessKeyId":"","keyOfSecretAccessKey":"","name":""},"path":""}` | Specifies if you want to use AWS S3 Mlflow Artifact Root |
+| artifactRoot.s3 | object | `{"awsAccessKeyId":"","awsSecretAccessKey":"","bucket":"","enabled":false,"existingSecret":{"keyOfAccessKeyId":"AWS_ACCESS_KEY_ID","keyOfSecretAccessKey":"AWS_SECRET_ACCESS_KEY","name":""},"path":""}` | Specifies if you want to use AWS S3 Mlflow Artifact Root |
 | artifactRoot.s3.awsAccessKeyId | string | `""` | AWS IAM user AWS_ACCESS_KEY_ID which has attached policy for access to the S3 bucket |
 | artifactRoot.s3.awsSecretAccessKey | string | `""` | AWS IAM user AWS_SECRET_ACCESS_KEY which has attached policy for access to the S3 bucket |
 | artifactRoot.s3.bucket | string | `""` | S3 bucket name |
 | artifactRoot.s3.enabled | bool | `false` | Specifies if you want to use AWS S3 Mlflow Artifact Root |
-| artifactRoot.s3.existingSecret | object | `{"keyOfAccessKeyId":"","keyOfSecretAccessKey":"","name":""}` | Existing secret for AWS IAM user AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY secrets. |
-| artifactRoot.s3.existingSecret.keyOfAccessKeyId | string | `""` | This is for setting up the key for AWS_ACCESS_KEY_ID secret. If it's set, awsAccessKeyId will be ignored. |
-| artifactRoot.s3.existingSecret.keyOfSecretAccessKey | string | `""` | This is for setting up the key for AWS_SECRET_ACCESS_KEY secret. If it's set, awsSecretAccessKey will be ignored. |
+| artifactRoot.s3.existingSecret | object | `{"keyOfAccessKeyId":"AWS_ACCESS_KEY_ID","keyOfSecretAccessKey":"AWS_SECRET_ACCESS_KEY","name":""}` | Existing secret for AWS IAM user AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY secrets. |
+| artifactRoot.s3.existingSecret.keyOfAccessKeyId | string | `"AWS_ACCESS_KEY_ID"` | Key in the existing secret that holds the AWS_ACCESS_KEY_ID value. |
+| artifactRoot.s3.existingSecret.keyOfSecretAccessKey | string | `"AWS_SECRET_ACCESS_KEY"` | Key in the existing secret that holds the AWS_SECRET_ACCESS_KEY value. |
 | artifactRoot.s3.existingSecret.name | string | `""` | This is for setting up the AWS IAM user secrets existing secret name. |
 | artifactRoot.s3.path | string | `""` | S3 bucket folder. If you want to use root level, please don't set anything. |
 | auth | object | `{"adminPassword":"","adminUsername":"","appName":"basic-auth","authorizationFunction":"mlflow.server.auth:authenticate_request_basic_auth","configFile":"basic_auth.ini","configPath":"/etc/mlflow/auth/","defaultPermission":"READ","enabled":false,"existingAdminSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"postgres":{"database":"","driver":"","enabled":false,"existingSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"host":"","password":"","port":5432,"user":""},"sqliteFile":"basic_auth.db","sqliteFullPath":""}` | Mlflow authentication settings |
