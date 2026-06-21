@@ -2028,7 +2028,7 @@
         },
         "name": {
           "default": "http",
-          "description": "Default Service name",
+          "description": "Port protocol name for the main HTTP port in the Service spec (spec.ports[].name). This is not the Service resource name; use nameOverride or fullnameOverride to rename the Service resource.",
           "required": [],
           "title": "name",
           "type": "string"

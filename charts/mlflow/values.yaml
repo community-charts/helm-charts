@@ -111,7 +111,7 @@ service:
   type: ClusterIP
   # -- This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
   port: 80
-  # -- Default Service name
+  # -- Port protocol name for the main HTTP port in the Service spec. This sets spec.ports[].name, not the Service resource name. To rename the Service resource itself use nameOverride or fullnameOverride.
   name: http
   # -- Default container port
   containerPort: 5000

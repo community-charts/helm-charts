@@ -110,6 +110,11 @@ annotations:
       links:
         - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/426
+    - kind: fixed
+      description: Clarify that service.name sets the port protocol name in spec.ports[].name, not the Service resource name; add guidance to use nameOverride or fullnameOverride to rename the Service resource
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/468
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.14.0
