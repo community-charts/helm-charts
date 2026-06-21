@@ -586,6 +586,78 @@ oauth2Proxy:
     redirectURL: "https://mlflow.example.com/oauth2/callback"
 ```
 
+## Security Middleware Example
+
+MLflow 3.x runs on uvicorn and includes security middleware that protects against DNS rebinding, CORS, and clickjacking attacks. The chart automatically configures `MLFLOW_SERVER_ALLOWED_HOSTS` and `MLFLOW_SERVER_CORS_ALLOWED_ORIGINS` from your ingress hosts so the middleware does not block legitimate requests.
+
+### Auto-detection from Ingress
+
+When `ingress.enabled` is `true` and hosts are configured the chart derives both env vars automatically:
+
+- `MLFLOW_SERVER_ALLOWED_HOSTS` is set to the bare hostnames (e.g. `mlflow.example.com`)
+- `MLFLOW_SERVER_CORS_ALLOWED_ORIGINS` is set to `https://hostname` when `ingress.tls` is configured, or `http://hostname` otherwise
+
+```yaml
+ingress:
+  enabled: true
+  hosts:
+    - host: mlflow.example.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: mlflow-tls
+      hosts:
+        - mlflow.example.com
+# Results in:
+#   MLFLOW_SERVER_ALLOWED_HOSTS: "mlflow.example.com"
+#   MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: "https://mlflow.example.com"
+```
+
+### Appending Extra Hosts or Origins
+
+Use `serverAllowedHosts` and `corsAllowedOrigins` to add entries beyond what is auto-detected. Ingress-derived values always come first; entries from these lists are appended and duplicates are removed automatically.
+
+```yaml
+ingress:
+  enabled: true
+  hosts:
+    - host: mlflow.example.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+
+serverAllowedHosts:
+  - dashboard.example.com   # extra hostname that also routes to MLflow
+
+corsAllowedOrigins:
+  - https://dashboard.example.com   # frontend served from a different origin
+# Results in:
+#   MLFLOW_SERVER_ALLOWED_HOSTS: "mlflow.example.com,dashboard.example.com"
+#   MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: "http://mlflow.example.com,https://dashboard.example.com"
+```
+
+### Wildcard for Development
+
+A single `"*"` entry collapses the entire list to just `*`, ignoring all other entries including auto-detected ingress values:
+
+```yaml
+corsAllowedOrigins:
+  - "*"
+serverAllowedHosts:
+  - "*"
+```
+
+### Runtime Override
+
+`extraEnvVars` always wins at runtime via Kubernetes `env:` → `envFrom:` precedence, so you can override both env vars without touching `serverAllowedHosts` or `corsAllowedOrigins`:
+
+```yaml
+extraEnvVars:
+  MLFLOW_SERVER_ALLOWED_HOSTS: "mlflow.example.com,other.example.com"
+  MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: "https://mlflow.example.com,https://other.example.com"
+```
+
 ## Auto Scaling Example
 
 This Helm chart supports Horizontal Pod Autoscaling (HPA) to dynamically scale the MLflow `Deployment` based on metrics. The HPA resource is created when `autoscaling.enabled` is `true` and specific conditions are met (see Prerequisites).
@@ -595,7 +667,7 @@ This Helm chart supports Horizontal Pod Autoscaling (HPA) to dynamically scale t
 The HPA is created only if:
 
 - `autoscaling.enabled: true`
-- A backend store is enabled (`backendStore.postgres.enabled` or `backendStore.mysql.enabled`).
+- A backend store is enabled (`backendStore.postgres.enabled`, `backendStore.mysql.enabled`, `postgresql.enabled`, or `mysql.enabled`).
 - An artifact store is enabled (`artifactRoot.azureBlob.enabled`, `artifactRoot.s3.enabled`, or `artifactRoot.gcs.enabled`).
 - Auth is either enabled with Postgres (`auth.enabled` and `auth.postgres.enabled`) or disabled (`auth.enabled: false`).
 
