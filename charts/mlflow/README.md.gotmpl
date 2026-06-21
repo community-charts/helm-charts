@@ -748,6 +748,73 @@ extraEnvVars:
   MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: "https://mlflow.example.com,https://other.example.com"
 ```
 
+## Extra Kubernetes Resources Example
+
+Use `extraDeploy` to render arbitrary Kubernetes objects alongside the chart. Each item is evaluated with `tpl`, so Helm template expressions work inside the objects.
+
+### ExternalSecret via External Secrets Operator
+
+Each item in `extraDeploy` is evaluated with `tpl`, so Helm template expressions work inside the objects (e.g. `{{"{{"}} include "mlflow.fullname" . {{"}}"}}`).
+
+```yaml
+extraDeploy:
+  - apiVersion: external-secrets.io/v1
+    kind: SecretStore
+    metadata:
+      name: mlflow
+    spec:
+      provider:
+        aws:
+          service: SecretsManager
+          region: eu-central-1
+          auth:
+            jwt:
+              serviceAccountRef:
+                name: mlflow
+
+  - apiVersion: external-secrets.io/v1
+    kind: ExternalSecret
+    metadata:
+      name: mlflow-db-credentials
+    spec:
+      secretStoreRef:
+        name: mlflow
+        kind: SecretStore
+      target:
+        name: mlflow-db-credentials
+      data:
+        - secretKey: username
+          remoteRef:
+            key: mlflow/db
+            property: username
+        - secretKey: password
+          remoteRef:
+            key: mlflow/db
+            property: password
+
+backendStore:
+  postgres:
+    enabled: true
+    host: "postgresql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "mlflow"
+  existingDatabaseSecret:
+    name: "mlflow-db-credentials"
+    usernameKey: "username"
+    passwordKey: "password"
+```
+
+## Deployment Annotations Example
+
+Use `deploymentAnnotations` to add annotations to the `Deployment` resource metadata (not the pod). This is distinct from `podAnnotations`, which annotates the pod template.
+
+```yaml
+deploymentAnnotations:
+  velero.database/restart-on-restore: "mlflow"
+```
+
+This allows external tooling to discover deployments by annotation, for example to scale them down before a database restore operation.
+
 ## Auto Scaling Example
 
 This Helm chart supports Horizontal Pod Autoscaling (HPA) to dynamically scale the MLflow `Deployment` based on metrics. The HPA resource is created when `autoscaling.enabled` is `true` and specific conditions are met (see Prerequisites).

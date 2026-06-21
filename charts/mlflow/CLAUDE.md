@@ -245,6 +245,24 @@ Both mount to `/certs/ca.crt` and set `LDAP_CA=/certs/ca.crt` in the main contai
 | `mlflow.serverAllowedHosts` | Builds `MLFLOW_SERVER_ALLOWED_HOSTS` value from ingress + `serverAllowedHosts` |
 | `mlflow.corsAllowedOrigins` | Builds `MLFLOW_SERVER_CORS_ALLOWED_ORIGINS` value from ingress + `corsAllowedOrigins` |
 
+### extraDeploy — Arbitrary Extra Resources
+
+`extraDeploy` is a list of arbitrary Kubernetes objects rendered by `templates/extra-list.yaml` via `tpl (toYaml .) $`. Each item is emitted as a separate YAML document (with a `---` separator). Because `tpl` is used, Helm expressions are fully evaluated:
+
+```yaml
+extraDeploy:
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: '{{ include "mlflow.fullname" . }}-extra'
+    data:
+      release: '{{ .Release.Name }}'
+```
+
+Single quotes around template expressions in YAML string values are required — without them the `{{` is parsed as part of the YAML scalar and may produce unexpected output.
+
+The feature is intentionally minimal — no label injection, no name prefixing. Users have full control over every field.
+
 ### ConfigMap Checksum Annotation
 
 The pod template carries `checksum/config: {{ include ".../configmap.yaml" . | sha256sum }}` so that any change to the `configmap.yaml` values (env vars) triggers a rolling restart automatically.
@@ -316,6 +334,7 @@ Test files are in `unittests/`. Each focuses on one configuration axis:
 | `serviceaccount_test.yaml` | ServiceAccount creation |
 | `servicemonitor_test.yaml` | Prometheus ServiceMonitor rendering |
 | `trusted_ca_cert_secret_test.yaml` | LDAP CA certificate secret |
+| `extra_deploy_test.yaml` | `extraDeploy` rendering: empty list, single object, multiple objects, and `tpl` expression evaluation |
 
 Use `matchRegex` (not `equal`) when asserting a substring within a rendered multi-line arg or command string — the full strings include unrelated boilerplate that would make `equal` brittle.
 
