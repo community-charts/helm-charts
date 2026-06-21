@@ -92,7 +92,7 @@ When `oidcAuth.enabled`, the chart injects this same secret as `SECRET_KEY` (the
 
 When a database is configured the init containers always run in this fixed order:
 
-1. **dbchecker** — polls DB port using Fibonacci-backoff netcat (8 attempts max); runs only when `backendStore.databaseConnectionCheck: true`
+1. **dbchecker** — polls DB port using Fibonacci-backoff netcat (unbounded retries); runs only when `backendStore.databaseConnectionCheck: true`
 2. **mlflow-db-migration** — runs `python /opt/mlflow/migrations.py` (wraps `mlflow db upgrade`); runs only when `backendStore.databaseMigration: true`
 3. **ini-file-initializer** — writes `auth_result.ini` into an `emptyDir` shared with the main container; runs when `auth.enabled` or `ldapAuth.enabled`. Uses `sed` when `auth.enabled` (substitutes `$(ADMIN_USERNAME_PLACEHOLDER)` etc. from secrets); uses `cp` when only `ldapAuth.enabled` (no placeholders — the INI uses literal `fakeuser`/`fakepassword`, secrets are not needed)
 4. **user-provided** `initContainers` — appended last
@@ -342,4 +342,10 @@ Use `matchRegex` (not `equal`) when asserting a substring within a rendered mult
 
 ## values-kind.yaml
 
-Enables the Bitnami PostgreSQL subchart with no persistent storage (`postgresql.primary.persistence.enabled: false`) and sets `log.level: debug`. Used exclusively by `ct install` in CI — do not rely on it for production-like testing.
+Used exclusively by `ct install` in CI — do not rely on it for production-like testing. Enables:
+
+- `log.level: debug`
+- Bitnami PostgreSQL subchart (`postgresql.enabled: true`) with persistence disabled
+- `backendStore.databaseMigration: true` — exercises the `mlflow-db-migration` init container
+- `backendStore.databaseConnectionCheck: true` — exercises the `dbchecker` init container
+- MinIO subchart (`minio.enabled: true`) with persistence disabled, plus `artifactRoot.s3.enabled: true` — exercises S3 artifact storage via the bundled MinIO instance

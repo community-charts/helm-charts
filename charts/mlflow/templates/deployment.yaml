@@ -92,6 +92,10 @@ spec:
     {{- end }}
       {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
         - name: dbchecker
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           image: "{{ .Values.initImages.dbchecker.repository }}:{{ .Values.initImages.dbchecker.tag }}"
           imagePullPolicy: {{ .Values.initImages.dbchecker.pullPolicy }}
           command: [ "/script/dbchecker.sh" ]
@@ -164,6 +168,8 @@ spec:
             - configMapRef:
                 name: {{ include "mlflow.fullname" . }}-env-configmap
           volumeMounts:
+            - name: tmp
+              mountPath: /tmp
             - name: dbchecker
               mountPath: /script/dbchecker.sh
               subPath: dbchecker.sh
@@ -270,6 +276,10 @@ spec:
       {{- end }}
       {{- if or .Values.auth.enabled .Values.ldapAuth.enabled }}
         - name: ini-file-initializer
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           image: "{{ .Values.initImages.iniFileInitializer.repository }}:{{ .Values.initImages.iniFileInitializer.tag }}"
           imagePullPolicy: {{ .Values.initImages.iniFileInitializer.pullPolicy }}
           command: ['sh', '-c']

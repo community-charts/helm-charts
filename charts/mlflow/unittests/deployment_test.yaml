@@ -2666,3 +2666,37 @@ tests:
         documentSelector:
           path: kind
           value: Deployment
+
+  - it: should apply securityContext to ini-file-initializer when auth is enabled
+    set:
+      auth:
+        enabled: true
+        adminUsername: admin
+        adminPassword: password
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "ini-file-initializer")].securityContext.runAsNonRoot
+          value: true
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "ini-file-initializer")].securityContext.readOnlyRootFilesystem
+          value: true
+        template: deployment.yaml
+
+  - it: should apply securityContext to dbchecker when databaseConnectionCheck is enabled
+    set:
+      backendStore:
+        databaseConnectionCheck: true
+        postgres:
+          enabled: true
+          host: test-host
+          database: test-database
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "dbchecker")].securityContext.runAsNonRoot
+          value: true
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name == "dbchecker")].securityContext.readOnlyRootFilesystem
+          value: true
+        template: deployment.yaml
