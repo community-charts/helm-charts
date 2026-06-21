@@ -352,6 +352,16 @@ should match snapshot with additional values:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: true
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -702,6 +712,16 @@ should match snapshot with additional values when auth and auth.postgres are ena
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: true
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -1082,6 +1102,16 @@ should match snapshot with additional values when bitnami mysql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: true
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -1452,6 +1482,16 @@ should match snapshot with additional values when bitnami postgresql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: true
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -1823,6 +1863,16 @@ should match snapshot with additional values when mssql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: true
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -2178,6 +2228,16 @@ should match snapshot with additional values when mysql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: true
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
@@ -2528,6 +2588,16 @@ should match snapshot with additional values when postgresql is enabled:
               image: busybox:1.32
               imagePullPolicy: IfNotPresent
               name: dbchecker
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                privileged: false
+                readOnlyRootFilesystem: true
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
               volumeMounts:
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker

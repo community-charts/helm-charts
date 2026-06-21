@@ -51,8 +51,11 @@ annotations:
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "true"
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Added securityContext to ini-file-initializer
+    - kind: security
+      description: Add securityContext to ini-file-initializer and dbchecker init containers
+      links:
+        - name: GitHub PR
+          url: https://github.com/community-charts/helm-charts/pull/433
   artifacthub.io/images: |
     - name: mlflow
       image: burakince/mlflow:3.14.0
