@@ -47,7 +47,16 @@ Four mutually exclusive auth mechanisms, all activated via `--app-name` on the `
 | `oidcAuth.enabled` | `oidc-auth` | `mlflow-oidc-auth` plugin (bundled in image); handles full OIDC flow inside MLflow |
 | `oauth2Proxy.enabled` | *(none — MLflow runs unauthenticated)* | Sidecar proxy intercepts all traffic; MLflow itself is open on loopback |
 
-`oauth2Proxy` can coexist with `auth` or `ldapAuth` in theory (proxy in front, MLflow auth behind) but is explicitly forbidden with `oidcAuth` — the chart enforces this with `fail` guards in `deployment.yaml`.
+`oauth2Proxy` can coexist with `auth` or `ldapAuth` in theory (proxy in front, MLflow auth behind) but is explicitly forbidden with `oidcAuth`.
+
+Mutual exclusivity enforcement:
+
+| Pair | Enforcement layer |
+|---|---|
+| `oidcAuth + oauth2Proxy`, `oidcAuth + auth`, `oidcAuth + ldapAuth` | Template-level `fail` guard in `deployment.yaml` |
+| `auth + ldapAuth` | Two layers: `allOf[0] not` constraint in `values.schema.json` (catches it at schema validation time) **and** a `fail` guard in `deployment.yaml` (defense-in-depth for `--disable-openapi-validation`) |
+
+Because the schema rejects `auth + ldapAuth` before the template renders, `failedTemplate` unit tests cannot exercise the template-level guard for that pair — `helm-unittest` validates values against the schema first.
 
 ### PostgreSQL Backend-Store URI Is Built Differently Than MySQL/MSSQL
 
@@ -85,15 +94,17 @@ When a database is configured the init containers always run in this fixed order
 
 1. **dbchecker** — polls DB port using Fibonacci-backoff netcat (8 attempts max); runs only when `backendStore.databaseConnectionCheck: true`
 2. **mlflow-db-migration** — runs `python /opt/mlflow/migrations.py` (wraps `mlflow db upgrade`); runs only when `backendStore.databaseMigration: true`
-3. **ini-file-initializer** — `sed` substitution that writes `auth_result.ini` into an `emptyDir` shared with the main container; runs when `auth.enabled` or `ldapAuth.enabled`
+3. **ini-file-initializer** — writes `auth_result.ini` into an `emptyDir` shared with the main container; runs when `auth.enabled` or `ldapAuth.enabled`. Uses `sed` when `auth.enabled` (substitutes `$(ADMIN_USERNAME_PLACEHOLDER)` etc. from secrets); uses `cp` when only `ldapAuth.enabled` (no placeholders — the INI uses literal `fakeuser`/`fakepassword`, secrets are not needed)
 4. **user-provided** `initContainers` — appended last
 
 ### Auth INI File Generation (basic auth and LDAP only)
 
-The auth config is not rendered directly into a ConfigMap. Instead `auth_ini_configmap.yaml` contains a template with literal placeholders (`$(ADMIN_USERNAME_PLACEHOLDER)` etc.), and the `ini-file-initializer` init container runs `sed` to substitute real values from secrets at runtime. The result lands in an `emptyDir` volume mounted read-only into the main container at `MLFLOW_AUTH_CONFIG_PATH`.
+The auth config is not rendered directly into a ConfigMap. Instead `auth_ini_configmap.yaml` contains a template, and the `ini-file-initializer` init container writes `auth_result.ini` into an `emptyDir` at runtime. The result is mounted read-only at `MLFLOW_AUTH_CONFIG_PATH`.
 
-- `auth.enabled` → uses `basic-auth` app-name (configurable via `auth.appName`), mounts at `auth.configPath/auth.configFile`
-- `ldapAuth.enabled` → hardcoded app-name `basic-auth`, hardcoded path `/etc/mlflow/auth/ldap_basic_auth.ini`, authorization function set to `mlflowstack.auth.ldap:authenticate_request_basic_auth`
+Two paths depending on which flag is active:
+
+- `auth.enabled` → the ConfigMap contains literal placeholders (`$(ADMIN_USERNAME_PLACEHOLDER)` etc.); `sed` substitutes real values from secrets (admin credentials, DB password). App-name configurable via `auth.appName`; mounts at `auth.configPath/auth.configFile`.
+- `ldapAuth.enabled` (without `auth.enabled`) → the ConfigMap uses literal `fakeuser`/`fakepassword` (LDAP itself handles credential validation — no placeholders needed); `cp` copies the file as-is, no secret env vars injected. App-name hardcoded to `basic-auth`; hardcoded path `/etc/mlflow/auth/ldap_basic_auth.ini`; authorization function `mlflowstack.auth.ldap:authenticate_request_basic_auth`.
 
 `oidcAuth` does **not** use an INI file — it is configured entirely via environment variables injected directly in `deployment.yaml`.
 
@@ -299,7 +310,7 @@ Test files are in `unittests/`. Each focuses on one configuration axis:
 | `hpa_test.yaml` | HPA creation conditions |
 | `ingress_test.yaml` | Ingress rendering and oauth2Proxy port routing |
 | `oidc_auth_test.yaml` | oidcAuth env vars, secret references, Redis cache, Postgres DB URI |
-| `oidc_auth_conflict_test.yaml` | Mutual exclusivity `fail` guards for oidcAuth |
+| `oidc_auth_conflict_test.yaml` | Mutual exclusivity `fail` guards for oidcAuth (three `failedTemplate` tests). The `auth + ldapAuth` pair is enforced by `values.schema.json` (`allOf[0] not` constraint) before templates render, so no `failedTemplate` test is possible for that pair — the schema catches it first |
 | `secret_test.yaml` | Env-secret (db credentials, S3/azure keys, ldap) and oauth2-proxy secret |
 | `service_test.yaml` | Service port and type rendering |
 | `serviceaccount_test.yaml` | ServiceAccount creation |

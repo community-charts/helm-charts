@@ -172,6 +172,46 @@ mysql:
   enabled: true
 ```
 
+## MSSQL Database Migration Values Files Example
+
+```yaml
+backendStore:
+  databaseMigration: true
+  mssql:
+    enabled: true
+    host: "mssql-instance1.database.windows.net"
+    port: 1433
+    database: "mlflow"
+    user: "mlflowuser"
+    password: "Pa33w0rd!"
+```
+
+## MSSQL Database with Azure Active Directory or MSI Connection URL Example
+
+For Azure AD or Managed Service Identity (MSI) authentication, pass a full SQLAlchemy connection URL via `connectionUrl`. When set, `host`, `port`, `database`, `user`, and `password` are all ignored.
+
+```yaml
+backendStore:
+  databaseMigration: true
+  mssql:
+    enabled: true
+    connectionUrl: "mssql+pyodbc:///?odbc_connect=Driver={ODBC Driver 18 for SQL Server};Server=mssql-instance1.database.windows.net,1433;Database=mlflow;Authentication=ActiveDirectoryMsi"
+```
+
+## MSSQL Database with Existing Connection URL Secret Example
+
+Store a credential-bearing connection URL in a Kubernetes Secret. `existingConnectionUrlSecret` takes priority over `connectionUrl` when set.
+
+```yaml
+backendStore:
+  databaseMigration: true
+  mssql:
+    enabled: true
+    existingConnectionUrlSecret:
+      name: "mssql-connection-secret"
+      key: "connection-url"
+```
+
 ## AWS Installation Examples
 
 You can use 2 different way to connect your S3 backend. 
@@ -263,6 +303,40 @@ artifactRoot:
   s3:
     enabled: true
     bucket: "my-mlflow-artifact-root-backend"
+```
+
+## Built-in MinIO Subchart for S3-Compatible Artifact Storage
+
+The chart ships an optional [MinIO](https://min.io/) subchart. Enable it to deploy a self-contained S3-compatible object store in the same namespace — no external object storage required.
+
+When `minio.enabled` is `true` and `artifactRoot.s3.bucket` is empty, the chart automatically uses the first bucket name from `minio.buckets`.
+
+```yaml
+backendStore:
+  databaseMigration: true
+  postgres:
+    enabled: true
+    host: "postgresql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "mlflow"
+    user: "mlflowuser"
+    password: "Pa33w0rd!"
+
+artifactRoot:
+  s3:
+    enabled: true
+    awsAccessKeyId: "minioadmin"
+    awsSecretAccessKey: "minioadmin"
+
+minio:
+  enabled: true
+  buckets:
+    - name: mlflow-artifacts
+      policy: none
+      purge: false
+
+extraEnvVars:
+  MLFLOW_S3_ENDPOINT_URL: "http://mlflow-minio:9000"
 ```
 
 ## Azure Cloud Installation Example
@@ -583,6 +657,25 @@ oauth2Proxy:
   provider:
     name: keycloak-oidc
     issuerURL: "https://keycloak.example.com/realms/mlflow"
+    redirectURL: "https://mlflow.example.com/oauth2/callback"
+```
+
+## Server Host Binding Example
+
+By default MLflow binds to `0.0.0.0` (all interfaces). When you deploy an `oauth2Proxy` sidecar, set `serverHost: "127.0.0.1"` so MLflow is reachable only through the proxy — without this, pod-to-pod traffic can reach MLflow directly and bypass authentication.
+
+```yaml
+serverHost: "127.0.0.1"
+
+oauth2Proxy:
+  enabled: true
+  createSecret: true
+  cookieSecret: "a-random-32-char-cookie-secret!!"
+  provider:
+    name: keycloak-oidc
+    issuerURL: "https://keycloak.example.com/realms/mlflow"
+    clientID: "mlflow-client"
+    clientSecret: "mlflow-client-secret"
     redirectURL: "https://mlflow.example.com/oauth2/callback"
 ```
 
