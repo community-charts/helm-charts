@@ -363,6 +363,8 @@ should match snapshot with additional values:
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
                   subPath: dbchecker.sh
@@ -723,6 +725,8 @@ should match snapshot with additional values when auth and auth.postgres are ena
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
                   subPath: dbchecker.sh
@@ -1113,6 +1117,8 @@ should match snapshot with additional values when bitnami mysql is enabled:
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
                   subPath: dbchecker.sh
@@ -1493,6 +1499,8 @@ should match snapshot with additional values when bitnami postgresql is enabled:
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
                   subPath: dbchecker.sh
@@ -1874,6 +1882,8 @@ should match snapshot with additional values when mssql is enabled:
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
                   subPath: dbchecker.sh
@@ -2239,6 +2249,8 @@ should match snapshot with additional values when mysql is enabled:
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
                   subPath: dbchecker.sh
@@ -2599,6 +2611,8 @@ should match snapshot with additional values when postgresql is enabled:
                 runAsNonRoot: true
                 runAsUser: 1001
               volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
                 - mountPath: /script/dbchecker.sh
                   name: dbchecker
                   subPath: dbchecker.sh

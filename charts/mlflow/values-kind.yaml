@@ -4,6 +4,7 @@ log:
 
 backendStore:
   databaseMigration: true
+  databaseConnectionCheck: true
 
 postgresql:
   enabled: true

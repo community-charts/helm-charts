@@ -168,6 +168,8 @@ spec:
             - configMapRef:
                 name: {{ include "mlflow.fullname" . }}-env-configmap
           volumeMounts:
+            - name: tmp
+              mountPath: /tmp
             - name: dbchecker
               mountPath: /script/dbchecker.sh
               subPath: dbchecker.sh
