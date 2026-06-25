@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.23.3
+version: 1.23.4
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "2.27.3"
+appVersion: "2.27.4"
 kubeVersion: ">=1.23.0-0"
 home: https://n8n.io
 maintainers:
@@ -51,23 +51,20 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update n8nio/n8n image version to 2.27.3
+      description: Update n8nio/n8n image version to 2.27.4
       links:
         - name: Upstream Project
           url: https://github.com/n8n-io/n8n
-    - kind: changed
-      description: Update dependency postgresql from 18.7.7 to 18.7.8
-      links:
-        - name: ArtifactHub
-          url: https://artifacthub.io/packages/helm/bitnami/postgresql
+    - kind: fixed
+      description: Fix broken screenshot URL(s) in n8n chart
   artifacthub.io/images: |
     - name: n8n
-      image: n8nio/n8n:2.27.3
+      image: n8nio/n8n:2.27.4
       platforms:
         - linux/amd64
         - linux/arm64
     - name: n8n-runners
-      image: n8nio/runners:2.27.3
+      image: n8nio/runners:2.27.4
       platforms:
         - linux/amd64
         - linux/arm64
@@ -77,17 +74,8 @@ annotations:
       email: burak.ince@linux.org.tr
   artifacthub.io/operator: "false"
   artifacthub.io/prerelease: "false"
-  artifacthub.io/screenshots: |
-    - title: Editor UI
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/editor-ui/editor_ui.png
-    - title: AI Chat
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/advanced-ai/ai-intro-chat.png
-    - title: AI Credentials
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/advanced-ai/ai-tutorial-credentials.png
-    - title: AI Custom Workflow
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/advanced-ai/ai-tutorial-outcome.png
-    - title: Filtering
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/integrations/creating-nodes/filter.png
+  artifacthub.io/screenshots: |-
+    []
   artifacthub.io/signKey: |
     fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
     url: https://keybase.io/communitycharts/pgp_keys.asc
