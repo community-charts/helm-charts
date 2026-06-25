@@ -21,6 +21,7 @@ should match snapshot of default values:
   2: |
     apiVersion: v1
     data:
+      N8N_LOG_FORMAT: text
       N8N_LOG_LEVEL: info
       N8N_LOG_OUTPUT: console
     kind: ConfigMap
@@ -225,7 +226,7 @@ should match snapshot of default values:
       template:
         metadata:
           annotations:
-            checksum/config: 1fdf11eb48bae65b75c42cf6d75185deb07be0222676c36508cd656a8beb1601
+            checksum/config: 8ac4a3d877da7a397192ea52e7e26dcd2e84601a3f5bfdebfa10db9fbf97c76c
           labels:
             app.kubernetes.io/component: worker
             app.kubernetes.io/instance: n8n
@@ -357,6 +358,8 @@ should match snapshot of default values:
               name: tmp
             - emptyDir: {}
               name: cache
+            - emptyDir: {}
+              name: npm-home
       updateStrategy:
         type: RollingUpdate
       volumeClaimTemplates:
@@ -395,6 +398,7 @@ should match snapshot of postgres ssl certificate values:
   2: |
     apiVersion: v1
     data:
+      N8N_LOG_FORMAT: text
       N8N_LOG_LEVEL: info
       N8N_LOG_OUTPUT: console
     kind: ConfigMap
@@ -599,7 +603,7 @@ should match snapshot of postgres ssl certificate values:
       template:
         metadata:
           annotations:
-            checksum/config: 161b5c213ae64dd2e15a005be7ffa3cb001fa4b6ac005af1c977c150a68b78a4
+            checksum/config: d8eb2ef82f7d37f2f7a50bb85eb27adf83363e6a3cb7d24d63cab2105059c2cf
           labels:
             app.kubernetes.io/component: worker
             app.kubernetes.io/instance: n8n
@@ -743,6 +747,8 @@ should match snapshot of postgres ssl certificate values:
               name: tmp
             - emptyDir: {}
               name: cache
+            - emptyDir: {}
+              name: npm-home
             - name: pg-ssl-ca
               secret:
                 items:
@@ -795,6 +801,7 @@ should match snapshot of worker persistence:
   2: |
     apiVersion: v1
     data:
+      N8N_LOG_FORMAT: text
       N8N_LOG_LEVEL: info
       N8N_LOG_OUTPUT: console
     kind: ConfigMap

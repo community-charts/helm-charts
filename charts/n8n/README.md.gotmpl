@@ -41,6 +41,7 @@ _See [helm install](https://helm.sh/docs/helm/helm_install/) for command documen
 ```yaml
 log:
   level: warn
+  format: text
 
 db:
   type: postgresdb
@@ -787,6 +788,53 @@ webhook:
     healthCheckPath: "/healthz"
     additionalParameters:
       - "--no-check-certificate"
+```
+
+## Log Configuration
+
+n8n supports configuring the log level, output destination, format, and file location via the `log` values.
+
+### Log Format
+
+The `log.format` option controls the output format for all log entries. Use `text` (the default) for human-readable output and `json` for structured log output suitable for ingestion by log aggregation pipelines (e.g. Loki, Elasticsearch, Datadog).
+
+```yaml
+log:
+  format: json
+```
+
+### Log Level
+
+Set the minimum severity level for log output. Valid values are `info`, `warn`, `error`, and `verbose`.
+
+```yaml
+log:
+  level: warn
+```
+
+### File Logging
+
+To write logs to a file instead of (or in addition to) the console, set `log.output` to include `file`. The `log.file.location` must be an **absolute path** inside a writable volume. The default path (`/home/node/.n8n/logs/n8n.log`) lives inside the n8n data volume and works with `readOnlyRootFilesystem: true`.
+
+```yaml
+log:
+  output:
+    - file
+  file:
+    location: "/home/node/.n8n/logs/n8n.log"
+```
+
+You can also combine console and file output:
+
+```yaml
+log:
+  format: json
+  level: info
+  output:
+    - console
+    - file
+  file:
+    location: "/home/node/.n8n/logs/n8n.log"
 ```
 
 ## Enabling Support for Node.js Core and External/Private NPM Packages

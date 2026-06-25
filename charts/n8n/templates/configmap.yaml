@@ -59,6 +59,7 @@ metadata:
     heritage: {{ .Release.Service }}
 data:
   N8N_LOG_LEVEL: {{ .Values.log.level | quote }}
+  N8N_LOG_FORMAT: {{ .Values.log.format | quote }}
   N8N_LOG_OUTPUT: {{ join "," .Values.log.output | quote }}
 {{- if has "file" .Values.log.output }}
   N8N_LOG_FILE_COUNT_MAX: {{ .Values.log.file.maxcount | quote }}
