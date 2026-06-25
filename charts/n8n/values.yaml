@@ -111,7 +111,7 @@ log:
     # - waiting-executions
 
   file:
-    # -- Absolute path for the log file. Must be inside a writable volume (e.g. the n8n data volume at `/home/node/.n8n`). Only for `file` log output.
+    # -- Absolute path for the log file. Must be inside one of the writable volumes available in the pod: `/home/node/.n8n` (n8n data — PVC or emptyDir), `/home/node/.cache` (npm cache emptyDir), or `/home/node/.npm` (npm home emptyDir). Paths outside these mounts are read-only when `readOnlyRootFilesystem` is enabled and will cause n8n to fail opening the log file. For a custom path, add a matching `extraVolume` and `extraVolumeMount`. Only for `file` log output.
     location: "/home/node/.n8n/logs/n8n.log"
     # -- The maximum size (in MB) for each log file. By default, n8n uses 16 MB.
     maxsize: 16
