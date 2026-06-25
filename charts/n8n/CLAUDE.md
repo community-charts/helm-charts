@@ -44,6 +44,12 @@ The `nodes.external.persistence` PVC is only created when the `community-node-mo
 - Uses `--ignore-scripts` to prevent `postinstall` hooks (e.g. `only-allow pnpm`) from crashing on a fresh emptyDir.
 - Sets `NPM_CONFIG_CACHE=/npmdata/.npm-cache` so the cache goes to a writable path, compatible with `readOnlyRootFilesystem: true`.
 - The main container sets `NPM_CONFIG_CACHE=/home/node/.cache/npm` for the same reason.
+- An `npm-home` emptyDir is mounted at `/home/node/.npm` in **both** the init container and the main n8n container. npm always initialises `~/.npm` for log files (`~/.npm/_logs/`) and temp operations regardless of `NPM_CONFIG_CACHE`. Without this mount, `npm pack` — called by n8n when installing community nodes through the UI or when `N8N_REINSTALL_MISSING_PACKAGES=true` — fails with `ENOENT: mkdir '/home/node/.npm'`. The init container's `npm install` happens to tolerate the missing directory, but `npm pack` does not.
+- This volume must be present in `deployment.yaml`, `statefulset.yaml`, `deployment-worker.yaml`, and `statefulset-worker.yaml` — always in the unconditional `volumes:` block (never in `volumeClaimTemplates`).
+
+### File Logging (`log.output: file`)
+
+`log.file.location` must be an **absolute path inside a writable volume**. The default is `/home/node/.n8n/logs/n8n.log`, which lives inside the node-modules persistence volume (always writable, even as emptyDir). Do not use a relative path: npm resolves relative paths from the process CWD (`/home/node`), not the n8n data directory, so a relative path like `logs/n8n.log` would attempt `/home/node/logs/n8n.log` — outside any mounted volume and unwritable with `readOnlyRootFilesystem: true`.
 
 ### Python Packages (`nodes.python`)
 
