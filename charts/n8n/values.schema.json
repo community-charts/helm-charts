@@ -985,6 +985,14 @@
           "title": "file",
           "type": "object"
         },
+        "format": {
+          "default": "text",
+          "description": "Log output format. 'text' prints human-readable messages. 'json' prints one JSON object per line, useful for log aggregation pipelines.",
+          "required": [],
+          "title": "format",
+          "type": "string",
+          "enum": ["text", "json"]
+        },
         "level": {
           "default": "info",
           "description": "The log output level. The available options are (from lowest to highest level) are error, warn, info, and debug. The default value is info. You can learn more about these options [here](https://docs.n8n.io/hosting/logging-monitoring/logging/#log-levels).",
@@ -1027,7 +1035,7 @@
           "type": "array"
         }
       },
-      "required": ["level", "output", "scopes", "file"],
+      "required": ["level", "format", "output", "scopes", "file"],
       "title": "log",
       "type": "object"
     },
