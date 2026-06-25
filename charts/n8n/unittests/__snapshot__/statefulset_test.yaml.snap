@@ -256,6 +256,8 @@ should match snapshot of default values:
                   name: tmp
                 - mountPath: /home/node/.cache
                   name: cache
+                - mountPath: /home/node/.npm
+                  name: npm-home
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
@@ -270,6 +272,8 @@ should match snapshot of default values:
               name: tmp
             - emptyDir: {}
               name: cache
+            - emptyDir: {}
+              name: npm-home
       updateStrategy:
         type: RollingUpdate
       volumeClaimTemplates:
@@ -570,6 +574,8 @@ should match snapshot of postgres ssl certificate values:
                   name: tmp
                 - mountPath: /home/node/.cache
                   name: cache
+                - mountPath: /home/node/.npm
+                  name: npm-home
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
@@ -596,6 +602,8 @@ should match snapshot of postgres ssl certificate values:
               name: tmp
             - emptyDir: {}
               name: cache
+            - emptyDir: {}
+              name: npm-home
             - name: pg-ssl-ca
               secret:
                 items:

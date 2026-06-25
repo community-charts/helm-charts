@@ -94,6 +94,8 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+            - name: npm-home
+              mountPath: /home/node/.npm
             {{- if .Values.npmRegistry.enabled }}
             - name: npmrc
               mountPath: "/home/node/.npmrc"
@@ -417,6 +419,8 @@ spec:
         - name: tmp
           emptyDir: {}
         - name: cache
+          emptyDir: {}
+        - name: npm-home
           emptyDir: {}
       {{- if eq .Values.taskRunners.mode "external" }}
         {{- if not .Values.nodes.python.persistence.enabled }}

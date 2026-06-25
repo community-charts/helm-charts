@@ -357,6 +357,8 @@ should match snapshot of default values:
               name: tmp
             - emptyDir: {}
               name: cache
+            - emptyDir: {}
+              name: npm-home
       updateStrategy:
         type: RollingUpdate
       volumeClaimTemplates:
@@ -743,6 +745,8 @@ should match snapshot of postgres ssl certificate values:
               name: tmp
             - emptyDir: {}
               name: cache
+            - emptyDir: {}
+              name: npm-home
             - name: pg-ssl-ca
               secret:
                 items:

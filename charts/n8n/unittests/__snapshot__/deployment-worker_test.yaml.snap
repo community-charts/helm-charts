@@ -317,6 +317,8 @@ should match snapshot of default values:
             - emptyDir: {}
               name: cache
             - emptyDir: {}
+              name: npm-home
+            - emptyDir: {}
               name: node-modules
   12: |
     apiVersion: v1
@@ -697,6 +699,8 @@ should match snapshot of postgres ssl certificate values:
               name: tmp
             - emptyDir: {}
               name: cache
+            - emptyDir: {}
+              name: npm-home
             - emptyDir: {}
               name: node-modules
             - name: pg-ssl-ca
@@ -1080,6 +1084,8 @@ should match snapshot of worker persistence:
               name: tmp
             - emptyDir: {}
               name: cache
+            - emptyDir: {}
+              name: npm-home
             - name: node-modules
               persistentVolumeClaim:
                 claimName: n8n-worker-persistence

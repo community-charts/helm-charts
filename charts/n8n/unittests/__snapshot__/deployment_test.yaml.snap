@@ -240,6 +240,8 @@ should match snapshot of default values:
                   name: tmp
                 - mountPath: /home/node/.cache
                   name: cache
+                - mountPath: /home/node/.npm
+                  name: npm-home
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
@@ -254,6 +256,8 @@ should match snapshot of default values:
               name: tmp
             - emptyDir: {}
               name: cache
+            - emptyDir: {}
+              name: npm-home
             - emptyDir: {}
               name: node-modules
   11: |
@@ -516,6 +520,8 @@ should match snapshot of main persistence:
                   name: tmp
                 - mountPath: /home/node/.cache
                   name: cache
+                - mountPath: /home/node/.npm
+                  name: npm-home
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
@@ -530,6 +536,8 @@ should match snapshot of main persistence:
               name: tmp
             - emptyDir: {}
               name: cache
+            - emptyDir: {}
+              name: npm-home
             - name: node-modules
               persistentVolumeClaim:
                 claimName: n8n-main-persistence
@@ -795,6 +803,8 @@ should match snapshot of main persistence with multiple main node and mode read 
                   name: tmp
                 - mountPath: /home/node/.cache
                   name: cache
+                - mountPath: /home/node/.npm
+                  name: npm-home
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
@@ -809,6 +819,8 @@ should match snapshot of main persistence with multiple main node and mode read 
               name: tmp
             - emptyDir: {}
               name: cache
+            - emptyDir: {}
+              name: npm-home
             - name: node-modules
               persistentVolumeClaim:
                 claimName: n8n-main-persistence
@@ -1090,6 +1102,8 @@ should match snapshot of postgres ssl certificate values:
                   name: tmp
                 - mountPath: /home/node/.cache
                   name: cache
+                - mountPath: /home/node/.npm
+                  name: npm-home
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
@@ -1116,6 +1130,8 @@ should match snapshot of postgres ssl certificate values:
               name: tmp
             - emptyDir: {}
               name: cache
+            - emptyDir: {}
+              name: npm-home
             - emptyDir: {}
               name: node-modules
             - name: pg-ssl-ca

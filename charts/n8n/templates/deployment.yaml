@@ -72,6 +72,8 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+            - name: npm-home
+              mountPath: /home/node/.npm
             {{- if .Values.npmRegistry.enabled }}
             - name: npmrc
               mountPath: "/home/node/.npmrc"
@@ -279,6 +281,8 @@ spec:
               mountPath: /tmp
             - name: cache
               mountPath: /home/node/.cache
+            - name: npm-home
+              mountPath: /home/node/.npm
             - name: {{ default "node-modules" .Values.main.persistence.volumeName }}
               mountPath: {{ .Values.main.persistence.mountPath }}
               {{- if .Values.main.persistence.subPath }}
@@ -415,6 +419,8 @@ spec:
         - name: tmp
           emptyDir: {}
         - name: cache
+          emptyDir: {}
+        - name: npm-home
           emptyDir: {}
       {{- if and (eq .Values.taskRunners.mode "external") (ne .Values.worker.mode "queue") }}
         - name: python-packages

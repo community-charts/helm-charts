@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.23.4](https://img.shields.io/badge/Version-1.23.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.27.4](https://img.shields.io/badge/AppVersion-2.27.4-informational?style=flat-square)
+![Version: 1.23.5](https://img.shields.io/badge/Version-1.23.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.27.4](https://img.shields.io/badge/AppVersion-2.27.4-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -1471,8 +1471,8 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | license.serverUrl | string | `"https://license.n8n.io/v1"` | Server URL to retrieve license. |
 | license.tenantId | int | `1` | Tenant ID associated with the license. Only set this variable if explicitly instructed by n8n. |
 | livenessProbe | object | `{}` | @deprecated Use main, worker, and webhook blocks livenessProbe field instead. This field will be removed in a future release. |
-| log | object | `{"file":{"location":"logs/n8n.log","maxcount":"100","maxsize":16},"level":"info","output":["console"],"scopes":[]}` | n8n log configurations |
-| log.file.location | string | `"logs/n8n.log"` | Location of the log files inside `~/.n8n`. Only for `file` log output. |
+| log | object | `{"file":{"location":"/home/node/.n8n/logs/n8n.log","maxcount":"100","maxsize":16},"level":"info","output":["console"],"scopes":[]}` | n8n log configurations |
+| log.file.location | string | `"/home/node/.n8n/logs/n8n.log"` | Absolute path for the log file. Must be inside a writable volume (e.g. the n8n data volume at `/home/node/.n8n`). Only for `file` log output. |
 | log.file.maxcount | string | `"100"` | Max number of log files to keep, or max number of days to keep logs for. Once the limit is reached, the oldest log files will be rotated out. If using days, append a `d` suffix. Only for `file` log output. |
 | log.file.maxsize | int | `16` | The maximum size (in MB) for each log file. By default, n8n uses 16 MB. |
 | log.level | string | `"info"` | The log output level. The available options are (from lowest to highest level) are error, warn, info, and debug. The default value is info. You can learn more about these options [here](https://docs.n8n.io/hosting/logging-monitoring/logging/#log-levels). |

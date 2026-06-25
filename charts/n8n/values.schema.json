@@ -958,8 +958,8 @@
           "additionalProperties": false,
           "properties": {
             "location": {
-              "default": "logs/n8n.log",
-              "description": "Location of the log files inside `~/.n8n`. Only for `file` log output.",
+              "default": "/home/node/.n8n/logs/n8n.log",
+              "description": "Absolute path for the log file. Must be inside a writable volume (e.g. the n8n data volume at /home/node/.n8n). Only for 'file' log output.",
               "required": [],
               "title": "location",
               "type": "string"
