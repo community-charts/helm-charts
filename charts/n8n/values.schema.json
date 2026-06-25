@@ -959,7 +959,7 @@
           "properties": {
             "location": {
               "default": "/home/node/.n8n/logs/n8n.log",
-              "description": "Absolute path for the log file. Must be inside one of the writable volumes available in the pod: /home/node/.n8n (n8n data — PVC or emptyDir), /home/node/.cache (npm cache emptyDir), or /home/node/.npm (npm home emptyDir). Paths outside these mounts are read-only when readOnlyRootFilesystem is enabled and will cause n8n to fail opening the log file. For a custom path, add a matching extraVolume and extraVolumeMount. Only for 'file' log output.",
+              "description": "Absolute path for the log file. Must be inside a writable volume (e.g. the n8n data volume at /home/node/.n8n). Only for 'file' log output.",
               "required": [],
               "title": "location",
               "type": "string"
