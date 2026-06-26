@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.24.0](https://img.shields.io/badge/Version-1.24.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.27.4](https://img.shields.io/badge/AppVersion-2.27.4-informational?style=flat-square)
+![Version: 1.25.0](https://img.shields.io/badge/Version-1.25.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.27.4](https://img.shields.io/badge/AppVersion-2.27.4-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -1717,17 +1717,20 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | serviceMonitor.targetLabels | list | `[]` | Set of labels to transfer on the Kubernetes Service onto the target. |
 | serviceMonitor.timeout | string | `"10s"` | Set timeout for scrape |
 | strategy | object | `{"rollingUpdate":{"maxSurge":"25%","maxUnavailable":"25%"},"type":"RollingUpdate"}` | This will set the deployment strategy more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy |
-| taskRunners | object | `{"broker":{"address":"127.0.0.1","port":5679},"external":{"autoShutdownTimeout":15,"image":{"pullPolicy":"IfNotPresent","repository":"n8nio/runners","tag":""},"mainNodeAuthToken":"","nodeOptions":["--max-semi-space-size=16","--max-old-space-size=300"],"port":5680,"resources":{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}},"workerNodeAuthToken":""},"maxConcurrency":5,"mode":"internal","taskHeartbeatInterval":30,"taskTimeout":60}` | Task runners mode. Please follow the documentation for more information: https://docs.n8n.io/hosting/configuration/task-runners/ |
+| taskRunners | object | `{"broker":{"address":"127.0.0.1","port":5679},"external":{"autoShutdownTimeout":15,"existingSecret":"","existingSecretAuthTokenKey":"auth-token","existingSecretWorkerAuthTokenKey":"worker-auth-token","image":{"pullPolicy":"IfNotPresent","repository":"n8nio/runners","tag":""},"mainNodeAuthToken":"","nodeOptions":["--max-semi-space-size=16","--max-old-space-size=300"],"port":5680,"resources":{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}},"workerNodeAuthToken":""},"maxConcurrency":5,"mode":"internal","taskHeartbeatInterval":30,"taskTimeout":60}` | Task runners mode. Please follow the documentation for more information: https://docs.n8n.io/hosting/configuration/task-runners/ |
 | taskRunners.broker | object | `{"address":"127.0.0.1","port":5679}` | The address for the broker of the external task runner |
 | taskRunners.broker.address | string | `"127.0.0.1"` | The address for the broker of the external task runner |
 | taskRunners.broker.port | int | `5679` | The port for the broker of the external task runner |
-| taskRunners.external | object | `{"autoShutdownTimeout":15,"image":{"pullPolicy":"IfNotPresent","repository":"n8nio/runners","tag":""},"mainNodeAuthToken":"","nodeOptions":["--max-semi-space-size=16","--max-old-space-size=300"],"port":5680,"resources":{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}},"workerNodeAuthToken":""}` | The configuration for the external task runner |
+| taskRunners.external | object | `{"autoShutdownTimeout":15,"existingSecret":"","existingSecretAuthTokenKey":"auth-token","existingSecretWorkerAuthTokenKey":"worker-auth-token","image":{"pullPolicy":"IfNotPresent","repository":"n8nio/runners","tag":""},"mainNodeAuthToken":"","nodeOptions":["--max-semi-space-size=16","--max-old-space-size=300"],"port":5680,"resources":{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}},"workerNodeAuthToken":""}` | The configuration for the external task runner |
 | taskRunners.external.autoShutdownTimeout | int | `15` | The auto shutdown timeout for the external task runner in seconds |
+| taskRunners.external.existingSecret | string | `""` | The name of an existing Secret holding the task runner auth tokens. When set, the chart does not create its own task runner Secret and `mainNodeAuthToken`/`workerNodeAuthToken` are ignored. Useful to manage the tokens out-of-band (e.g. a secrets manager) and avoid the chart regenerating them on every render. |
+| taskRunners.external.existingSecretAuthTokenKey | string | `"auth-token"` | The key in `existingSecret` that stores the main node auth token. |
+| taskRunners.external.existingSecretWorkerAuthTokenKey | string | `"worker-auth-token"` | The key in `existingSecret` that stores the worker node auth token. |
 | taskRunners.external.image | object | `{"pullPolicy":"IfNotPresent","repository":"n8nio/runners","tag":""}` | The image for the external task runner sidecar. Tag must match the n8n appVersion. |
 | taskRunners.external.image.pullPolicy | string | `"IfNotPresent"` | This sets the pull policy for images. |
 | taskRunners.external.image.repository | string | `"n8nio/runners"` | The repository for the external task runner image |
 | taskRunners.external.image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
-| taskRunners.external.mainNodeAuthToken | string | `""` | The auth token for the main node |
+| taskRunners.external.mainNodeAuthToken | string | `""` | The auth token for the main node. Ignored when `existingSecret` is set. |
 | taskRunners.external.nodeOptions | list | `["--max-semi-space-size=16","--max-old-space-size=300"]` | The node options for the external task runner |
 | taskRunners.external.port | int | `5680` | The port for the external task runner |
 | taskRunners.external.resources | object | `{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}}` | The resources for the external task runner |
@@ -1737,7 +1740,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | taskRunners.external.resources.requests | object | `{"cpu":"100m","memory":"32Mi"}` | The resources requests for the external task runner |
 | taskRunners.external.resources.requests.cpu | string | `"100m"` | The CPU request for the external task runner |
 | taskRunners.external.resources.requests.memory | string | `"32Mi"` | The memory request for the external task runner |
-| taskRunners.external.workerNodeAuthToken | string | `""` | The auth token for the worker node |
+| taskRunners.external.workerNodeAuthToken | string | `""` | The auth token for the worker node. Ignored when `existingSecret` is set. |
 | taskRunners.maxConcurrency | int | `5` | The maximum concurrency for the task |
 | taskRunners.mode | string | `"internal"` | Use `internal` to use internal task runner, or use `external` to have external sidecar task runner. For more information please follow the documentation: https://docs.n8n.io/hosting/configuration/task-runners/#task-runner-modes |
 | taskRunners.taskHeartbeatInterval | int | `30` | The heartbeat interval for the task in seconds |
