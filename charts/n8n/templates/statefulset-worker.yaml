@@ -200,8 +200,8 @@ spec:
             - name: N8N_RUNNERS_AUTH_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "n8n.taskRunners.fullname" . }}-secret
-                  key: worker-auth-token
+                  name: {{ default (printf "%s-secret" (include "n8n.taskRunners.fullname" .)) .Values.taskRunners.external.existingSecret }}
+                  key: {{ .Values.taskRunners.external.existingSecretWorkerAuthTokenKey }}
           {{- end }}
           {{- if has "s3" .Values.binaryData.availableModes }}
             - name: N8N_EXTERNAL_STORAGE_S3_ACCESS_KEY
@@ -359,8 +359,8 @@ spec:
             - name: N8N_RUNNERS_AUTH_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "n8n.taskRunners.fullname" . }}-secret
-                  key: worker-auth-token
+                  name: {{ default (printf "%s-secret" (include "n8n.taskRunners.fullname" .)) .Values.taskRunners.external.existingSecret }}
+                  key: {{ .Values.taskRunners.external.existingSecretWorkerAuthTokenKey }}
           {{- if .Values.nodes.builtin.enabled }}
             - name: NODE_FUNCTION_ALLOW_BUILTIN
               value: {{ if .Values.nodes.builtin.modules }}{{ join "," .Values.nodes.builtin.modules }}{{ else }}"*"{{ end }}
