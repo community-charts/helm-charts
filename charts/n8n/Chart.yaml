@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.24.0
+version: 1.25.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -51,17 +51,7 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: added
-      description: Add log.format option to control N8N_LOG_FORMAT (text or json, default text)
-    - kind: fixed
-      description: Change log.file.location default to absolute path /home/node/.n8n/logs/n8n.log so file logging works with readOnlyRootFilesystem enabled
-      links:
-        - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/521
-    - kind: fixed
-      description: Mount emptyDir at /home/node/.npm so npm can write temp files and logs when readOnlyRootFilesystem is enabled
-      links:
-        - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/521
+      description: Add taskRunners.external.existingSecret to source external task runner auth tokens from a pre-existing Secret instead of chart-generated random tokens
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:2.27.4
