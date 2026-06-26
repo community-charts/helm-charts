@@ -178,8 +178,8 @@ spec:
             - name: N8N_RUNNERS_AUTH_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "n8n.taskRunners.fullname" . }}-secret
-                  key: auth-token
+                  name: {{ default (printf "%s-secret" (include "n8n.taskRunners.fullname" .)) .Values.taskRunners.external.existingSecret }}
+                  key: {{ .Values.taskRunners.external.existingSecretAuthTokenKey }}
           {{- end }}
           {{- if gt (int .Values.main.count) 1 }}
             - name: N8N_MULTI_MAIN_SETUP_ENABLED
@@ -347,8 +347,8 @@ spec:
             - name: N8N_RUNNERS_AUTH_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "n8n.taskRunners.fullname" . }}-secret
-                  key: auth-token
+                  name: {{ default (printf "%s-secret" (include "n8n.taskRunners.fullname" .)) .Values.taskRunners.external.existingSecret }}
+                  key: {{ .Values.taskRunners.external.existingSecretAuthTokenKey }}
           {{- if .Values.nodes.builtin.enabled }}
             - name: NODE_FUNCTION_ALLOW_BUILTIN
               value: {{ if .Values.nodes.builtin.modules }}{{ join "," .Values.nodes.builtin.modules }}{{ else }}"*"{{ end }}

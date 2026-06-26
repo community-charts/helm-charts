@@ -4500,6 +4500,27 @@
         "external": {
           "additionalProperties": false,
           "properties": {
+            "existingSecret": {
+              "default": "",
+              "description": "The name of an existing Secret holding the task runner auth tokens. When set, the chart does not create its own task runner Secret and mainNodeAuthToken/workerNodeAuthToken are ignored",
+              "required": [],
+              "title": "existingSecret",
+              "type": "string"
+            },
+            "existingSecretAuthTokenKey": {
+              "default": "auth-token",
+              "description": "The key in existingSecret that stores the main node auth token",
+              "required": [],
+              "title": "existingSecretAuthTokenKey",
+              "type": "string"
+            },
+            "existingSecretWorkerAuthTokenKey": {
+              "default": "worker-auth-token",
+              "description": "The key in existingSecret that stores the worker node auth token",
+              "required": [],
+              "title": "existingSecretWorkerAuthTokenKey",
+              "type": "string"
+            },
             "mainNodeAuthToken": {
               "default": "",
               "description": "This sets the auth token for the n8n main node of the external task runner",
