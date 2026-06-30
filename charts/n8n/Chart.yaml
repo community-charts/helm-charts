@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.24.0
+version: 1.24.1
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "2.27.4"
+appVersion: "2.27.5"
 kubeVersion: ">=1.23.0-0"
 home: https://n8n.io
 maintainers:
@@ -50,26 +50,29 @@ annotations:
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: added
-      description: Add log.format option to control N8N_LOG_FORMAT (text or json, default text)
-    - kind: fixed
-      description: Change log.file.location default to absolute path /home/node/.n8n/logs/n8n.log so file logging works with readOnlyRootFilesystem enabled
+    - kind: changed
+      description: Update n8nio/n8n image version to 2.27.5
       links:
-        - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/521
-    - kind: fixed
-      description: Mount emptyDir at /home/node/.npm so npm can write temp files and logs when readOnlyRootFilesystem is enabled
+        - name: Upstream Project
+          url: https://github.com/n8n-io/n8n
+    - kind: changed
+      description: Update dependency redis from 27.0.12 to 27.0.13
       links:
-        - name: GitHub Issue
-          url: https://github.com/community-charts/helm-charts/issues/521
+        - name: ArtifactHub
+          url: https://artifacthub.io/packages/helm/bitnami/redis
+    - kind: changed
+      description: Update dependency postgresql from 18.7.8 to 18.7.9
+      links:
+        - name: ArtifactHub
+          url: https://artifacthub.io/packages/helm/bitnami/postgresql
   artifacthub.io/images: |
     - name: n8n
-      image: n8nio/n8n:2.27.4
+      image: n8nio/n8n:2.27.5
       platforms:
         - linux/amd64
         - linux/arm64
     - name: n8n-runners
-      image: n8nio/runners:2.27.4
+      image: n8nio/runners:2.27.5
       platforms:
         - linux/amd64
         - linux/arm64
@@ -86,11 +89,11 @@ annotations:
     url: https://keybase.io/communitycharts/pgp_keys.asc
 dependencies:
   - name: redis
-    version: 27.0.12
+    version: 27.0.13
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
   - name: postgresql
-    version: 18.7.8
+    version: 18.7.9
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: minio
