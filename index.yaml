@@ -20816,6 +20816,93 @@ entries:
   - annotations:
       artifacthub.io/changes: |-
         - kind: changed
+          description: Update n8nio/n8n image version to 2.28.4
+          links:
+            - name: Upstream Project
+              url: https://github.com/n8n-io/n8n
+        - kind: changed
+          description: Update dependency postgresql from 18.7.9 to 18.7.10
+          links:
+            - name: ArtifactHub
+              url: https://artifacthub.io/packages/helm/bitnami/postgresql
+      artifacthub.io/containsSecurityUpdates: "false"
+      artifacthub.io/images: |
+        - name: n8n
+          image: n8nio/n8n:2.28.4
+          platforms:
+            - linux/amd64
+            - linux/arm64
+        - name: n8n-runners
+          image: n8nio/runners:2.28.4
+          platforms:
+            - linux/amd64
+            - linux/arm64
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/community-charts/helm-charts
+        - name: Chart Usage Page
+          url: https://community-charts.github.io/docs/charts/n8n/usage
+        - name: Upstream Project
+          url: https://github.com/n8n-io/n8n
+        - name: Official Documentation
+          url: https://docs.n8n.io/
+      artifacthub.io/maintainers: |
+        - name: burakince
+          email: burak.ince@linux.org.tr
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/screenshots: '[]'
+      artifacthub.io/signKey: |
+        fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
+        url: https://keybase.io/communitycharts/pgp_keys.asc
+    apiVersion: v2
+    appVersion: 2.28.4
+    created: "2026-07-02T03:03:56.902157301Z"
+    dependencies:
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 27.0.13
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 18.7.10
+    - condition: minio.enabled
+      name: minio
+      repository: https://charts.min.io/
+      version: 5.4.0
+    description: A Helm chart for fair-code workflow automation platform with native
+      AI capabilities. Combine visual building with custom code, self-host or cloud,
+      400+ integrations.
+    digest: 771442b4172d2725640f508801190cb2f26df044e461b0809486e948ff7ffc06
+    home: https://n8n.io
+    icon: https://avatars1.githubusercontent.com/u/45487711?s=200&v=4
+    keywords:
+    - n8n
+    - Workflow Automation
+    - Workflow
+    - Automation
+    - iPaaS
+    - integration-framework
+    - low-code-plattform
+    - low-code
+    kubeVersion: '>=1.23.0-0'
+    maintainers:
+    - email: burak.ince@linux.org.tr
+      name: burakince
+      url: https://www.burakince.com
+    name: n8n
+    sources:
+    - https://github.com/community-charts/helm-charts
+    - https://github.com/n8n-io/n8n
+    type: application
+    urls:
+    - https://github.com/community-charts/helm-charts/releases/download/n8n-1.24.3/n8n-1.24.3.tgz
+    version: 1.24.3
+  - annotations:
+      artifacthub.io/changes: |-
+        - kind: changed
           description: Update n8nio/n8n image version to 2.28.3
           links:
             - name: Upstream Project
@@ -44160,4 +44247,4 @@ entries:
     urls:
     - https://github.com/community-charts/helm-charts/releases/download/pypiserver-0.1.0/pypiserver-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-01T03:04:25.188729103Z"
+generated: "2026-07-02T03:03:56.903688351Z"
