@@ -1,0 +1,160 @@
+suite: test httproute
+
+templates:
+  - httproute.yaml
+
+release:
+  name: mlflow
+  namespace: mlflow
+
+tests:
+  - it: should be empty when httpRoute is not enabled
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should render an HTTPRoute when enabled
+    set:
+      httpRoute:
+        enabled: true
+        parentRefs:
+          - name: my-gateway
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: HTTPRoute
+      - isAPIVersion:
+          of: gateway.networking.k8s.io/v1
+      - equal:
+          path: metadata.name
+          value: mlflow
+
+  - it: should render parentRefs
+    set:
+      httpRoute:
+        enabled: true
+        parentRefs:
+          - name: my-gateway
+            namespace: gateway-system
+            sectionName: https
+    asserts:
+      - equal:
+          path: spec.parentRefs[0].name
+          value: my-gateway
+      - equal:
+          path: spec.parentRefs[0].namespace
+          value: gateway-system
+      - equal:
+          path: spec.parentRefs[0].sectionName
+          value: https
+
+  - it: should render hostnames
+    set:
+      httpRoute:
+        enabled: true
+        parentRefs:
+          - name: my-gateway
+        hostnames:
+          - mlflow.example.com
+          - mlflow2.example.com
+    asserts:
+      - equal:
+          path: spec.hostnames[0]
+          value: mlflow.example.com
+      - equal:
+          path: spec.hostnames[1]
+          value: mlflow2.example.com
+
+  - it: should generate a default PathPrefix rule to the mlflow service when rules is empty
+    set:
+      httpRoute:
+        enabled: true
+        parentRefs:
+          - name: my-gateway
+    asserts:
+      - equal:
+          path: spec.rules[0].matches[0].path.type
+          value: PathPrefix
+      - equal:
+          path: spec.rules[0].matches[0].path.value
+          value: /
+      - equal:
+          path: spec.rules[0].backendRefs[0].name
+          value: mlflow
+      - equal:
+          path: spec.rules[0].backendRefs[0].port
+          value: 80
+
+  - it: should route the default backendRef to oauth2Proxy.listenPort when oauth2Proxy is enabled
+    set:
+      httpRoute:
+        enabled: true
+        parentRefs:
+          - name: my-gateway
+      oauth2Proxy:
+        enabled: true
+        listenPort: 4180
+    asserts:
+      - equal:
+          path: spec.rules[0].backendRefs[0].port
+          value: 4180
+
+  - it: should route the default backendRef to service.port when oauth2Proxy is disabled
+    set:
+      httpRoute:
+        enabled: true
+        parentRefs:
+          - name: my-gateway
+      service:
+        port: 9090
+    asserts:
+      - equal:
+          path: spec.rules[0].backendRefs[0].port
+          value: 9090
+
+  - it: should use custom rules when provided
+    set:
+      httpRoute:
+        enabled: true
+        parentRefs:
+          - name: my-gateway
+        rules:
+          - matches:
+              - path:
+                  type: Exact
+                  value: /custom
+            backendRefs:
+              - name: custom-svc
+                port: 8080
+    asserts:
+      - equal:
+          path: spec.rules[0].matches[0].path.type
+          value: Exact
+      - equal:
+          path: spec.rules[0].matches[0].path.value
+          value: /custom
+      - equal:
+          path: spec.rules[0].backendRefs[0].name
+          value: custom-svc
+      - equal:
+          path: spec.rules[0].backendRefs[0].port
+          value: 8080
+
+  - it: should render annotations and labels
+    set:
+      httpRoute:
+        enabled: true
+        parentRefs:
+          - name: my-gateway
+        annotations:
+          foo: bar
+        labels:
+          team: ml
+    asserts:
+      - equal:
+          path: metadata.annotations.foo
+          value: bar
+      - equal:
+          path: metadata.labels.team
+          value: ml
