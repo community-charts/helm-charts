@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 1.11.2](https://img.shields.io/badge/Version-1.11.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.14.0](https://img.shields.io/badge/AppVersion-3.14.0-informational?style=flat-square)
+![Version: 1.12.0](https://img.shields.io/badge/Version-1.12.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.14.0](https://img.shields.io/badge/AppVersion-3.14.0-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -676,16 +676,35 @@ oauth2Proxy:
     redirectURL: "https://mlflow.example.com/oauth2/callback"
 ```
 
+## Gateway API HTTPRoute Example
+
+As an alternative (or in addition) to an `Ingress`, the chart can expose MLflow through a [Gateway API](https://gateway-api.sigs.k8s.io/) `HTTPRoute`. It is disabled by default; enable it and attach it to an existing Gateway:
+
+```yaml
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: my-gateway
+      namespace: gateway-system
+      sectionName: https
+  hostnames:
+    - mlflow.example.com
+```
+
+When `httpRoute.rules` is left empty the chart generates a single rule that matches `PathPrefix: /` and forwards to the MLflow service (honouring the oauth2-proxy sidecar port when enabled). Provide your own `rules` for custom path matching, header modification, or traffic splitting.
+
+`httpRoute.hostnames` are also merged into the server security middleware env vars (see below), so Gateway traffic is not rejected as an unrecognised host.
+
 ## Security Middleware Example
 
-MLflow 3.x runs on uvicorn and includes security middleware that protects against DNS rebinding, CORS, and clickjacking attacks. The chart automatically configures `MLFLOW_SERVER_ALLOWED_HOSTS` and `MLFLOW_SERVER_CORS_ALLOWED_ORIGINS` from your ingress hosts so the middleware does not block legitimate requests.
+MLflow 3.x runs on uvicorn and includes security middleware that protects against DNS rebinding, CORS, and clickjacking attacks. The chart automatically configures `MLFLOW_SERVER_ALLOWED_HOSTS` and `MLFLOW_SERVER_CORS_ALLOWED_ORIGINS` from your ingress hosts and httpRoute hostnames so the middleware does not block legitimate requests.
 
-### Auto-detection from Ingress
+### Auto-detection from Ingress and HTTPRoute
 
-When `ingress.enabled` is `true` and hosts are configured the chart derives both env vars automatically:
+When `ingress.enabled` is `true` and hosts are configured, or `httpRoute.enabled` is `true` and hostnames are configured, the chart derives both env vars automatically:
 
 - `MLFLOW_SERVER_ALLOWED_HOSTS` is set to the bare hostnames (e.g. `mlflow.example.com`)
-- `MLFLOW_SERVER_CORS_ALLOWED_ORIGINS` is set to `https://hostname` when `ingress.tls` is configured, or `http://hostname` otherwise
+- `MLFLOW_SERVER_CORS_ALLOWED_ORIGINS` is set to `https://hostname` when `ingress.tls` is configured, or `http://hostname` otherwise; `httpRoute` hostnames are always added as `https://hostname` origins
 
 ```yaml
 ingress:
@@ -1081,6 +1100,13 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | extraVolumes | list | `[]` | Extra Volumes for the pod |
 | flaskServerSecretKey | string | `""` | Mlflow Flask Server Secret Key. Default: Will be auto generated. |
 | fullnameOverride | string | `""` | String to override the default generated fullname |
+| httpRoute | object | `{"annotations":{},"enabled":false,"hostnames":[],"labels":{},"parentRefs":[],"rules":[]}` | Gateway API HTTPRoute configuration. Complementary to `ingress` - you may enable either, both, or neither. |
+| httpRoute.annotations | object | `{}` | Additional HTTPRoute annotations |
+| httpRoute.enabled | bool | `false` | Specifies if you want to create an HTTPRoute (Gateway API) |
+| httpRoute.hostnames | list | `[]` | Hostnames the route matches. Also merged into MLFLOW_SERVER_ALLOWED_HOSTS and (as https origins) MLFLOW_SERVER_CORS_ALLOWED_ORIGINS so the server security middleware does not reject Gateway traffic. |
+| httpRoute.labels | object | `{}` | Additional HTTPRoute labels |
+| httpRoute.parentRefs | list | `[]` | List of parentRefs (Gateways) the route attaches to. Required when httpRoute.enabled is true. |
+| httpRoute.rules | list | `[]` | Route rules. When empty, a single rule matching PathPrefix / and forwarding to the MLflow service is generated. Provide your own rules for custom matching, header rewriting, or traffic splitting. Values are processed with tpl, so Helm expressions are allowed. |
 | image | object | `{"digest":"","pullPolicy":"IfNotPresent","repository":"burakince/mlflow","tag":""}` | Image of mlflow |
 | image.digest | string | `""` | Image digest in the format sha256:<hex>. When set, overrides the tag for immutable pulls. |
 | image.pullPolicy | string | `"IfNotPresent"` | The docker image pull policy |

@@ -1210,6 +1210,70 @@
       "title": "ingress",
       "type": "object"
     },
+    "httpRoute": {
+      "additionalProperties": false,
+      "description": "Gateway API HTTPRoute configuration",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "description": "Specifies if you want to create an HTTPRoute (Gateway API)",
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "annotations": {
+          "additionalProperties": true,
+          "description": "Additional HTTPRoute annotations",
+          "required": [],
+          "title": "annotations",
+          "type": "object"
+        },
+        "labels": {
+          "additionalProperties": true,
+          "description": "Additional HTTPRoute labels",
+          "required": [],
+          "title": "labels",
+          "type": "object"
+        },
+        "parentRefs": {
+          "description": "List of parentRefs (Gateways) the route attaches to",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "parentRefs",
+          "type": "array"
+        },
+        "hostnames": {
+          "description": "Hostnames the route matches",
+          "items": {
+            "type": "string"
+          },
+          "required": [],
+          "title": "hostnames",
+          "type": "array"
+        },
+        "rules": {
+          "description": "Route rules; when empty a default PathPrefix / rule to the MLflow service is generated",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "rules",
+          "type": "array"
+        }
+      },
+      "required": [
+        "enabled",
+        "annotations",
+        "labels",
+        "parentRefs",
+        "hostnames",
+        "rules"
+      ],
+      "title": "httpRoute",
+      "type": "object"
+    },
     "corsAllowedOrigins": {
       "default": [],
       "description": "List of CORS allowed origins (MLFLOW_SERVER_CORS_ALLOWED_ORIGINS). Auto-derived from ingress hosts when ingress is enabled.",
@@ -3251,6 +3315,7 @@
     "extraEnvVars",
     "extraSecretNamesForEnvFrom",
     "ingress",
+    "httpRoute",
     "resources",
     "serviceMonitor",
     "nodeSelector",
