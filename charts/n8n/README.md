@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.24.17](https://img.shields.io/badge/Version-1.24.17-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.31.5](https://img.shields.io/badge/AppVersion-2.31.5-informational?style=flat-square)
+![Version: 1.25.0](https://img.shields.io/badge/Version-1.25.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.31.5](https://img.shields.io/badge/AppVersion-2.31.5-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -121,6 +121,47 @@ ingress:
       paths:
         - path: /
           pathType: ImplementationSpecific
+```
+
+## Gateway API HTTPRoute Example
+
+As an alternative (or in addition) to an `Ingress`, the chart can expose n8n through a [Gateway API](https://gateway-api.sigs.k8s.io/) `HTTPRoute`. It is disabled by default; enable it and attach it to an existing Gateway:
+
+```yaml
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: my-gateway
+      namespace: gateway-system
+      sectionName: https
+  hostnames:
+    - n8n.example.com
+```
+
+When `httpRoute.rules` is left empty the chart generates a single rule that matches `PathPrefix: /` and forwards to the n8n service. Provide your own `rules` for custom path matching, header modification, or traffic splitting. In queue mode you can, for example, route the webhook paths to the webhook service:
+
+```yaml
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - n8n.example.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /webhook/
+      backendRefs:
+        - name: my-n8n-webhook
+          port: 5678
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: my-n8n
+          port: 5678
 ```
 
 ## Deployment with Bitnami's PostgreSQL
@@ -1501,6 +1542,13 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | extraTemplateManifests | list | `[]` | List of extra Kubernetes manifests as Helm template strings to deploy alongside n8n. Chart labels are automatically merged into each manifest's metadata. |
 | fullnameOverride | string | `""` |  |
 | gracefulShutdownTimeout | int | `30` | graceful shutdown timeout in seconds |
+| httpRoute | object | `{"annotations":{},"enabled":false,"hostnames":[],"labels":{},"parentRefs":[],"rules":[]}` | Gateway API HTTPRoute configuration. Complementary to `ingress` - you may enable either, both, or neither. |
+| httpRoute.annotations | object | `{}` | Additional HTTPRoute annotations |
+| httpRoute.enabled | bool | `false` | Specifies if you want to create an HTTPRoute (Gateway API) |
+| httpRoute.hostnames | list | `[]` | Hostnames the route matches. |
+| httpRoute.labels | object | `{}` | Additional HTTPRoute labels |
+| httpRoute.parentRefs | list | `[]` | List of parentRefs (Gateways) the route attaches to. Required when httpRoute.enabled is true. |
+| httpRoute.rules | list | `[]` | Route rules. When empty, a single rule matching PathPrefix / and forwarding to the n8n service is generated. Provide your own rules for custom matching (e.g. splitting webhook paths to the webhook service in queue mode), header rewriting, or traffic splitting. Values are processed with tpl, so Helm expressions are allowed. |
 | image | object | `{"pullPolicy":"IfNotPresent","repository":"n8nio/n8n","tag":""}` | This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/ |
 | image.pullPolicy | string | `"IfNotPresent"` | This sets the pull policy for images. |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
