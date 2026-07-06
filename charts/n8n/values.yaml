@@ -1018,6 +1018,32 @@ ingress:
   #    hosts:
   #      - n8n.local
 
+# -- Gateway API HTTPRoute configuration. Complementary to `ingress` - you may enable either, both, or neither.
+httpRoute:
+  # -- Specifies if you want to create an HTTPRoute (Gateway API)
+  enabled: false
+  # -- Additional HTTPRoute annotations
+  annotations: {}
+  # -- Additional HTTPRoute labels
+  labels: {}
+  # -- List of parentRefs (Gateways) the route attaches to. Required when httpRoute.enabled is true.
+  parentRefs: []
+  #  - name: my-gateway
+  #    namespace: gateway-system
+  #    sectionName: https
+  # -- Hostnames the route matches.
+  hostnames: []
+  #  - n8n.example.com
+  # -- Route rules. When empty, a single rule matching PathPrefix / and forwarding to the n8n service is generated. Provide your own rules for custom matching (e.g. splitting webhook paths to the webhook service in queue mode), header rewriting, or traffic splitting. Values are processed with tpl, so Helm expressions are allowed.
+  rules: []
+  #  - matches:
+  #      - path:
+  #          type: PathPrefix
+  #          value: /
+  #    backendRefs:
+  #      - name: my-n8n
+  #        port: 5678
+
 # -- The service monitor configuration. Please refer to the following link for more information: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md
 serviceMonitor:
   # -- When set true then use a ServiceMonitor to configure scraping
