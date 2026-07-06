@@ -123,6 +123,47 @@ ingress:
           pathType: ImplementationSpecific
 ```
 
+## Gateway API HTTPRoute Example
+
+As an alternative (or in addition) to an `Ingress`, the chart can expose n8n through a [Gateway API](https://gateway-api.sigs.k8s.io/) `HTTPRoute`. It is disabled by default; enable it and attach it to an existing Gateway:
+
+```yaml
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: my-gateway
+      namespace: gateway-system
+      sectionName: https
+  hostnames:
+    - n8n.example.com
+```
+
+When `httpRoute.rules` is left empty the chart generates a single rule that matches `PathPrefix: /` and forwards to the n8n service. Provide your own `rules` for custom path matching, header modification, or traffic splitting. In queue mode you can, for example, route the webhook paths to the webhook service:
+
+```yaml
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - n8n.example.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /webhook/
+      backendRefs:
+        - name: my-n8n-webhook
+          port: 5678
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: my-n8n
+          port: 5678
+```
+
 ## Deployment with Bitnami's PostgreSQL
 
 ```yaml
