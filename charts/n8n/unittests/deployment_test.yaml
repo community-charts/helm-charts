@@ -134,7 +134,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-main")].image
-          value: fake-image-repository/fake-image:fake-tag
+          value: docker.io/fake-image-repository/fake-image:fake-tag
         template: deployment.yaml
 
   - it: should use default image and chart app version as image tag when tag is not set
@@ -150,7 +150,30 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[?(@.name == "n8n-main")].image
-          value: n8nio/n8n:0.81.0
+          value: docker.io/n8nio/n8n:0.81.0
+        template: deployment.yaml
+
+  - it: should use custom image registry when image.registry is set
+    set:
+      image:
+        registry: ghcr.io
+        repository: n8nio/n8n
+        tag: fake-tag
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].image
+          value: ghcr.io/n8nio/n8n:fake-tag
+        template: deployment.yaml
+
+  - it: should omit registry prefix when image.registry is empty
+    set:
+      image:
+        registry: ""
+        tag: fake-tag
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].image
+          value: n8nio/n8n:fake-tag
         template: deployment.yaml
 
   - it: should set image pull policy when imagePullPolicy is set

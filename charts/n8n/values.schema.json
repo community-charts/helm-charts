@@ -806,6 +806,13 @@
           "title": "pullPolicy",
           "type": "string"
         },
+        "registry": {
+          "default": "docker.io",
+          "description": "Registry to use for the n8n image. Set to empty string to omit the registry prefix.",
+          "required": [],
+          "title": "registry",
+          "type": "string"
+        },
         "repository": {
           "default": "n8nio/n8n",
           "required": [],
@@ -832,6 +839,61 @@
       "required": [],
       "title": "imagePullSecrets",
       "type": "array"
+    },
+    "initContainers": {
+      "additionalProperties": false,
+      "description": "Configuration for init containers",
+      "properties": {
+        "waitForMain": {
+          "additionalProperties": false,
+          "description": "Configuration for the wait-for-main init container",
+          "properties": {
+            "image": {
+              "additionalProperties": false,
+              "description": "Image configuration for the wait-for-main init container",
+              "properties": {
+                "pullPolicy": {
+                  "default": "Always",
+                  "description": "Pull policy for the wait-for-main init container image",
+                  "required": [],
+                  "title": "pullPolicy",
+                  "type": "string"
+                },
+                "registry": {
+                  "default": "docker.io",
+                  "description": "Registry to use for the wait-for-main init container image. Set to empty string to omit the registry prefix.",
+                  "required": [],
+                  "title": "registry",
+                  "type": "string"
+                },
+                "repository": {
+                  "default": "library/busybox",
+                  "description": "Repository for the wait-for-main init container image",
+                  "required": [],
+                  "title": "repository",
+                  "type": "string"
+                },
+                "tag": {
+                  "default": "stable",
+                  "description": "Tag for the wait-for-main init container image",
+                  "required": [],
+                  "title": "tag",
+                  "type": "string"
+                }
+              },
+              "required": ["repository", "tag", "pullPolicy"],
+              "title": "image",
+              "type": "object"
+            }
+          },
+          "required": ["image"],
+          "title": "waitForMain",
+          "type": "object"
+        }
+      },
+      "required": ["waitForMain"],
+      "title": "initContainers",
+      "type": "object"
     },
     "ingress": {
       "additionalProperties": false,
@@ -5338,6 +5400,7 @@
   "required": [
     "image",
     "imagePullSecrets",
+    "initContainers",
     "nameOverride",
     "fullnameOverride",
     "strategy",

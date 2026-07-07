@@ -1299,6 +1299,38 @@ This section outlines major updates and breaking changes for each version of the
 
 ###  Version-Specific Upgrade Notes
 
+#### Upgrading to Version 1.23.0
+
+##### Action Required
+
+The default rendered image reference now includes an explicit registry prefix. The main n8n container image changes from `n8nio/n8n:tag` to `docker.io/n8nio/n8n:tag`.
+
+Review the following before upgrading:
+
+- **Mirror registries** — clusters that intercept bare `n8nio/n8n` but not `docker.io/n8nio/n8n` may pull from the wrong source or fail to pull after upgrade.
+- **Admission policies** — OPA/Kyverno rules matching on image prefix patterns may deny pods with the new prefix.
+- **imagePullSecrets** — if your pull secret is scoped to a specific registry and you change `image.registry` (e.g. to `ghcr.io`), update the secret to match the new registry.
+
+To restore the previous bare-image behavior, set `image.registry` to an empty string:
+
+```yaml
+image:
+  registry: ""
+  repository: n8nio/n8n
+  pullPolicy: IfNotPresent
+  tag: ""
+```
+
+To use a different registry:
+
+```yaml
+image:
+  registry: ghcr.io
+  repository: n8nio/n8n
+  pullPolicy: IfNotPresent
+  tag: ""
+```
+
 #### Upgrading to Version 1.20.0
 
 ##### Deprecation Notices
