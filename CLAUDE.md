@@ -6,11 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a community Helm chart repository hosting production-grade Kubernetes charts for: `actualbudget`, `cloudflared`, `drone`, `kserve`, `mlflow`, `n8n`, `outline`, and `pypiserver`. Charts are published to GitHub Pages via the `chart-releaser` action.
 
-## External Documentation
-
-### n8n
-
-When working on the `n8n` chart, use `https://docs.n8n.io/llms.txt` as the entry point for official n8n documentation. That file lists available documentation pages — fetch individual pages from it as needed for accurate, up-to-date details on configuration, environment variables, and features.
+Chart-specific guidance (architecture, external docs, non-obvious patterns) lives in `charts/<name>/CLAUDE.md`. Read that file when working on a specific chart. Charts that currently have one: `actualbudget` (`charts/actualbudget/CLAUDE.md`), `mlflow` (`charts/mlflow/CLAUDE.md`), `n8n` (`charts/n8n/CLAUDE.md`), `outline` (`charts/outline/CLAUDE.md`).
 
 ## Common Commands
 
@@ -71,6 +67,7 @@ Every chart follows this layout:
 charts/<name>/
 ├── Chart.yaml          # Chart metadata, version, appVersion, ArtifactHub annotations
 ├── Chart.lock          # Locked dependency versions
+├── .helmignore         # Excludes dev/test files from the packaged chart tarball
 ├── values.yaml         # Default values
 ├── values.schema.json  # JSON Schema validation for values (additionalProperties: false)
 ├── values-kind.yaml    # Minimal values for kind cluster CI testing
@@ -92,12 +89,30 @@ charts/<name>/
     └── *_test.yaml     # helm-unittest test suites (run via `helm unittest`)
 ```
 
+Every non-deprecated chart's `.helmignore` must exclude files that are not needed in the packaged tarball. At minimum it must contain:
+
+```
+README.md.gotmpl
+values-kind.yaml
+CLAUDE.md
+unittests/
+```
+
+Do not apply `.helmignore` changes to deprecated charts (currently: `kserve`).
+
 ### Versioning Rules
 
 - **Any change** to a chart (including docs) requires a `version` bump in `Chart.yaml` following semver.
 - `appVersion` tracks the upstream application version.
 - Breaking changes bump MAJOR version and must document manual upgrade steps in `README.md.gotmpl` under an "Upgrading" section.
-- The `artifacthub.io/changes` annotation in `Chart.yaml` is used to auto-generate release notes — always populate it for every change.
+- The `artifacthub.io/changes` annotation in `Chart.yaml` is used to auto-generate release notes — always populate it for every change. When linking to a GitHub issue or pull request, use the exact name variants below (not `Issue`, `PR`, or any other variant):
+  ```yaml
+  links:
+    - name: GitHub Issue
+      url: https://github.com/community-charts/helm-charts/issues/<number>
+    - name: GitHub PR
+      url: https://github.com/community-charts/helm-charts/pull/<number>
+  ```
 - **Bump `version` only once per branch/PR.** After the first bump, do not bump again for subsequent commits on the same branch — all changes in the PR are released together under the single bumped version.
 
 ### CI Pipeline
@@ -105,8 +120,9 @@ charts/<name>/
 **`.github/workflows/release.yml`** (runs on all PRs/pushes):
 
 1. **lint-ah**: Runs `ah lint` on all charts for ArtifactHub compliance.
-2. **lint-test**: Runs `ct lint` (which also calls `helm unittest`) and `ct install` on changed charts only. Charts with a `.skip-kind-test` file skip the `ct install` step.
-3. **release**: On merge to `main`, runs `chart-releaser` to package, GPG-sign, and publish changed charts to GitHub Pages.
+2. **check-helm-docs**: Runs `helm-docs` and fails if any `README.md` differs from what is committed — catches PRs where `README.md.gotmpl` or `values.yaml` doc comments were updated without regenerating the README.
+3. **lint-test**: Runs `ct lint` (which also calls `helm unittest`) and `ct install` on changed charts only. Requires both `lint-ah` and `check-helm-docs` to pass. Charts with a `.skip-kind-test` file skip the `ct install` step.
+4. **release**: On merge to `main`, runs `chart-releaser` to package, GPG-sign, and publish changed charts to GitHub Pages.
 
 **`.github/workflows/security-scan.yml`** (runs on changes to `charts/**`):
 
@@ -122,6 +138,8 @@ metadata:
 ### Unit Test Convention
 
 Tests live in `unittests/` as YAML files using [helm-unittest](https://github.com/helm-unittest/helm-unittest) syntax. Tests assert on rendered template output using `set:` to override values. Snapshot tests use `__snapshot__/` subdirectories.
+
+When asserting a specific value within a larger rendered string (e.g. one line in a multi-line script), use `matchRegex` with a targeted pattern rather than `equal` on the full string — keeps tests focused and resilient to unrelated boilerplate changes. `matchRegex` does substring matching (no anchoring needed); escape regex metacharacters in patterns (e.g. `\.` for literal dots in version strings).
 
 Always validate field types against the official schema before writing tests:
 `https://raw.githubusercontent.com/helm-unittest/helm-unittest/refs/heads/main/schema/helm-testsuite.json`
@@ -165,3 +183,5 @@ git commit -s  # retried after hook updates
 - Commits require a `Signed-off-by` trailer (`git commit -s`).
 - Never add a `Co-Authored-By` trailer to commits.
 - YAML files must follow the rules in `.github/configs/lintconf.yaml` (2-space indent, no trailing spaces, LF line endings, newline at EOF).
+- PR descriptions must follow the template in `.github/PULL_REQUEST_TEMPLATE.md`: fill in "What this PR does / why we need it", "Which issue this PR fixes" (using `fixes #<number>` format), "Special notes for your reviewer", and check all applicable checklist items.
+- Always use `fixes #<number>` (not `refs`, `closes`, or plain `#<number>`) for every issue the PR addresses. GitHub only creates a bidirectional PR↔issue link and auto-closes issues on merge when the `fixes` keyword is present. Using `refs` or a bare `#<number>` produces no link in GitHub's UI.

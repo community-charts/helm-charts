@@ -111,6 +111,8 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+            - name: npm-home
+              mountPath: /home/node/.npm
             {{- if .Values.npmRegistry.enabled }}
             - name: npmrc
               mountPath: "/home/node/.npmrc"
@@ -120,9 +122,16 @@ spec:
             - name: {{ default "node-modules" .Values.worker.persistence.volumeName }}
               mountPath: "/npmdata"
               readOnly: false
+            {{- if eq (include "n8n.worker.coversCommunityNodes" .) "true" }}
+            - name: {{ default "node-modules" .Values.worker.persistence.volumeName }}
+              mountPath: "/nodesdata/nodes"
+              subPath: nodes
+              readOnly: false
+            {{- else }}
             - name: community-node-modules
               mountPath: "/nodesdata/nodes"
               readOnly: false
+            {{- end }}
           {{- with .Values.nodes.initContainer.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
@@ -252,6 +261,9 @@ spec:
             - name: {{ upper $key }}
               value: {{ $value | quote }}
           {{- end }}
+          {{- with (default .Values.extraEnv .Values.worker.extraEnv) }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ template "n8n.fullname" . }}-database-configmap
@@ -294,7 +306,7 @@ spec:
               subPath: {{ .Values.worker.persistence.subPath }}
               {{- end }}
               readOnly: false
-          {{- if and .Values.nodes.external.packages (eq .Values.taskRunners.mode "internal") }}
+          {{- if and .Values.nodes.external.packages (not (eq (include "n8n.worker.coversCommunityNodes" .) "true")) }}
             - name: community-node-modules
               mountPath: "/home/node/.n8n/nodes"
               readOnly: false
@@ -411,7 +423,7 @@ spec:
               subPath: {{ .Values.worker.persistence.subPath }}
               {{- end }}
               readOnly: false
-          {{- if .Values.nodes.external.packages }}
+          {{- if and .Values.nodes.external.packages (not (eq (include "n8n.worker.coversCommunityNodes" .) "true")) }}
             - name: community-node-modules
               mountPath: "/home/node/.n8n/nodes"
               readOnly: false
@@ -424,6 +436,8 @@ spec:
         - name: tmp
           emptyDir: {}
         - name: cache
+          emptyDir: {}
+        - name: npm-home
           emptyDir: {}
       {{- if eq .Values.taskRunners.mode "external" }}
         - name: python-packages
@@ -442,9 +456,14 @@ spec:
         - name: {{ default "node-modules" .Values.worker.persistence.volumeName }}
           emptyDir: {}
       {{- end }}
-      {{- if .Values.nodes.external.packages }}
+      {{- if and .Values.nodes.external.packages (not (eq (include "n8n.worker.coversCommunityNodes" .) "true")) }}
         - name: community-node-modules
+          {{- if .Values.nodes.external.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "n8n-community.packages.fullname" . }}
+          {{- else }}
           emptyDir: {}
+          {{- end }}
       {{- end }}
       {{- if and (eq .Values.taskRunners.mode "external") .Values.pypiRegistry.enabled (or .Values.pypiRegistry.secretName .Values.pypiRegistry.customUvConfig) }}
         - name: uv-config

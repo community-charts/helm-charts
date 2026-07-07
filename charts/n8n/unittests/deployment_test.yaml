@@ -832,6 +832,45 @@ tests:
             value: n8nextraenvvar
         template: deployment.yaml
 
+  - it: should set valueFrom environment variables when extraEnv is set
+    set:
+      extraEnv:
+        - name: N8N_VALUE_FROM_VAR
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: my-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
+          content:
+            name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
+        template: deployment.yaml
+
+  - it: should set valueFrom environment variables when main.extraEnv is set
+    set:
+      main:
+        extraEnv:
+          - name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
+          content:
+            name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
+        template: deployment.yaml
+
   - it: should set database configurations from database configmap
     asserts:
       - contains:
@@ -1598,6 +1637,16 @@ tests:
           any: true
         template: deployment.yaml
 
+  - it: should set NPM_CONFIG_CACHE on main container
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
+          content:
+            name: NPM_CONFIG_CACHE
+            value: /home/node/.cache/npm
+          any: true
+        template: deployment.yaml
+
   - it: should always mount data dir in main container even without persistence or external packages
     asserts:
       - contains:
@@ -1999,6 +2048,56 @@ tests:
             value: "fs,crypto"
           any: true
         template: deployment.yaml
+  
+  - it: should add unscoped community packages to install script
+    set:
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-python@0.1.4"
+            - "n8n-nodes-chatwoot@0.1.40"
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].args[0]
+          pattern: 'export COMMUNITY_PACKAGES="n8n-nodes-python@0\.1\.4 n8n-nodes-chatwoot@0\.1\.40"'
+        template: deployment.yaml
+      - matchRegex:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].args[0]
+          pattern: 'export NON_COMMUNITY_PACKAGES=""'
+        template: deployment.yaml
+  
+  - it: should add scoped community packages to install script
+    set:
+      nodes:
+        external:
+          packages:
+            - "@mycompany/n8n-nodes-test@1.0.0"
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].args[0]
+          pattern: 'export COMMUNITY_PACKAGES="@mycompany/n8n-nodes-test@1\.0\.0"'
+        template: deployment.yaml
+      - matchRegex:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].args[0]
+          pattern: 'export NON_COMMUNITY_PACKAGES=""'
+        template: deployment.yaml
+  
+  - it: should not add non-node packages to community node installer script
+    set:
+      nodes:
+        external:
+          packages:
+            - "example@2.29.4"
+            - "@scope/example@1.0.0"
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].args[0]
+          pattern: 'export COMMUNITY_PACKAGES=""'
+        template: deployment.yaml
+      - matchRegex:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].args[0]
+          pattern: 'export NON_COMMUNITY_PACKAGES="example@2\.29\.4 @scope/example@1\.0\.0"'
+        template: deployment.yaml
 
   - it: should only keep npm packages and not community packages when nodes.external.packages is set and taskRunners.mode is internal
     set:
@@ -2020,10 +2119,10 @@ tests:
             echo "$PACKAGES" | sha256sum > /npmdata/packages.hash.new
             if [ ! -f /npmdata/packages.hash ] || ! cmp /npmdata/packages.hash /npmdata/packages.hash.new; then
               if [ -n "$NON_COMMUNITY_PACKAGES" ]; then
-                npm install --loglevel info --no-save $NON_COMMUNITY_PACKAGES --prefix /npmdata
+                npm install --loglevel info --no-save --ignore-scripts $NON_COMMUNITY_PACKAGES --prefix /npmdata
               fi
               if [ -n "$COMMUNITY_PACKAGES" ]; then
-                npm install --loglevel info --no-save $COMMUNITY_PACKAGES --prefix /nodesdata/nodes
+                npm install --loglevel info --no-save --ignore-scripts $COMMUNITY_PACKAGES --prefix /nodesdata/nodes
               fi
               mv /npmdata/packages.hash.new /npmdata/packages.hash
             else
@@ -2148,6 +2247,138 @@ tests:
             secret:
               optional: true
               secretName: n8n-npm-registry-secret
+          any: true
+        template: deployment.yaml
+
+  - it: should use PVC for community-node-modules volume when persistence is enabled
+    set:
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: true
+            existingClaim: my-community-pvc
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            persistentVolumeClaim:
+              claimName: my-community-pvc
+          any: true
+        template: deployment.yaml
+
+  - it: should use emptyDir for community-node-modules volume when persistence is disabled
+    set:
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: false
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            emptyDir: {}
+          any: true
+        template: deployment.yaml
+
+  - it: should use main persistence volume with subPath nodes in init container when main.persistence covers community nodes
+    set:
+      main:
+        persistence:
+          enabled: true
+          existingClaim: my-n8n-pvc
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
+          content:
+            name: node-modules
+            mountPath: "/nodesdata/nodes"
+            subPath: nodes
+            readOnly: false
+          any: true
+        template: deployment.yaml
+      - notContains:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
+          content:
+            name: community-node-modules
+            mountPath: "/nodesdata/nodes"
+            readOnly: false
+          any: true
+        template: deployment.yaml
+
+  - it: should not mount community-node-modules in main container when main.persistence covers community nodes
+    set:
+      main:
+        persistence:
+          enabled: true
+          existingClaim: my-n8n-pvc
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].volumeMounts
+          content:
+            name: community-node-modules
+            mountPath: "/home/node/.n8n/nodes"
+            readOnly: false
+          any: true
+        template: deployment.yaml
+
+  - it: should not define community-node-modules volume when main.persistence covers community nodes
+    set:
+      main:
+        persistence:
+          enabled: true
+          existingClaim: my-n8n-pvc
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+    asserts:
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            emptyDir: {}
+          any: true
+        template: deployment.yaml
+
+  - it: should still use community-node-modules when main.persistence has custom subPath set
+    set:
+      main:
+        persistence:
+          enabled: true
+          existingClaim: my-n8n-pvc
+          subPath: "n8n-data"
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
+          content:
+            name: community-node-modules
+            mountPath: "/nodesdata/nodes"
+            readOnly: false
+          any: true
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            emptyDir: {}
           any: true
         template: deployment.yaml
 

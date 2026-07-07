@@ -827,6 +827,45 @@ tests:
             value: n8nextraenvvar
         template: statefulset-worker.yaml
 
+  - it: should set valueFrom environment variables when extraEnv is set
+    set:
+      extraEnv:
+        - name: N8N_VALUE_FROM_VAR
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: my-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
+        template: statefulset-worker.yaml
+
+  - it: should set valueFrom environment variables when worker.extraEnv is set
+    set:
+      worker:
+        extraEnv:
+          - name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
+        template: statefulset-worker.yaml
+
   - it: should set database configurations from database configmap
     asserts:
       - contains:
@@ -1612,8 +1651,9 @@ tests:
       - contains:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
           content:
-            name: community-node-modules
+            name: node-modules
             mountPath: "/nodesdata/nodes"
+            subPath: nodes
             readOnly: false
           any: true
         template: statefulset-worker.yaml
@@ -1688,8 +1728,9 @@ tests:
       - contains:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
           content:
-            name: community-node-modules
+            name: node-modules
             mountPath: "/nodesdata/nodes"
+            subPath: nodes
             readOnly: false
           any: true
         template: statefulset-worker.yaml
@@ -1780,10 +1821,10 @@ tests:
             echo "$PACKAGES" | sha256sum > /npmdata/packages.hash.new
             if [ ! -f /npmdata/packages.hash ] || ! cmp /npmdata/packages.hash /npmdata/packages.hash.new; then
               if [ -n "$NON_COMMUNITY_PACKAGES" ]; then
-                npm install --loglevel info --no-save $NON_COMMUNITY_PACKAGES --prefix /npmdata
+                npm install --loglevel info --no-save --ignore-scripts $NON_COMMUNITY_PACKAGES --prefix /npmdata
               fi
               if [ -n "$COMMUNITY_PACKAGES" ]; then
-                npm install --loglevel info --no-save $COMMUNITY_PACKAGES --prefix /nodesdata/nodes
+                npm install --loglevel info --no-save --ignore-scripts $COMMUNITY_PACKAGES --prefix /nodesdata/nodes
               fi
               mv /npmdata/packages.hash.new /npmdata/packages.hash
             else
@@ -1878,8 +1919,9 @@ tests:
       - contains:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
           content:
-            name: community-node-modules
+            name: node-modules
             mountPath: "/nodesdata/nodes"
+            subPath: nodes
             readOnly: false
           any: true
         template: statefulset-worker.yaml
@@ -2716,4 +2758,86 @@ tests:
               secretName: "n8n-pypi-registry-secret"
               optional: true
           any: true
+        template: statefulset-worker.yaml
+
+  - it: should add community-node-modules to volumeClaimTemplates in worker StatefulSet when forceToUseStatefulset and community persistence enabled
+    set:
+      worker:
+        forceToUseStatefulset: true
+        persistence:
+          enabled: false
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: true
+            accessMode: ReadWriteOnce
+            size: 2Gi
+    asserts:
+      - contains:
+          path: spec.volumeClaimTemplates
+          content:
+            metadata:
+              name: community-node-modules
+            spec:
+              accessModes:
+                - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 2Gi
+        template: statefulset-worker.yaml
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            emptyDir: {}
+        template: statefulset-worker.yaml
+
+  - it: should use existingClaim as regular volume in worker StatefulSet when community existingClaim is set
+    set:
+      worker:
+        forceToUseStatefulset: true
+        persistence:
+          enabled: false
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: true
+            existingClaim: my-existing-community-pvc
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            persistentVolumeClaim:
+              claimName: my-existing-community-pvc
+        template: statefulset-worker.yaml
+      - notContains:
+          path: spec.volumeClaimTemplates
+          content:
+            metadata:
+              name: community-node-modules
+        template: statefulset-worker.yaml
+
+  - it: should add community-node-modules emptyDir in worker StatefulSet when forceToUseStatefulset and community persistence disabled
+    set:
+      worker:
+        forceToUseStatefulset: true
+        persistence:
+          enabled: false
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: false
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            emptyDir: {}
         template: statefulset-worker.yaml

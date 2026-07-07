@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.23.0
+version: 1.24.6
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "2.25.7"
+appVersion: "2.28.7"
 kubeVersion: ">=1.23.0-0"
 home: https://n8n.io
 maintainers:
@@ -60,12 +60,12 @@ annotations:
       description: Render wait-for-main init container image from values instead of hardcoded busybox:1.36
   artifacthub.io/images: |
     - name: n8n
-      image: n8nio/n8n:2.25.7
+      image: n8nio/n8n:2.28.7
       platforms:
         - linux/amd64
         - linux/arm64
     - name: n8n-runners
-      image: n8nio/runners:2.23.4
+      image: n8nio/runners:2.28.7
       platforms:
         - linux/amd64
         - linux/arm64
@@ -75,53 +75,18 @@ annotations:
       email: burak.ince@linux.org.tr
   artifacthub.io/operator: "false"
   artifacthub.io/prerelease: "false"
-  artifacthub.io/screenshots: |
-    - title: Editor UI Walkthrough
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-one/chapter-one/editor-ui-walkthrough.gif
-    - title: Node Menu Drilldown
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-one/chapter-one/l1-c1-node-menu-drilldown.gif
-    - title: Adding a Node
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-one/chapter-one/l1-c1-add-node-click.gif
-    - title: Node Buttons
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-one/chapter-one/node-buttons.gif
-    - title: Nathans Workflow
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-one/chapter-four/l1-c4-nathans-workflow.png
-    - title: Set Node
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-one/chapter-five/l1-c5-4-set-node.png
-    - title: Workflow with Set Node
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-one/chapter-five/l1-c5-4-workflow-with-set-node.png
-    - title: Code Node
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-one/chapter-five/l1-c5-5-5-code-node.png
-    - title: Discord Output
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-one/chapter-five/l1-c5-5-6-discord-output.png
-    - title: Exercise Function
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-two/chapter-one/exercise_function.png
-    - title: Exercise Function Not Nested
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-two/chapter-one/exercise_function_notnested.png
-    - title: Exercise Function Reference
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-two/chapter-one/exercise_function_reference.png
-    - title: HTTP Request Node
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-two/chapter-two/exercise_html_httprequestnode.png
-    - title: HTTP Extraction Node
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-two/chapter-two/exercise_html_htmlextractnode.png
-    - title: Binary Data HTTP Request Node
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-two/chapter-two/exercise_binarydata_httprequest_file.png
-    - title: Binary to JSON Node
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-two/chapter-two/exercise_binarydata_movedata_btoj.png
-    - title: JSON to XML Node
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-two/chapter-two/exercise_html_xmlnode_table.png
-    - title: Workflow
-      url: https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/courses/level-two/chapter-five/workflow2.png
+  artifacthub.io/screenshots: |-
+    []
   artifacthub.io/signKey: |
     fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
     url: https://keybase.io/communitycharts/pgp_keys.asc
 dependencies:
   - name: redis
-    version: 27.0.4
+    version: 27.0.13
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
   - name: postgresql
-    version: 18.7.3
+    version: 18.7.11
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: minio

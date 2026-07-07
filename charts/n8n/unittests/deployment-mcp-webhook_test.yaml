@@ -865,6 +865,46 @@ tests:
             value: n8nextraenvvar
         template: deployment-mcp-webhook.yaml
 
+  - it: should set valueFrom environment variables when extraEnv is set
+    set:
+      extraEnv:
+        - name: N8N_VALUE_FROM_VAR
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: my-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].env
+          content:
+            name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
+        template: deployment-mcp-webhook.yaml
+
+  - it: should set valueFrom environment variables when webhook.mcp.extraEnv is set
+    set:
+      webhook:
+        mcp:
+          extraEnv:
+            - name: N8N_VALUE_FROM_VAR
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: my-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-mcp-webhook")].env
+          content:
+            name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
+        template: deployment-mcp-webhook.yaml
+
   - it: should not set deprecated N8N_RUNNERS_ENABLED environment variable
     asserts:
       - notContains:

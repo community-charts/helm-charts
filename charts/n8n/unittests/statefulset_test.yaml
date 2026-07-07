@@ -750,6 +750,45 @@ tests:
             value: n8nextraenvvar
         template: statefulset.yaml
 
+  - it: should set valueFrom environment variables when extraEnv is set
+    set:
+      extraEnv:
+        - name: N8N_VALUE_FROM_VAR
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: my-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
+          content:
+            name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
+        template: statefulset.yaml
+
+  - it: should set valueFrom environment variables when main.extraEnv is set
+    set:
+      main:
+        extraEnv:
+          - name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
+          content:
+            name: N8N_VALUE_FROM_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
+        template: statefulset.yaml
+
   - it: should set database configurations from database configmap
     asserts:
       - contains:
@@ -1474,6 +1513,16 @@ tests:
           any: true
         template: statefulset.yaml
 
+  - it: should set NPM_CONFIG_CACHE on main container
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].env
+          content:
+            name: NPM_CONFIG_CACHE
+            value: /home/node/.cache/npm
+          any: true
+        template: statefulset.yaml
+
   - it: should always mount data dir in main container
     asserts:
       - contains:
@@ -1714,8 +1763,9 @@ tests:
       - contains:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
           content:
-            name: community-node-modules
+            name: node-modules
             mountPath: "/nodesdata/nodes"
+            subPath: nodes
             readOnly: false
           any: true
         template: statefulset.yaml
@@ -1790,8 +1840,9 @@ tests:
       - contains:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
           content:
-            name: community-node-modules
+            name: node-modules
             mountPath: "/nodesdata/nodes"
+            subPath: nodes
             readOnly: false
           any: true
         template: statefulset.yaml
@@ -1882,10 +1933,10 @@ tests:
             echo "$PACKAGES" | sha256sum > /npmdata/packages.hash.new
             if [ ! -f /npmdata/packages.hash ] || ! cmp /npmdata/packages.hash /npmdata/packages.hash.new; then
               if [ -n "$NON_COMMUNITY_PACKAGES" ]; then
-                npm install --loglevel info --no-save $NON_COMMUNITY_PACKAGES --prefix /npmdata
+                npm install --loglevel info --no-save --ignore-scripts $NON_COMMUNITY_PACKAGES --prefix /npmdata
               fi
               if [ -n "$COMMUNITY_PACKAGES" ]; then
-                npm install --loglevel info --no-save $COMMUNITY_PACKAGES --prefix /nodesdata/nodes
+                npm install --loglevel info --no-save --ignore-scripts $COMMUNITY_PACKAGES --prefix /nodesdata/nodes
               fi
               mv /npmdata/packages.hash.new /npmdata/packages.hash
             else
@@ -1980,8 +2031,9 @@ tests:
       - contains:
           path: spec.template.spec.initContainers[?(@.name == "npm-install")].volumeMounts
           content:
-            name: community-node-modules
+            name: node-modules
             mountPath: "/nodesdata/nodes"
+            subPath: nodes
             readOnly: false
           any: true
         template: statefulset.yaml
@@ -2590,4 +2642,86 @@ tests:
               secretName: "n8n-pypi-registry-secret"
               optional: true
           any: true
+        template: statefulset.yaml
+
+  - it: should add community-node-modules to volumeClaimTemplates when forceToUseStatefulset and community persistence enabled
+    set:
+      main:
+        forceToUseStatefulset: true
+        persistence:
+          enabled: false
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: true
+            accessMode: ReadWriteOnce
+            size: 2Gi
+    asserts:
+      - contains:
+          path: spec.volumeClaimTemplates
+          content:
+            metadata:
+              name: community-node-modules
+            spec:
+              accessModes:
+                - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 2Gi
+        template: statefulset.yaml
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            emptyDir: {}
+        template: statefulset.yaml
+
+  - it: should use existingClaim as regular volume in StatefulSet when community existingClaim is set
+    set:
+      main:
+        forceToUseStatefulset: true
+        persistence:
+          enabled: false
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: true
+            existingClaim: my-existing-community-pvc
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            persistentVolumeClaim:
+              claimName: my-existing-community-pvc
+        template: statefulset.yaml
+      - notContains:
+          path: spec.volumeClaimTemplates
+          content:
+            metadata:
+              name: community-node-modules
+        template: statefulset.yaml
+
+  - it: should add community-node-modules emptyDir in StatefulSet when forceToUseStatefulset and community persistence disabled
+    set:
+      main:
+        forceToUseStatefulset: true
+        persistence:
+          enabled: false
+      nodes:
+        external:
+          packages:
+            - "n8n-nodes-evolution-api"
+          persistence:
+            enabled: false
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: community-node-modules
+            emptyDir: {}
         template: statefulset.yaml

@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.8.5
+version: 1.11.2
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "3.13.0"
+appVersion: "3.14.0"
 kubeVersion: ">=1.16.0-0"
 home: https://mlflow.org
 maintainers:
@@ -51,11 +51,25 @@ annotations:
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: fixed
-      description: Fix broken screenshot URL(s) in mlflow chart
-  artifacthub.io/images: |
+    - kind: changed
+      description: Update dbchecker image version to 1.38.0
+      links:
+        - name: dbchecker
+          url: https://hub.docker.com/r/library/busybox
+    - kind: changed
+      description: Update ini-file-initializer image version to 1.38.0
+      links:
+        - name: ini-file-initializer
+          url: https://hub.docker.com/r/library/busybox
+  artifacthub.io/images: |-
     - name: mlflow
-      image: burakince/mlflow:3.13.0
+      image: burakince/mlflow:3.14.0
+    - name: oauth2-proxy
+      image: quay.io/oauth2-proxy/oauth2-proxy:v7.15.3
+    - name: dbchecker
+      image: library/busybox:1.38.0
+    - name: ini-file-initializer
+      image: library/busybox:1.38.0
   artifacthub.io/license: MIT
   artifacthub.io/maintainers: |
     - name: burakince
@@ -86,10 +100,14 @@ annotations:
     url: https://keybase.io/communitycharts/pgp_keys.asc
 dependencies:
   - name: postgresql
-    version: 18.7.0
+    version: 18.7.6
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: mysql
     version: 14.0.3
     repository: https://charts.bitnami.com/bitnami
     condition: mysql.enabled
+  - name: minio
+    version: 5.4.0
+    repository: https://charts.min.io/
+    condition: minio.enabled

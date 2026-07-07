@@ -172,6 +172,46 @@ mysql:
   enabled: true
 ```
 
+## MSSQL Database Migration Values Files Example
+
+```yaml
+backendStore:
+  databaseMigration: true
+  mssql:
+    enabled: true
+    host: "mssql-instance1.database.windows.net"
+    port: 1433
+    database: "mlflow"
+    user: "mlflowuser"
+    password: "Pa33w0rd!"
+```
+
+## MSSQL Database with Azure Active Directory or MSI Connection URL Example
+
+For Azure AD or Managed Service Identity (MSI) authentication, pass a full SQLAlchemy connection URL via `connectionUrl`. When set, `host`, `port`, `database`, `user`, and `password` are all ignored.
+
+```yaml
+backendStore:
+  databaseMigration: true
+  mssql:
+    enabled: true
+    connectionUrl: "mssql+pyodbc:///?odbc_connect=Driver={ODBC Driver 18 for SQL Server};Server=mssql-instance1.database.windows.net,1433;Database=mlflow;Authentication=ActiveDirectoryMsi"
+```
+
+## MSSQL Database with Existing Connection URL Secret Example
+
+Store a credential-bearing connection URL in a Kubernetes Secret. `existingConnectionUrlSecret` takes priority over `connectionUrl` when set.
+
+```yaml
+backendStore:
+  databaseMigration: true
+  mssql:
+    enabled: true
+    existingConnectionUrlSecret:
+      name: "mssql-connection-secret"
+      key: "connection-url"
+```
+
 ## AWS Installation Examples
 
 You can use 2 different way to connect your S3 backend. 
@@ -265,6 +305,37 @@ artifactRoot:
     bucket: "my-mlflow-artifact-root-backend"
 ```
 
+## Built-in MinIO Subchart for S3-Compatible Artifact Storage
+
+The chart ships an optional [MinIO](https://min.io/) subchart. Enable it to deploy a self-contained S3-compatible object store in the same namespace — no external object storage required.
+
+When `minio.enabled` is `true` and `artifactRoot.s3.bucket` is empty, the chart automatically uses the first bucket name from `minio.buckets`.
+
+```yaml
+backendStore:
+  databaseMigration: true
+  postgres:
+    enabled: true
+    host: "postgresql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "mlflow"
+    user: "mlflowuser"
+    password: "Pa33w0rd!"
+
+artifactRoot:
+  s3:
+    enabled: true
+
+minio:
+  enabled: true
+  buckets:
+    - name: mlflow-artifacts
+      policy: none
+      purge: false
+```
+
+> **Note**: When `minio.enabled` is `true`, the chart reads `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` directly from the MinIO secret (`rootUser`/`rootPassword` keys) and sets `MLFLOW_S3_ENDPOINT_URL` automatically — do not set those values under `artifactRoot.s3`. `minio.rootUser` and `minio.rootPassword` are optional; MinIO auto-generates stable credentials on first install if omitted.
+
 ## Azure Cloud Installation Example
 
 > **Tip**: Please follow [this tutorial](https://docs.microsoft.com/en-us/azure/postgresql/tutorial-design-database-using-azure-portal) to create your own postgres database.
@@ -343,7 +414,7 @@ ingress:
 
 ## Authentication Example
 
-> **Tip**: auth and ldapAuth can not be enabled at same time!
+> **Tip**: `auth`, `ldapAuth`, and `oidcAuth` are mutually exclusive — enable only one at a time!
 
 ### Authentication with Plain Admin Settings Example
 
@@ -399,7 +470,7 @@ auth:
 
 ## Basic Authentication with LDAP Backend
 
-> **Tip**: auth and ldapAuth can not be enabled at same time!
+> **Tip**: `auth`, `ldapAuth`, and `oidcAuth` are mutually exclusive — enable only one at a time!
 
 ```yaml
 ldapAuth:
@@ -448,6 +519,302 @@ ldapAuth:
   externalSecretForTrustedCACertificate: "external-ca-certificate-secret"
 ```
 
+## OIDC Authentication Example
+
+> **Tip**: `oidcAuth`, `auth`, `ldapAuth`, and `oauth2Proxy` are mutually exclusive — enable only one at a time!
+
+The `oidcAuth` block activates the `mlflow-oidc-auth` plugin that is already bundled in the `burakince/mlflow` image. Unlike `oauth2Proxy` (a sidecar proxy), this approach provides native OIDC authentication inside MLflow, mapping OIDC groups to MLflow permissions.
+
+### OIDC Auth with Keycloak (minimal)
+
+```yaml
+oidcAuth:
+  enabled: true
+  discoveryUrl: "https://keycloak.example.com/realms/mlflow/.well-known/openid-configuration"
+  clientId: "mlflow-client"
+  clientSecret: "mlflow-client-secret"
+  groupName:
+    - mlflow-users
+  adminGroupName:
+    - mlflow-admin
+```
+
+### OIDC Auth with Existing Secret
+
+```yaml
+oidcAuth:
+  enabled: true
+  discoveryUrl: "https://keycloak.example.com/realms/mlflow/.well-known/openid-configuration"
+  clientId: "mlflow-client"
+  existingSecret:
+    name: my-oidc-secret
+    clientSecretKey: "OIDC_CLIENT_SECRET"
+  groupName:
+    - mlflow-users
+  adminGroupName:
+    - mlflow-admin
+```
+
+### OIDC Auth with Redis Cache (multi-replica)
+
+```yaml
+oidcAuth:
+  enabled: true
+  discoveryUrl: "https://keycloak.example.com/realms/mlflow/.well-known/openid-configuration"
+  clientId: "mlflow-client"
+  clientSecret: "mlflow-client-secret"
+  groupName:
+    - mlflow-users
+  adminGroupName:
+    - mlflow-admin
+  cache:
+    enabled: true
+    redisUrl: "redis://redis:6379/0"
+```
+
+### OIDC Auth with PostgreSQL User Database
+
+```yaml
+oidcAuth:
+  enabled: true
+  discoveryUrl: "https://keycloak.example.com/realms/mlflow/.well-known/openid-configuration"
+  clientId: "mlflow-client"
+  clientSecret: "mlflow-client-secret"
+  groupName:
+    - mlflow-users
+  adminGroupName:
+    - mlflow-admin
+  database:
+    postgres:
+      enabled: true
+      host: "oidc-users-db.example.com"
+      port: 5432
+      database: "oidc_users"
+      user: "oidcuser"
+      password: "S3cr3t!"
+```
+
+### OIDC Auth with PostgreSQL User Database and Existing Secret
+
+```yaml
+oidcAuth:
+  enabled: true
+  discoveryUrl: "https://keycloak.example.com/realms/mlflow/.well-known/openid-configuration"
+  clientId: "mlflow-client"
+  existingSecret:
+    name: my-oidc-secret
+    clientSecretKey: "OIDC_CLIENT_SECRET"
+  groupName:
+    - mlflow-users
+  adminGroupName:
+    - mlflow-admin
+  database:
+    postgres:
+      enabled: true
+      host: "oidc-users-db.example.com"
+      port: 5432
+      database: "oidc_users"
+      existingSecret:
+        name: oidc-db-secret
+        usernameKey: "username"
+        passwordKey: "password"
+```
+
+## OAuth2 Proxy Example
+
+> **Tip**: `oidcAuth` and `oauth2Proxy` are mutually exclusive. `oauth2Proxy` can coexist with `auth` or `ldapAuth` (proxy in front, MLflow auth behind).
+
+The `oauth2Proxy` block deploys an [oauth2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/) sidecar container in the same pod. All traffic flows through the proxy first (`Ingress → 4180 → 5000`), so MLflow itself requires no auth configuration.
+
+### OAuth2 Proxy with Keycloak (chart-managed secret)
+
+```yaml
+oauth2Proxy:
+  enabled: true
+  createSecret: true
+  cookieSecret: "a-random-32-char-cookie-secret!!"
+  provider:
+    name: keycloak-oidc
+    issuerURL: "https://keycloak.example.com/realms/mlflow"
+    clientID: "mlflow-client"
+    clientSecret: "mlflow-client-secret"
+    redirectURL: "https://mlflow.example.com/oauth2/callback"
+```
+
+### OAuth2 Proxy with Existing Secret
+
+```yaml
+oauth2Proxy:
+  enabled: true
+  existingSecret:
+    name: my-oauth2-proxy-secret
+    clientIDKey: "client-id"
+    clientSecretKey: "client-secret"
+    cookieSecretKey: "cookie-secret"
+  provider:
+    name: keycloak-oidc
+    issuerURL: "https://keycloak.example.com/realms/mlflow"
+    redirectURL: "https://mlflow.example.com/oauth2/callback"
+```
+
+## Server Host Binding Example
+
+By default MLflow binds to `0.0.0.0` (all interfaces). When you deploy an `oauth2Proxy` sidecar, set `serverHost: "127.0.0.1"` so MLflow is reachable only through the proxy — without this, pod-to-pod traffic can reach MLflow directly and bypass authentication.
+
+```yaml
+serverHost: "127.0.0.1"
+
+oauth2Proxy:
+  enabled: true
+  createSecret: true
+  cookieSecret: "a-random-32-char-cookie-secret!!"
+  provider:
+    name: keycloak-oidc
+    issuerURL: "https://keycloak.example.com/realms/mlflow"
+    clientID: "mlflow-client"
+    clientSecret: "mlflow-client-secret"
+    redirectURL: "https://mlflow.example.com/oauth2/callback"
+```
+
+## Security Middleware Example
+
+MLflow 3.x runs on uvicorn and includes security middleware that protects against DNS rebinding, CORS, and clickjacking attacks. The chart automatically configures `MLFLOW_SERVER_ALLOWED_HOSTS` and `MLFLOW_SERVER_CORS_ALLOWED_ORIGINS` from your ingress hosts so the middleware does not block legitimate requests.
+
+### Auto-detection from Ingress
+
+When `ingress.enabled` is `true` and hosts are configured the chart derives both env vars automatically:
+
+- `MLFLOW_SERVER_ALLOWED_HOSTS` is set to the bare hostnames (e.g. `mlflow.example.com`)
+- `MLFLOW_SERVER_CORS_ALLOWED_ORIGINS` is set to `https://hostname` when `ingress.tls` is configured, or `http://hostname` otherwise
+
+```yaml
+ingress:
+  enabled: true
+  hosts:
+    - host: mlflow.example.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: mlflow-tls
+      hosts:
+        - mlflow.example.com
+# Results in:
+#   MLFLOW_SERVER_ALLOWED_HOSTS: "mlflow.example.com"
+#   MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: "https://mlflow.example.com"
+```
+
+### Appending Extra Hosts or Origins
+
+Use `serverAllowedHosts` and `corsAllowedOrigins` to add entries beyond what is auto-detected. Ingress-derived values always come first; entries from these lists are appended and duplicates are removed automatically.
+
+```yaml
+ingress:
+  enabled: true
+  hosts:
+    - host: mlflow.example.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+
+serverAllowedHosts:
+  - dashboard.example.com   # extra hostname that also routes to MLflow
+
+corsAllowedOrigins:
+  - https://dashboard.example.com   # frontend served from a different origin
+# Results in:
+#   MLFLOW_SERVER_ALLOWED_HOSTS: "mlflow.example.com,dashboard.example.com"
+#   MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: "http://mlflow.example.com,https://dashboard.example.com"
+```
+
+### Wildcard for Development
+
+A single `"*"` entry collapses the entire list to just `*`, ignoring all other entries including auto-detected ingress values:
+
+```yaml
+corsAllowedOrigins:
+  - "*"
+serverAllowedHosts:
+  - "*"
+```
+
+### Runtime Override
+
+`extraEnvVars` always wins at runtime via Kubernetes `env:` → `envFrom:` precedence, so you can override both env vars without touching `serverAllowedHosts` or `corsAllowedOrigins`:
+
+```yaml
+extraEnvVars:
+  MLFLOW_SERVER_ALLOWED_HOSTS: "mlflow.example.com,other.example.com"
+  MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: "https://mlflow.example.com,https://other.example.com"
+```
+
+## Extra Kubernetes Resources Example
+
+Use `extraDeploy` to render arbitrary Kubernetes objects alongside the chart. Each item is evaluated with `tpl`, so Helm template expressions work inside the objects.
+
+### ExternalSecret via External Secrets Operator
+
+Each item in `extraDeploy` is evaluated with `tpl`, so Helm template expressions work inside the objects (e.g. `{{"{{"}} include "mlflow.fullname" . {{"}}"}}`).
+
+```yaml
+extraDeploy:
+  - apiVersion: external-secrets.io/v1
+    kind: SecretStore
+    metadata:
+      name: mlflow
+    spec:
+      provider:
+        aws:
+          service: SecretsManager
+          region: eu-central-1
+          auth:
+            jwt:
+              serviceAccountRef:
+                name: mlflow
+
+  - apiVersion: external-secrets.io/v1
+    kind: ExternalSecret
+    metadata:
+      name: mlflow-db-credentials
+    spec:
+      secretStoreRef:
+        name: mlflow
+        kind: SecretStore
+      target:
+        name: mlflow-db-credentials
+      data:
+        - secretKey: username
+          remoteRef:
+            key: mlflow/db
+            property: username
+        - secretKey: password
+          remoteRef:
+            key: mlflow/db
+            property: password
+
+backendStore:
+  postgres:
+    enabled: true
+    host: "postgresql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "mlflow"
+  existingDatabaseSecret:
+    name: "mlflow-db-credentials"
+    usernameKey: "username"
+    passwordKey: "password"
+```
+
+## Deployment Annotations Example
+
+Use `deploymentAnnotations` to add annotations to the `Deployment` resource metadata (not the pod). This is distinct from `podAnnotations`, which annotates the pod template.
+
+```yaml
+deploymentAnnotations:
+  velero.database/restart-on-restore: "mlflow"
+```
+
+This allows external tooling to discover deployments by annotation, for example to scale them down before a database restore operation.
+
 ## Auto Scaling Example
 
 This Helm chart supports Horizontal Pod Autoscaling (HPA) to dynamically scale the MLflow `Deployment` based on metrics. The HPA resource is created when `autoscaling.enabled` is `true` and specific conditions are met (see Prerequisites).
@@ -457,7 +824,7 @@ This Helm chart supports Horizontal Pod Autoscaling (HPA) to dynamically scale t
 The HPA is created only if:
 
 - `autoscaling.enabled: true`
-- A backend store is enabled (`backendStore.postgres.enabled` or `backendStore.mysql.enabled`).
+- A backend store is enabled (`backendStore.postgres.enabled`, `backendStore.mysql.enabled`, `postgresql.enabled`, or `mysql.enabled`).
 - An artifact store is enabled (`artifactRoot.azureBlob.enabled`, `artifactRoot.s3.enabled`, or `artifactRoot.gcs.enabled`).
 - Auth is either enabled with Postgres (`auth.enabled` and `auth.postgres.enabled`) or disabled (`auth.enabled: false`).
 

@@ -222,6 +222,32 @@ tests:
             image: fake-init-image
             command: ["fake-init-command"]
 
+  - it: should use emptyDir for data volume when persistence is disabled
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: data
+            emptyDir: {}
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].volumeMounts
+          content:
+            name: data
+            mountPath: /data
+
+  - it: should always have a tmp emptyDir volume and mount
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: tmp
+            emptyDir: {}
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].volumeMounts
+          content:
+            name: tmp
+            mountPath: /tmp
+
   - it: should set persistence when persistence is enabled
     set:
       persistence:
@@ -351,6 +377,25 @@ tests:
               secretKeyRef:
                 name: fake-existing-secret
                 key: client-secret
+
+  - it: should use the image tag without modification when digest is not set
+    chart:
+      appVersion: 25.1.0
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].image
+          value: "actualbudget/actual-server:25.1.0"
+
+  - it: should add digest to image tag when digest is set
+    set:
+      image:
+        digest: "sha256:a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
+    chart:
+      appVersion: 25.1.0
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].image
+          value: "actualbudget/actual-server:25.1.0@sha256:a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
 
   - it: should match snapshot of default values
     asserts:

@@ -343,9 +343,17 @@
           "required": [],
           "title": "tag",
           "type": "string"
+        },
+        "digest": {
+          "default": "",
+          "description": "Image digest in the format sha256:<hex>. When set, overrides the tag for immutable pulls.",
+          "pattern": "^(sha256:[a-f0-9]{64})?$",
+          "required": [],
+          "title": "digest",
+          "type": "string"
         }
       },
-      "required": ["repository", "pullPolicy", "tag"],
+      "required": ["repository", "pullPolicy", "tag", "digest"],
       "title": "image",
       "type": "object"
     },
@@ -514,7 +522,7 @@
           "type": "object"
         },
         "enabled": {
-          "default": true,
+          "default": false,
           "description": "Enable persistence",
           "required": [],
           "title": "enabled",
@@ -604,19 +612,19 @@
       "description": "This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/",
       "properties": {
         "runAsUser": {
-          "default": 1000,
+          "default": 1001,
           "required": [],
           "title": "runAsUser",
           "type": "integer"
         },
         "runAsGroup": {
-          "default": 3000,
+          "default": 1001,
           "required": [],
           "title": "runAsGroup",
           "type": "integer"
         },
         "fsGroup": {
-          "default": 2000,
+          "default": 1001,
           "required": [],
           "title": "fsGroup",
           "type": "integer"
@@ -626,7 +634,7 @@
             "required": []
           },
           "required": [],
-          "title": "runAsUser",
+          "title": "supplementalGroups",
           "type": "array"
         },
         "fsGroupChangePolicy": {
@@ -748,7 +756,7 @@
           "type": "boolean"
         },
         "runAsUser": {
-          "default": 1000,
+          "default": 1001,
           "required": [],
           "title": "runAsUser",
           "type": "integer"

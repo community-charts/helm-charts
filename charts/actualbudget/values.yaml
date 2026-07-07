@@ -13,6 +13,8 @@ image:
   pullPolicy: IfNotPresent
   # -- Overrides the image tag whose default is the chart appVersion.
   tag: ""
+  # -- Image digest in the format sha256:<hex>. When set, overrides the tag for immutable pulls.
+  digest: ""
 
 # -- This will set the deployment strategy more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
 strategy:
@@ -54,7 +56,7 @@ securityContext:
   capabilities:
     drop:
       - ALL
-  readOnlyRootFilesystem: false
+  readOnlyRootFilesystem: true
   runAsNonRoot: true
   privileged: false
   runAsUser: 1001
@@ -108,7 +110,7 @@ login:
     enforce: true
     # -- This is the provider name for the openid provider.
     providerName: "OpenID Connect"
-    # -- Deprecated: Please use discoveryUrl instead. This field will be removed in next major version.
+    # -- @deprecated Use discoveryUrl instead. This field will be removed in a future release.
     dicovertUrl: ""
     # -- This is the discovery url for the openid provider. For more information checkout: https://actualbudget.org/docs/config/oauth-auth/#actual_openid_discovery_url
     discoveryUrl: ""

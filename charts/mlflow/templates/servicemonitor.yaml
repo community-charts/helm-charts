@@ -5,7 +5,7 @@ kind: ServiceMonitor
 metadata:
 {{- if .Values.serviceMonitor.labels }}
   labels:
-{{ toYaml .Values.serviceMonitor.labels | indent 4}}
+    {{- toYaml .Values.serviceMonitor.labels | nindent 4 }}
 {{- end }}
   name: {{ template "mlflow.fullname" . }}
 {{- if .Values.serviceMonitor.namespace }}

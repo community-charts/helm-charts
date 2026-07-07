@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.23.0](https://img.shields.io/badge/Version-1.23.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.25.7](https://img.shields.io/badge/AppVersion-2.25.7-informational?style=flat-square)
+![Version: 1.24.6](https://img.shields.io/badge/Version-1.24.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.28.7](https://img.shields.io/badge/AppVersion-2.28.7-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -41,6 +41,7 @@ _See [helm install](https://helm.sh/docs/helm/helm_install/) for command documen
 ```yaml
 log:
   level: warn
+  format: text
 
 db:
   type: postgresdb
@@ -789,6 +790,53 @@ webhook:
       - "--no-check-certificate"
 ```
 
+## Log Configuration
+
+n8n supports configuring the log level, output destination, format, and file location via the `log` values.
+
+### Log Format
+
+The `log.format` option controls the output format for all log entries. Use `text` (the default) for human-readable output and `json` for structured log output suitable for ingestion by log aggregation pipelines (e.g. Loki, Elasticsearch, Datadog).
+
+```yaml
+log:
+  format: json
+```
+
+### Log Level
+
+Set the minimum severity level for log output. Valid values are `info`, `warn`, `error`, and `verbose`.
+
+```yaml
+log:
+  level: warn
+```
+
+### File Logging
+
+To write logs to a file instead of (or in addition to) the console, set `log.output` to include `file`. The `log.file.location` must be an **absolute path** inside a writable volume. The default path (`/home/node/.n8n/logs/n8n.log`) lives inside the n8n data volume and works with `readOnlyRootFilesystem: true`.
+
+```yaml
+log:
+  output:
+    - file
+  file:
+    location: "/home/node/.n8n/logs/n8n.log"
+```
+
+You can also combine console and file output:
+
+```yaml
+log:
+  format: json
+  level: info
+  output:
+    - console
+    - file
+  file:
+    location: "/home/node/.n8n/logs/n8n.log"
+```
+
 ## Enabling Support for Node.js Core and External/Private NPM Packages
 
 Easily incorporate Node.js core packages, public NPM packages, or private NPM packages from your registry into your n8n Code blocks with this Helm chart. Below, we guide you through enabling and configuring these options.
@@ -863,6 +911,32 @@ nodes:
 ##### How It Works
 
 By setting `nodes.external.allowAll` to `true`, the chart bypasses the Node.js Task Runner's limitations for scoped packages, ensuring smooth installation of all listed packages. You can include both scoped (e.g., `@stdlib/math`) and non-scoped packages in the `nodes.external.packages` list, with or without specific versions.
+
+#### Persist Community Node Packages
+
+Community node packages are stored at `/home/node/.n8n/nodes` inside the container. The chart routes package storage automatically based on whether `main.persistence` (or `worker.persistence` for queue-mode workers) is already enabled:
+
+- **When `main.persistence.enabled: true`** (default `mountPath: /home/node/.n8n`): community packages are written directly into the main PVC's `nodes/` subdirectory by the init container. No separate PVC is created and `nodes.external.persistence` is ignored for the main pod. Packages persist as long as the main PVC exists.
+
+- **When `main.persistence.enabled: false`** (the default): enable `nodes.external.persistence` to store packages on a dedicated PVC. Without it, an `emptyDir` volume is used and packages are re-downloaded on every pod restart.
+
+```yaml
+nodes:
+  external:
+    packages:
+      - "n8n-nodes-evolution-api"
+      - "n8n-nodes-chatwoot@0.1.40"
+    persistence:
+      enabled: true
+      size: 1Gi
+      accessMode: ReadWriteOnce  # use ReadWriteMany if workers span multiple nodes
+```
+
+The same logic applies to queue-mode workers: when `worker.persistence.enabled: true`, the worker PVC stores community packages; otherwise the dedicated PVC (or emptyDir) is used.
+
+> **Note**: When `worker.mode: queue` is set and workers do not have their own persistence, the community packages PVC is shared between the main pod and worker pods. Use `accessMode: ReadWriteMany` with a compatible storage class (NFS, CephFS, etc.) if those pods are scheduled on different nodes.
+
+> **Warning**: When `worker.autoscaling.enabled: true`, you **must** either enable `worker.persistence` (which provides per-pod storage via StatefulSet), set `nodes.external.persistence.accessMode: ReadWriteMany`, or leave persistence disabled — scaling workers across nodes with a `ReadWriteOnce` shared PVC will cause mount failures.
 
 ### Using Private NPM Packages
 
@@ -1114,6 +1188,109 @@ extraTemplateManifests:
       chart: {{ .Chart.Version }}
 ```
 
+## Injecting Environment Variables
+
+Three mechanisms are available for injecting environment variables into n8n pods. Each targets a different use case — pick the one that fits your secret/config structure.
+
+### `extraEnvVars` — Static key/value pairs
+
+Use this when you want to set a plain string value directly in your values. Applies to `main`, `worker`, `webhook`, and `webhook.mcp` blocks.
+
+```yaml
+main:
+  extraEnvVars:
+    N8N_LOG_LEVEL: debug
+    N8N_DEFAULT_LOCALE: en
+
+worker:
+  extraEnvVars:
+    N8N_LOG_LEVEL: info
+```
+
+### `extraSecretNamesForEnvFrom` — Mount an entire Secret as environment variables
+
+Use this when you have a Kubernetes Secret whose **keys already match the n8n environment variable names** (e.g. `N8N_SMTP_HOST`, `N8N_SMTP_PASS`). Every key in the referenced Secret is projected as an environment variable into the container.
+
+```yaml
+main:
+  extraSecretNamesForEnvFrom:
+    - n8n-smtp-credentials
+
+worker:
+  extraSecretNamesForEnvFrom:
+    - n8n-smtp-credentials
+
+webhook:
+  extraSecretNamesForEnvFrom:
+    - n8n-smtp-credentials
+  mcp:
+    extraSecretNamesForEnvFrom:
+      - n8n-smtp-credentials
+```
+
+> **Note:** All keys in the referenced Secret are injected. If the Secret contains keys that do not follow the C identifier naming rule (e.g. `metadata-url`) or if you only want to inject specific keys, use `extraEnv` with `valueFrom` instead.
+
+### `extraEnv` with `valueFrom` — Fine-grained env var sourcing
+
+Use this when:
+
+- The Secret or ConfigMap keys **do not match** n8n's expected environment variable names (e.g. the key is `metadata-url` but n8n expects `N8N_SSO_SAML_METADATA_URL`).
+- You need to project only **specific keys** from a Secret rather than the entire Secret.
+- You need `fieldRef` or `resourceFieldRef` sources.
+
+Entries are passed verbatim as Kubernetes [`EnvVar`](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#environment-variables) objects, so any valid `env` entry is supported.
+
+```yaml
+main:
+  extraEnv:
+    - name: N8N_SSO_SAML_METADATA_URL
+      valueFrom:
+        secretKeyRef:
+          name: n8n-okta-app-saml-config
+          key: metadata-url
+
+worker:
+  extraEnv:
+    - name: N8N_SSO_SAML_METADATA_URL
+      valueFrom:
+        secretKeyRef:
+          name: n8n-okta-app-saml-config
+          key: metadata-url
+
+webhook:
+  extraEnv:
+    - name: N8N_SSO_SAML_METADATA_URL
+      valueFrom:
+        secretKeyRef:
+          name: n8n-okta-app-saml-config
+          key: metadata-url
+  mcp:
+    extraEnv:
+      - name: N8N_SSO_SAML_METADATA_URL
+        valueFrom:
+          secretKeyRef:
+            name: n8n-okta-app-saml-config
+            key: metadata-url
+```
+
+You can also source values from a ConfigMap or from the pod's own fields:
+
+```yaml
+main:
+  extraEnv:
+    - name: MY_CONFIG_VALUE
+      valueFrom:
+        configMapKeyRef:
+          name: my-configmap
+          key: my-key
+    - name: MY_POD_IP
+      valueFrom:
+        fieldRef:
+          fieldPath: status.podIP
+```
+
+---
+
 ## Upgrading
 
 This section outlines major updates and breaking changes for each version of the Helm Chart to help you transition smoothly between releases.
@@ -1251,8 +1428,8 @@ Kubernetes: `>=1.23.0-0`
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | postgresql | 18.7.3 |
-| https://charts.bitnami.com/bitnami | redis | 27.0.4 |
+| https://charts.bitnami.com/bitnami | postgresql | 18.7.11 |
+| https://charts.bitnami.com/bitnami | redis | 27.0.13 |
 | https://charts.min.io/ | minio | 5.4.0 |
 
 ## Uninstall Helm Chart
@@ -1349,6 +1526,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | externalRedis.tls | object | `{"enabled":false}` | Placeholder for future Redis TLS certificates |
 | externalRedis.tls.enabled | bool | `false` | Enable TLS on Redis connections. |
 | externalRedis.username | string | `""` | External Redis username |
+| extraEnv | list | `[]` | @deprecated Use main, worker, webhook, and webhook.mcp blocks extraEnv fields instead. This field will be removed in a future release. |
 | extraEnvVars | object | `{}` | @deprecated Use main, worker, and webhook blocks extraEnvVars fields instead. This field will be removed in a future release. |
 | extraManifests | list | `[]` | List of extra Kubernetes manifests (objects or YAML strings) to deploy alongside n8n. Chart labels are automatically merged into each manifest's metadata. |
 | extraSecretNamesForEnvFrom | list | `[]` | @deprecated Use main, worker, and webhook blocks extraSecretNamesForEnvFrom fields instead. This field will be removed in a future release. |
@@ -1379,18 +1557,20 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | license.serverUrl | string | `"https://license.n8n.io/v1"` | Server URL to retrieve license. |
 | license.tenantId | int | `1` | Tenant ID associated with the license. Only set this variable if explicitly instructed by n8n. |
 | livenessProbe | object | `{}` | @deprecated Use main, worker, and webhook blocks livenessProbe field instead. This field will be removed in a future release. |
-| log | object | `{"file":{"location":"logs/n8n.log","maxcount":"100","maxsize":16},"level":"info","output":["console"],"scopes":[]}` | n8n log configurations |
-| log.file.location | string | `"logs/n8n.log"` | Location of the log files inside `~/.n8n`. Only for `file` log output. |
+| log | object | `{"file":{"location":"/home/node/.n8n/logs/n8n.log","maxcount":"100","maxsize":16},"format":"text","level":"info","output":["console"],"scopes":[]}` | n8n log configurations |
+| log.file.location | string | `"/home/node/.n8n/logs/n8n.log"` | Absolute path for the log file. Must be inside a writable volume (e.g. the n8n data volume at `/home/node/.n8n`). Only for `file` log output. |
 | log.file.maxcount | string | `"100"` | Max number of log files to keep, or max number of days to keep logs for. Once the limit is reached, the oldest log files will be rotated out. If using days, append a `d` suffix. Only for `file` log output. |
 | log.file.maxsize | int | `16` | The maximum size (in MB) for each log file. By default, n8n uses 16 MB. |
+| log.format | string | `"text"` | Log output format. `text` prints human-readable messages; `json` prints one JSON object per line (useful for log aggregation pipelines). |
 | log.level | string | `"info"` | The log output level. The available options are (from lowest to highest level) are error, warn, info, and debug. The default value is info. You can learn more about these options [here](https://docs.n8n.io/hosting/logging-monitoring/logging/#log-levels). |
 | log.output | list | `["console"]` | Where to output logs to. Options are: `console` or `file` or both. |
 | log.scopes | list | `[]` | Scopes to filter logs by. Nothing is filtered by default. Supported log scopes: concurrency, external-secrets, license, multi-main-setup, pubsub, redis, scaling, waiting-executions |
-| main | object | `{"affinity":{},"count":1,"editorBaseUrl":"","extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"forceToUseStatefulset":false,"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"pdb":{"enabled":true,"maxUnavailable":1,"minAvailable":null,"unhealthyPodEvictionPolicy":"AlwaysAllow"},"persistence":{"accessMode":"ReadWriteOnce","annotations":{"helm.sh/resource-policy":"keep"},"enabled":false,"existingClaim":"","labels":{},"mountPath":"/home/node/.n8n","size":"8Gi","storageClass":"","subPath":"","volumeName":""},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"runtimeClassName":"","volumeMounts":[],"volumes":[]}` | Main node configurations |
+| main | object | `{"affinity":{},"count":1,"editorBaseUrl":"","extraContainers":[],"extraEnv":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"forceToUseStatefulset":false,"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"pdb":{"enabled":true,"maxUnavailable":1,"minAvailable":null,"unhealthyPodEvictionPolicy":"AlwaysAllow"},"persistence":{"accessMode":"ReadWriteOnce","annotations":{"helm.sh/resource-policy":"keep"},"enabled":false,"existingClaim":"","labels":{},"mountPath":"/home/node/.n8n","size":"8Gi","storageClass":"","subPath":"","volumeName":""},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"runtimeClassName":"","volumeMounts":[],"volumes":[]}` | Main node configurations |
 | main.affinity | object | `{}` | Main node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
 | main.count | int | `1` | Number of main nodes. Only enterprise license users can have one leader main node and mutiple follower main nodes. |
 | main.editorBaseUrl | string | `""` | Editor based URL. If it's not defined and ingress definition exists, ingress host will be used. |
 | main.extraContainers | list | `[]` | Additional containers for the main pod |
+| main.extraEnv | list | `[]` | Extra environment variables that support `valueFrom` (e.g., secretKeyRef, configMapKeyRef). Entries are passed through verbatim and rendered after `extraEnvVars`. |
 | main.extraEnvVars | object | `{}` | Extra environment variables |
 | main.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
 | main.forceToUseStatefulset | bool | `false` | Force to use statefulset for the main pod. If true, the main pod will be created as a statefulset. |
@@ -1460,13 +1640,20 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | minio.users[0].secretKey | string | `"Change_Me"` | n8n user secret key |
 | nameOverride | string | `""` | This is to override the chart name. |
 | nodeSelector | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector |
-| nodes | object | `{"builtin":{"enabled":false,"modules":[]},"external":{"allowAll":false,"packages":[],"reinstallMissingPackages":false},"initContainer":{"image":{"pullPolicy":"IfNotPresent","repository":"node","tag":"20-alpine"},"resources":{}},"python":{"builtin":{"modules":[]},"enabled":false,"external":{"allowAll":false,"packages":[]},"persistence":{"accessMode":"ReadWriteOnce","annotations":{},"enabled":false,"existingClaim":"","size":"1Gi","storageClass":""}}}` | Node configurations for built-in and external npm packages |
+| nodes | object | `{"builtin":{"enabled":false,"modules":[]},"external":{"allowAll":false,"packages":[],"persistence":{"accessMode":"ReadWriteOnce","annotations":{},"enabled":false,"existingClaim":"","size":"1Gi","storageClass":""},"reinstallMissingPackages":false},"initContainer":{"image":{"pullPolicy":"IfNotPresent","repository":"node","tag":"20-alpine"},"resources":{}},"python":{"builtin":{"modules":[]},"enabled":false,"external":{"allowAll":false,"packages":[]},"persistence":{"accessMode":"ReadWriteOnce","annotations":{},"enabled":false,"existingClaim":"","size":"1Gi","storageClass":""}}}` | Node configurations for built-in and external npm packages |
 | nodes.builtin | object | `{"enabled":false,"modules":[]}` | Enable built-in node functions (e.g., HTTP Request, Code Node, etc.) |
 | nodes.builtin.enabled | bool | `false` | Enable built-in modules for the Code node |
 | nodes.builtin.modules | list | `[]` | List of built-in Node.js modules to allow in the Code node (e.g., crypto, fs). Use '*' to allow all. |
-| nodes.external | object | `{"allowAll":false,"packages":[],"reinstallMissingPackages":false}` | External npm packages to install and allow in the Code node |
+| nodes.external | object | `{"allowAll":false,"packages":[],"persistence":{"accessMode":"ReadWriteOnce","annotations":{},"enabled":false,"existingClaim":"","size":"1Gi","storageClass":""},"reinstallMissingPackages":false}` | External npm packages to install and allow in the Code node |
 | nodes.external.allowAll | bool | `false` | Allow all external npm packages |
 | nodes.external.packages | list | `[]` | List of npm package names and versions (e.g., "package-name@1.0.0") |
+| nodes.external.persistence | object | `{"accessMode":"ReadWriteOnce","annotations":{},"enabled":false,"existingClaim":"","size":"1Gi","storageClass":""}` | Persistence for community node packages installed by the init container. Optional PVC so packages survive pod restarts without re-downloading. |
+| nodes.external.persistence.accessMode | string | `"ReadWriteOnce"` | Access mode. Use ReadWriteMany when worker pods may be scheduled on different nodes. |
+| nodes.external.persistence.annotations | object | `{}` | Additional annotations for the PVC. |
+| nodes.external.persistence.enabled | bool | `false` | Enable persistence. When false, packages are installed into an emptyDir and lost on pod restart. |
+| nodes.external.persistence.existingClaim | string | `""` | Use an existing PVC instead of creating one. When set, no PVC is created by this chart. |
+| nodes.external.persistence.size | string | `"1Gi"` | Size of the PVC. |
+| nodes.external.persistence.storageClass | string | `""` | Storage class for the PVC. Empty string uses the cluster default. |
 | nodes.external.reinstallMissingPackages | bool | `false` | Whether to reinstall missing packages. For more information, see https://docs.n8n.io/integrations/community-nodes/troubleshooting/#error-missing-packages |
 | nodes.initContainer | object | `{"image":{"pullPolicy":"IfNotPresent","repository":"node","tag":"20-alpine"},"resources":{}}` | Image for the init container to install npm packages |
 | nodes.initContainer.image | object | `{"pullPolicy":"IfNotPresent","repository":"node","tag":"20-alpine"}` | Image for the init container to install npm packages |
@@ -1601,7 +1788,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | volumeMounts | list | `[]` | @deprecated Use main, worker, and webhook blocks volumeMounts fields instead. This field will be removed in a future release. |
 | volumes | list | `[]` | @deprecated Use main, worker, and webhook blocks volumes fields instead. This field will be removed in a future release. |
 | waitContainerSecurityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true,"runAsGroup":1000,"runAsNonRoot":true,"runAsUser":1000}` | Security Context for the wait-for-main busybox init containers. |
-| webhook | object | `{"affinity":{},"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"count":2,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"mcp":{"affinity":{},"enabled":true,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"volumeMounts":[],"volumes":[]},"mode":"regular","pdb":{"enabled":true,"maxUnavailable":1,"minAvailable":null,"unhealthyPodEvictionPolicy":"AlwaysAllow"},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"runtimeClassName":"","startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"url":"","volumeMounts":[],"volumes":[],"waitMainNodeReady":{"additionalParameters":[],"enabled":false,"healthCheckPath":"/healthz","overwriteSchema":"","overwriteUrl":""}}` | Webhook node configurations |
+| webhook | object | `{"affinity":{},"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"count":2,"extraContainers":[],"extraEnv":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"mcp":{"affinity":{},"enabled":true,"extraContainers":[],"extraEnv":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"volumeMounts":[],"volumes":[]},"mode":"regular","pdb":{"enabled":true,"maxUnavailable":1,"minAvailable":null,"unhealthyPodEvictionPolicy":"AlwaysAllow"},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"runtimeClassName":"","startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"url":"","volumeMounts":[],"volumes":[],"waitMainNodeReady":{"additionalParameters":[],"enabled":false,"healthCheckPath":"/healthz","overwriteSchema":"","overwriteUrl":""}}` | Webhook node configurations |
 | webhook.affinity | object | `{}` | Webhook node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
 | webhook.allNodes | bool | `false` | If true, all k8s nodes will deploy exatly one webhook pod |
 | webhook.autoscaling | object | `{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2}` | If true, the number of webhooks will be automatically scaled based on default metrics. On default, it will scale based on CPU. Scale by requests can be done by setting a custom metric. For more information can be found here: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/ |
@@ -1612,15 +1799,17 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | webhook.autoscaling.minReplicas | int | `2` | The minimum number of replicas. |
 | webhook.count | int | `2` | Static number of webhooks. If allNodes or autoscaling is enabled, this value will be ignored. |
 | webhook.extraContainers | list | `[]` | Additional containers for the webhook pod |
+| webhook.extraEnv | list | `[]` | Extra environment variables that support `valueFrom` (e.g., secretKeyRef, configMapKeyRef). Entries are passed through verbatim and rendered after `extraEnvVars`. |
 | webhook.extraEnvVars | object | `{}` | Extra environment variables |
 | webhook.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
 | webhook.hostAliases | list | `[]` | Host aliases for the webhook pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases |
 | webhook.initContainers | list | `[]` | Additional init containers for the webhook pod |
 | webhook.livenessProbe | object | `{"httpGet":{"path":"/healthz","port":"http"}}` | This is to setup the liveness probe for the webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
-| webhook.mcp | object | `{"affinity":{},"enabled":true,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"volumeMounts":[],"volumes":[]}` | MCP webhook configuration. This is only used when the webhook mode is set to `queue` and the database type is set to `postgresdb`. |
+| webhook.mcp | object | `{"affinity":{},"enabled":true,"extraContainers":[],"extraEnv":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"volumeMounts":[],"volumes":[]}` | MCP webhook configuration. This is only used when the webhook mode is set to `queue` and the database type is set to `postgresdb`. |
 | webhook.mcp.affinity | object | `{}` | Webhook node affinity for the mcp webhook pod. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
 | webhook.mcp.enabled | bool | `true` | Whether to enable MCP webhook |
 | webhook.mcp.extraContainers | list | `[]` | Additional containers for the mcp webhook pod |
+| webhook.mcp.extraEnv | list | `[]` | Extra environment variables for the mcp webhook pod that support `valueFrom` (e.g., secretKeyRef, configMapKeyRef). Entries are passed through verbatim and rendered after `extraEnvVars`. |
 | webhook.mcp.extraEnvVars | object | `{}` | Extra environment variables for the mcp webhook pod |
 | webhook.mcp.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables for the mcp webhook pod |
 | webhook.mcp.hostAliases | list | `[]` | Host aliases for the mcp webhook pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases |
@@ -1649,7 +1838,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | webhook.waitMainNodeReady.healthCheckPath | string | `"/healthz"` | The health check path to use for request to the main node. |
 | webhook.waitMainNodeReady.overwriteSchema | string | `""` | The schema to use for request to the main node. On default, it will use identify the schema from the main N8N_PROTOCOL environment variable or use http. |
 | webhook.waitMainNodeReady.overwriteUrl | string | `""` | The URL to use for request to the main node. On default, it will use service name and port. |
-| worker | object | `{"affinity":{},"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"concurrency":10,"count":2,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"forceToUseStatefulset":false,"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"mode":"regular","pdb":{"enabled":true,"maxUnavailable":1,"minAvailable":null,"unhealthyPodEvictionPolicy":"AlwaysAllow"},"persistence":{"accessMode":"ReadWriteOnce","annotations":{"helm.sh/resource-policy":"keep"},"enabled":false,"existingClaim":"","labels":{},"mountPath":"/home/node/.n8n","size":"8Gi","storageClass":"","subPath":"","volumeName":""},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"runtimeClassName":"","startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"volumeMounts":[],"volumes":[],"waitMainNodeReady":{"additionalParameters":[],"enabled":false,"healthCheckPath":"/healthz","overwriteSchema":"","overwriteUrl":""}}` | Worker node configurations |
+| worker | object | `{"affinity":{},"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"concurrency":10,"count":2,"extraContainers":[],"extraEnv":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"forceToUseStatefulset":false,"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"mode":"regular","pdb":{"enabled":true,"maxUnavailable":1,"minAvailable":null,"unhealthyPodEvictionPolicy":"AlwaysAllow"},"persistence":{"accessMode":"ReadWriteOnce","annotations":{"helm.sh/resource-policy":"keep"},"enabled":false,"existingClaim":"","labels":{},"mountPath":"/home/node/.n8n","size":"8Gi","storageClass":"","subPath":"","volumeName":""},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"runtimeClassName":"","startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"volumeMounts":[],"volumes":[],"waitMainNodeReady":{"additionalParameters":[],"enabled":false,"healthCheckPath":"/healthz","overwriteSchema":"","overwriteUrl":""}}` | Worker node configurations |
 | worker.affinity | object | `{}` | Worker node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
 | worker.allNodes | bool | `false` | If true, all k8s nodes will deploy exatly one worker pod |
 | worker.autoscaling | object | `{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2}` | If true, the number of workers will be automatically scaled based on default metrics. On default, it will scale based on CPU and memory. For more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/ |
@@ -1661,6 +1850,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | worker.concurrency | int | `10` | number of concurrency for each worker |
 | worker.count | int | `2` | Static number of workers. If allNodes or autoscaling is enabled, this value will be ignored. |
 | worker.extraContainers | list | `[]` | Additional containers for the worker pod |
+| worker.extraEnv | list | `[]` | Extra environment variables that support `valueFrom` (e.g., secretKeyRef, configMapKeyRef). Entries are passed through verbatim and rendered after `extraEnvVars`. |
 | worker.extraEnvVars | object | `{}` | Extra environment variables |
 | worker.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
 | worker.forceToUseStatefulset | bool | `false` | Force to use statefulset for the worker pod. If true, the worker pod will be created as a statefulset. |

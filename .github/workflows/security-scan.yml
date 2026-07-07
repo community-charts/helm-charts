@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -65,6 +65,7 @@ jobs:
           output: trivy-results.sarif
           exit-code: 1
           skip-dirs: "charts"
+          limit-severities-for-sarif: true
 
       - name: Upload Trivy SARIF
         if: steps.changed-charts.outputs.any_changed == 'true'

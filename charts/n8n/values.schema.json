@@ -757,6 +757,15 @@
       "title": "extraEnvVars",
       "type": "object"
     },
+    "extraEnv": {
+      "description": "DEPRECATED: Use main, worker, webhook, and webhook.mcp blocks extraEnv fields instead. This field will be removed in a future release.",
+      "items": {
+        "required": []
+      },
+      "required": [],
+      "title": "extraEnv",
+      "type": "array"
+    },
     "extraSecretNamesForEnvFrom": {
       "description": "DEPRECATED: Use main, worker, and webhook blocks extraSecretNamesForEnvFrom fields instead. This field will be removed in a future release.",
       "items": {
@@ -1011,8 +1020,8 @@
           "additionalProperties": false,
           "properties": {
             "location": {
-              "default": "logs/n8n.log",
-              "description": "Location of the log files inside `~/.n8n`. Only for `file` log output.",
+              "default": "/home/node/.n8n/logs/n8n.log",
+              "description": "Absolute path for the log file. Must be inside a writable volume (e.g. the n8n data volume at /home/node/.n8n). Only for 'file' log output.",
               "required": [],
               "title": "location",
               "type": "string"
@@ -1037,6 +1046,14 @@
           "required": ["location", "maxsize", "maxcount"],
           "title": "file",
           "type": "object"
+        },
+        "format": {
+          "default": "text",
+          "description": "Log output format. 'text' prints human-readable messages. 'json' prints one JSON object per line, useful for log aggregation pipelines.",
+          "required": [],
+          "title": "format",
+          "type": "string",
+          "enum": ["text", "json"]
         },
         "level": {
           "default": "info",
@@ -1080,7 +1097,7 @@
           "type": "array"
         }
       },
-      "required": ["level", "output", "scopes", "file"],
+      "required": ["level", "format", "output", "scopes", "file"],
       "title": "log",
       "type": "object"
     },
@@ -1142,9 +1159,61 @@
               "required": [],
               "title": "packages",
               "type": "array"
+            },
+            "persistence": {
+              "additionalProperties": false,
+              "description": "Persistence for community node packages installed by the init container. Optional PVC so packages survive pod restarts without re-downloading.",
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "description": "Enable persistence. When false, packages are installed into an emptyDir and lost on pod restart.",
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "existingClaim": {
+                  "default": "",
+                  "description": "Use an existing PVC instead of creating one. When set, no PVC is created by this chart.",
+                  "required": [],
+                  "title": "existingClaim",
+                  "type": "string"
+                },
+                "storageClass": {
+                  "default": "",
+                  "description": "Storage class for the PVC. Empty string uses the cluster default.",
+                  "required": [],
+                  "title": "storageClass",
+                  "type": "string"
+                },
+                "accessMode": {
+                  "default": "ReadWriteOnce",
+                  "description": "Access mode. Use ReadWriteMany when worker pods may be scheduled on different nodes.",
+                  "enum": ["ReadWriteOnce", "ReadWriteMany"],
+                  "required": [],
+                  "title": "accessMode",
+                  "type": "string"
+                },
+                "size": {
+                  "default": "1Gi",
+                  "description": "Size of the PVC.",
+                  "required": [],
+                  "title": "size",
+                  "type": "string"
+                },
+                "annotations": {
+                  "additionalProperties": true,
+                  "description": "Additional annotations for the PVC.",
+                  "required": [],
+                  "title": "annotations",
+                  "type": "object"
+                }
+              },
+              "required": ["enabled", "existingClaim", "storageClass", "accessMode", "size", "annotations"],
+              "title": "persistence",
+              "type": "object"
             }
           },
-          "required": ["allowAll", "reinstallMissingPackages", "packages"],
+          "required": ["allowAll", "reinstallMissingPackages", "packages", "persistence"],
           "title": "external",
           "type": "object"
         },
@@ -1843,6 +1912,15 @@
           "title": "extraEnvVars",
           "type": "object"
         },
+        "extraEnv": {
+          "description": "Extra environment variables that support valueFrom (e.g., secretKeyRef, configMapKeyRef, fieldRef).",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "extraEnv",
+          "type": "array"
+        },
         "extraSecretNamesForEnvFrom": {
           "description": "Extra secrets for environment variables",
           "items": {
@@ -1926,7 +2004,7 @@
           "type": "string"
         }
       },
-      "required": ["count", "editorBaseUrl", "resources", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers", "affinity", "hostAliases", "runtimeClassName"],
+      "required": ["count", "editorBaseUrl", "resources", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraEnv", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers", "affinity", "hostAliases", "runtimeClassName"],
       "title": "main",
       "type": "object"
     },
@@ -2724,6 +2802,15 @@
               "title": "extraEnvVars",
               "type": "object"
             },
+            "extraEnv": {
+              "description": "Extra environment variables for the mcp webhook pod that support valueFrom (e.g., secretKeyRef, configMapKeyRef, fieldRef).",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "extraEnv",
+              "type": "array"
+            },
             "extraSecretNamesForEnvFrom": {
               "description": "Extra secrets for environment variables for the mcp webhook pod",
               "items": {
@@ -2801,7 +2888,7 @@
               "type": "array"
             }
           },
-          "required": ["enabled", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "initContainers", "extraContainers", "affinity", "hostAliases"],
+          "required": ["enabled", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraEnv", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "initContainers", "extraContainers", "affinity", "hostAliases"],
           "title": "mcp",
           "type": "object"
         },
@@ -3426,6 +3513,15 @@
           "title": "extraEnvVars",
           "type": "object"
         },
+        "extraEnv": {
+          "description": "Extra environment variables that support valueFrom (e.g., secretKeyRef, configMapKeyRef, fieldRef).",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "extraEnv",
+          "type": "array"
+        },
         "extraSecretNamesForEnvFrom": {
           "description": "Extra secrets for environment variables",
           "items": {
@@ -3509,7 +3605,7 @@
           "type": "string"
         }
       },
-      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases", "mcp", "runtimeClassName"],
+      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraEnv", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases", "mcp", "runtimeClassName"],
       "allOf": [
         {
           "if": {
@@ -4263,6 +4359,15 @@
           "title": "extraEnvVars",
           "type": "object"
         },
+        "extraEnv": {
+          "description": "Extra environment variables that support valueFrom (e.g., secretKeyRef, configMapKeyRef, fieldRef).",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "extraEnv",
+          "type": "array"
+        },
         "extraSecretNamesForEnvFrom": {
           "description": "Extra secrets for environment variables",
           "items": {
@@ -4346,7 +4451,7 @@
           "type": "string"
         }
       },
-      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases", "runtimeClassName"],
+      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraEnv", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases", "runtimeClassName"],
       "allOf": [
         {
           "if": {

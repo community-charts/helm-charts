@@ -15,6 +15,7 @@ should match snapshot of default values:
   2: |
     apiVersion: v1
     data:
+      N8N_LOG_FORMAT: text
       N8N_LOG_LEVEL: info
       N8N_LOG_OUTPUT: console
     kind: ConfigMap
@@ -174,7 +175,7 @@ should match snapshot of default values:
       template:
         metadata:
           annotations:
-            checksum/config: fc9799ad2ff7266b11a1422e4886d8f41ba893b4e4f24079a667238037ee9667
+            checksum/config: d901bed51fb592c293c1a3219b46282e3f3aa1b4391bf43f1f6eb70459061d2a
           labels:
             app.kubernetes.io/component: main
             app.kubernetes.io/instance: n8n
@@ -200,6 +201,8 @@ should match snapshot of default values:
                   value: Europe/Berlin
                 - name: N8N_GRACEFUL_SHUTDOWN_TIMEOUT
                   value: "30"
+                - name: NPM_CONFIG_CACHE
+                  value: /home/node/.cache/npm
                 - name: N8N_MULTI_MAIN_SETUP_ENABLED
                   value: "true"
               envFrom:
@@ -254,6 +257,8 @@ should match snapshot of default values:
                   name: tmp
                 - mountPath: /home/node/.cache
                   name: cache
+                - mountPath: /home/node/.npm
+                  name: npm-home
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
@@ -268,6 +273,8 @@ should match snapshot of default values:
               name: tmp
             - emptyDir: {}
               name: cache
+            - emptyDir: {}
+              name: npm-home
       updateStrategy:
         type: RollingUpdate
       volumeClaimTemplates:
@@ -306,6 +313,7 @@ should match snapshot of postgres ssl certificate values:
   2: |
     apiVersion: v1
     data:
+      N8N_LOG_FORMAT: text
       N8N_LOG_LEVEL: info
       N8N_LOG_OUTPUT: console
     kind: ConfigMap
@@ -478,7 +486,7 @@ should match snapshot of postgres ssl certificate values:
       template:
         metadata:
           annotations:
-            checksum/config: 4db2178b5cd47bd137334fb0cf833a9cc35ab8b9816f990f7b7b12fc55d0eb3a
+            checksum/config: 82094f949bc99f6ed45977d6ba0ea93596c594bd8ded004e33d82db9c5b06cab
           labels:
             app.kubernetes.io/component: main
             app.kubernetes.io/instance: n8n
@@ -504,6 +512,8 @@ should match snapshot of postgres ssl certificate values:
                   value: Europe/Berlin
                 - name: N8N_GRACEFUL_SHUTDOWN_TIMEOUT
                   value: "30"
+                - name: NPM_CONFIG_CACHE
+                  value: /home/node/.cache/npm
                 - name: DB_POSTGRESDB_USER
                   value: postgres
                 - name: DB_POSTGRESDB_PASSWORD
@@ -566,6 +576,8 @@ should match snapshot of postgres ssl certificate values:
                   name: tmp
                 - mountPath: /home/node/.cache
                   name: cache
+                - mountPath: /home/node/.npm
+                  name: npm-home
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
@@ -592,6 +604,8 @@ should match snapshot of postgres ssl certificate values:
               name: tmp
             - emptyDir: {}
               name: cache
+            - emptyDir: {}
+              name: npm-home
             - name: pg-ssl-ca
               secret:
                 items:

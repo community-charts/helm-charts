@@ -108,6 +108,8 @@ service:
 log:
   # -- The log output level. The available options are (from lowest to highest level) are error, warn, info, and debug. The default value is info. You can learn more about these options [here](https://docs.n8n.io/hosting/logging-monitoring/logging/#log-levels).
   level: info
+  # -- Log output format. `text` prints human-readable messages; `json` prints one JSON object per line (useful for log aggregation pipelines).
+  format: text
   # -- Where to output logs to. Options are: `console` or `file` or both.
   output:
     - console
@@ -124,8 +126,8 @@ log:
     # - waiting-executions
 
   file:
-    # -- Location of the log files inside `~/.n8n`. Only for `file` log output.
-    location: "logs/n8n.log"
+    # -- Absolute path for the log file. Must be inside a writable volume (e.g. the n8n data volume at `/home/node/.n8n`). Only for `file` log output.
+    location: "/home/node/.n8n/logs/n8n.log"
     # -- The maximum size (in MB) for each log file. By default, n8n uses 16 MB.
     maxsize: 16
     # -- Max number of log files to keep, or max number of days to keep logs for. Once the limit is reached, the oldest log files will be rotated out. If using days, append a `d` suffix. Only for `file` log output.
@@ -151,6 +153,20 @@ nodes:
     packages: []
       # - "moment@2.29.4"
       # - "lodash@4.17.21"
+    # -- Persistence for community node packages installed by the init container. Optional PVC so packages survive pod restarts without re-downloading.
+    persistence:
+      # -- Enable persistence. When false, packages are installed into an emptyDir and lost on pod restart.
+      enabled: false
+      # -- Use an existing PVC instead of creating one. When set, no PVC is created by this chart.
+      existingClaim: ""
+      # -- Storage class for the PVC. Empty string uses the cluster default.
+      storageClass: ""
+      # -- Access mode. Use ReadWriteMany when worker pods may be scheduled on different nodes.
+      accessMode: ReadWriteOnce
+      # -- Size of the PVC.
+      size: 1Gi
+      # -- Additional annotations for the PVC.
+      annotations: {}
   # -- Image for the init container to install npm packages
   initContainer:
     # -- Image for the init container to install npm packages
@@ -458,6 +474,14 @@ main:
   # -- Extra environment variables
   extraEnvVars: {}
 
+  # -- Extra environment variables that support `valueFrom` (e.g., secretKeyRef, configMapKeyRef). Entries are passed through verbatim and rendered after `extraEnvVars`.
+  extraEnv: []
+  # - name: MY_ENV
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: my-secret
+  #       key: my-key
+
   # -- Extra secrets for environment variables
   extraSecretNamesForEnvFrom: []
 
@@ -636,6 +660,14 @@ worker:
   # -- Extra environment variables
   extraEnvVars: {}
 
+  # -- Extra environment variables that support `valueFrom` (e.g., secretKeyRef, configMapKeyRef). Entries are passed through verbatim and rendered after `extraEnvVars`.
+  extraEnv: []
+  # - name: MY_ENV
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: my-secret
+  #       key: my-key
+
   # -- Extra secrets for environment variables
   extraSecretNamesForEnvFrom: []
 
@@ -711,6 +743,14 @@ webhook:
 
     # -- Extra environment variables for the mcp webhook pod
     extraEnvVars: {}
+
+    # -- Extra environment variables for the mcp webhook pod that support `valueFrom` (e.g., secretKeyRef, configMapKeyRef). Entries are passed through verbatim and rendered after `extraEnvVars`.
+    extraEnv: []
+    # - name: MY_ENV
+    #   valueFrom:
+    #     secretKeyRef:
+    #       name: my-secret
+    #       key: my-key
 
     # -- Extra secrets for environment variables for the mcp webhook pod
     extraSecretNamesForEnvFrom: []
@@ -857,6 +897,14 @@ webhook:
 
   # -- Extra environment variables
   extraEnvVars: {}
+
+  # -- Extra environment variables that support `valueFrom` (e.g., secretKeyRef, configMapKeyRef). Entries are passed through verbatim and rendered after `extraEnvVars`.
+  extraEnv: []
+  # - name: MY_ENV
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: my-secret
+  #       key: my-key
 
   # -- Extra secrets for environment variables
   extraSecretNamesForEnvFrom: []
@@ -1043,6 +1091,14 @@ serviceMonitor:
 
 # -- @deprecated Use main, worker, and webhook blocks extraEnvVars fields instead. This field will be removed in a future release.
 extraEnvVars: {}
+
+# -- @deprecated Use main, worker, webhook, and webhook.mcp blocks extraEnv fields instead. This field will be removed in a future release.
+extraEnv: []
+# - name: MY_ENV
+#   valueFrom:
+#     secretKeyRef:
+#       name: my-secret
+#       key: my-key
 
 # -- @deprecated Use main, worker, and webhook blocks extraSecretNamesForEnvFrom fields instead. This field will be removed in a future release.
 extraSecretNamesForEnvFrom: []
