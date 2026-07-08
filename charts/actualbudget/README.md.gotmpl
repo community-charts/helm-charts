@@ -56,6 +56,40 @@ persistence:
   existingClaim: actualbudget-volume
 ```
 
+## Gateway API HTTPRoute Example
+
+As an alternative (or in addition) to an `Ingress`, the chart can expose Actual Budget through a [Gateway API](https://gateway-api.sigs.k8s.io/) `HTTPRoute`. It is disabled by default; enable it and attach it to an existing Gateway:
+
+```yaml
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: my-gateway
+      namespace: gateway-system
+      sectionName: https
+  hostnames:
+    - actualbudget.example.com
+```
+
+When `httpRoute.rules` is left empty the chart generates a single rule that matches `PathPrefix: /` and forwards to the Actual Budget service. Provide your own `rules` for custom path matching, header modification, or traffic splitting:
+
+```yaml
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - actualbudget.example.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: my-actualbudget
+          port: 5006
+```
+
 ## Configuring OpenID Connect
 
 The `actualbudget` Helm chart supports OpenID Connect (OIDC) for authentication with providers like Keycloak or Auth0. Please find full tested providers from [here](https://actualbudget.org/docs/config/oauth-auth/#tested-providers). Configure the `login.openid` settings in `values.yaml` or a `secrets.yaml` file to enable it. See the [Values](#values) table for all options, including `login.openid.tokenExpiration` (valid values: `"never"`, `"openid-provider"`, or seconds like `3600`).
