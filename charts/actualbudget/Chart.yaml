@@ -54,6 +54,8 @@ annotations:
       links:
         - name: GitHub Issue
           url: https://github.com/community-charts/helm-charts/issues/417
+        - name: GitHub PR
+          url: https://github.com/community-charts/helm-charts/pull/537
   artifacthub.io/images: |
     - name: actualbudget
       image: actualbudget/actual-server:26.7.0
