@@ -11,6 +11,7 @@ A single MLflow tracking-server `Deployment` (image: `burakince/mlflow`, **not**
 - **Artifact storage** pointing at S3, Azure Blob Storage, or GCS
 - **Basic auth** (`auth.enabled`) or **LDAP auth** (`ldapAuth.enabled`) or **OIDC auth** (`oidcAuth.enabled`) — all mutually exclusive, never more than one
 - **OAuth2-proxy sidecar** (`oauth2Proxy.enabled`) — mutually exclusive with `oidcAuth`; cannot be combined with each other
+- **Garbage collection CronJob** (`garbageCollection.enabled`) for periodic `mlflow gc`
 - **Prometheus ServiceMonitor** when the `monitoring.coreos.com/v1` CRD is available
 - **HPA** under strict conditions (see below)
 
@@ -221,6 +222,14 @@ Test cases for all paths exist in `unittests/deployment_test.yaml`.
 
 When `artifactRoot.proxiedArtifactStorage: true`, the CLI flag switches from `--default-artifact-root` to `--artifacts-destination` and `--serve-artifacts` is also appended. The destination value comes from `artifactRoot.defaultArtifactsDestination`, not `artifactRoot.defaultArtifactRoot`. Cloud storage flags override the destination URI, but `--serve-artifacts` is still injected.
 
+### Garbage Collection CronJob
+
+`garbageCollection.enabled` creates `templates/gc-cronjob.yaml`, which periodically runs `mlflow gc` in the same image as the tracking server. It passes `--backend-store-uri` directly. When `artifactRoot.proxiedArtifactStorage` is enabled, it also injects a default `MLFLOW_TRACKING_URI` pointing at the in-cluster MLflow Service unless the user provides `extraEnvVars.MLFLOW_TRACKING_URI`.
+
+The CronJob reuses the same backend-store URI helper, DB credential env helper, artifact-store env helper, and `envFrom` sources as the main container. This is important for S3 existing secrets, bundled MinIO credentials, Azure/GCS credentials from `-env-secret`, and user-provided `extraEnvVars` / `extraSecretNamesForEnvFrom`.
+
+The template fails when enabled with the default in-memory SQLite backend (`backendStore.defaultSqlitePath: ":memory:"`) because each pod has an ephemeral database and garbage collection would silently do nothing useful. It does not hard-fail local artifact storage: users can mount persistent local storage with `garbageCollection.extraVolumes` / `extraVolumeMounts`, but remote artifact stores (S3/Azure/GCS) are the normal production path.
+
 ### LDAP CA Certificate
 
 LDAP with a self-signed CA uses one of two paths (mutually exclusive):
@@ -241,6 +250,10 @@ Both mount to `/certs/ca.crt` and set `LDAP_CA=/certs/ca.crt` in the main contai
 | `mlflow.oauth2ProxySecretName` | `<release>-oauth2-proxy` or `oauth2Proxy.existingSecret.name` |
 | `mlflow.oidcAuthSecretName` | `<release>-oidc-auth-secret` or `oidcAuth.existingSecret.name` |
 | `mlflow.oidcAuthDbSecretName` | `<release>-oidc-auth-db-secret` or `oidcAuth.database.postgres.existingSecret.name` |
+| `mlflow.backendStoreUriArg` | Builds the `--backend-store-uri=...` argument shared by server and GC containers |
+| `mlflow.backendStoreCredentialEnv` | Renders direct DB credential env entries for subcharts / existing database secrets |
+| `mlflow.artifactStoreEnv` | Renders artifact-store credential env entries plus `extraEnvVars` |
+| `mlflow.runtimeEnvFrom` | Renders common envFrom sources for configmap, env secret, Flask secret, and extra secrets |
 | `mlflow.normalizeList` | Deduplicates a list and joins with `,`; collapses to `*` when wildcard present |
 | `mlflow.serverAllowedHosts` | Builds `MLFLOW_SERVER_ALLOWED_HOSTS` value from ingress + `serverAllowedHosts` |
 | `mlflow.corsAllowedOrigins` | Builds `MLFLOW_SERVER_CORS_ALLOWED_ORIGINS` value from ingress + `corsAllowedOrigins` |
@@ -335,6 +348,8 @@ Test files are in `unittests/`. Each focuses on one configuration axis:
 | `servicemonitor_test.yaml` | Prometheus ServiceMonitor rendering |
 | `trusted_ca_cert_secret_test.yaml` | LDAP CA certificate secret |
 | `extra_deploy_test.yaml` | `extraDeploy` rendering: empty list, single object, multiple objects, and `tpl` expression evaluation |
+| `gc_cronjob_test.yaml` | Garbage collection CronJob rendering, backend URI variants, env inheritance, pod parity, volumes, resources |
+| `gc_cronjob_fail_test.yaml` | Garbage collection `failedTemplate` guard for default in-memory SQLite |
 
 Use `matchRegex` (not `equal`) when asserting a substring within a rendered multi-line arg or command string — the full strings include unrelated boilerplate that would make `equal` brittle.
 
@@ -348,4 +363,5 @@ Used exclusively by `ct install` in CI — do not rely on it for production-like
 - Bitnami PostgreSQL subchart (`postgresql.enabled: true`) with persistence disabled
 - `backendStore.databaseMigration: true` — exercises the `mlflow-db-migration` init container
 - `backendStore.databaseConnectionCheck: true` — exercises the `dbchecker` init container
+- `garbageCollection.enabled: true` — exercises the garbage collection CronJob
 - MinIO subchart (`minio.enabled: true`) with persistence disabled, plus `artifactRoot.s3.enabled: true` — exercises S3 artifact storage via the bundled MinIO instance
