@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.24.8](https://img.shields.io/badge/Version-1.24.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.29.8](https://img.shields.io/badge/AppVersion-2.29.8-informational?style=flat-square)
+![Version: 1.25.0](https://img.shields.io/badge/Version-1.25.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.29.8](https://img.shields.io/badge/AppVersion-2.29.8-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -1850,6 +1850,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | workflowHistory | object | `{"enabled":true,"pruneTime":336}` | The workflow history configuration |
 | workflowHistory.enabled | bool | `true` | Whether to save workflow history versions |
 | workflowHistory.pruneTime | int | `336` | Time (in hours) to keep workflow history versions for. To disable it, use -1 as a value |
+| workloadAnnotations | object | `{}` | Annotations to add to the workload objects (Deployment/StatefulSet/DaemonSet metadata), e.g. for Stakater Reloader. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
 
 **Homepage:** <https://n8n.io>
 

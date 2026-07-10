@@ -43,6 +43,9 @@ podAnnotations: {}
 # -- This is for setting Kubernetes Labels to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 podLabels: {}
 
+# -- Annotations to add to the workload objects (Deployment/StatefulSet/DaemonSet metadata), e.g. for Stakater Reloader. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+workloadAnnotations: {}
+
 # -- This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
 podSecurityContext:
   fsGroup: 1000

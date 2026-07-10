@@ -9,6 +9,10 @@ metadata:
   name: {{ include "n8n.webhook.fullname" . }}
   labels:
     {{- include "n8n.webhook.labels" . | nindent 4 }}
+  {{- with .Values.workloadAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   {{- if not (kindIs "invalid" .Values.revisionHistoryLimit) }}
   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}

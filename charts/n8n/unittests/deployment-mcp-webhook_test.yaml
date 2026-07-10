@@ -89,6 +89,22 @@ tests:
           value: test
         template: deployment-mcp-webhook.yaml
 
+  - it: should set workload annotations when workloadAnnotations are set
+    set:
+      workloadAnnotations:
+        test: test
+    asserts:
+      - equal:
+          path: metadata.annotations.test
+          value: test
+        template: deployment-mcp-webhook.yaml
+
+  - it: should not have workload annotations by default
+    asserts:
+      - notExists:
+          path: metadata.annotations
+        template: deployment-mcp-webhook.yaml
+
   - it: should set pod labels when podLabels are set
     set:
       podLabels:

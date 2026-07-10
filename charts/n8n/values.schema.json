@@ -1974,6 +1974,13 @@
       "title": "podLabels",
       "type": "object"
     },
+    "workloadAnnotations": {
+      "additionalProperties": true,
+      "description": "Annotations to add to the workload objects (Deployment/StatefulSet/DaemonSet metadata), e.g. for Stakater Reloader. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/",
+      "required": [],
+      "title": "workloadAnnotations",
+      "type": "object"
+    },
     "podSecurityContext": {
       "additionalProperties": true,
       "description": "This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/",
@@ -5344,6 +5351,7 @@
     "serviceAccount",
     "podAnnotations",
     "podLabels",
+    "workloadAnnotations",
     "podSecurityContext",
     "securityContext",
     "service",
