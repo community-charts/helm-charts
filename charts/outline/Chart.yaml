@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.9.0
+version: 0.9.1
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "1.8.1"
+appVersion: "1.9.0"
 kubeVersion: ">=1.23.0-0"
 home: https://www.getoutline.com/
 maintainers:
@@ -52,28 +52,24 @@ annotations:
       url: https://docs.getoutline.com/s/hosting/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: added
-      description: Add optional image digest support for immutable image pulls
-    - kind: fixed
-      description: Enable readOnlyRootFilesystem and add built-in tmp emptyDir volume
     - kind: changed
-      description: Update outlinewiki/outline image version to 1.8.1
+      description: Update outlinewiki/outline image version to 1.9.0
       links:
         - name: Upstream Project
           url: https://hub.docker.com/r/outlinewiki/outline
     - kind: changed
-      description: Update dependency redis from 25.5.3 to 27.0.4
+      description: Update dependency redis from 27.0.4 to 27.0.14
       links:
         - name: ArtifactHub
           url: https://artifacthub.io/packages/helm/bitnami/redis
     - kind: changed
-      description: Update dependency postgresql from 18.7.0 to 18.7.2
+      description: Update dependency postgresql from 18.7.2 to 18.7.13
       links:
         - name: ArtifactHub
           url: https://artifacthub.io/packages/helm/bitnami/postgresql
   artifacthub.io/images: |
     - name: outline
-      image: outlinewiki/outline:1.8.1
+      image: outlinewiki/outline:1.9.0
       platforms:
         - linux/amd64
         - linux/arm64
@@ -92,11 +88,11 @@ annotations:
     url: https://keybase.io/communitycharts/pgp_keys.asc
 dependencies:
   - name: redis
-    version: 27.0.4
+    version: 27.0.14
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
   - name: postgresql
-    version: 18.7.2
+    version: 18.7.13
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: minio
