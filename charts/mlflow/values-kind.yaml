@@ -6,6 +6,9 @@ backendStore:
   databaseMigration: true
   databaseConnectionCheck: true
 
+garbageCollection:
+  enabled: true
+
 postgresql:
   enabled: true
 
