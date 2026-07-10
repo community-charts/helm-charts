@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.11.2
+version: 1.12.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -51,16 +51,8 @@ annotations:
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Update dbchecker image version to 1.38.0
-      links:
-        - name: dbchecker
-          url: https://hub.docker.com/r/library/busybox
-    - kind: changed
-      description: Update ini-file-initializer image version to 1.38.0
-      links:
-        - name: ini-file-initializer
-          url: https://hub.docker.com/r/library/busybox
+    - kind: added
+      description: Add optional garbageCollection CronJob to periodically run `mlflow gc`
   artifacthub.io/images: |-
     - name: mlflow
       image: burakince/mlflow:3.14.0
