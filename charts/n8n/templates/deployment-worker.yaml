@@ -10,6 +10,10 @@ metadata:
   name: {{ include "n8n.worker.fullname" . }}
   labels:
     {{- include "n8n.worker.labels" . | nindent 4 }}
+  {{- with .Values.workloadAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   {{- if not (kindIs "invalid" .Values.revisionHistoryLimit) }}
   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}

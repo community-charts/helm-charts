@@ -61,6 +61,22 @@ tests:
           value: test
         template: statefulset-worker.yaml
 
+  - it: should set workload annotations when workloadAnnotations are set
+    set:
+      workloadAnnotations:
+        test: test
+    asserts:
+      - equal:
+          path: metadata.annotations.test
+          value: test
+        template: statefulset-worker.yaml
+
+  - it: should not have workload annotations by default
+    asserts:
+      - notExists:
+          path: metadata.annotations
+        template: statefulset-worker.yaml
+
   - it: should set pod labels when podLabels are set
     set:
       podLabels:
