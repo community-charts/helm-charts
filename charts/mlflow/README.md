@@ -1082,7 +1082,6 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | flaskServerSecretKey | string | `""` | Mlflow Flask Server Secret Key. Default: Will be auto generated. |
 | fullnameOverride | string | `""` | String to override the default generated fullname |
 | garbageCollection | object | `{"allWorkspaces":false,"backoffLimit":1,"concurrencyPolicy":"Forbid","enabled":false,"extraVolumeMounts":[],"extraVolumes":[],"failedJobsHistoryLimit":3,"olderThan":"","resources":{},"schedule":"0 2 * * 0","successfulJobsHistoryLimit":3}` | Periodic garbage collection of soft-deleted MLflow runs/experiments/models via `mlflow gc`. Requires a persistent backend store for useful operation. When proxied artifact storage is enabled, the CronJob sets a default `MLFLOW_TRACKING_URI` pointing at the in-cluster MLflow Service unless `extraEnvVars.MLFLOW_TRACKING_URI` is provided. |
-| garbageCollection.allWorkspaces | bool | `false` | Pass --all-workspaces to `mlflow gc` to collect garbage across all workspaces instead of only the default one |
 | garbageCollection.backoffLimit | int | `1` | backoffLimit for the underlying Job |
 | garbageCollection.concurrencyPolicy | string | `"Forbid"` | concurrencyPolicy for the CronJob |
 | garbageCollection.enabled | bool | `false` | Specifies if you want to create the garbage collection CronJob |
