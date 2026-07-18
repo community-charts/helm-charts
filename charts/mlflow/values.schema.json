@@ -3218,6 +3218,132 @@
       "title": "autoscaling",
       "type": "object"
     },
+    "garbageCollection": {
+      "additionalProperties": false,
+      "description": "Periodic garbage collection of soft-deleted MLflow runs/experiments/models via `mlflow gc`. Requires a persistent backend store for useful operation. When proxied artifact storage is enabled, the CronJob sets a default `MLFLOW_TRACKING_URI` pointing at the in-cluster MLflow Service unless `extraEnvVars.MLFLOW_TRACKING_URI` is provided.",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "description": "Specifies if you want to create the garbage collection CronJob",
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "schedule": {
+          "default": "0 2 * * 0",
+          "description": "Cron schedule expression for the garbage collection job",
+          "required": [],
+          "title": "schedule",
+          "type": "string"
+        },
+        "olderThan": {
+          "default": "",
+          "description": "Only delete resources that have been soft-deleted for at least this duration, e.g. 30d. Leave empty to delete all soft-deleted resources regardless of age.",
+          "required": [],
+          "title": "olderThan",
+          "type": "string"
+        },
+        "allWorkspaces": {
+          "default": false,
+          "description": "Pass --all-workspaces to `mlflow gc` to collect garbage across all workspaces instead of only the default one",
+          "required": [],
+          "title": "allWorkspaces",
+          "type": "boolean"
+        },
+        "concurrencyPolicy": {
+          "default": "Forbid",
+          "description": "concurrencyPolicy for the CronJob",
+          "enum": [
+            "Allow",
+            "Forbid",
+            "Replace"
+          ],
+          "required": [],
+          "title": "concurrencyPolicy",
+          "type": "string"
+        },
+        "successfulJobsHistoryLimit": {
+          "default": 3,
+          "description": "Number of successful finished jobs to retain",
+          "minimum": 0,
+          "required": [],
+          "title": "successfulJobsHistoryLimit",
+          "type": "integer"
+        },
+        "failedJobsHistoryLimit": {
+          "default": 3,
+          "description": "Number of failed finished jobs to retain",
+          "minimum": 0,
+          "required": [],
+          "title": "failedJobsHistoryLimit",
+          "type": "integer"
+        },
+        "backoffLimit": {
+          "default": 1,
+          "description": "backoffLimit for the underlying Job",
+          "minimum": 0,
+          "required": [],
+          "title": "backoffLimit",
+          "type": "integer"
+        },
+        "extraVolumes": {
+          "description": "Extra volumes for the garbage collection pod, e.g. mounting a custom CA bundle or persistent local artifact storage",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "extraVolumes",
+          "type": "array"
+        },
+        "extraVolumeMounts": {
+          "description": "Extra volume mounts for the garbage collection container",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "extraVolumeMounts",
+          "type": "array"
+        },
+        "resources": {
+          "additionalProperties": true,
+          "description": "Resource requests/limits for the garbage collection container",
+          "properties": {
+            "limits": {
+              "additionalProperties": true,
+              "properties": {},
+              "required": [],
+              "title": "limits",
+              "type": "object"
+            },
+            "requests": {
+              "additionalProperties": true,
+              "properties": {},
+              "required": [],
+              "title": "requests",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "resources",
+          "type": "object"
+        }
+      },
+      "required": [
+        "enabled",
+        "schedule",
+        "olderThan",
+        "allWorkspaces",
+        "concurrencyPolicy",
+        "successfulJobsHistoryLimit",
+        "failedJobsHistoryLimit",
+        "backoffLimit",
+        "extraVolumes",
+        "extraVolumeMounts",
+        "resources"
+      ],
+      "title": "garbageCollection",
+      "type": "object"
+    },
     "minio": {
       "type": "object",
       "title": "minio",
@@ -3267,7 +3393,8 @@
     "flaskServerSecretKey",
     "auth",
     "ldapAuth",
-    "autoscaling"
+    "autoscaling",
+    "garbageCollection"
   ],
   "allOf": [
     {

@@ -131,6 +131,168 @@ Build the full container image reference, appending digest when set.
 {{- end }}
 
 {{/*
+Build the SQLAlchemy backend-store URI argument shared by the server and garbage collector.
+*/}}
+{{- define "mlflow.backendStoreUriArg" -}}
+{{- $dbConnectionDriver := "" -}}
+{{- if and (or .Values.backendStore.postgres.enabled .Values.postgresql.enabled) .Values.backendStore.postgres.driver -}}
+  {{- $dbConnectionDriver = printf "+%s" .Values.backendStore.postgres.driver -}}
+{{- else if and (or .Values.backendStore.mysql.enabled .Values.mysql.enabled) .Values.backendStore.mysql.driver -}}
+  {{- $dbConnectionDriver = printf "+%s" .Values.backendStore.mysql.driver -}}
+{{- else if and .Values.backendStore.mssql.enabled .Values.backendStore.mssql.driver -}}
+  {{- $dbConnectionDriver = printf "+%s" .Values.backendStore.mssql.driver -}}
+{{- end -}}
+{{- if or .Values.backendStore.postgres.enabled .Values.postgresql.enabled -}}
+{{- printf "--backend-store-uri=postgresql%s://" $dbConnectionDriver -}}
+{{- else if or .Values.backendStore.mysql.enabled .Values.mysql.enabled -}}
+{{- printf "--backend-store-uri=mysql%s://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)" $dbConnectionDriver -}}
+{{- else if .Values.backendStore.mssql.enabled -}}
+  {{- if .Values.backendStore.mssql.existingConnectionUrlSecret.name -}}
+--backend-store-uri=$(MSSQL_CONNECTION_URL)
+  {{- else if .Values.backendStore.mssql.connectionUrl -}}
+{{- printf "--backend-store-uri=%s" .Values.backendStore.mssql.connectionUrl -}}
+  {{- else -}}
+{{- printf "--backend-store-uri=mssql%s://$(MSSQL_USERNAME):$(MSSQL_PWD)@$(MSSQL_HOST):$(MSSQL_TCP_PORT)/$(MSSQL_DATABASE)" $dbConnectionDriver -}}
+  {{- end -}}
+{{- else -}}
+{{- printf "--backend-store-uri=sqlite:///%s" .Values.backendStore.defaultSqlitePath | quote -}}
+{{- end -}}
+{{- end }}
+
+{{/*
+Render direct DB credential env entries for subcharts or existing database secrets.
+The chart-managed env-secret is still consumed through envFrom.
+*/}}
+{{- define "mlflow.backendStoreCredentialEnv" -}}
+{{- if .Values.postgresql.enabled }}
+- name: PGPASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "mlflow.postgresql.fullname" . }}
+  {{- if .Values.postgresql.auth.username }}
+      key: password
+  {{- else }}
+      key: postgres-password
+  {{- end }}
+      optional: true
+{{- end }}
+{{- if .Values.mysql.enabled }}
+- name: MYSQL_PWD
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "mlflow.mysql.fullname" . }}
+  {{- if .Values.mysql.auth.username }}
+      key: password
+  {{- else }}
+      key: mysql-root-password
+  {{- end }}
+      optional: true
+{{- end }}
+{{- if .Values.backendStore.existingDatabaseSecret.name }}
+  {{- if .Values.backendStore.postgres.enabled }}
+- name: PGPASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+      key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
+- name: PGUSER
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+      key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
+  {{- end }}
+  {{- if .Values.backendStore.mysql.enabled }}
+- name: MYSQL_PWD
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+      key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
+- name: MYSQL_USERNAME
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+      key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
+  {{- end }}
+  {{- if .Values.backendStore.mssql.enabled }}
+- name: MSSQL_PWD
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+      key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
+- name: MSSQL_USERNAME
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.backendStore.existingDatabaseSecret.name }}
+      key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
+  {{- end }}
+{{- end }}
+{{- if and .Values.backendStore.mssql.enabled .Values.backendStore.mssql.existingConnectionUrlSecret.name }}
+- name: MSSQL_CONNECTION_URL
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.backendStore.mssql.existingConnectionUrlSecret.name }}
+      key: {{ .Values.backendStore.mssql.existingConnectionUrlSecret.key }}
+{{- end }}
+{{- end }}
+
+{{/*
+Render artifact-store and user-provided env entries shared by the server and garbage collector.
+*/}}
+{{- define "mlflow.artifactStoreEnv" -}}
+{{- if and .Values.artifactRoot.s3.enabled .Values.artifactRoot.s3.existingSecret.name }}
+  {{- if .Values.artifactRoot.s3.existingSecret.keyOfAccessKeyId }}
+- name: AWS_ACCESS_KEY_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.artifactRoot.s3.existingSecret.name }}
+      key: {{ .Values.artifactRoot.s3.existingSecret.keyOfAccessKeyId }}
+  {{- end }}
+  {{- if .Values.artifactRoot.s3.existingSecret.keyOfSecretAccessKey }}
+- name: AWS_SECRET_ACCESS_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.artifactRoot.s3.existingSecret.name }}
+      key: {{ .Values.artifactRoot.s3.existingSecret.keyOfSecretAccessKey }}
+  {{- end }}
+{{- else if and .Values.artifactRoot.s3.enabled .Values.minio.enabled }}
+- name: AWS_ACCESS_KEY_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ printf "%s-minio" (include "mlflow.fullname" .) }}
+      key: rootUser
+- name: AWS_SECRET_ACCESS_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ printf "%s-minio" (include "mlflow.fullname" .) }}
+      key: rootPassword
+{{- end }}
+{{- if .Values.minio.enabled }}
+- name: MLFLOW_S3_ENDPOINT_URL
+  value: {{ printf "http://%s-minio:9000" (include "mlflow.fullname" .) }}
+{{- end }}
+{{- range $key, $value := .Values.extraEnvVars }}
+- name: {{ $key }}
+  value: {{ $value | quote }}
+{{- end }}
+{{- end }}
+
+{{/*
+Render common envFrom entries shared by the server and garbage collector.
+*/}}
+{{- define "mlflow.runtimeEnvFrom" -}}
+- configMapRef:
+    name: {{ include "mlflow.fullname" . }}-env-configmap
+- secretRef:
+    name: {{ include "mlflow.fullname" . }}-env-secret
+- secretRef:
+    name: {{ include "mlflow.fullname" . }}-flask-server-secret-key
+{{- range .Values.extraSecretNamesForEnvFrom }}
+- secretRef:
+    name: {{ . }}
+{{- end }}
+{{- end }}
+
+{{/*
 Deduplicate a string list and return a comma-separated string.
 Collapses the entire list to "*" when the wildcard entry is present.
 Returns empty string when the list is empty.

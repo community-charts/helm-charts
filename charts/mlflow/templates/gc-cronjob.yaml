@@ -1,0 +1,110 @@
+{{- if .Values.garbageCollection.enabled }}
+{{- if and (not (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled)) (eq .Values.backendStore.defaultSqlitePath ":memory:") }}
+  {{- fail "garbageCollection requires a persistent backend store; default in-memory SQLite cannot be garbage collected" }}
+{{- end }}
+{{- if semverCompare ">=1.21-0" .Capabilities.KubeVersion.GitVersion }}
+apiVersion: batch/v1
+{{- else }}
+apiVersion: batch/v1beta1
+{{- end }}
+kind: CronJob
+metadata:
+  name: {{ include "mlflow.fullname" . }}-gc
+  labels:
+    {{- include "mlflow.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.garbageCollection.schedule | quote }}
+  concurrencyPolicy: {{ .Values.garbageCollection.concurrencyPolicy }}
+  successfulJobsHistoryLimit: {{ .Values.garbageCollection.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.garbageCollection.failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      backoffLimit: {{ .Values.garbageCollection.backoffLimit }}
+      template:
+        metadata:
+          {{- with .Values.podAnnotations }}
+          annotations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          labels:
+            {{- include "mlflow.selectorLabels" . | nindent 12 }}
+          {{- with .Values.extraPodLabels }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        spec:
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          serviceAccountName: {{ include "mlflow.serviceAccountName" . }}
+          restartPolicy: Never
+          {{- with .Values.podSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          containers:
+            - name: mlflow-gc
+              {{- with .Values.securityContext }}
+              securityContext:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+              image: {{ include "mlflow.containerImage" . }}
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              command: ["mlflow"]
+              args:
+                - gc
+                - {{ include "mlflow.backendStoreUriArg" . }}
+                {{- if .Values.garbageCollection.olderThan }}
+                - --older-than={{ .Values.garbageCollection.olderThan }}
+                {{- end }}
+                {{- if .Values.garbageCollection.allWorkspaces }}
+                - --all-workspaces
+                {{- end }}
+              {{- $backendStoreEnv := include "mlflow.backendStoreCredentialEnv" . }}
+              {{- $artifactStoreEnv := include "mlflow.artifactStoreEnv" . }}
+              {{- $defaultTrackingUri := and .Values.artifactRoot.proxiedArtifactStorage (not (hasKey .Values.extraEnvVars "MLFLOW_TRACKING_URI")) }}
+              {{- if or $backendStoreEnv $artifactStoreEnv $defaultTrackingUri }}
+              env:
+                {{- with $backendStoreEnv }}
+                {{- . | nindent 16 }}
+                {{- end }}
+                {{- if $defaultTrackingUri }}
+                - name: MLFLOW_TRACKING_URI
+                  value: {{ printf "http://%s:%v" (include "mlflow.fullname" .) .Values.service.port | quote }}
+                {{- end }}
+                {{- with $artifactStoreEnv }}
+                {{- . | nindent 16 }}
+                {{- end }}
+              {{- end }}
+              envFrom:
+                {{- include "mlflow.runtimeEnvFrom" . | nindent 16 }}
+              resources:
+                {{- toYaml .Values.garbageCollection.resources | nindent 16 }}
+              volumeMounts:
+                - name: tmp
+                  mountPath: /tmp
+              {{- with .Values.garbageCollection.extraVolumeMounts }}
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.priorityClassName }}
+          priorityClassName: {{ . }}
+          {{- end }}
+          volumes:
+            - name: tmp
+              emptyDir: {}
+          {{- with .Values.garbageCollection.extraVolumes }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+{{- end }}

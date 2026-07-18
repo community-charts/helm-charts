@@ -402,6 +402,30 @@ autoscaling:
   #     value: 4
   #     periodSeconds: 15
   #   selectPolicy: Max
+# -- Periodic garbage collection of soft-deleted MLflow runs/experiments/models via `mlflow gc`. Requires a persistent backend store for useful operation. When proxied artifact storage is enabled, the CronJob sets a default `MLFLOW_TRACKING_URI` pointing at the in-cluster MLflow Service unless `extraEnvVars.MLFLOW_TRACKING_URI` is provided.
+garbageCollection:
+  # -- Specifies if you want to create the garbage collection CronJob
+  enabled: false
+  # -- Cron schedule expression for the garbage collection job
+  schedule: "0 2 * * 0"
+  # -- Only delete resources that have been soft-deleted for at least this duration, e.g. "30d". Leave empty to delete all soft-deleted resources regardless of age.
+  olderThan: ""
+  # -- Pass --all-workspaces to `mlflow gc` to collect garbage across all workspaces instead of only the default one
+  allWorkspaces: false
+  # -- concurrencyPolicy for the CronJob
+  concurrencyPolicy: Forbid
+  # -- Number of successful finished jobs to retain
+  successfulJobsHistoryLimit: 3
+  # -- Number of failed finished jobs to retain
+  failedJobsHistoryLimit: 3
+  # -- backoffLimit for the underlying Job
+  backoffLimit: 1
+  # -- Extra volumes for the garbage collection pod, e.g. mounting a custom CA bundle or persistent local artifact storage
+  extraVolumes: []
+  # -- Extra volume mounts for the garbage collection container
+  extraVolumeMounts: []
+  # -- Resource requests/limits for the garbage collection container
+  resources: {}
 # -- A map of arguments and values to pass to the `mlflow server` command. Keys must be camelcase. Helm will turn them to kebabcase style.
 extraArgs: {}
 # Number of gunicorn worker processes to handle requests (default: 4).

@@ -1,0 +1,321 @@
+suite: test garbage collection cronjob
+
+templates:
+  - gc-cronjob.yaml
+
+release:
+  name: mlflow
+  namespace: mlflow
+
+chart:
+  version: 1.0.0
+  appVersion: 1.0.0
+
+tests:
+  - it: should not render when garbage collection is disabled
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should render cronjob with default options when enabled with postgres
+    set:
+      garbageCollection.enabled: true
+      backendStore.postgres.enabled: true
+    capabilities:
+      majorVersion: 1
+      minorVersion: 21
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: apiVersion
+          value: batch/v1
+      - equal:
+          path: kind
+          value: CronJob
+      - equal:
+          path: metadata.name
+          value: mlflow-gc
+      - equal:
+          path: spec.schedule
+          value: "0 2 * * 0"
+      - equal:
+          path: spec.concurrencyPolicy
+          value: Forbid
+      - equal:
+          path: spec.successfulJobsHistoryLimit
+          value: 3
+      - equal:
+          path: spec.failedJobsHistoryLimit
+          value: 3
+      - equal:
+          path: spec.jobTemplate.spec.backoffLimit
+          value: 1
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.containers[?(@.name == "mlflow-gc")].args
+          content: gc
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.containers[?(@.name == "mlflow-gc")].args
+          content: --backend-store-uri=postgresql://
+
+  - it: should use batch v1beta1 when kubernetes version is less than 1.21
+    set:
+      garbageCollection.enabled: true
+      backendStore.postgres.enabled: true
+    capabilities:
+      majorVersion: 1
+      minorVersion: 20
+    asserts:
+      - equal:
+          path: apiVersion
+          value: batch/v1beta1
+
+  - it: should render older-than and all-workspaces flags
+    set:
+      garbageCollection:
+        enabled: true
+        olderThan: 30d
+        allWorkspaces: true
+      backendStore.postgres.enabled: true
+    asserts:
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.containers[?(@.name == "mlflow-gc")].args
+          content: --older-than=30d
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.containers[?(@.name == "mlflow-gc")].args
+          content: --all-workspaces
+
+  - it: should render mysql backend-store-uri and existing database secret env vars
+    set:
+      garbageCollection.enabled: true
+      backendStore:
+        mysql:
+          enabled: true
+          driver: pymysql
+        existingDatabaseSecret:
+          name: test-secret
+          usernameKey: customUsername
+          passwordKey: customPassword
+    asserts:
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.containers[?(@.name == "mlflow-gc")].args
+          content: --backend-store-uri=mysql+pymysql://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.containers[?(@.name == "mlflow-gc")].env
+          content:
+            name: MYSQL_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: test-secret
+                key: customUsername
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.containers[?(@.name == "mlflow-gc")].env
+          content:
+            name: MYSQL_PWD
+            valueFrom:
+              secretKeyRef:
+                name: test-secret
+                key: customPassword
+
+  - it: should render mssql connection url from existing secret
+    set:
+      garbageCollection.enabled: true
+      backendStore:
+        mssql:
+          enabled: true
+          existingConnectionUrlSecret:
+            name: mssql-url-secret
+            key: connectionUrl
+    asserts:
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.containers[?(@.name == "mlflow-gc")].args
+          content: --backend-store-uri=$(MSSQL_CONNECTION_URL)
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.containers[?(@.name == "mlflow-gc")].env
+          content:
+            name: MSSQL_CONNECTION_URL
+            valueFrom:
+              secretKeyRef:
+                name: mssql-url-secret
+                key: connectionUrl
+
+  - it: should allow sqlite when a non-memory sqlite path is configured
+    set:
+      garbageCollection.enabled: true
+      backendStore.defaultSqlitePath: /mlflow/data/mlflow.db
+    asserts:
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.containers[?(@.name == "mlflow-gc")].args
+          content: "--backend-store-uri=sqlite:////mlflow/data/mlflow.db"
+
+  - it: should inherit s3 existing secret env vars and extra envFrom secrets
+    set:
+      garbageCollection.enabled: true
+      backendStore.postgres.enabled: true
+      artifactRoot:
+        s3:
+          enabled: true
+          bucket: test-bucket
+          existingSecret:
+            name: my-aws-existing-secret
+      extraSecretNamesForEnvFrom:
+        - my-extra-secret
+    asserts:
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.containers[?(@.name == "mlflow-gc")].env
+          content:
+            name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: my-aws-existing-secret
+                key: AWS_ACCESS_KEY_ID
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.containers[?(@.name == "mlflow-gc")].envFrom
+          content:
+            secretRef:
+              name: my-extra-secret
+
+  - it: should inherit minio env vars
+    set:
+      garbageCollection.enabled: true
+      postgresql.enabled: true
+      artifactRoot.s3.enabled: true
+      minio.enabled: true
+    asserts:
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.containers[?(@.name == "mlflow-gc")].env
+          content:
+            name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: mlflow-minio
+                key: rootUser
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.containers[?(@.name == "mlflow-gc")].env
+          content:
+            name: MLFLOW_S3_ENDPOINT_URL
+            value: http://mlflow-minio:9000
+
+  - it: should inherit extraEnvVars
+    set:
+      garbageCollection.enabled: true
+      backendStore.postgres.enabled: true
+      extraEnvVars:
+        MLFLOW_S3_IGNORE_TLS: "true"
+    asserts:
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.containers[?(@.name == "mlflow-gc")].env
+          content:
+            name: MLFLOW_S3_IGNORE_TLS
+            value: "true"
+
+  - it: should inject tracking uri when proxied artifact storage is enabled
+    set:
+      garbageCollection.enabled: true
+      backendStore.postgres.enabled: true
+      artifactRoot.proxiedArtifactStorage: true
+      service.port: 8080
+    asserts:
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.containers[?(@.name == "mlflow-gc")].env
+          content:
+            name: MLFLOW_TRACKING_URI
+            value: http://mlflow:8080
+
+  - it: should use user-provided tracking uri when proxied artifact storage is enabled
+    set:
+      garbageCollection.enabled: true
+      backendStore.postgres.enabled: true
+      artifactRoot.proxiedArtifactStorage: true
+      extraEnvVars:
+        MLFLOW_TRACKING_URI: http://mlflow.internal:5000
+    asserts:
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.containers[?(@.name == "mlflow-gc")].env
+          content:
+            name: MLFLOW_TRACKING_URI
+            value: http://mlflow.internal:5000
+
+  - it: should render pod parity settings
+    set:
+      garbageCollection.enabled: true
+      backendStore.postgres.enabled: true
+      imagePullSecrets:
+        - name: registry-secret
+      priorityClassName: high-priority
+      nodeSelector:
+        kubernetes.io/os: linux
+      tolerations:
+        - key: dedicated
+          operator: Equal
+          value: mlflow
+          effect: NoSchedule
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/os
+                    operator: In
+                    values:
+                      - linux
+    asserts:
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.imagePullSecrets[0].name
+          value: registry-secret
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.priorityClassName
+          value: high-priority
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.nodeSelector["kubernetes.io/os"]
+          value: linux
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.tolerations[0].key
+          value: dedicated
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key
+          value: kubernetes.io/os
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.volumes
+          content:
+            name: tmp
+            emptyDir: {}
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.containers[?(@.name == "mlflow-gc")].volumeMounts
+          content:
+            name: tmp
+            mountPath: /tmp
+
+  - it: should render extra volumes volume mounts and resources
+    set:
+      garbageCollection:
+        enabled: true
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        extraVolumes:
+          - name: custom-ca
+            configMap:
+              name: custom-ca
+        extraVolumeMounts:
+          - name: custom-ca
+            mountPath: /etc/ssl/custom-ca
+            readOnly: true
+      backendStore.postgres.enabled: true
+    asserts:
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[?(@.name == "mlflow-gc")].resources.requests.cpu
+          value: 100m
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.volumes
+          content:
+            name: custom-ca
+            configMap:
+              name: custom-ca
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.containers[?(@.name == "mlflow-gc")].volumeMounts
+          content:
+            name: custom-ca
+            mountPath: /etc/ssl/custom-ca
+            readOnly: true

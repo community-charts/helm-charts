@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 1.11.2](https://img.shields.io/badge/Version-1.11.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.14.0](https://img.shields.io/badge/AppVersion-3.14.0-informational?style=flat-square)
+![Version: 1.12.0](https://img.shields.io/badge/Version-1.12.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.14.0](https://img.shields.io/badge/AppVersion-3.14.0-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -1081,6 +1081,17 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | extraVolumes | list | `[]` | Extra Volumes for the pod |
 | flaskServerSecretKey | string | `""` | Mlflow Flask Server Secret Key. Default: Will be auto generated. |
 | fullnameOverride | string | `""` | String to override the default generated fullname |
+| garbageCollection | object | `{"allWorkspaces":false,"backoffLimit":1,"concurrencyPolicy":"Forbid","enabled":false,"extraVolumeMounts":[],"extraVolumes":[],"failedJobsHistoryLimit":3,"olderThan":"","resources":{},"schedule":"0 2 * * 0","successfulJobsHistoryLimit":3}` | Periodic garbage collection of soft-deleted MLflow runs/experiments/models via `mlflow gc`. Requires a persistent backend store for useful operation. When proxied artifact storage is enabled, the CronJob sets a default `MLFLOW_TRACKING_URI` pointing at the in-cluster MLflow Service unless `extraEnvVars.MLFLOW_TRACKING_URI` is provided. |
+| garbageCollection.backoffLimit | int | `1` | backoffLimit for the underlying Job |
+| garbageCollection.concurrencyPolicy | string | `"Forbid"` | concurrencyPolicy for the CronJob |
+| garbageCollection.enabled | bool | `false` | Specifies if you want to create the garbage collection CronJob |
+| garbageCollection.extraVolumeMounts | list | `[]` | Extra volume mounts for the garbage collection container |
+| garbageCollection.extraVolumes | list | `[]` | Extra volumes for the garbage collection pod, e.g. mounting a custom CA bundle or persistent local artifact storage |
+| garbageCollection.failedJobsHistoryLimit | int | `3` | Number of failed finished jobs to retain |
+| garbageCollection.olderThan | string | `""` | Only delete resources that have been soft-deleted for at least this duration, e.g. "30d". Leave empty to delete all soft-deleted resources regardless of age. |
+| garbageCollection.resources | object | `{}` | Resource requests/limits for the garbage collection container |
+| garbageCollection.schedule | string | `"0 2 * * 0"` | Cron schedule expression for the garbage collection job |
+| garbageCollection.successfulJobsHistoryLimit | int | `3` | Number of successful finished jobs to retain |
 | image | object | `{"digest":"","pullPolicy":"IfNotPresent","repository":"burakince/mlflow","tag":""}` | Image of mlflow |
 | image.digest | string | `""` | Image digest in the format sha256:<hex>. When set, overrides the tag for immutable pulls. |
 | image.pullPolicy | string | `"IfNotPresent"` | The docker image pull policy |
