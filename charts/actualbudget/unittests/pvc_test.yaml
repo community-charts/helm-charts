@@ -49,6 +49,20 @@ tests:
           path: spec.resources.requests.storage
           value: 20Gi
 
+  - it: should set labels when persistence is enabled and existingClaim is not set and labels are set
+    set:
+      persistence:
+        enabled: true
+        labels:
+          key: value
+        existingClaim: ""
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: metadata.labels.key
+          value: value
+
   - it: should set volumeMode when persistence is enabled and volumeMode is set
     set:
       persistence:
