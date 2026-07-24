@@ -4,7 +4,7 @@
 
 A Helm chart for cloudflare tunnel
 
-![Version: 2.2.13](https://img.shields.io/badge/Version-2.2.13-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.7.2](https://img.shields.io/badge/AppVersion-2026.7.2-informational?style=flat-square)
+![Version: 2.2.14](https://img.shields.io/badge/Version-2.2.14-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.7.3](https://img.shields.io/badge/AppVersion-2026.7.3-informational?style=flat-square)
 
 ## Official Documentation
 
