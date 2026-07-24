@@ -4,7 +4,7 @@
 
 A local-first personal finance app
 
-![Version: 1.9.1](https://img.shields.io/badge/Version-1.9.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 26.7.0](https://img.shields.io/badge/AppVersion-26.7.0-informational?style=flat-square)
+![Version: 1.10.0](https://img.shields.io/badge/Version-1.10.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 26.7.0](https://img.shields.io/badge/AppVersion-26.7.0-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -54,6 +54,40 @@ ingress:
 persistence:
   enabled: true
   existingClaim: actualbudget-volume
+```
+
+## Gateway API HTTPRoute Example
+
+As an alternative (or in addition) to an `Ingress`, the chart can expose Actual Budget through a [Gateway API](https://gateway-api.sigs.k8s.io/) `HTTPRoute`. It is disabled by default; enable it and attach it to an existing Gateway:
+
+```yaml
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: my-gateway
+      namespace: gateway-system
+      sectionName: https
+  hostnames:
+    - actualbudget.example.com
+```
+
+When `httpRoute.rules` is left empty the chart generates a single rule that matches `PathPrefix: /` and forwards to the Actual Budget service. Provide your own `rules` for custom path matching, header modification, or traffic splitting:
+
+```yaml
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - actualbudget.example.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: my-actualbudget
+          port: 5006
 ```
 
 ## Configuring OpenID Connect
@@ -157,6 +191,13 @@ helm upgrade [RELEASE_NAME] community-charts/actualbudget
 | files.server | string | `"/data/server-files"` | The server will put an account.sqlite file in this directory, which will contain the (hashed) server password, a list of all the budget files the server knows about, and the active session token (along with anything else the server may want to store in the future). For more information checkout: https://actualbudget.org/docs/config/#serverfiles |
 | files.user | string | `"/data/user-files"` | The server will put all the budget files in this directory as binary blobs. For more information checkout: https://actualbudget.org/docs/config/#userfiles |
 | fullnameOverride | string | `""` |  |
+| httpRoute | object | `{"annotations":{},"enabled":false,"hostnames":[],"labels":{},"parentRefs":[],"rules":[]}` | Gateway API HTTPRoute configuration. Complementary to `ingress` - you may enable either, both, or neither. |
+| httpRoute.annotations | object | `{}` | Additional HTTPRoute annotations |
+| httpRoute.enabled | bool | `false` | Specifies if you want to create an HTTPRoute (Gateway API) |
+| httpRoute.hostnames | list | `[]` | Hostnames the route matches. |
+| httpRoute.labels | object | `{}` | Additional HTTPRoute labels |
+| httpRoute.parentRefs | list | `[]` | List of parentRefs (Gateways) the route attaches to. Required when httpRoute.enabled is true. |
+| httpRoute.rules | list | `[]` | Route rules. When empty, a single rule matching PathPrefix / and forwarding to the actualbudget service is generated. Provide your own rules for custom matching, header rewriting, or traffic splitting. Values are processed with tpl, so Helm expressions are allowed. |
 | image.digest | string | `""` | Image digest in the format sha256:<hex>. When set, overrides the tag for immutable pulls. |
 | image.pullPolicy | string | `"IfNotPresent"` | This sets the pull policy for images. |
 | image.repository | string | `"actualbudget/actual-server"` | The docker image repository to use |
