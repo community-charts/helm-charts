@@ -143,7 +143,7 @@ Usage: {{ include "mlflow.normalizeList" $list }}
 
 {{/*
 Build the MLFLOW_SERVER_ALLOWED_HOSTS value.
-Auto-detects ingress hostnames then appends serverAllowedHosts.
+Auto-detects ingress and httpRoute hostnames then appends serverAllowedHosts.
 Delegates dedup and wildcard collapsing to mlflow.normalizeList.
 Usage: {{ include "mlflow.serverAllowedHosts" . }}
 */}}
@@ -154,13 +154,17 @@ Usage: {{ include "mlflow.serverAllowedHosts" . }}
     {{- if .host -}}{{- $hosts = append $hosts .host -}}{{- end -}}
   {{- end -}}
 {{- end -}}
+{{- if and .Values.httpRoute.enabled .Values.httpRoute.hostnames -}}
+  {{- range .Values.httpRoute.hostnames -}}{{- $hosts = append $hosts . -}}{{- end -}}
+{{- end -}}
 {{- range .Values.serverAllowedHosts -}}{{- $hosts = append $hosts . -}}{{- end -}}
 {{- include "mlflow.normalizeList" $hosts -}}
 {{- end }}
 
 {{/*
 Build the MLFLOW_SERVER_CORS_ALLOWED_ORIGINS value.
-Auto-detects ingress origins (https when TLS configured, http otherwise) then appends corsAllowedOrigins.
+Auto-detects ingress origins (https when TLS configured, http otherwise) and httpRoute
+origins (always https) then appends corsAllowedOrigins.
 Delegates dedup and wildcard collapsing to mlflow.normalizeList.
 Usage: {{ include "mlflow.corsAllowedOrigins" . }}
 */}}
@@ -173,13 +177,16 @@ Usage: {{ include "mlflow.corsAllowedOrigins" . }}
     {{- if .host -}}{{- $origins = append $origins (printf "%s://%s" $scheme .host) -}}{{- end -}}
   {{- end -}}
 {{- end -}}
+{{- if and .Values.httpRoute.enabled .Values.httpRoute.hostnames -}}
+  {{- range .Values.httpRoute.hostnames -}}{{- $origins = append $origins (printf "https://%s" .) -}}{{- end -}}
+{{- end -}}
 {{- range .Values.corsAllowedOrigins -}}{{- $origins = append $origins . -}}{{- end -}}
 {{- include "mlflow.normalizeList" $origins -}}
 {{- end }}
 
 {{/*
-Return the port number the Ingress should target. If oauth2-proxy sidecar is enabled
-use its listenPort, otherwise use the service.port value.
+Return the port number the Ingress or HTTPRoute should target. If oauth2-proxy sidecar
+is enabled use its listenPort, otherwise use the service.port value.
 Usage: {{ include "mlflow.servicePort" . }}
 */}}
 {{- define "mlflow.servicePort" -}}
