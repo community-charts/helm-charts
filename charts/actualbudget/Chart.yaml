@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.9.2
+version: 1.10.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "26.7.0"
+appVersion: "26.8.0"
 kubeVersion: ">=1.16.0-0"
 home: https://actualbudget.org/
 maintainers:
@@ -48,12 +48,12 @@ annotations:
     - name: Upstream Project
       url: https://github.com/actualbudget/actual
   artifacthub.io/containsSecurityUpdates: "false"
-  artifacthub.io/changes: |
+  artifacthub.io/changes: |-
     - kind: added
       description: Support setting custom labels on the persistence pvc
   artifacthub.io/images: |
     - name: actualbudget
-      image: actualbudget/actual-server:26.7.0
+      image: actualbudget/actual-server:26.8.0
       platforms:
         - linux/amd64
         - linux/arm64
