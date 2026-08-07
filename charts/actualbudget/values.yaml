@@ -190,6 +190,9 @@ persistence:
   # -- Actual Budget persistence annotations
   annotations: {}
 
+  # -- Actual Budget persistence labels
+  labels: {}
+
   # -- Actual Budget persistence existing claim
   existingClaim: ""
 

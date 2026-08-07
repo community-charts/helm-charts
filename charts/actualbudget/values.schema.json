@@ -535,6 +535,14 @@
           "title": "existingClaim",
           "type": "string"
         },
+        "labels": {
+          "additionalProperties": true,
+          "default": {},
+          "description": "Actual Budget persistence labels",
+          "required": [],
+          "title": "labels",
+          "type": "object"
+        },
         "size": {
           "default": "10Gi",
           "pattern": "^[0-9]+(Gi|Mi|Ki|G|M|K)$",
@@ -569,6 +577,7 @@
       "required": [
         "enabled",
         "annotations",
+        "labels",
         "existingClaim",
         "storageClass",
         "subPath",
