@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.9.3
+version: 1.10.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -54,6 +54,13 @@ annotations:
       links:
         - name: Upstream Project
           url: https://hub.docker.com/r/actualbudget/actual-server
+    - kind: added
+      description: Add opt-in Gateway API HTTPRoute support
+      links:
+        - name: GitHub Issue
+          url: https://github.com/community-charts/helm-charts/issues/417
+        - name: GitHub PR
+          url: https://github.com/community-charts/helm-charts/pull/537
   artifacthub.io/images: |
     - name: actualbudget
       image: actualbudget/actual-server:26.8.1
