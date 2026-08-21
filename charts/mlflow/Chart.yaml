@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.11.4
+version: 1.11.5
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -52,12 +52,12 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update burakince/mlflow image version to 3.15.1
+      description: Update oauth2-proxy image version to v7.15.4
       links:
-        - name: Upstream Project
-          url: https://hub.docker.com/r/burakince/mlflow
+        - name: oauth2-proxy
+          url: https://quay.io/repository/oauth2-proxy/oauth2-proxy
     - kind: changed
-      description: Update dependency postgresql from 18.8.4 to 18.8.6
+      description: Update dependency postgresql from 18.8.6 to 18.8.12
       links:
         - name: ArtifactHub
           url: https://artifacthub.io/packages/helm/bitnami/postgresql
@@ -65,7 +65,7 @@ annotations:
     - name: mlflow
       image: burakince/mlflow:3.15.1
     - name: oauth2-proxy
-      image: quay.io/oauth2-proxy/oauth2-proxy:v7.15.3
+      image: quay.io/oauth2-proxy/oauth2-proxy:v7.15.4
     - name: dbchecker
       image: library/busybox:1.38.0
     - name: ini-file-initializer
@@ -100,7 +100,7 @@ annotations:
     url: https://keybase.io/communitycharts/pgp_keys.asc
 dependencies:
   - name: postgresql
-    version: 18.8.6
+    version: 18.8.12
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: mysql
