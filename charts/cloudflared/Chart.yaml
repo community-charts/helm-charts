@@ -14,7 +14,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 2.2.16
+version: 2.3.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -52,11 +52,13 @@ annotations:
       url: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Update cloudflare/cloudflared image version to 2026.8.2
+    - kind: added
+      description: Add remotely-managed tunnel support via a new tunnelMode value
       links:
-        - name: Upstream Project
-          url: https://hub.docker.com/r/cloudflare/cloudflared
+        - name: Cloudflare Remotely-Managed Tunnels
+          url: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/remote-tunnel-permissions/
+    - kind: added
+      description: Support supplying the tunnel token from an existing Kubernetes secret
   artifacthub.io/images: |
     - name: cloudflared
       image: cloudflare/cloudflared:2026.8.2
