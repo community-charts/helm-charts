@@ -14,12 +14,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.9.3
+version: 0.9.4
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "1.9.2"
+appVersion: "1.10.0"
 kubeVersion: ">=1.23.0-0"
 home: https://www.getoutline.com/
 maintainers:
@@ -53,18 +53,23 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update outlinewiki/outline image version to 1.9.2
+      description: Update outlinewiki/outline image version to 1.10.0
       links:
         - name: Upstream Project
           url: https://hub.docker.com/r/outlinewiki/outline
     - kind: changed
-      description: Update dependency postgresql from 18.7.13 to 18.8.0
+      description: Update dependency redis from 27.0.15 to 28.0.12
+      links:
+        - name: ArtifactHub
+          url: https://artifacthub.io/packages/helm/bitnami/redis
+    - kind: changed
+      description: Update dependency postgresql from 18.8.0 to 18.8.13
       links:
         - name: ArtifactHub
           url: https://artifacthub.io/packages/helm/bitnami/postgresql
   artifacthub.io/images: |
     - name: outline
-      image: outlinewiki/outline:1.9.2
+      image: outlinewiki/outline:1.10.0
       platforms:
         - linux/amd64
         - linux/arm64
@@ -83,11 +88,11 @@ annotations:
     url: https://keybase.io/communitycharts/pgp_keys.asc
 dependencies:
   - name: redis
-    version: 27.0.15
+    version: 28.0.12
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
   - name: postgresql
-    version: 18.8.0
+    version: 18.8.13
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: minio
