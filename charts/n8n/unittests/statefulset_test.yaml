@@ -156,6 +156,90 @@ tests:
           value: TCP
         template: statefulset.yaml
 
+  - it: should not render the startup probe by default
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].startupProbe
+        template: statefulset.yaml
+      - exists:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].livenessProbe
+        template: statefulset.yaml
+
+  - it: should render the startup probe when main.startupProbe.enabled is true
+    set:
+      main:
+        startupProbe:
+          enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].startupProbe.httpGet.path
+          value: /healthz
+        template: statefulset.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].startupProbe.httpGet.port
+          value: http
+        template: statefulset.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].startupProbe.initialDelaySeconds
+          value: 10
+        template: statefulset.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].startupProbe.periodSeconds
+          value: 5
+        template: statefulset.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].startupProbe.failureThreshold
+          value: 30
+        template: statefulset.yaml
+      - notExists:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].startupProbe.enabled
+        template: statefulset.yaml
+
+  - it: should set startup probe when main.startupProbe is set
+    set:
+      main:
+        startupProbe:
+          enabled: true
+          httpGet: null
+          exec:
+            command: ["/bin/sh", "-c", "ps aux | grep '[n]8n'"]
+          initialDelaySeconds: 15
+          periodSeconds: 3
+          failureThreshold: 60
+          timeoutSeconds: 5
+          successThreshold: 1
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].startupProbe.exec.command[2]
+          value: ps aux | grep '[n]8n'
+        template: statefulset.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].startupProbe.initialDelaySeconds
+          value: 15
+        template: statefulset.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].startupProbe.periodSeconds
+          value: 3
+        template: statefulset.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].startupProbe.timeoutSeconds
+          value: 5
+        template: statefulset.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].startupProbe.failureThreshold
+          value: 60
+        template: statefulset.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].startupProbe.successThreshold
+          value: 1
+        template: statefulset.yaml
+      - notExists:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].startupProbe.httpGet
+        template: statefulset.yaml
+      - notExists:
+          path: spec.template.spec.containers[?(@.name == "n8n-main")].startupProbe.enabled
+        template: statefulset.yaml
+
   - it: should set liveness probe when livenessProbe is set
     set:
       livenessProbe:

@@ -417,6 +417,20 @@ main:
   #   cpu: 2000m
   #   memory: 1Gi
 
+  # -- This is to setup the startup probe for the main pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  startupProbe:
+    # -- Whether to enable the startup probe for the main node. Mirror any
+    # main.livenessProbe.httpGet customisation below before turning this on, or
+    # the probe never passes and the container is killed before it finishes
+    # booting.
+    enabled: false
+    httpGet:
+      path: /healthz
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    failureThreshold: 30
+
   # -- This is to setup the liveness probe for the main pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
   livenessProbe:
     httpGet:

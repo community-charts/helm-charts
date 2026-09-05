@@ -1699,6 +1699,60 @@
           "title": "resources",
           "type": "object"
         },
+        "startupProbe": {
+          "additionalProperties": true,
+          "description": "This is to setup the startup probe for the main pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "description": "Whether to enable the startup probe for the main node. Mirror any main.livenessProbe.httpGet customisation below before turning this on, or the probe never passes and the container is killed before it finishes booting.",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "httpGet": {
+              "additionalProperties": true,
+              "properties": {
+                "path": {
+                  "default": "/healthz",
+                  "required": [],
+                  "title": "path",
+                  "type": "string"
+                },
+                "port": {
+                  "default": "http",
+                  "required": [],
+                  "title": "port",
+                  "type": "string"
+                }
+              },
+              "required": ["path", "port"],
+              "title": "httpGet",
+              "type": "object"
+            },
+            "initialDelaySeconds": {
+              "default": 10,
+              "required": [],
+              "title": "initialDelaySeconds",
+              "type": "integer"
+            },
+            "periodSeconds": {
+              "default": 5,
+              "required": [],
+              "title": "periodSeconds",
+              "type": "integer"
+            },
+            "failureThreshold": {
+              "default": 30,
+              "required": [],
+              "title": "failureThreshold",
+              "type": "integer"
+            }
+          },
+          "required": ["enabled"],
+          "title": "startupProbe",
+          "type": "object"
+        },
         "livenessProbe": {
           "additionalProperties": true,
           "description": "This is to setup the liveness probe for the main pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
@@ -1942,7 +1996,7 @@
           "type": "string"
         }
       },
-      "required": ["count", "editorBaseUrl", "resources", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraEnv", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers", "affinity", "hostAliases", "runtimeClassName"],
+      "required": ["count", "editorBaseUrl", "resources", "startupProbe", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraEnv", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers", "affinity", "hostAliases", "runtimeClassName"],
       "title": "main",
       "type": "object"
     },

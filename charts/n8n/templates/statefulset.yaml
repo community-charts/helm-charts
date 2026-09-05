@@ -115,6 +115,10 @@ spec:
             - name: {{ .Values.service.name }}
               containerPort: {{ .Values.service.port }}
               protocol: TCP
+          {{- if .Values.main.startupProbe.enabled }}
+          startupProbe:
+            {{- omit .Values.main.startupProbe "enabled" | toYaml | nindent 12 }}
+          {{- end }}
           livenessProbe:
             {{- $rootLiveness := .Values.livenessProbe | default dict }}
             {{- $mainLiveness := .Values.main.livenessProbe | default dict }}
