@@ -942,9 +942,15 @@ taskRunners:
 
   # -- The configuration for the external task runner
   external:
-    # -- The auth token for the main node
+    # -- The name of an existing Secret holding the task runner auth tokens. When set, the chart does not create its own task runner Secret and `mainNodeAuthToken`/`workerNodeAuthToken` are ignored. Useful to manage the tokens out-of-band (e.g. a secrets manager) and avoid the chart regenerating them on every render.
+    existingSecret: ""
+    # -- The key in `existingSecret` that stores the main node auth token.
+    existingSecretAuthTokenKey: "auth-token"
+    # -- The key in `existingSecret` that stores the worker node auth token.
+    existingSecretWorkerAuthTokenKey: "worker-auth-token"
+    # -- The auth token for the main node. Ignored when `existingSecret` is set.
     mainNodeAuthToken: ""
-    # -- The auth token for the worker node
+    # -- The auth token for the worker node. Ignored when `existingSecret` is set.
     workerNodeAuthToken: ""
     # -- The auto shutdown timeout for the external task runner in seconds
     autoShutdownTimeout: 15
