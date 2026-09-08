@@ -20,25 +20,24 @@ else
   PORT="${MSSQL_TCP_PORT}"
 fi
 
-COUNT=0
-
-function fib() {
-  if [ $1 -le 0 ]; then
-    echo 0
-  elif [ $1 -eq 1 ]; then
-    echo 1
-  else
-    echo $(( $(fib $(($1 - 1)) ) + $(fib $(($1 - 2)) ) ))
-  fi
-}
+# Retry with an iterative Fibonacci backoff (1, 1, 2, 3, 5, 8, ...) clamped to
+# MAX_SLEEP seconds, so a database that comes back after a long outage is
+# noticed within MAX_SLEEP seconds instead of after an ever-growing sleep.
+MAX_SLEEP=30
+PREV_SLEEP=0
+SLEEP_TIME=1
 
 echo "[INFO] Waiting for Database to become ready..."
 
 until nc -z -w 2 $HOST $PORT; do
-  COUNT=$((COUNT + 1));
-  SLEEP_TIME=$(fib $COUNT);
   echo "[WARNING] Unable to access database! Sleeping $SLEEP_TIME seconds. Waiting for $HOST to listen on $PORT...";
   sleep $SLEEP_TIME;
+  NEXT_SLEEP=$((PREV_SLEEP + SLEEP_TIME));
+  PREV_SLEEP=$SLEEP_TIME;
+  SLEEP_TIME=$NEXT_SLEEP;
+  if [ $SLEEP_TIME -gt $MAX_SLEEP ]; then
+    SLEEP_TIME=$MAX_SLEEP;
+  fi
 done;
 
 echo "[INFO] Database OK ✓"
