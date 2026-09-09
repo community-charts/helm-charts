@@ -92,7 +92,7 @@ When `oidcAuth.enabled`, the chart injects this same secret as `SECRET_KEY` (the
 
 When a database is configured the init containers always run in this fixed order:
 
-1. **dbchecker** — polls DB port using Fibonacci-backoff netcat (unbounded retries); runs only when `backendStore.databaseConnectionCheck: true`
+1. **dbchecker** — polls DB port with netcat using an iterative Fibonacci backoff capped at 30 s (`MAX_SLEEP` in `files/dbchecker.sh`; retries forever); runs only when `backendStore.databaseConnectionCheck: true`
 2. **mlflow-db-migration** — runs `python /opt/mlflow/migrations.py` (wraps `mlflow db upgrade`); runs only when `backendStore.databaseMigration: true`
 3. **ini-file-initializer** — writes `auth_result.ini` into an `emptyDir` shared with the main container; runs when `auth.enabled` or `ldapAuth.enabled`. Uses `sed` when `auth.enabled` (substitutes `$(ADMIN_USERNAME_PLACEHOLDER)` etc. from secrets); uses `cp` when only `ldapAuth.enabled` (no placeholders — the INI uses literal `fakeuser`/`fakepassword`, secrets are not needed)
 4. **user-provided** `initContainers` — appended last
