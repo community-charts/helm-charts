@@ -3064,3 +3064,78 @@ tests:
           path: spec.template.spec.initContainers[?(@.name == "dbchecker")].securityContext.readOnlyRootFilesystem
           value: true
         template: deployment.yaml
+
+  - it: should reference the chart-managed flask server secret via envFrom when flaskServerSecretKeyExistingSecret is not set
+    set:
+      backendStore:
+        postgres:
+          enabled: true
+          host: postgres.example.com
+          database: mlflow
+          user: mlflowuser
+          password: mlflowpassword
+        databaseMigration: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].envFrom
+          content:
+            secretRef:
+              name: mlflow-flask-server-secret-key
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "mlflow-db-migration")].envFrom
+          content:
+            secretRef:
+              name: mlflow-flask-server-secret-key
+        template: deployment.yaml
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: MLFLOW_FLASK_SERVER_SECRET_KEY
+          any: true
+        template: deployment.yaml
+
+  - it: should reference the existing flask server secret via env when flaskServerSecretKeyExistingSecret.name is set
+    set:
+      backendStore:
+        postgres:
+          enabled: true
+          host: postgres.example.com
+          database: mlflow
+          user: mlflowuser
+          password: mlflowpassword
+        databaseMigration: true
+      flaskServerSecretKeyExistingSecret:
+        name: my-flask-secret
+        key: my-flask-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: MLFLOW_FLASK_SERVER_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: my-flask-secret
+                key: my-flask-key
+        template: deployment.yaml
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].envFrom
+          content:
+            secretRef:
+              name: mlflow-flask-server-secret-key
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name == "mlflow-db-migration")].env
+          content:
+            name: MLFLOW_FLASK_SERVER_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: my-flask-secret
+                key: my-flask-key
+        template: deployment.yaml
+      - notContains:
+          path: spec.template.spec.initContainers[?(@.name == "mlflow-db-migration")].envFrom
+          content:
+            secretRef:
+              name: mlflow-flask-server-secret-key
+        template: deployment.yaml
