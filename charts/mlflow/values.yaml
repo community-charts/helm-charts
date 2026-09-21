@@ -463,6 +463,31 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
+# -- Gateway API HTTPRoute configuration. Complementary to `ingress` - you may enable either, both, or neither.
+httpRoute:
+  # -- Specifies if you want to create an HTTPRoute (Gateway API)
+  enabled: false
+  # -- Additional HTTPRoute annotations
+  annotations: {}
+  # -- Additional HTTPRoute labels
+  labels: {}
+  # -- List of parentRefs (Gateways) the route attaches to. Required when httpRoute.enabled is true.
+  parentRefs: []
+  #  - name: my-gateway
+  #    namespace: gateway-system
+  #    sectionName: https
+  # -- Hostnames the route matches. Also merged into MLFLOW_SERVER_ALLOWED_HOSTS and (as https origins) MLFLOW_SERVER_CORS_ALLOWED_ORIGINS so the server security middleware does not reject Gateway traffic.
+  hostnames: []
+  #  - mlflow.example.com
+  # -- Route rules. When empty, a single rule matching PathPrefix / and forwarding to the MLflow service is generated. Provide your own rules for custom matching, header rewriting, or traffic splitting. Values are processed with tpl, so Helm expressions are allowed.
+  rules: []
+  #  - matches:
+  #      - path:
+  #          type: PathPrefix
+  #          value: /
+  #    backendRefs:
+  #      - name: my-mlflow
+  #        port: 80
 # -- List of allowed CORS origins for the MLflow server security middleware (env: MLFLOW_SERVER_CORS_ALLOWED_ORIGINS).
 # When ingress is enabled, origins are automatically derived from ingress hosts: https:// if ingress.tls is configured, http:// otherwise.
 # Set explicitly to override auto-detection (e.g. ["*"] for dev, or origins behind a load balancer with TLS termination before ingress).
