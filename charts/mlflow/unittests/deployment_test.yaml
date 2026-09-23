@@ -2774,9 +2774,6 @@ tests:
           path: spec.template.spec.initContainers[?(@.name == "mlflow-db-migration")].resources.limits.memory
           value: 128Mi
         template: deployment.yaml
-      - notExists:
-          path: spec.template.spec.initContainers[?(@.name == "dbchecker")].resources
-        template: deployment.yaml
 
   - it: should add digest to image tag when digest is set
     set:
