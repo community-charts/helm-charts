@@ -279,3 +279,22 @@ tests:
             name: OIDC_REDIRECT_URI
         template: deployment.yaml
 
+
+  - it: should inject SECRET_KEY from existing secret when flaskServerSecretKeyExistingSecret name is set
+    set:
+      oidcAuth:
+        enabled: true
+        clientSecret: "test-secret"
+      flaskServerSecretKeyExistingSecret:
+        name: my-flask-secret
+        key: my-flask-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: my-flask-secret
+                key: my-flask-key
+        template: deployment.yaml

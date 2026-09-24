@@ -184,7 +184,7 @@ spec:
           imagePullPolicy: {{ .Values.initImages.mlflowDbMigration.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-        {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name (and .Values.backendStore.mssql.enabled .Values.backendStore.mssql.existingConnectionUrlSecret.name) }}
+        {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name (and .Values.backendStore.mssql.enabled .Values.backendStore.mssql.existingConnectionUrlSecret.name) .Values.flaskServerSecretKeyExistingSecret.name }}
           env:
         {{- end }}
           {{- if .Values.postgresql.enabled }}
@@ -256,13 +256,22 @@ spec:
                   name: {{ .Values.backendStore.mssql.existingConnectionUrlSecret.name }}
                   key: {{ .Values.backendStore.mssql.existingConnectionUrlSecret.key }}
           {{- end }}
+          {{- if .Values.flaskServerSecretKeyExistingSecret.name }}
+            - name: MLFLOW_FLASK_SERVER_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mlflow.flaskServerSecretName" . }}
+                  key: {{ include "mlflow.flaskServerSecretKeyName" . }}
+          {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ include "mlflow.fullname" . }}-env-configmap
             - secretRef:
                 name: {{ include "mlflow.fullname" . }}-env-secret
+          {{- if not .Values.flaskServerSecretKeyExistingSecret.name }}
             - secretRef:
-                name: {{ include "mlflow.fullname" . }}-flask-server-secret-key
+                name: {{ include "mlflow.flaskServerSecretName" . }}
+          {{- end }}
           command: ["python"]
           args:
             - /opt/mlflow/migrations.py
@@ -470,8 +479,8 @@ spec:
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "mlflow.fullname" . }}-flask-server-secret-key
-                  key: MLFLOW_FLASK_SERVER_SECRET_KEY
+                  name: {{ include "mlflow.flaskServerSecretName" . }}
+                  key: {{ include "mlflow.flaskServerSecretKeyName" . }}
             {{- if .Values.oidcAuth.cache.enabled }}
             - name: CACHE_BACKEND
               value: "redis"
@@ -610,13 +619,22 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
           {{- end }}
+          {{- if .Values.flaskServerSecretKeyExistingSecret.name }}
+            - name: MLFLOW_FLASK_SERVER_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mlflow.flaskServerSecretName" . }}
+                  key: {{ include "mlflow.flaskServerSecretKeyName" . }}
+          {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ include "mlflow.fullname" . }}-env-configmap
             - secretRef:
                 name: {{ include "mlflow.fullname" . }}-env-secret
+          {{- if not .Values.flaskServerSecretKeyExistingSecret.name }}
             - secretRef:
-                name: {{ include "mlflow.fullname" . }}-flask-server-secret-key
+                name: {{ include "mlflow.flaskServerSecretName" . }}
+          {{- end }}
           {{- range .Values.extraSecretNamesForEnvFrom }}
             - secretRef:
                 name: {{ . }}
