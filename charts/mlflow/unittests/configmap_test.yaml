@@ -53,6 +53,28 @@ tests:
       - hasDocuments:
           count: 2
 
+  - it: should render a bounded iterative backoff in the database connection checker script
+    set:
+      backendStore.postgres.enabled: true
+      backendStore.postgres.host: postgres-service
+      backendStore.postgres.port: 5432
+      backendStore.postgres.database: postgres
+      backendStore.databaseConnectionCheck: true
+    documentIndex: 1
+    asserts:
+      - equal:
+          path: metadata.name
+          value: mlflow-dbchecker
+      - matchRegex:
+          path: data["dbchecker.sh"]
+          pattern: MAX_SLEEP=30
+      - matchRegex:
+          path: data["dbchecker.sh"]
+          pattern: if \[ \$SLEEP_TIME -gt \$MAX_SLEEP \]; then
+      - notMatchRegex:
+          path: data["dbchecker.sh"]
+          pattern: fib
+
   - it: should have mysql environments when mysql is enabled
     set:
       backendStore.mysql.enabled: true
