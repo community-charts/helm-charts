@@ -406,14 +406,14 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /health
+              path: {{ include "mlflow.health" . }}
               port: {{ .Values.service.containerPortName }}
           {{- with .Values.livenessProbe }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
           readinessProbe:
             httpGet:
-              path: /health
+              path: {{ include "mlflow.health" . }}
               port: {{ .Values.service.containerPortName }}
           {{- with .Values.readinessProbe }}
             {{- toYaml . | nindent 12 }}
