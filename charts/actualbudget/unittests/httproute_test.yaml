@@ -1,0 +1,146 @@
+suite: test httproute
+
+templates:
+  - httproute.yaml
+
+release:
+  name: actualbudget
+  namespace: actualbudget
+
+tests:
+  - it: should be empty when httpRoute is not enabled
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should render an HTTPRoute when enabled
+    set:
+      httpRoute:
+        enabled: true
+        parentRefs:
+          - name: my-gateway
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: HTTPRoute
+      - isAPIVersion:
+          of: gateway.networking.k8s.io/v1
+      - equal:
+          path: metadata.name
+          value: actualbudget
+
+  - it: should render parentRefs
+    set:
+      httpRoute:
+        enabled: true
+        parentRefs:
+          - name: my-gateway
+            namespace: gateway-system
+            sectionName: https
+    asserts:
+      - equal:
+          path: spec.parentRefs[0].name
+          value: my-gateway
+      - equal:
+          path: spec.parentRefs[0].namespace
+          value: gateway-system
+      - equal:
+          path: spec.parentRefs[0].sectionName
+          value: https
+
+  - it: should render hostnames
+    set:
+      httpRoute:
+        enabled: true
+        parentRefs:
+          - name: my-gateway
+        hostnames:
+          - actualbudget.example.com
+          - budget.example.com
+    asserts:
+      - equal:
+          path: spec.hostnames[0]
+          value: actualbudget.example.com
+      - equal:
+          path: spec.hostnames[1]
+          value: budget.example.com
+
+  - it: should generate a default PathPrefix rule to the actualbudget service when rules is empty
+    set:
+      httpRoute:
+        enabled: true
+        parentRefs:
+          - name: my-gateway
+    asserts:
+      - equal:
+          path: spec.rules[0].matches[0].path.type
+          value: PathPrefix
+      - equal:
+          path: spec.rules[0].matches[0].path.value
+          value: /
+      - equal:
+          path: spec.rules[0].backendRefs[0].name
+          value: actualbudget
+      - equal:
+          path: spec.rules[0].backendRefs[0].port
+          value: 5006
+
+  - it: should route the default backendRef to service.port
+    set:
+      httpRoute:
+        enabled: true
+        parentRefs:
+          - name: my-gateway
+      service:
+        port: 9090
+    asserts:
+      - equal:
+          path: spec.rules[0].backendRefs[0].port
+          value: 9090
+
+  - it: should use custom rules when provided
+    set:
+      httpRoute:
+        enabled: true
+        parentRefs:
+          - name: my-gateway
+        rules:
+          - matches:
+              - path:
+                  type: Exact
+                  value: /custom
+            backendRefs:
+              - name: custom-svc
+                port: 8080
+    asserts:
+      - equal:
+          path: spec.rules[0].matches[0].path.type
+          value: Exact
+      - equal:
+          path: spec.rules[0].matches[0].path.value
+          value: /custom
+      - equal:
+          path: spec.rules[0].backendRefs[0].name
+          value: custom-svc
+      - equal:
+          path: spec.rules[0].backendRefs[0].port
+          value: 8080
+
+  - it: should render annotations and labels
+    set:
+      httpRoute:
+        enabled: true
+        parentRefs:
+          - name: my-gateway
+        annotations:
+          foo: bar
+        labels:
+          team: finance
+    asserts:
+      - equal:
+          path: metadata.annotations.foo
+          value: bar
+      - equal:
+          path: metadata.labels.team
+          value: finance

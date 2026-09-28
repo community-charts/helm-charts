@@ -462,6 +462,57 @@
       "title": "ingress",
       "type": "object"
     },
+    "httpRoute": {
+      "additionalProperties": false,
+      "description": "Gateway API HTTPRoute configuration",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "annotations": {
+          "additionalProperties": true,
+          "required": [],
+          "title": "annotations",
+          "type": "object"
+        },
+        "labels": {
+          "additionalProperties": true,
+          "required": [],
+          "title": "labels",
+          "type": "object"
+        },
+        "parentRefs": {
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "parentRefs",
+          "type": "array"
+        },
+        "hostnames": {
+          "items": {
+            "type": "string"
+          },
+          "required": [],
+          "title": "hostnames",
+          "type": "array"
+        },
+        "rules": {
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "rules",
+          "type": "array"
+        }
+      },
+      "required": ["enabled", "annotations", "labels", "parentRefs", "hostnames", "rules"],
+      "title": "httpRoute",
+      "type": "object"
+    },
     "extraEnvVars": {
       "type": "object",
       "description": "Extra environment variables",
@@ -945,6 +996,7 @@
     "upload",
     "login",
     "ingress",
+    "httpRoute",
     "extraEnvVars",
     "resources",
     "livenessProbe",

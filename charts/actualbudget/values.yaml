@@ -154,6 +154,32 @@ ingress:
   #    hosts:
   #      - actualbudget.local
 
+# -- Gateway API HTTPRoute configuration. Complementary to `ingress` - you may enable either, both, or neither.
+httpRoute:
+  # -- Specifies if you want to create an HTTPRoute (Gateway API)
+  enabled: false
+  # -- Additional HTTPRoute annotations
+  annotations: {}
+  # -- Additional HTTPRoute labels
+  labels: {}
+  # -- List of parentRefs (Gateways) the route attaches to. Required when httpRoute.enabled is true.
+  parentRefs: []
+  #  - name: my-gateway
+  #    namespace: gateway-system
+  #    sectionName: https
+  # -- Hostnames the route matches.
+  hostnames: []
+  #  - actualbudget.example.com
+  # -- Route rules. When empty, a single rule matching PathPrefix / and forwarding to the actualbudget service is generated. Provide your own rules for custom matching, header rewriting, or traffic splitting. Values are processed with tpl, so Helm expressions are allowed.
+  rules: []
+  #  - matches:
+  #      - path:
+  #          type: PathPrefix
+  #          value: /
+  #    backendRefs:
+  #      - name: my-actualbudget
+  #        port: 5006
+
 # -- Extra environment variables. For more information checkout: https://actualbudget.org/docs/config/
 extraEnvVars: {}
 
