@@ -280,8 +280,14 @@ artifactRoot:
     bucket: "" # required
     # -- Google Cloud Storage bucket folder. If you want to use root level, please don't set anything.
     path: "" # optional
-# -- Mlflow Flask Server Secret Key. Default: Will be auto generated.
+# -- Mlflow Flask Server Secret Key. Default: Will be auto generated. The generated key is only kept across upgrades by a real Helm release; helm template based delivery (for example ArgoCD) renders a new key on every sync, use flaskServerSecretKeyExistingSecret there.
 flaskServerSecretKey: ""
+# -- Reference a pre-existing secret that holds the Flask server secret key instead of generating one
+flaskServerSecretKeyExistingSecret:
+  # -- Name of the pre-existing secret; if empty the chart generates the key and creates the secret
+  name: ""
+  # -- Key in the existing secret that holds the Flask server secret key value
+  key: "MLFLOW_FLASK_SERVER_SECRET_KEY"
 # -- Mlflow authentication settings
 auth:
   # -- Specifies if you want to enable mlflow authentication. auth, ldapAuth, and oidcAuth can't be enabled at same time.

@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 1.11.7](https://img.shields.io/badge/Version-1.11.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.16.0](https://img.shields.io/badge/AppVersion-3.16.0-informational?style=flat-square)
+![Version: 1.12.0](https://img.shields.io/badge/Version-1.12.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.16.0](https://img.shields.io/badge/AppVersion-3.16.0-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -1079,7 +1079,10 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
 | extraVolumeMounts | list | `[]` | Extra Volume Mounts for the mlflow container |
 | extraVolumes | list | `[]` | Extra Volumes for the pod |
-| flaskServerSecretKey | string | `""` | Mlflow Flask Server Secret Key. Default: Will be auto generated. |
+| flaskServerSecretKey | string | `""` | Mlflow Flask Server Secret Key. Default: Will be auto generated. The generated key is only kept across upgrades by a real Helm release; helm template based delivery (for example ArgoCD) renders a new key on every sync, use flaskServerSecretKeyExistingSecret there. |
+| flaskServerSecretKeyExistingSecret | object | `{"key":"MLFLOW_FLASK_SERVER_SECRET_KEY","name":""}` | Reference a pre-existing secret that holds the Flask server secret key instead of generating one |
+| flaskServerSecretKeyExistingSecret.key | string | `"MLFLOW_FLASK_SERVER_SECRET_KEY"` | Key in the existing secret that holds the Flask server secret key value |
+| flaskServerSecretKeyExistingSecret.name | string | `""` | Name of the pre-existing secret; if empty the chart generates the key and creates the secret |
 | fullnameOverride | string | `""` | String to override the default generated fullname |
 | image | object | `{"digest":"","pullPolicy":"IfNotPresent","repository":"burakince/mlflow","tag":""}` | Image of mlflow |
 | image.digest | string | `""` | Image digest in the format sha256:<hex>. When set, overrides the tag for immutable pulls. |

@@ -2314,6 +2314,29 @@
       "title": "flaskServerSecretKey",
       "type": "string"
     },
+    "flaskServerSecretKeyExistingSecret": {
+      "additionalProperties": false,
+      "description": "Reference a pre-existing secret that holds the Flask server secret key instead of generating one",
+      "properties": {
+        "name": {
+          "default": "",
+          "description": "Name of the existing secret; leave empty to let the chart generate the key and create the secret",
+          "required": [],
+          "title": "name",
+          "type": "string"
+        },
+        "key": {
+          "default": "MLFLOW_FLASK_SERVER_SECRET_KEY",
+          "description": "Key in the existing secret that holds the Flask server secret key value",
+          "required": [],
+          "title": "key",
+          "type": "string"
+        }
+      },
+      "required": [],
+      "title": "flaskServerSecretKeyExistingSecret",
+      "type": "object"
+    },
     "auth": {
       "additionalProperties": false,
       "description": "Mlflow authentication settings",
@@ -3265,6 +3288,7 @@
     "livenessProbe",
     "readinessProbe",
     "flaskServerSecretKey",
+    "flaskServerSecretKeyExistingSecret",
     "auth",
     "ldapAuth",
     "autoscaling"

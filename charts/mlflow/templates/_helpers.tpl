@@ -119,6 +119,28 @@ Usage: {{ include "mlflow.oidcAuthDbSecretName" . }}
 {{- end -}}
 
 {{/*
+Return the name of the secret that holds the Flask server secret key.
+When flaskServerSecretKeyExistingSecret.name is set the user manages the secret; otherwise the chart creates one.
+Usage: {{ include "mlflow.flaskServerSecretName" . }}
+*/}}
+{{- define "mlflow.flaskServerSecretName" -}}
+{{- default (printf "%s-flask-server-secret-key" (include "mlflow.fullname" .)) .Values.flaskServerSecretKeyExistingSecret.name -}}
+{{- end -}}
+
+{{/*
+Return the key inside the Flask server secret that holds the secret key value.
+The chart-managed secret always uses MLFLOW_FLASK_SERVER_SECRET_KEY; an existing secret uses flaskServerSecretKeyExistingSecret.key.
+Usage: {{ include "mlflow.flaskServerSecretKeyName" . }}
+*/}}
+{{- define "mlflow.flaskServerSecretKeyName" -}}
+{{- if .Values.flaskServerSecretKeyExistingSecret.name -}}
+{{- .Values.flaskServerSecretKeyExistingSecret.key -}}
+{{- else -}}
+MLFLOW_FLASK_SERVER_SECRET_KEY
+{{- end -}}
+{{- end -}}
+
+{{/*
 Build the full container image reference, appending digest when set.
 */}}
 {{- define "mlflow.containerImage" -}}
