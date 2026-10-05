@@ -671,18 +671,18 @@ tests:
               name: mysupersecret
         template: deployment.yaml
 
-  - it: should check that liveness and rediness is not affected if static prefix is set
+  - it: should check liveness and rediness with static prefix when we set static prefix from extra arguments
     set:
       extraArgs:
         staticPrefix: /mlflow
     asserts:
       - equal:
           path: spec.template.spec.containers[?(@.name == "mlflow")].livenessProbe.httpGet.path
-          value: /health
+          value: /mlflow/health
         template: deployment.yaml
       - equal:
           path: spec.template.spec.containers[?(@.name == "mlflow")].readinessProbe.httpGet.path
-          value: /health
+          value: /mlflow/health
         template: deployment.yaml
 
   - it: should check that the db checker init container is present if enabled with postgres
