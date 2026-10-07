@@ -19,7 +19,7 @@ version: 1.10.0
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "26.8.0"
+appVersion: "26.10.0"
 kubeVersion: ">=1.16.0-0"
 home: https://actualbudget.org/
 maintainers:
@@ -53,7 +53,7 @@ annotations:
       description: Support setting custom labels on the persistence pvc
   artifacthub.io/images: |
     - name: actualbudget
-      image: actualbudget/actual-server:26.8.0
+      image: actualbudget/actual-server:26.10.0
       platforms:
         - linux/amd64
         - linux/arm64
