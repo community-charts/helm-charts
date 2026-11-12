@@ -77,6 +77,9 @@ spec:
       {{- end }}
       labels:
         {{- include "mlflow.selectorLabels" . | nindent 8 }}
+      {{- with .Values.commonLabels }}
+        {{ tpl (toYaml .) $ | nindent 8 }}
+      {{- end }}
       {{- with .Values.extraPodLabels }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
