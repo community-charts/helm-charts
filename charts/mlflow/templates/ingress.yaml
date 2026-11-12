@@ -18,6 +18,9 @@ metadata:
   name: {{ $fullName }}
   labels:
     {{- include "mlflow.labels" . | nindent 4 }}
+    {{- with .Values.commonLabels }}
+    {{ tpl (toYaml .) $ | nindent 4 }}
+    {{- end }}
   {{- with $annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}

@@ -47,6 +47,9 @@ metadata:
   name: {{ template "mlflow.fullname" . }}-auth-ini-template
   labels:
     {{- include "mlflow.labels" . | nindent 4 }}
+    {{- with .Values.commonLabels }}
+    {{ tpl (toYaml .) $ | nindent 4 }}
+    {{- end }}
 data:
   auth_template.ini: |
     [mlflow]

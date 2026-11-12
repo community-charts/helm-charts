@@ -4,6 +4,9 @@ metadata:
   name: {{ include "mlflow.fullname" . }}-env-configmap
   labels:
     {{- include "mlflow.labels" . | nindent 4 }}
+    {{- with .Values.commonLabels }}
+    {{ tpl (toYaml .) $ | nindent 4 }}
+    {{- end }}
 data:
 {{- if .Values.backendStore.postgres.enabled }}
   PGHOST: {{ required "postgres host must be specified" (tpl .Values.backendStore.postgres.host .) }}
@@ -60,6 +63,9 @@ metadata:
   name: {{ include "mlflow.fullname" . }}-migrations
   labels:
     {{- include "mlflow.labels" . | nindent 4 }}
+    {{- with .Values.commonLabels }}
+    {{ tpl (toYaml .) $ | nindent 4 }}
+    {{- end }}
 data:
   migrations.py: |-
     from mlflow.store.db import utils
@@ -99,6 +105,9 @@ metadata:
   name: {{ include "mlflow.fullname" . }}-dbchecker
   labels:
     {{- include "mlflow.labels" . | nindent 4 }}
+    {{- with .Values.commonLabels }}
+    {{ tpl (toYaml .) $ | nindent 4 }}
+    {{- end }}
 data:
   {{ (.Files.Glob "files/dbchecker.sh").AsConfig | nindent 2 }}
 {{- end }}
