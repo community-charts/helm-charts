@@ -239,3 +239,91 @@ tests:
       appVersion: 1.0.0
     asserts:
       - matchSnapshot: { }
+
+  - it: should append extra config after the chart managed keys in sorted order
+    set:
+      auth:
+        enabled: true
+        adminUsername: "admin"
+        adminPassword: "thisisnotasecret"
+        extraConfig:
+          grant_default_workspace_access: true
+          auth_cache_ttl_seconds: 300
+          auth_cache_max_size: 1000000
+    asserts:
+      - equal:
+          path: data
+          value:
+            auth_template.ini: |
+              [mlflow]
+              default_permission = READ
+              database_uri = sqlite:///basic_auth.db
+              admin_username = $(ADMIN_USERNAME_PLACEHOLDER)
+              admin_password = $(ADMIN_PASSWORD_PLACEHOLDER)
+              authorization_function = mlflow.server.auth:authenticate_request_basic_auth
+              auth_cache_max_size = 1000000
+              auth_cache_ttl_seconds = 300
+              grant_default_workspace_access = true
+
+  - it: should append extra config when ldap auth enabled
+    set:
+      ldapAuth:
+        enabled: true
+      auth:
+        extraConfig:
+          auth_cache_ttl_seconds: 60
+    asserts:
+      - equal:
+          path: data
+          value:
+            auth_template.ini: |
+              [mlflow]
+              default_permission = READ
+              database_uri = sqlite:///ldap_basic_auth.db
+              admin_username = fakeuser
+              admin_password = fakepassword
+              authorization_function = mlflowstack.auth.ldap:authenticate_request_basic_auth
+              auth_cache_ttl_seconds = 60
+
+  - it: should keep database secret placeholders in extra config values
+    set:
+      auth:
+        enabled: true
+        adminUsername: "admin"
+        adminPassword: "thisisnotasecret"
+        postgres:
+          enabled: true
+          host: postgresdb
+          database: auth
+          user: authuser
+          password: authpassword
+        extraConfig:
+          read_database_uri: "postgresql://$(POSTGRES_USERNAME_PLACEHOLDER):$(POSTGRES_PASSWORD_PLACEHOLDER)@replica:5432/auth"
+    asserts:
+      - matchRegex:
+          path: data["auth_template.ini"]
+          pattern: 'read_database_uri = postgresql://\$\(POSTGRES_USERNAME_PLACEHOLDER\):\$\(POSTGRES_PASSWORD_PLACEHOLDER\)@replica:5432/auth'
+
+  - it: should reject chart managed keys in extra config
+    set:
+      auth:
+        enabled: true
+        adminUsername: "admin"
+        adminPassword: "thisisnotasecret"
+        extraConfig:
+          database_uri: "sqlite:///other.db"
+    asserts:
+      - failedTemplate:
+          errorMessage: "auth.extraConfig.database_uri is managed by the chart and can not be overridden"
+
+  - it: should reject multi line values in extra config
+    set:
+      auth:
+        enabled: true
+        adminUsername: "admin"
+        adminPassword: "thisisnotasecret"
+        extraConfig:
+          auth_cache_ttl_seconds: "300\n[other]"
+    asserts:
+      - failedTemplate:
+          errorMessage: "auth.extraConfig.auth_cache_ttl_seconds must be a single line value"

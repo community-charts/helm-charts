@@ -106,6 +106,8 @@ Two paths depending on which flag is active:
 - `auth.enabled` → the ConfigMap contains literal placeholders (`$(ADMIN_USERNAME_PLACEHOLDER)` etc.); `sed` substitutes real values from secrets (admin credentials, DB password). App-name configurable via `auth.appName`; mounts at `auth.configPath/auth.configFile`.
 - `ldapAuth.enabled` (without `auth.enabled`) → the ConfigMap uses literal `fakeuser`/`fakepassword` (LDAP itself handles credential validation — no placeholders needed); `cp` copies the file as-is, no secret env vars injected. App-name hardcoded to `basic-auth`; hardcoded path `/etc/mlflow/auth/ldap_basic_auth.ini`; authorization function `mlflowstack.auth.ldap:authenticate_request_basic_auth`.
 
+`auth.extraConfig` (a flat map of scalars) is appended to the `[mlflow]` section in both paths, after the chart-managed keys, for MLflow settings without a dedicated value (`auth_cache_ttl_seconds`, `read_database_uri`, ...). The template fails on chart-managed keys (MLflow's `configparser` is strict and aborts on duplicate options), on keys not matching `^[a-z][a-z0-9_]*$`, and on multi-line values. Whole-number floats are converted with `int64` so large values do not render as `1e+06` (MLflow reads them with `getint`). The deployment carries a `checksum/auth-config` pod annotation so a change to the INI ConfigMap rolls the pods — the INI is only read by the init container at pod start.
+
 `oidcAuth` does **not** use an INI file — it is configured entirely via environment variables injected directly in `deployment.yaml`.
 
 ### OIDC Auth (`oidcAuth`) Environment Variable Mapping

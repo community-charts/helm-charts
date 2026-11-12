@@ -2418,6 +2418,24 @@
           "title": "configFile",
           "type": "string"
         },
+        "extraConfig": {
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "integer",
+              "boolean"
+            ]
+          },
+          "default": {},
+          "description": "Extra key/values written to the [mlflow] section of the auth INI file. Do not put secrets here: it is rendered into a ConfigMap.",
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "required": [],
+          "title": "extraConfig",
+          "type": "object"
+        },
         "postgres": {
           "additionalProperties": false,
           "description": "PostgreSQL based centrilised authentication database",
