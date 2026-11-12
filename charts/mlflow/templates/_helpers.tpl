@@ -193,3 +193,75 @@ Usage: {{ include "mlflow.servicePort" . }}
   {{- .Values.service.port -}}
 {{- end -}}
 {{- end }}
+
+{{/*
+Render the MLflow basic auth INI file content (the [mlflow] section).
+Shared by the auth INI ConfigMap and the deployment's checksum/auth-config annotation.
+*/}}
+{{- define "mlflow.authIni" -}}
+{{- $defaultPermission := "" }}
+{{- $databaseUri := "" }}
+{{- $adminUsername := "" }}
+{{- $adminPassword := "" }}
+{{- $authorizationFunction := "" }}
+
+{{- if .Values.auth.enabled }}
+  {{- $defaultPermission = .Values.auth.defaultPermission }}
+  {{- if .Values.auth.postgres.enabled }}
+    {{- $dbConnectionDriver := "" }}
+    {{- if .Values.auth.postgres.driver }}
+      {{- $dbConnectionDriver = printf "+%s" .Values.auth.postgres.driver }}
+    {{- end }}
+    {{- $pgHost := required "auth.postgres.host must be specified" .Values.auth.postgres.host }}
+    {{- $pgPort := required "auth.postgres.port must be specified" .Values.auth.postgres.port | toString }}
+    {{- $pgDatabase := required "auth.postgres.database must be specified" .Values.auth.postgres.database }}
+    {{- $databaseUri = printf "postgresql%s://$(POSTGRES_USERNAME_PLACEHOLDER):$(POSTGRES_PASSWORD_PLACEHOLDER)@%s:%s/%s" $dbConnectionDriver $pgHost $pgPort $pgDatabase }}
+  {{- else if .Values.postgresql.enabled }}
+    {{- $pgHost := include "mlflow.postgresql.fullname" . }}
+    {{- $pgPort := default "5432" .Values.postgresql.primary.service.ports.postgresql | toString }}
+    {{- $pgDatabase := .Values.postgresql.auth.database }}
+    {{- $databaseUri = printf "postgresql://$(POSTGRES_USERNAME_PLACEHOLDER):$(POSTGRES_PASSWORD_PLACEHOLDER)@%s:%s/%s" $pgHost $pgPort $pgDatabase }}
+  {{- else }}
+    {{- $sqliteFile := .Values.auth.sqliteFile }}
+    {{- if .Values.auth.sqliteFullPath }}
+      {{- $path := printf "%s/" .Values.auth.sqliteFullPath | trimSuffix "/" }}
+      {{- $databaseUri = printf "sqlite:///%s%s" $path $sqliteFile }}
+    {{- else }}
+      {{- $databaseUri = printf "sqlite:///%s" $sqliteFile }}
+    {{- end }}
+  {{- end }}
+  {{- $adminUsername = "$(ADMIN_USERNAME_PLACEHOLDER)" }}
+  {{- $adminPassword = "$(ADMIN_PASSWORD_PLACEHOLDER)" }}
+  {{- $authorizationFunction = required "auth.authorizationFunction can not be empty!" .Values.auth.authorizationFunction }}
+{{- else }}
+  {{- $defaultPermission = "READ" }}
+  {{- $databaseUri = "sqlite:///ldap_basic_auth.db" }}
+  {{- $adminUsername = "fakeuser" }}
+  {{- $adminPassword = "fakepassword" }}
+  {{- $authorizationFunction = "mlflowstack.auth.ldap:authenticate_request_basic_auth" }}
+{{- end -}}
+[mlflow]
+default_permission = {{ $defaultPermission }}
+database_uri = {{ $databaseUri }}
+admin_username = {{ $adminUsername }}
+admin_password = {{ $adminPassword }}
+authorization_function = {{ $authorizationFunction }}
+{{- range $key, $value := .Values.auth.extraConfig }}
+  {{- if has $key (list "default_permission" "database_uri" "admin_username" "admin_password" "authorization_function") }}
+    {{- fail (printf "auth.extraConfig.%s is managed by the chart and can not be overridden" $key) }}
+  {{- end }}
+  {{- if not (regexMatch "^[a-z][a-z0-9_]*$" $key) }}
+    {{- fail (printf "auth.extraConfig key %q is invalid, keys must match ^[a-z][a-z0-9_]*$" $key) }}
+  {{- end }}
+  {{- if or (kindIs "map" $value) (kindIs "slice" $value) (kindIs "invalid" $value) }}
+    {{- fail (printf "auth.extraConfig.%s must be a string, number or boolean" $key) }}
+  {{- end }}
+  {{- if and (kindIs "float64" $value) (eq (floor $value) $value) }}
+    {{- $value = int64 $value }}
+  {{- end }}
+  {{- if regexMatch "[\r\n]" (toString $value) }}
+    {{- fail (printf "auth.extraConfig.%s must be a single line value" $key) }}
+  {{- end }}
+{{ $key }} = {{ $value }}
+{{- end }}
+{{- end }}

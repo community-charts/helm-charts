@@ -312,6 +312,8 @@ auth:
   configPath: "/etc/mlflow/auth/"
   # -- Mlflow authentication INI file
   configFile: "basic_auth.ini"
+  # -- Extra key/values appended to the `[mlflow]` section of the auth INI file, for settings the chart has no dedicated value for, e.g. `auth_cache_ttl_seconds: 300`. Also applied when ldapAuth is enabled. Keys the chart manages itself (default_permission, database_uri, admin_username, admin_password, authorization_function) are rejected. Values are rendered into a ConfigMap, so do not put credentials here; with auth.postgres or the bundled postgresql enabled, `$(POSTGRES_USERNAME_PLACEHOLDER)` and `$(POSTGRES_PASSWORD_PLACEHOLDER)` inside a value are replaced from the database secret at pod start (useful for `read_database_uri`). A literal `%` must be written as `%%`. Supported keys: https://github.com/mlflow/mlflow/blob/master/mlflow/server/auth/config.py
+  extraConfig: {}
   # -- PostgreSQL based centrilised authentication database
   postgres:
     # -- Specifies if you want to use postgres auth backend storage

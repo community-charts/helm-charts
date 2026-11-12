@@ -3064,3 +3064,34 @@ tests:
           path: spec.template.spec.initContainers[?(@.name == "dbchecker")].securityContext.readOnlyRootFilesystem
           value: true
         template: deployment.yaml
+
+  - it: should not set auth config checksum annotation when auth is not enabled
+    asserts:
+      - notExists:
+          path: spec.template.metadata.annotations["checksum/auth-config"]
+        template: deployment.yaml
+
+  - it: should set auth config checksum annotation when auth enabled
+    set:
+      auth:
+        enabled: true
+        adminUsername: "admin"
+        adminPassword: "thisisnotasecret"
+        extraConfig:
+          auth_cache_ttl_seconds: 300
+    asserts:
+      - matchRegex:
+          path: spec.template.metadata.annotations["checksum/auth-config"]
+          pattern: "^[a-f0-9]{64}$"
+        template: deployment.yaml
+
+  - it: should set auth config checksum annotation when ldap auth enabled
+    set:
+      ldapAuth:
+        enabled: true
+        uri: "ldap://lldap:3890/dc=mlflow,dc=test"
+    asserts:
+      - matchRegex:
+          path: spec.template.metadata.annotations["checksum/auth-config"]
+          pattern: "^[a-f0-9]{64}$"
+        template: deployment.yaml
