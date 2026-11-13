@@ -12,14 +12,14 @@
       {{- if .Values.auth.postgres.driver }}
         {{- $dbConnectionDriver = printf "+%s" .Values.auth.postgres.driver }}
       {{- end }}
-      {{- $pgHost := required "auth.postgres.host must be specified" .Values.auth.postgres.host }}
+      {{- $pgHost := required "auth.postgres.host must be specified" (tpl .Values.auth.postgres.host .) }}
       {{- $pgPort := required "auth.postgres.port must be specified" .Values.auth.postgres.port | toString }}
-      {{- $pgDatabase := required "auth.postgres.database must be specified" .Values.auth.postgres.database }}
+      {{- $pgDatabase := required "auth.postgres.database must be specified" (tpl .Values.auth.postgres.database .) }}
       {{- $databaseUri = printf "postgresql%s://$(POSTGRES_USERNAME_PLACEHOLDER):$(POSTGRES_PASSWORD_PLACEHOLDER)@%s:%s/%s" $dbConnectionDriver $pgHost $pgPort $pgDatabase }}
     {{- else if .Values.postgresql.enabled }}
       {{- $pgHost := include "mlflow.postgresql.fullname" . }}
       {{- $pgPort := default "5432" .Values.postgresql.primary.service.ports.postgresql | toString }}
-      {{- $pgDatabase := .Values.postgresql.auth.database }}
+      {{- $pgDatabase := (tpl .Values.postgresql.auth.database .) }}
       {{- $databaseUri = printf "postgresql://$(POSTGRES_USERNAME_PLACEHOLDER):$(POSTGRES_PASSWORD_PLACEHOLDER)@%s:%s/%s" $pgHost $pgPort $pgDatabase }}
     {{- else }}
       {{- $sqliteFile := .Values.auth.sqliteFile }}
@@ -47,6 +47,9 @@ metadata:
   name: {{ template "mlflow.fullname" . }}-auth-ini-template
   labels:
     {{- include "mlflow.labels" . | nindent 4 }}
+    {{- with .Values.commonLabels }}
+    {{ tpl (toYaml .) $ | nindent 4 }}
+    {{- end }}
 data:
   auth_template.ini: |
     [mlflow]

@@ -75,6 +75,8 @@ deploymentAnnotations: {}
 podAnnotations: {}
 # -- Extra labels for the pod
 extraPodLabels: {}
+# -- Labels to add to all deployed objects
+commonLabels: {}
 # -- This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
 podSecurityContext:
   fsGroup: 1001

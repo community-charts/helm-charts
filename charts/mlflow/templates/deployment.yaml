@@ -44,6 +44,9 @@ metadata:
   name: {{ include "mlflow.fullname" . }}
   labels:
     {{- include "mlflow.labels" . | nindent 4 }}
+    {{- with .Values.commonLabels }}
+    {{ tpl (toYaml .) $ | nindent 4 }}
+    {{- end }}
   {{- with .Values.deploymentAnnotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -74,6 +77,9 @@ spec:
       {{- end }}
       labels:
         {{- include "mlflow.selectorLabels" . | nindent 8 }}
+      {{- with .Values.commonLabels }}
+        {{ tpl (toYaml .) $ | nindent 8 }}
+      {{- end }}
       {{- with .Values.extraPodLabels }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -694,7 +700,7 @@ spec:
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
-        {{- toYaml . | nindent 8 }}
+        {{ tpl (toYaml .) $ | nindent 8 }}
       {{- end }}
       {{- with .Values.affinity }}
       affinity:

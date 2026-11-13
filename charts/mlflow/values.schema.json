@@ -1322,6 +1322,13 @@
       "title": "extraPodLabels",
       "type": "object"
     },
+    "commonLabels": {
+      "additionalProperties": true,
+      "decsription": "Labels to add to all deployed objects",
+      "required": [],
+      "title": "commonLabels",
+      "type": "object"
+    },
     "podSecurityContext": {
       "additionalProperties": true,
       "description": "Security context for all pod",
@@ -3237,6 +3244,7 @@
     "deploymentAnnotations",
     "podAnnotations",
     "extraPodLabels",
+    "commonLabels",
     "podSecurityContext",
     "securityContext",
     "service",
