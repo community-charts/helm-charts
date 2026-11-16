@@ -222,45 +222,45 @@ spec:
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
+                  name: {{ (tpl .Values.backendStore.existingDatabaseSecret.name .) }}
+                  key: {{ (tpl .Values.backendStore.existingDatabaseSecret.passwordKey .) }}
             - name: PGUSER
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
+                  name: {{ (tpl .Values.backendStore.existingDatabaseSecret.name .) }}
+                  key: {{ (tpl .Values.backendStore.existingDatabaseSecret.usernameKey .) }}
             {{- end }}
             {{- if .Values.backendStore.mysql.enabled }}
             - name: MYSQL_PWD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
+                  name: {{ (tpl .Values.backendStore.existingDatabaseSecret.name .) }}
+                  key: {{ (tpl .Values.backendStore.existingDatabaseSecret.passwordKey .) }}
             - name: MYSQL_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
+                  name: {{ (tpl .Values.backendStore.existingDatabaseSecret.name .) }}
+                  key: {{ (tpl .Values.backendStore.existingDatabaseSecret.usernameKey .) }}
             {{- end }}
             {{- if .Values.backendStore.mssql.enabled }}
             - name: MSSQL_PWD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.passwordKey }}
+                  name: {{ (tpl .Values.backendStore.existingDatabaseSecret.name .) }}
+                  key: {{ (tpl .Values.backendStore.existingDatabaseSecret.passwordKey .) }}
             - name: MSSQL_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.backendStore.existingDatabaseSecret.name }}
-                  key: {{ .Values.backendStore.existingDatabaseSecret.usernameKey }}
+                  name: {{ (tpl .Values.backendStore.existingDatabaseSecret.name .) }}
+                  key: {{ (tpl .Values.backendStore.existingDatabaseSecret.usernameKey .) }}
             {{- end }}
           {{- end }}
           {{- if and .Values.backendStore.mssql.enabled .Values.backendStore.mssql.existingConnectionUrlSecret.name }}
             - name: MSSQL_CONNECTION_URL
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.backendStore.mssql.existingConnectionUrlSecret.name }}
-                  key: {{ .Values.backendStore.mssql.existingConnectionUrlSecret.key }}
+                  name: {{ (tpl .Values.backendStore.mssql.existingConnectionUrlSecret.name .) }}
+                  key: {{ (tpl .Values.backendStore.mssql.existingConnectionUrlSecret.key .) }}
           {{- end }}
           envFrom:
             - configMapRef:
@@ -625,7 +625,7 @@ spec:
                 name: {{ include "mlflow.fullname" . }}-flask-server-secret-key
           {{- range .Values.extraSecretNamesForEnvFrom }}
             - secretRef:
-                name: {{ . }}
+                name: {{ (tpl . $) }}
           {{- end }}
           volumeMounts:
             - name: tmp
