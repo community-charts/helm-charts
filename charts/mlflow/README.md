@@ -1078,6 +1078,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | extraFlags | list | `[]` | A list of flags to pass to `mlflow server` command. Items must be camelcase. Helm will turn them to kebabcase style. |
 | extraPodLabels | object | `{}` | Extra labels for the pod |
 | extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
+| extraConfigMapNamesForEnvFrom | list | `[]` | Extra config maps for environment variables |
 | extraVolumeMounts | list | `[]` | Extra Volume Mounts for the mlflow container |
 | extraVolumes | list | `[]` | Extra Volumes for the pod |
 | flaskServerSecretKey | string | `""` | Mlflow Flask Server Secret Key. Default: Will be auto generated. |

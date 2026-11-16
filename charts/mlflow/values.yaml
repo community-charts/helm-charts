@@ -445,6 +445,10 @@ extraEnvVars: {}
 extraSecretNamesForEnvFrom: []
 # - my-mlflow-secrets
 
+# -- Extra config maps for environment variables
+extraConfigMapNamesForEnvFrom: []
+# - my-mlflow-config
+
 ingress:
   # -- Specifies if you want to create an ingress access
   enabled: false

@@ -627,6 +627,10 @@ spec:
             - secretRef:
                 name: {{ (tpl . $) }}
           {{- end }}
+          {{- range .Values.extraConfigMapNamesForEnvFrom }}
+            - configMapRef:
+              name: {{ (tpl . $) }}
+          {{- end }}
           volumeMounts:
             - name: tmp
               mountPath: /tmp
