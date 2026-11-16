@@ -186,8 +186,8 @@ spec:
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          image: "{{ .Values.initImages.mlflowDbMigration.repository }}:{{ .Values.initImages.mlflowDbMigration.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.initImages.mlflowDbMigration.pullPolicy }}
+          image: "{{ (tpl .Values.initImages.mlflowDbMigration.repository .) }}:{{ (tpl .Values.initImages.mlflowDbMigration.tag .) | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ (tpl .Values.initImages.mlflowDbMigration.pullPolicy .) }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
         {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name (and .Values.backendStore.mssql.enabled .Values.backendStore.mssql.existingConnectionUrlSecret.name) }}
