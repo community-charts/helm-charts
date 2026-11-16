@@ -102,7 +102,7 @@ spec:
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          image: "{{ .Values.initImages.dbchecker.repository }}:{{ .Values.initImages.dbchecker.tag }}"
+          image: "{{ (tpl .Values.initImages.dbchecker.repository .) }}:{{ (tpl.Values.initImages.dbchecker.tag .) }}"
           imagePullPolicy: {{ .Values.initImages.dbchecker.pullPolicy }}
           command: [ "/script/dbchecker.sh" ]
         {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name }}
