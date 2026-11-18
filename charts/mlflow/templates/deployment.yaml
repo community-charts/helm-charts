@@ -11,32 +11,32 @@
   {{- fail "auth and ldapAuth are mutually exclusive" }}
 {{- end }}
 {{- $artifactCommandPrefix := "default-artifact-root" }}
-{{- $artifactCommand := printf "--%s=%s" $artifactCommandPrefix .Values.artifactRoot.defaultArtifactRoot }}
+{{- $artifactCommand := printf "--%s=%s" $artifactCommandPrefix (tpl .Values.artifactRoot.defaultArtifactRoot .) }}
 
 {{- if .Values.artifactRoot.proxiedArtifactStorage }}
   {{- $artifactCommandPrefix = "artifacts-destination" }}
-  {{- $artifactCommand = printf "--%s=%s" $artifactCommandPrefix .Values.artifactRoot.defaultArtifactsDestination }}
+  {{- $artifactCommand = printf "--%s=%s" $artifactCommandPrefix (tpl .Values.artifactRoot.defaultArtifactsDestination .) }}
 {{- end }}
 
 {{- if .Values.artifactRoot.azureBlob.enabled }}
-  {{- $artifactCommand = printf "--%s=wasbs://%s@%s.blob.core.windows.net/%s" $artifactCommandPrefix .Values.artifactRoot.azureBlob.container .Values.artifactRoot.azureBlob.storageAccount .Values.artifactRoot.azureBlob.path }}
+  {{- $artifactCommand = printf "--%s=wasbs://%s@%s.blob.core.windows.net/%s" $artifactCommandPrefix (tpl .Values.artifactRoot.azureBlob.container .) (tpl .Values.artifactRoot.azureBlob.storageAccount .) (tpl .Values.artifactRoot.azureBlob.path .) }}
 {{- else if .Values.artifactRoot.s3.enabled }}
 {{- if .Values.minio.enabled }}
-  {{- $artifactCommand = printf "--%s=s3://%s/" $artifactCommandPrefix (ternary (index .Values.minio.buckets 0).name .Values.artifactRoot.s3.bucket (eq .Values.artifactRoot.s3.bucket "")) }}
+  {{- $artifactCommand = printf "--%s=s3://%s/" $artifactCommandPrefix (ternary (index .Values.minio.buckets 0).name (tpl .Values.artifactRoot.s3.bucket .) (eq (tpl .Values.artifactRoot.s3.bucket .) "")) }}
 {{- else }}
-  {{- $artifactCommand = printf "--%s=s3://%s/%s" $artifactCommandPrefix .Values.artifactRoot.s3.bucket .Values.artifactRoot.s3.path }}
+  {{- $artifactCommand = printf "--%s=s3://%s/%s" $artifactCommandPrefix (tpl .Values.artifactRoot.s3.bucket .) (tpl .Values.artifactRoot.s3.path .) }}
 {{- end }}
 {{- else if .Values.artifactRoot.gcs.enabled }}
-  {{- $artifactCommand = printf "--%s=gs://%s/%s" $artifactCommandPrefix .Values.artifactRoot.gcs.bucket .Values.artifactRoot.gcs.path }}
+  {{- $artifactCommand = printf "--%s=gs://%s/%s" $artifactCommandPrefix (tpl .Values.artifactRoot.gcs.bucket .) (tpl .Values.artifactRoot.gcs.path .) }}
 {{- end }}
 
 {{- $dbConnectionDriver := "" }}
 {{- if and (or .Values.backendStore.postgres.enabled .Values.postgresql.enabled) .Values.backendStore.postgres.driver }}
-  {{- $dbConnectionDriver = printf "+%s" .Values.backendStore.postgres.driver }}
+  {{- $dbConnectionDriver = printf "+%s" (tpl .Values.backendStore.postgres.driver .) }}
 {{- else if and (or .Values.backendStore.mysql.enabled .Values.mysql.enabled) .Values.backendStore.mysql.driver }}
-  {{- $dbConnectionDriver = printf "+%s" .Values.backendStore.mysql.driver }}
+  {{- $dbConnectionDriver = printf "+%s" (tpl .Values.backendStore.mysql.driver .) }}
 {{- else if and .Values.backendStore.mssql.enabled .Values.backendStore.mssql.driver }}
-  {{- $dbConnectionDriver = printf "+%s" .Values.backendStore.mssql.driver }}
+  {{- $dbConnectionDriver = printf "+%s" (tpl .Values.backendStore.mssql.driver .) }}
 {{- end }}
 apiVersion: apps/v1
 kind: Deployment
@@ -613,8 +613,8 @@ spec:
               value: {{ printf "http://%s-minio:9000" (include "mlflow.fullname" .) }}
           {{- end }}
           {{- range $key, $value := .Values.extraEnvVars }}
-            - name: {{ $key }}
-              value: {{ $value | quote }}
+            - name: {{ (tpl $key $) }}
+              value: {{ (tpl $value $) | quote }}
           {{- end }}
           envFrom:
             - configMapRef:
@@ -629,7 +629,7 @@ spec:
           {{- end }}
           {{- range .Values.extraConfigMapNamesForEnvFrom }}
             - configMapRef:
-              name: {{ (tpl . $) }}
+                name: {{ (tpl . $) }}
           {{- end }}
           volumeMounts:
             - name: tmp

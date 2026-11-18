@@ -42,10 +42,10 @@ data:
   DO_NOT_TRACK: "true"
 {{- end }}
 {{- with include "mlflow.serverAllowedHosts" . }}
-  MLFLOW_SERVER_ALLOWED_HOSTS: {{ . | quote }}
+  MLFLOW_SERVER_ALLOWED_HOSTS: {{ (tpl . $) | quote }}
 {{- end }}
 {{- with include "mlflow.corsAllowedOrigins" . }}
-  MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: {{ . | quote }}
+  MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: {{ (tpl . $) | quote }}
 {{- end }}
 ---
 {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled .Values.backendStore.mssql.enabled .Values.postgresql.enabled .Values.mysql.enabled) .Values.backendStore.databaseMigration }}
