@@ -102,7 +102,7 @@ spec:
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          image: "{{ (tpl .Values.initImages.dbchecker.repository .) }}:{{ (tpl.Values.initImages.dbchecker.tag .) }}"
+          image: "{{ (tpl .Values.initImages.dbchecker.repository .) }}:{{ (tpl .Values.initImages.dbchecker.tag .) }}"
           imagePullPolicy: {{ .Values.initImages.dbchecker.pullPolicy }}
           command: [ "/script/dbchecker.sh" ]
         {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name }}
@@ -286,7 +286,7 @@ spec:
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          image: "{{ .Values.initImages.iniFileInitializer.repository }}:{{ .Values.initImages.iniFileInitializer.tag }}"
+          image: "{{ (tpl .Values.initImages.iniFileInitializer.repository .) }}:{{ (tpl .Values.initImages.iniFileInitializer.tag .) }}"
           imagePullPolicy: {{ .Values.initImages.iniFileInitializer.pullPolicy }}
           command: ['sh', '-c']
           args:
