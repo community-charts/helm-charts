@@ -290,6 +290,8 @@ spec:
           {{- end }}
           image: "{{ (tpl .Values.initImages.iniFileInitializer.repository .) }}:{{ (tpl .Values.initImages.iniFileInitializer.tag .) }}"
           imagePullPolicy: {{ .Values.initImages.iniFileInitializer.pullPolicy }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
           command: ['sh', '-c']
           args:
             - |
