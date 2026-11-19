@@ -440,39 +440,43 @@ spec:
               value: "/certs/ca.crt"
             {{- end }}
           {{- else if .Values.oidcAuth.enabled }}
+            {{- if .Values.oidcAuth.discoveryUrl }}
             - name: OIDC_DISCOVERY_URL
-              value: {{ .Values.oidcAuth.discoveryUrl | quote }}
+              value: {{ (tpl .Values.oidcAuth.discoveryUrl .) | quote }}
+            {{- end }}
+            {{- if .Values.oidcAuth.clientId }}
             - name: OIDC_CLIENT_ID
-              value: {{ .Values.oidcAuth.clientId | quote }}
+              value: {{ (tpl .Values.oidcAuth.clientId .) | quote }}
+            {{- end }}
             - name: OIDC_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ include "mlflow.oidcAuthSecretName" . }}
-                  key: {{ .Values.oidcAuth.existingSecret.clientSecretKey }}
+                  key: {{ (tpl .Values.oidcAuth.existingSecret.clientSecretKey .) }}
             {{- if .Values.oidcAuth.redirectUri }}
             - name: OIDC_REDIRECT_URI
-              value: {{ .Values.oidcAuth.redirectUri | quote }}
+              value: {{ (tpl .Values.oidcAuth.redirectUri .) | quote }}
             {{- end }}
             - name: OIDC_SCOPE
-              value: {{ .Values.oidcAuth.scope | quote }}
+              value: {{ (tpl .Values.oidcAuth.scope .) | quote }}
             {{- if .Values.oidcAuth.audience }}
             - name: OIDC_AUDIENCE
-              value: {{ .Values.oidcAuth.audience | quote }}
+              value: {{ (tpl .Values.oidcAuth.audience .) | quote }}
             {{- end }}
             - name: OIDC_PROVIDER_DISPLAY_NAME
-              value: {{ .Values.oidcAuth.providerDisplayName | quote }}
+              value: {{ (tpl .Values.oidcAuth.providerDisplayName .) | quote }}
             - name: OIDC_GROUPS_ATTRIBUTE
-              value: {{ .Values.oidcAuth.groupsAttribute | quote }}
+              value: {{ (tpl .Values.oidcAuth.groupsAttribute .) | quote }}
             - name: OIDC_GROUP_NAME
               value: {{ .Values.oidcAuth.groupName | join "," | quote }}
             - name: OIDC_ADMIN_GROUP_NAME
               value: {{ .Values.oidcAuth.adminGroupName | join "," | quote }}
             - name: DEFAULT_MLFLOW_PERMISSION
-              value: {{ .Values.oidcAuth.defaultPermission | quote }}
+              value: {{ (tpl .Values.oidcAuth.defaultPermission .) | quote }}
             - name: SESSION_COOKIE_SECURE
               value: {{ .Values.oidcAuth.sessionCookieSecure | quote }}
             - name: SESSION_COOKIE_SAMESITE
-              value: {{ .Values.oidcAuth.sessionCookieSamesite | quote }}
+              value: {{ (tpl .Values.oidcAuth.sessionCookieSamesite .) | quote }}
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
@@ -482,30 +486,30 @@ spec:
             - name: CACHE_BACKEND
               value: "redis"
             - name: CACHE_REDIS_URL
-              value: {{ .Values.oidcAuth.cache.redisUrl | quote }}
+              value: {{ (tpl .Values.oidcAuth.cache.redisUrl .) | quote }}
             - name: CACHE_KEY_PREFIX
-              value: {{ .Values.oidcAuth.cache.keyPrefix | quote }}
+              value: {{ (tpl .Values.oidcAuth.cache.keyPrefix .) | quote }}
             {{- end }}
             {{- if .Values.oidcAuth.database.postgres.enabled }}
             - name: OIDC_DB_USER
               valueFrom:
                 secretKeyRef:
                   name: {{ include "mlflow.oidcAuthDbSecretName" . }}
-                  key: {{ .Values.oidcAuth.database.postgres.existingSecret.usernameKey }}
+                  key: {{ (tpl .Values.oidcAuth.database.postgres.existingSecret.usernameKey .) }}
             - name: OIDC_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "mlflow.oidcAuthDbSecretName" . }}
-                  key: {{ .Values.oidcAuth.database.postgres.existingSecret.passwordKey }}
+                  key: {{ (tpl .Values.oidcAuth.database.postgres.existingSecret.passwordKey .) }}
             {{- $oidcDbDriver := "" }}
             {{- if .Values.oidcAuth.database.postgres.driver }}
-              {{- $oidcDbDriver = printf "+%s" .Values.oidcAuth.database.postgres.driver }}
+              {{- $oidcDbDriver = printf "+%s" (tpl .Values.oidcAuth.database.postgres.driver .) }}
             {{- end }}
             - name: OIDC_USERS_DB_URI
-              value: {{ printf "postgresql%s://$(OIDC_DB_USER):$(OIDC_DB_PASSWORD)@%s:%v/%s" $oidcDbDriver (required "oidcAuth.database.postgres.host must be specified" .Values.oidcAuth.database.postgres.host) .Values.oidcAuth.database.postgres.port (required "oidcAuth.database.postgres.database must be specified" .Values.oidcAuth.database.postgres.database) | quote }}
+              value: {{ printf "postgresql%s://$(OIDC_DB_USER):$(OIDC_DB_PASSWORD)@%s:%v/%s" $oidcDbDriver (required "oidcAuth.database.postgres.host must be specified" (tpl .Values.oidcAuth.database.postgres.host .)) .Values.oidcAuth.database.postgres.port (required "oidcAuth.database.postgres.database must be specified" (tpl .Values.oidcAuth.database.postgres.database .)) | quote }}
             {{- else if .Values.oidcAuth.database.uri }}
             - name: OIDC_USERS_DB_URI
-              value: {{ .Values.oidcAuth.database.uri | quote }}
+              value: {{ (tpl .Values.oidcAuth.database.uri .) | quote }}
             {{- end }}
             {{- if .Values.oidcAuth.trustedProxies }}
             - name: TRUSTED_PROXIES
