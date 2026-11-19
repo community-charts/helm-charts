@@ -104,6 +104,8 @@ spec:
           {{- end }}
           image: "{{ (tpl .Values.initImages.dbchecker.repository .) }}:{{ (tpl .Values.initImages.dbchecker.tag .) }}"
           imagePullPolicy: {{ .Values.initImages.dbchecker.pullPolicy }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
           command: [ "/script/dbchecker.sh" ]
         {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name }}
           env:
