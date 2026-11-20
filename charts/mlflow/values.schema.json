@@ -1986,6 +1986,55 @@
       "title": "resources",
       "type": "object"
     },
+    "initResources": {
+      "additionalProperties": true,
+      "description": "This block is for setting up resource management for the init containers",
+      "properties": {
+        "limits": {
+          "additionalProperties": true,
+          "properties": {
+            "cpu": {
+              "default": "100m",
+              "required": [],
+              "title": "cpu",
+              "type": "string"
+            },
+            "memory": {
+              "default": "128Mi",
+              "required": [],
+              "title": "memory",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "title": "limits",
+          "type": "object"
+        },
+        "requests": {
+          "additionalProperties": true,
+          "properties": {
+            "cpu": {
+              "default": "100m",
+              "required": [],
+              "title": "cpu",
+              "type": "string"
+            },
+            "memory": {
+              "default": "128Mi",
+              "required": [],
+              "title": "memory",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "title": "requests",
+          "type": "object"
+        }
+      },
+      "required": [],
+      "title": "initResources",
+      "type": "object"
+    },
     "securityContext": {
       "additionalProperties": true,
       "description": "Security context for the mlflow container",

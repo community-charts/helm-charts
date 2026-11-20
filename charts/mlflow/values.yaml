@@ -495,6 +495,18 @@ resources: {}
 # requests:
 #   cpu: 100m
 #   memory: 128Mi
+# -- This block is for setting up resource management for the init containers
+initResources: {}
+# We usually recommend not to specify default initResources and to leave this as a conscious
+# choice for the user. This also increases chances charts run on environments with little
+# resources, such as Minikube. If you do want to specify initResources, uncomment the following
+# lines, adjust them as necessary, and remove the curly braces after 'initResources:'.
+# limits:
+#   cpu: 100m
+#   memory: 128Mi
+# requests:
+#   cpu: 100m
+#   memory: 128Mi
 
 serviceMonitor:
   # -- When set true then use a ServiceMonitor to configure scraping

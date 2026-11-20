@@ -105,7 +105,7 @@ spec:
           image: "{{ (tpl .Values.initImages.dbchecker.repository .) }}:{{ (tpl .Values.initImages.dbchecker.tag .) }}"
           imagePullPolicy: {{ .Values.initImages.dbchecker.pullPolicy }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.initResources | nindent 12 }}
           command: [ "/script/dbchecker.sh" ]
         {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name }}
           env:
@@ -191,7 +191,7 @@ spec:
           image: "{{ (tpl .Values.initImages.mlflowDbMigration.repository .) }}:{{ (tpl .Values.initImages.mlflowDbMigration.tag .) | default .Chart.AppVersion }}"
           imagePullPolicy: {{ (tpl .Values.initImages.mlflowDbMigration.pullPolicy .) }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.initResources | nindent 12 }}
         {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name (and .Values.backendStore.mssql.enabled .Values.backendStore.mssql.existingConnectionUrlSecret.name) }}
           env:
         {{- end }}
@@ -291,7 +291,7 @@ spec:
           image: "{{ (tpl .Values.initImages.iniFileInitializer.repository .) }}:{{ (tpl .Values.initImages.iniFileInitializer.tag .) }}"
           imagePullPolicy: {{ .Values.initImages.iniFileInitializer.pullPolicy }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.initResources | nindent 12 }}
           command: ['sh', '-c']
           args:
             - |
