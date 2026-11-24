@@ -567,6 +567,8 @@ extraVolumeMounts: []
 # - name: example
 #   mountPath: /example
 
+# -- Startup probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes).
+startupProbe: {}
 # -- Liveness probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes).
 livenessProbe:
   initialDelaySeconds: 10
