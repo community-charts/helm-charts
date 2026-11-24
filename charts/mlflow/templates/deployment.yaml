@@ -414,6 +414,13 @@ spec:
             - name: {{ .Values.service.containerPortName }}
               containerPort: {{ .Values.service.containerPort }}
               protocol: TCP
+          {{- with .Values.startupProbe }}
+          startupProbe:
+            httpGet:
+              path: /health
+              port: {{ $.Values.service.containerPortName }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           livenessProbe:
             httpGet:
               path: /health
