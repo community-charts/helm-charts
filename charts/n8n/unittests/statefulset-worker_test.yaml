@@ -1060,8 +1060,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n-worker")].volumeMounts
           content:
             name: pg-ssl-ca
-            mountPath: /home/node/certs/ca/ca.crt
-            subPath: ca.crt
+            mountPath: /home/node/certs/ca
             readOnly: true
           any: true
         template: statefulset-worker.yaml
@@ -1092,8 +1091,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n-worker")].volumeMounts
           content:
             name: pg-ssl-ca
-            mountPath: /home/node/certs/ca/ca.crt
-            subPath: ca.crt
+            mountPath: /home/node/certs/ca
             readOnly: true
           any: true
         template: statefulset-worker.yaml
@@ -1122,8 +1120,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n-worker")].volumeMounts
           content:
             name: pg-ssl-cert
-            mountPath: /home/node/certs/cert/cert.crt
-            subPath: cert.crt
+            mountPath: /home/node/certs/cert
             readOnly: true
           any: true
         template: statefulset-worker.yaml
@@ -1154,8 +1151,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n-worker")].volumeMounts
           content:
             name: pg-ssl-cert
-            mountPath: /home/node/certs/cert/cert.crt
-            subPath: cert.crt
+            mountPath: /home/node/certs/cert
             readOnly: true
           any: true
         template: statefulset-worker.yaml
@@ -1184,8 +1180,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n-worker")].volumeMounts
           content:
             name: pg-ssl-key
-            mountPath: /home/node/certs/key/cert.key
-            subPath: cert.key
+            mountPath: /home/node/certs/key
             readOnly: true
           any: true
         template: statefulset-worker.yaml
@@ -1216,8 +1211,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n-worker")].volumeMounts
           content:
             name: pg-ssl-key
-            mountPath: /home/node/certs/key/cert.key
-            subPath: cert.key
+            mountPath: /home/node/certs/key
             readOnly: true
           any: true
         template: statefulset-worker.yaml
