@@ -720,15 +720,15 @@ minio:
   # -- Enable the MinIO subchart
   enabled: false
   image:
-    # -- The minio image repository
-    repository: quay.io/minio/aistor/minio
-    # -- The minio image tag
-    tag: RELEASE.2024-12-18T04-41-02Z
+    # -- The silo image repository
+    repository: pgsty/silo
+    # -- The silo image tag
+    tag: RELEASE.2026-11-12T00-00-00Z
   mcImage:
-    # -- The minio client image repository
-    repository: quay.io/minio/aistor/mc
-    # -- The minio client image tag
-    tag: RELEASE.2024-11-26T00-50-31Z
+    # -- The silo client image repository
+    repository: pgsty/mc
+    # -- The silo client image tag
+    tag: RELEASE.2026-11-12T00-00-00Z
   # -- MinIO mode
   mode: standalone
   # -- Minio deployment update strategy
