@@ -719,6 +719,11 @@ oidcAuth:
 minio:
   # -- Enable the MinIO subchart
   enabled: false
+  image:
+    # -- The minio image repository
+    repository: quay.io/minio/aistor/minio
+    # -- The minio image tag
+    tag: RELEASE.2024-12-18T04-41-02Z
   # -- MinIO mode
   mode: standalone
   # -- Minio deployment update strategy
