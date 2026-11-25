@@ -724,6 +724,11 @@ minio:
     repository: quay.io/minio/aistor/minio
     # -- The minio image tag
     tag: RELEASE.2024-12-18T04-41-02Z
+  mcImage:
+    # -- The minio client image repository
+    repository: quay.io/minio/aistor/mc
+    # -- The minio client image tag
+    tag: RELEASE.2024-11-26T00-50-31Z
   # -- MinIO mode
   mode: standalone
   # -- Minio deployment update strategy

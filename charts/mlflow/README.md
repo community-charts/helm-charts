@@ -1128,13 +1128,15 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | log | object | `{"enabled":true,"level":"info"}` | Mlflow logging settings |
 | log.enabled | bool | `true` | Specifies if you want to enable mlflow logging. |
 | log.level | string | `"info"` | Mlflow logging level. |
-| minio | object | `{"buckets":[{"name":"mlflow","policy":"none","purge":false}],"deploymentUpdate":{"type":"Recreate"},"drivesPerNode":1,"enabled":false,"image":{"repository":"quay.io/minio/aistor/minio","tag":"RELEASE.2024-12-18T04-41-02Z"},"mode":"standalone","persistence":{"accessMode":"ReadWriteOnce","annotations":{},"enabled":true,"existingClaim":"","size":"10Gi","storageClass":"","subPath":"","volumeName":""},"policies":[],"pools":1,"replicas":1,"resources":{"requests":{"memory":"1Gi"}},"rootPassword":"","rootUser":"","statefulSetUpdate":{"updateStrategy":"Recreate"},"users":[]}` | MinIO subchart for S3-compatible local artifact storage. When enabled, the MLflow deployment automatically receives AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and MLFLOW_S3_ENDPOINT_URL from the MinIO secret and service. artifactRoot.s3.enabled must also be set to true with a matching bucket name. |
+| minio | object | `{"buckets":[{"name":"mlflow","policy":"none","purge":false}],"deploymentUpdate":{"type":"Recreate"},"drivesPerNode":1,"enabled":false,"image":{"repository":"quay.io/minio/aistor/minio","tag":"RELEASE.2024-12-18T04-41-02Z"},"mcImage":{"repository":"quay.io/minio/aistor/mc","tag":"RELEASE.2024-11-26T00-50-31Z"},"mode":"standalone","persistence":{"accessMode":"ReadWriteOnce","annotations":{},"enabled":true,"existingClaim":"","size":"10Gi","storageClass":"","subPath":"","volumeName":""},"policies":[],"pools":1,"replicas":1,"resources":{"requests":{"memory":"1Gi"}},"rootPassword":"","rootUser":"","statefulSetUpdate":{"updateStrategy":"Recreate"},"users":[]}` | MinIO subchart for S3-compatible local artifact storage. When enabled, the MLflow deployment automatically receives AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and MLFLOW_S3_ENDPOINT_URL from the MinIO secret and service. artifactRoot.s3.enabled must also be set to true with a matching bucket name. |
 | minio.buckets | list | `[{"name":"mlflow","policy":"none","purge":false}]` | Buckets to create on startup |
 | minio.deploymentUpdate | object | `{"type":"Recreate"}` | Minio deployment update strategy |
 | minio.drivesPerNode | int | `1` | Number of drives attached to a node |
 | minio.enabled | bool | `false` | Enable the MinIO subchart |
 | minio.image.repository | string | `"quay.io/minio/aistor/minio"` | The minio image repository |
 | minio.image.tag | string | `"RELEASE.2024-12-18T04-41-02Z"` | The minio image tag |
+| minio.mcImage.repository | string | `"quay.io/minio/aistor/mc"` | The minio client image repository |
+| minio.mcImage.tag | string | `"RELEASE.2024-11-26T00-50-31Z"` | The minio client image tag |
 | minio.mode | string | `"standalone"` | MinIO mode |
 | minio.persistence | object | `{"accessMode":"ReadWriteOnce","annotations":{},"enabled":true,"existingClaim":"","size":"10Gi","storageClass":"","subPath":"","volumeName":""}` | MinIO persistence settings |
 | minio.persistence.accessMode | string | `"ReadWriteOnce"` | Minio persistence access mode |
