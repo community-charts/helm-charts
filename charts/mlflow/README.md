@@ -1072,13 +1072,13 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | corsAllowedOrigins | list | `[]` | List of allowed CORS origins for the MLflow server security middleware (env: MLFLOW_SERVER_CORS_ALLOWED_ORIGINS). When ingress is enabled, origins are automatically derived from ingress hosts: https:// if ingress.tls is configured, http:// otherwise. Set explicitly to override auto-detection (e.g. ["*"] for dev, or origins behind a load balancer with TLS termination before ingress). Requires uvicorn, which is the default server in MLflow 3.x. |
 | deploymentAnnotations | object | `{}` | Annotations for the Deployment resource |
 | extraArgs | object | `{}` | A map of arguments and values to pass to the `mlflow server` command. Keys must be camelcase. Helm will turn them to kebabcase style. |
+| extraConfigMapNamesForEnvFrom | list | `[]` | Extra config maps for environment variables |
 | extraContainers | list | `[]` | Extra containers for the mlflow pod |
 | extraDeploy | list | `[]` | Array of extra Kubernetes objects to deploy alongside the chart (e.g. SecretStore, ExternalSecret). Supports Helm templating via tpl. |
 | extraEnvVars | object | `{}` | Extra environment variables |
 | extraFlags | list | `[]` | A list of flags to pass to `mlflow server` command. Items must be camelcase. Helm will turn them to kebabcase style. |
 | extraPodLabels | object | `{}` | Extra labels for the pod |
 | extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
-| extraConfigMapNamesForEnvFrom | list | `[]` | Extra config maps for environment variables |
 | extraVolumeMounts | list | `[]` | Extra Volume Mounts for the mlflow container |
 | extraVolumes | list | `[]` | Extra Volumes for the pod |
 | flaskServerSecretKey | string | `""` | Mlflow Flask Server Secret Key. Default: Will be auto generated. |
@@ -1110,6 +1110,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | initImages.mlflowDbMigration.pullPolicy | string | `"IfNotPresent"` | mlflow-db-migration init container image pull policy. |
 | initImages.mlflowDbMigration.repository | string | `"burakince/mlflow"` | mlflow-db-migration init container image repository to use. |
 | initImages.mlflowDbMigration.tag | string | `""` | mlflow-db-migration init container image tag to use. Default app version |
+| initResources | object | `{}` | This block is for setting up resource management for the init containers |
 | ldapAuth | object | `{"adminGroupDistinguishedName":"","enabled":false,"encodedTrustedCACertificate":"","externalSecretForTrustedCACertificate":"","groupAttribute":"dn","groupAttributeKey":"","lookupBind":"","searchBaseDistinguishedName":"","searchFilter":"(&(objectclass=groupOfUniqueNames)(uniquemember=%s))","tlsVerification":"required","uri":"","userGroupDistinguishedName":""}` | Basic Authentication with LDAP backend |
 | ldapAuth.adminGroupDistinguishedName | string | `""` | LDAP DN for the admin group. e.g.: "cn=test-admin,ou=groups,dc=mlflow,dc=test" |
 | ldapAuth.enabled | bool | `false` | Specifies if you want to enable mlflow LDAP authentication. auth, ldapAuth, and oidcAuth can't be enabled at same time. |
@@ -1252,6 +1253,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | serviceMonitor.telemetryPath | string | `"/metrics"` | Set path to mlflow telemetry-path |
 | serviceMonitor.timeout | string | `"10s"` | Set timeout for scrape |
 | serviceMonitor.useServicePort | bool | `false` | When set true then use a service port. On default use a pod port. |
+| startupProbe | object | `{}` | Startup probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes). |
 | strategy | object | `{"rollingUpdate":{"maxSurge":"100%","maxUnavailable":0},"type":"RollingUpdate"}` | This will set the deployment strategy more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy |
 | telemetry | object | `{"enabled":false}` | Mlflow Usage Tracking settings. More information can be found here: https://mlflow.org/docs/latest/community/usage-tracking/ |
 | telemetry.enabled | bool | `false` | Specifies if you want to enable collecting anonymized usage data about how core features of the platform are used. |
