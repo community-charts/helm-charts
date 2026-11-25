@@ -671,6 +671,18 @@ tests:
               name: mysupersecret
         template: deployment.yaml
 
+  - it: should show extra configmap environment variables from secrets when we pass any
+    set:
+      extraConfigMapNamesForEnvFrom:
+        - myconfigmap
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].envFrom
+          content:
+            configMapRef:
+              name: myconfigmap
+        template: deployment.yaml
+
   - it: should check that liveness and rediness is not affected if static prefix is set
     set:
       extraArgs:

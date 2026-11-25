@@ -880,6 +880,15 @@
       "title": "extraSecretNamesForEnvFrom",
       "type": "array"
     },
+    "extraConfigMapNamesForEnvFrom": {
+      "description": "Extra config maps for environment variables",
+      "items": {
+        "required": []
+      },
+      "required": [],
+      "title": "extraConfigMapNamesForEnvFrom",
+      "type": "array"
+    },
     "extraVolumeMounts": {
       "description": "Extra Volume Mounts for the mlflow container",
       "items": {
@@ -1243,6 +1252,39 @@
       "title": "initContainers",
       "type": "array"
     },
+    "startupProbe": {
+      "additionalProperties": true,
+      "description": "Startup probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes).",
+      "properties": {
+        "failureThreshold": {
+          "default": 5,
+          "required": [],
+          "title": "failureThreshold",
+          "type": "integer"
+        },
+        "initialDelaySeconds": {
+          "default": 10,
+          "required": [],
+          "title": "initialDelaySeconds",
+          "type": "integer"
+        },
+        "periodSeconds": {
+          "default": 30,
+          "required": [],
+          "title": "periodSeconds",
+          "type": "integer"
+        },
+        "timeoutSeconds": {
+          "default": 3,
+          "required": [],
+          "title": "timeoutSeconds",
+          "type": "integer"
+        }
+      },
+      "required": [],
+      "title": "startupProbe",
+      "type": "object"
+    },
     "livenessProbe": {
       "additionalProperties": true,
       "description": "Liveness probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes).",
@@ -1320,6 +1362,13 @@
       "description": "Extra labels for the pod",
       "required": [],
       "title": "extraPodLabels",
+      "type": "object"
+    },
+    "commonLabels": {
+      "additionalProperties": true,
+      "decsription": "Labels to add to all deployed objects",
+      "required": [],
+      "title": "commonLabels",
       "type": "object"
     },
     "podSecurityContext": {
@@ -1968,6 +2017,55 @@
       },
       "required": [],
       "title": "resources",
+      "type": "object"
+    },
+    "initResources": {
+      "additionalProperties": true,
+      "description": "This block is for setting up resource management for the init containers",
+      "properties": {
+        "limits": {
+          "additionalProperties": true,
+          "properties": {
+            "cpu": {
+              "default": "100m",
+              "required": [],
+              "title": "cpu",
+              "type": "string"
+            },
+            "memory": {
+              "default": "128Mi",
+              "required": [],
+              "title": "memory",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "title": "limits",
+          "type": "object"
+        },
+        "requests": {
+          "additionalProperties": true,
+          "properties": {
+            "cpu": {
+              "default": "100m",
+              "required": [],
+              "title": "cpu",
+              "type": "string"
+            },
+            "memory": {
+              "default": "128Mi",
+              "required": [],
+              "title": "memory",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "title": "requests",
+          "type": "object"
+        }
+      },
+      "required": [],
+      "title": "initResources",
       "type": "object"
     },
     "securityContext": {
@@ -3237,6 +3335,7 @@
     "deploymentAnnotations",
     "podAnnotations",
     "extraPodLabels",
+    "commonLabels",
     "podSecurityContext",
     "securityContext",
     "service",
@@ -3250,6 +3349,7 @@
     "extraFlags",
     "extraEnvVars",
     "extraSecretNamesForEnvFrom",
+    "extraConfigMapNamesForEnvFrom",
     "ingress",
     "resources",
     "serviceMonitor",

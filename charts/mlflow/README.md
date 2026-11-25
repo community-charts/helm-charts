@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 1.11.7](https://img.shields.io/badge/Version-1.11.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.16.0](https://img.shields.io/badge/AppVersion-3.16.0-informational?style=flat-square)
+![Version: 1.11.8](https://img.shields.io/badge/Version-1.11.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.16.0](https://img.shields.io/badge/AppVersion-3.16.0-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -1068,9 +1068,11 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | backendStore.postgres.password | string | `""` | postgres database user password which can access to mlflow database |
 | backendStore.postgres.port | int | `5432` | Postgres service port |
 | backendStore.postgres.user | string | `""` | postgres database user name which can access to mlflow database |
+| commonLabels | object | `{}` | Labels to add to all deployed objects |
 | corsAllowedOrigins | list | `[]` | List of allowed CORS origins for the MLflow server security middleware (env: MLFLOW_SERVER_CORS_ALLOWED_ORIGINS). When ingress is enabled, origins are automatically derived from ingress hosts: https:// if ingress.tls is configured, http:// otherwise. Set explicitly to override auto-detection (e.g. ["*"] for dev, or origins behind a load balancer with TLS termination before ingress). Requires uvicorn, which is the default server in MLflow 3.x. |
 | deploymentAnnotations | object | `{}` | Annotations for the Deployment resource |
 | extraArgs | object | `{}` | A map of arguments and values to pass to the `mlflow server` command. Keys must be camelcase. Helm will turn them to kebabcase style. |
+| extraConfigMapNamesForEnvFrom | list | `[]` | Extra config maps for environment variables |
 | extraContainers | list | `[]` | Extra containers for the mlflow pod |
 | extraDeploy | list | `[]` | Array of extra Kubernetes objects to deploy alongside the chart (e.g. SecretStore, ExternalSecret). Supports Helm templating via tpl. |
 | extraEnvVars | object | `{}` | Extra environment variables |
@@ -1108,6 +1110,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | initImages.mlflowDbMigration.pullPolicy | string | `"IfNotPresent"` | mlflow-db-migration init container image pull policy. |
 | initImages.mlflowDbMigration.repository | string | `"burakince/mlflow"` | mlflow-db-migration init container image repository to use. |
 | initImages.mlflowDbMigration.tag | string | `""` | mlflow-db-migration init container image tag to use. Default app version |
+| initResources | object | `{}` | This block is for setting up resource management for the init containers |
 | ldapAuth | object | `{"adminGroupDistinguishedName":"","enabled":false,"encodedTrustedCACertificate":"","externalSecretForTrustedCACertificate":"","groupAttribute":"dn","groupAttributeKey":"","lookupBind":"","searchBaseDistinguishedName":"","searchFilter":"(&(objectclass=groupOfUniqueNames)(uniquemember=%s))","tlsVerification":"required","uri":"","userGroupDistinguishedName":""}` | Basic Authentication with LDAP backend |
 | ldapAuth.adminGroupDistinguishedName | string | `""` | LDAP DN for the admin group. e.g.: "cn=test-admin,ou=groups,dc=mlflow,dc=test" |
 | ldapAuth.enabled | bool | `false` | Specifies if you want to enable mlflow LDAP authentication. auth, ldapAuth, and oidcAuth can't be enabled at same time. |
@@ -1125,11 +1128,15 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | log | object | `{"enabled":true,"level":"info"}` | Mlflow logging settings |
 | log.enabled | bool | `true` | Specifies if you want to enable mlflow logging. |
 | log.level | string | `"info"` | Mlflow logging level. |
-| minio | object | `{"buckets":[{"name":"mlflow","policy":"none","purge":false}],"deploymentUpdate":{"type":"Recreate"},"drivesPerNode":1,"enabled":false,"mode":"standalone","persistence":{"accessMode":"ReadWriteOnce","annotations":{},"enabled":true,"existingClaim":"","size":"10Gi","storageClass":"","subPath":"","volumeName":""},"policies":[],"pools":1,"replicas":1,"resources":{"requests":{"memory":"1Gi"}},"rootPassword":"","rootUser":"","statefulSetUpdate":{"updateStrategy":"Recreate"},"users":[]}` | MinIO subchart for S3-compatible local artifact storage. When enabled, the MLflow deployment automatically receives AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and MLFLOW_S3_ENDPOINT_URL from the MinIO secret and service. artifactRoot.s3.enabled must also be set to true with a matching bucket name. |
+| minio | object | `{"buckets":[{"name":"mlflow","policy":"none","purge":false}],"deploymentUpdate":{"type":"Recreate"},"drivesPerNode":1,"enabled":false,"image":{"repository":"pgsty/silo","tag":"RELEASE.2026-11-12T00-00-00Z"},"mcImage":{"repository":"pgsty/mc","tag":"RELEASE.2026-11-12T00-00-00Z"},"mode":"standalone","persistence":{"accessMode":"ReadWriteOnce","annotations":{},"enabled":true,"existingClaim":"","size":"10Gi","storageClass":"","subPath":"","volumeName":""},"policies":[],"pools":1,"replicas":1,"resources":{"requests":{"memory":"1Gi"}},"rootPassword":"","rootUser":"","statefulSetUpdate":{"updateStrategy":"Recreate"},"users":[]}` | MinIO subchart for S3-compatible local artifact storage. When enabled, the MLflow deployment automatically receives AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and MLFLOW_S3_ENDPOINT_URL from the MinIO secret and service. artifactRoot.s3.enabled must also be set to true with a matching bucket name. |
 | minio.buckets | list | `[{"name":"mlflow","policy":"none","purge":false}]` | Buckets to create on startup |
 | minio.deploymentUpdate | object | `{"type":"Recreate"}` | Minio deployment update strategy |
 | minio.drivesPerNode | int | `1` | Number of drives attached to a node |
 | minio.enabled | bool | `false` | Enable the MinIO subchart |
+| minio.image.repository | string | `"pgsty/silo"` | The silo image repository |
+| minio.image.tag | string | `"RELEASE.2026-11-12T00-00-00Z"` | The silo image tag |
+| minio.mcImage.repository | string | `"pgsty/mc"` | The silo client image repository |
+| minio.mcImage.tag | string | `"RELEASE.2026-11-12T00-00-00Z"` | The silo client image tag |
 | minio.mode | string | `"standalone"` | MinIO mode |
 | minio.persistence | object | `{"accessMode":"ReadWriteOnce","annotations":{},"enabled":true,"existingClaim":"","size":"10Gi","storageClass":"","subPath":"","volumeName":""}` | MinIO persistence settings |
 | minio.persistence.accessMode | string | `"ReadWriteOnce"` | Minio persistence access mode |
@@ -1250,6 +1257,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | serviceMonitor.telemetryPath | string | `"/metrics"` | Set path to mlflow telemetry-path |
 | serviceMonitor.timeout | string | `"10s"` | Set timeout for scrape |
 | serviceMonitor.useServicePort | bool | `false` | When set true then use a service port. On default use a pod port. |
+| startupProbe | object | `{}` | Startup probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes). |
 | strategy | object | `{"rollingUpdate":{"maxSurge":"100%","maxUnavailable":0},"type":"RollingUpdate"}` | This will set the deployment strategy more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy |
 | telemetry | object | `{"enabled":false}` | Mlflow Usage Tracking settings. More information can be found here: https://mlflow.org/docs/latest/community/usage-tracking/ |
 | telemetry.enabled | bool | `false` | Specifies if you want to enable collecting anonymized usage data about how core features of the platform are used. |

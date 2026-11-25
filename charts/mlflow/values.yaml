@@ -75,6 +75,8 @@ deploymentAnnotations: {}
 podAnnotations: {}
 # -- Extra labels for the pod
 extraPodLabels: {}
+# -- Labels to add to all deployed objects
+commonLabels: {}
 # -- This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
 podSecurityContext:
   fsGroup: 1001
@@ -443,6 +445,10 @@ extraEnvVars: {}
 extraSecretNamesForEnvFrom: []
 # - my-mlflow-secrets
 
+# -- Extra config maps for environment variables
+extraConfigMapNamesForEnvFrom: []
+# - my-mlflow-config
+
 ingress:
   # -- Specifies if you want to create an ingress access
   enabled: false
@@ -483,6 +489,18 @@ resources: {}
 # choice for the user. This also increases chances charts run on environments with little
 # resources, such as Minikube. If you do want to specify resources, uncomment the following
 # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+# limits:
+#   cpu: 100m
+#   memory: 128Mi
+# requests:
+#   cpu: 100m
+#   memory: 128Mi
+# -- This block is for setting up resource management for the init containers
+initResources: {}
+# We usually recommend not to specify default initResources and to leave this as a conscious
+# choice for the user. This also increases chances charts run on environments with little
+# resources, such as Minikube. If you do want to specify initResources, uncomment the following
+# lines, adjust them as necessary, and remove the curly braces after 'initResources:'.
 # limits:
 #   cpu: 100m
 #   memory: 128Mi
@@ -549,6 +567,8 @@ extraVolumeMounts: []
 # - name: example
 #   mountPath: /example
 
+# -- Startup probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes).
+startupProbe: {}
 # -- Liveness probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes).
 livenessProbe:
   initialDelaySeconds: 10
@@ -699,6 +719,16 @@ oidcAuth:
 minio:
   # -- Enable the MinIO subchart
   enabled: false
+  image:
+    # -- The silo image repository
+    repository: pgsty/silo
+    # -- The silo image tag
+    tag: RELEASE.2026-11-12T00-00-00Z
+  mcImage:
+    # -- The silo client image repository
+    repository: pgsty/mc
+    # -- The silo client image tag
+    tag: RELEASE.2026-11-12T00-00-00Z
   # -- MinIO mode
   mode: standalone
   # -- Minio deployment update strategy

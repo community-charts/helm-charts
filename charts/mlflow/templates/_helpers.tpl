@@ -106,7 +106,7 @@ When existingSecret.name is set the user manages the secret; otherwise the chart
 Usage: {{ include "mlflow.oidcAuthSecretName" . }}
 */}}
 {{- define "mlflow.oidcAuthSecretName" -}}
-{{- default (printf "%s-oidc-auth-secret" (include "mlflow.fullname" .)) .Values.oidcAuth.existingSecret.name -}}
+{{- default (printf "%s-oidc-auth-secret" (include "mlflow.fullname" .)) (tpl .Values.oidcAuth.existingSecret.name .) -}}
 {{- end -}}
 
 {{/*
@@ -115,7 +115,7 @@ When existingSecret.name is set the user manages the secret; otherwise the chart
 Usage: {{ include "mlflow.oidcAuthDbSecretName" . }}
 */}}
 {{- define "mlflow.oidcAuthDbSecretName" -}}
-{{- default (printf "%s-oidc-auth-db-secret" (include "mlflow.fullname" .)) .Values.oidcAuth.database.postgres.existingSecret.name -}}
+{{- default (printf "%s-oidc-auth-db-secret" (include "mlflow.fullname" .)) (tpl .Values.oidcAuth.database.postgres.existingSecret.name .) -}}
 {{- end -}}
 
 {{/*
