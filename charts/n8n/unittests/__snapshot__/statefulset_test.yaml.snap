@@ -581,18 +581,15 @@ should match snapshot of postgres ssl certificate values:
                 - mountPath: /home/node/.n8n
                   name: node-modules
                   readOnly: false
-                - mountPath: /home/node/certs/ca/ca.crt
+                - mountPath: /home/node/certs/ca
                   name: pg-ssl-ca
                   readOnly: true
-                  subPath: ca.crt
-                - mountPath: /home/node/certs/cert/cert.crt
+                - mountPath: /home/node/certs/cert
                   name: pg-ssl-cert
                   readOnly: true
-                  subPath: cert.crt
-                - mountPath: /home/node/certs/key/cert.key
+                - mountPath: /home/node/certs/key
                   name: pg-ssl-key
                   readOnly: true
-                  subPath: cert.key
           securityContext:
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
