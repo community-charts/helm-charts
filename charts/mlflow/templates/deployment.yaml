@@ -104,8 +104,10 @@ spec:
           {{- end }}
           image: "{{ (tpl .Values.initImages.dbchecker.repository .) }}:{{ (tpl .Values.initImages.dbchecker.tag .) }}"
           imagePullPolicy: {{ .Values.initImages.dbchecker.pullPolicy }}
+          {{- with .Values.initResources }}
           resources:
-            {{- toYaml .Values.initResources | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           command: [ "/script/dbchecker.sh" ]
         {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name }}
           env:
@@ -191,7 +193,7 @@ spec:
           image: "{{ (tpl .Values.initImages.mlflowDbMigration.repository .) }}:{{ (tpl .Values.initImages.mlflowDbMigration.tag .) | default .Chart.AppVersion }}"
           imagePullPolicy: {{ (tpl .Values.initImages.mlflowDbMigration.pullPolicy .) }}
           resources:
-            {{- toYaml .Values.initResources | nindent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}
         {{- if or .Values.postgresql.enabled .Values.mysql.enabled .Values.backendStore.existingDatabaseSecret.name (and .Values.backendStore.mssql.enabled .Values.backendStore.mssql.existingConnectionUrlSecret.name) }}
           env:
         {{- end }}
@@ -629,7 +631,11 @@ spec:
           {{- end }}
           {{- range $key, $value := .Values.extraEnvVars }}
             - name: {{ (tpl $key $) }}
+          {{- if kindIs "string" $value }}
               value: {{ (tpl $value $) | quote }}
+          {{- else }}
+              value: {{ $value | quote }}
+          {{- end }}
           {{- end }}
           envFrom:
             - configMapRef:
